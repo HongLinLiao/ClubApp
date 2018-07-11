@@ -1,0 +1,49 @@
+[資料結構]
+src {
+    Router.js(導覽管理)
+
+    actions(動作) {
+        HomeAction.js
+        SearchAction.js
+        ClubAction.js
+        Calendar.js
+        Personal.js
+    }
+    components(小元件) {
+
+    }
+    containers(大元件) {
+        
+    }
+    reducers {
+
+    }
+    home {
+        HomePage.js (首頁)
+    }
+    search {
+        SearchPage.js (搜尋主頁)
+    }
+    club {
+        ClubPage.js (社團主頁)
+        ClubCalendarPage.js (社團行事曆)
+        ClubStoriesPage.js (社團活動動態)
+        PostsPage.js (社團貼文)
+        ActiviesPage.js (社團活動)
+    }
+    calendar {
+        CalendarPage.js (行事曆主頁)
+    }
+    personal {
+        PersonalPage.js (個人首頁)
+        PersonalPWDPage.js (管理密碼)
+        PersonalMailPage.js (管理信箱)
+        PersonalGroupPage.js (個人社團管理)
+    }
+    sign {
+        SignInPage.js (登入)
+        SignUpPage.js (註冊)
+        SignMailPage.js (信箱驗證)
+    }
+}
+App.js
