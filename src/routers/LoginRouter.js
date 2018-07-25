@@ -1,7 +1,9 @@
 import { createStackNavigator } from 'react-navigation'
-import {} from '../login/LoginPage'
+import LoginPage from '../login/LoginPage'
+
 
 
 export default createStackNavigator({
-
+  LoginIn: LoginPage,
+  
 })

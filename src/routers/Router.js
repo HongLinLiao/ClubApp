@@ -2,13 +2,15 @@ import { createStackNavigator, createTabNavigator, createSwitchNavigator, create
 import AuthRouter from './LoginRouter'
 
 
-const AppRouter = createTabNavigator({
-    //五個主要功能TAB
-})
+// const AppRouter = createTabNavigator({
+//     //五個主要功能TAB
+// })
 
 
 export default createSwitchNavigator({
-    App: AppRouter,
+    // App: AppRouter,
     Auth: AuthRouter
+},
+{
+    initialRouteName: 'Auth'
 })
-

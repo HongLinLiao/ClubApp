@@ -5,14 +5,14 @@ export const RECEIVE_LOGIN = 'RECEIVE_LOGIN' //登入接收
 
 //動作產生器(ActionCreator)
 export const requestLogin = (user) => {
-    type: REQUEST_LOGIN
+  type: REQUEST_LOGIN
 }
 
 export const receiveLogin = (user) => {
-    type: RECEIVE_LOGIN
+  type: RECEIVE_LOGIN
 }
 
 export const Login = (user) => dispatch => {
-    dispatch(requestLogin(user))
-    return dispatch(receiveLogin(user))
+  dispatch(requestLogin(user))
+  return dispatch(receiveLogin(user))
 }
