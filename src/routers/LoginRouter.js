@@ -1,5 +1,5 @@
 import { createStackNavigator } from 'react-navigation'
-import LoginPage from '../login/LoginPage'
+import LoginPage from '../containers/login/LoginPage'
 
 
 

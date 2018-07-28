@@ -2,11 +2,22 @@ import React from 'react'
 import { StyleSheet, Text, View } from 'react-native'
 import { Header, Container, Content, Item, Input, Icon, Button, Footer } from 'native-base'
 import { CheckBox } from 'react-native-elements'
+import { signInWithEmail } from '../../modules/Auth'
+import { connect } from 'react-redux';
 
 
-export default class extends React.Component {
+
+class LoginPage extends React.Component {
   static navigationOptions = {
     header: null
+  }
+  state = {
+    email: '',
+    password: '',
+    remember: false
+  }
+  handleLogin = () => {
+    this.props.dispatch(signInWithEmail(this.state.email, this.state.password, this.state.remember))
   }
   render() {
     return(
@@ -17,14 +28,30 @@ export default class extends React.Component {
         <View style={styles.midSection}>
           <Item rounded style={styles.inputItem}>
             <Icon name='mail' />
-            <Input placeholder='abc@example.com'/>
+            <Input 
+              placeholder='abc@example.com'
+              onChangeText={(email) => this.setState({email})}/>
           </Item>
           <Item rounded style={styles.inputItem}>
             <Icon name='lock' />
-            <Input placeholder='password'/>
+            <Input 
+              placeholder='password'
+              onChangeText={(password) => this.setState({password})}
+            />
           </Item>
-          <CheckBox center title='記住我' size={13} containerStyle={styles.rememberMe} textStyle={{fontSize: 13}}/>
-          <Button full rounded bordered dark style={styles.signIn}>
+          <CheckBox 
+            center
+            title='記住我'
+            size={13} 
+            containerStyle={styles.rememberMe} 
+            textStyle={{fontSize: 13}}
+            checked={this.state.remember}
+            onPress={() => this.setState({remember: !this.state.remember})}
+          />
+          <Button full rounded bordered dark 
+            style={styles.signIn}
+            onPress={() => this.handleLogin()}
+          >
             <Text>登入</Text>
           </Button>
           <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
@@ -49,6 +76,7 @@ export default class extends React.Component {
   }
 }
 
+export default connect()(LoginPage);
 
 const styles = StyleSheet.create({
   container: {
