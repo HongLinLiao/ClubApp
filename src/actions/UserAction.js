@@ -9,6 +9,7 @@ export const SIGN_IN_FAILURE = 'SIGN_IN_FAILURE' //登入失敗
 export const SIGN_UP_REQUEST = 'SIGN_UP_REQUEST' //註冊要求
 export const SIGN_UP_SUCCESS = 'SIGN_UP_SUCCESS' //註冊成功
 export const SIGN_UP_FAILURE = 'SIGN_UP_FAILURE' //註冊成功
+export const CLEAR_USER_STATE = 'CLEAR_USER_STATE' //清空使用者狀態
 
 
 /*
@@ -38,12 +39,17 @@ export const signUpRequest = () => ({
   type: SIGN_UP_REQUEST,
 })
 
-export const signUpSuccess = (newUser) => ({
+export const signUpSuccess = (user) => ({
   type: SIGN_UP_SUCCESS,
-  newUser
+  user,
 })
 
 export const signUpFail = (message) => ({
   type: SIGN_UP_FAILURE,
   message
 })
+
+export const clearUser = () => ({
+  type: CLEAR_USER_STATE,
+})
+

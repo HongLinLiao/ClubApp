@@ -12,7 +12,6 @@ import firebaseConfig from './src/firebaseConfig'
 
 
 
-
 const store = createStore(rootReducer, {}, applyMiddleware(thunk, logger))
 
 firebase.initializeApp(firebaseConfig);

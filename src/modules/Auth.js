@@ -1,9 +1,11 @@
+import * as loginAction from '../actions/UserAction'
 import * as firebase from "firebase"
-import * as loginAction from '../actions/LoginAction'
+import { Alert } from 'react-native'
+
 
 export const signInWithEmail = (email, password, remember) => async (dispatch) => {
-  dispatch(loginAction.signInRequest(remember))
 
+  dispatch(loginAction.signInRequest(remember))
   try {
     const credential = await firebase.auth().signInWithEmailAndPassword(email, password);
     dispatch(loginAction.signInSuccess(credential.user))
@@ -13,13 +15,17 @@ export const signInWithEmail = (email, password, remember) => async (dispatch) =
     dispatch(loginAction.signInFail(error.toString()))
     console.log(error.toString())
   }
+
 }
 
-export const signUpUser = async (newUser) => async (dispatch) => {
+export const signUpUser = (newUser) => async (dispatch) => {
   dispatch(loginAction.signUpRequest())
 
   try {
     const credential = await firebase.auth().createUserWithEmailAndPassword(newUser.email, newUser.password)
+    credential.user.updateProfile({
+      displayName: newUser.nickName
+    })
     dispatch(loginAction.signUpSuccess(credential.user))
     console.log(firebase.auth().currentUser)
 
@@ -27,6 +33,7 @@ export const signUpUser = async (newUser) => async (dispatch) => {
     dispatch(loginAction.signUpFail(error.toString()))
     console.log(error.toString())
   }
+
 }
 
 export const signInWithFacebook = async () => {
@@ -37,7 +44,13 @@ export const signInWithGoogle = async () => {
 
 }
 
-export const sendVerifyMail = async (email) => {
+export const sendVerifiedMail = async () => {
+  const user = firebase.auth().currentUser
+  await user.sendEmailVerification()
+}
 
+export const signOut = () => async (dispatch) => {
+  await firebase.auth().signOut()
+  dispatch(loginAction.clearUser())
 }
 

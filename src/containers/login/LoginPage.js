@@ -2,12 +2,18 @@ import React from 'react'
 import { StyleSheet, Text, View } from 'react-native'
 import { Header, Container, Content, Item, Input, Icon, Button, Footer } from 'native-base'
 import { CheckBox } from 'react-native-elements'
-import { signInWithEmail } from '../../modules/Auth'
+import { signInWithEmail, signOut } from '../../modules/Auth'
 import { connect } from 'react-redux';
-
+import * as firebase from "firebase"
 
 
 class LoginPage extends React.Component {
+  componentDidMount() {
+    console.log('current user is', firebase.auth().currentUser)
+    if(firebase.auth().currentUser) {
+      this.props.navigation.navigate('App')
+    }
+  }
   static navigationOptions = {
     header: null
   }
@@ -16,8 +22,13 @@ class LoginPage extends React.Component {
     password: '',
     remember: false
   }
-  handleLogin = () => {
-    this.props.dispatch(signInWithEmail(this.state.email, this.state.password, this.state.remember))
+  handleLogin = async () => {
+    const { dispatch, navigation } = this.props
+    await dispatch(signInWithEmail(this.state.email, this.state.password, this.state.remember))
+    console.log('current user is', firebase.auth().currentUser)
+    if(firebase.auth().currentUser) {
+      navigation.navigate('App')
+    }
   }
   render() {
     return(
@@ -29,7 +40,7 @@ class LoginPage extends React.Component {
           <Item rounded style={styles.inputItem}>
             <Icon name='mail' />
             <Input 
-              placeholder='abc@example.com'
+              placeholder='abc123@iclub.com'
               onChangeText={(email) => this.setState({email})}/>
           </Item>
           <Item rounded style={styles.inputItem}>
@@ -66,7 +77,9 @@ class LoginPage extends React.Component {
         <View style={styles.bottomSection}>
           <Item>
             <Text>還沒有帳號嗎?</Text>
-            <Button transparent primary>
+            <Button transparent primary
+              onPress={() => {this.props.navigation.navigate('Register')}}
+            >
               <Text>註冊</Text>
             </Button>
           </Item>
