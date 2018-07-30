@@ -3,16 +3,19 @@ import * as firebase from "firebase"
 import { Alert } from 'react-native'
 
 
-export const signInWithEmail = (email, password, remember) => async (dispatch) => {
+export const signInWithEmail = (email, password, remember, navigation) => async (dispatch) => {
 
-  dispatch(loginAction.signInRequest(remember))
+  dispatch(loginAction.signInRequest(remember)) //登入要求
   try {
     const credential = await firebase.auth().signInWithEmailAndPassword(email, password);
-    dispatch(loginAction.signInSuccess(credential.user))
+    dispatch(loginAction.signInSuccess(credential.user)) //登入成功更新UserState
+    // navigation.navigate('App')
+
     console.log(firebase.auth().currentUser)
 
   } catch(error) {
-    dispatch(loginAction.signInFail(error.toString()))
+    dispatch(loginAction.signInFail(error.toString())) //登入失敗
+
     console.log(error.toString())
   }
 

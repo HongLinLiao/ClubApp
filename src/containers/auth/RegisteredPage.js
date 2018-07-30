@@ -15,7 +15,7 @@ class RegisteredPage extends React.Component {
     }
   }
   componentDidMount() {
-    console.log('user is',firebase.auth().currentUser)
+    console.log('user is', firebase.auth().currentUser)
   }
 
   handleSignUp = async () => {

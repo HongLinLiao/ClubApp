@@ -2,17 +2,11 @@ import React from 'react'
 import { StyleSheet, Text, View } from 'react-native'
 import { Header, Container, Content, Item, Input, Icon, Button, Footer } from 'native-base'
 import { CheckBox } from 'react-native-elements'
-import { signInWithEmail, signOut } from '../../modules/Auth'
-import { connect } from 'react-redux';
-import * as firebase from "firebase"
 
 
-class LoginPage extends React.Component {
+class Login extends React.Component {
   componentDidMount() {
-    console.log('current user is', firebase.auth().currentUser)
-    if(firebase.auth().currentUser) {
-      this.props.navigation.navigate('App')
-    }
+    console.log(this.props.user)
   }
   static navigationOptions = {
     header: null
@@ -22,14 +16,14 @@ class LoginPage extends React.Component {
     password: '',
     remember: false
   }
+
   handleLogin = async () => {
-    const { dispatch, navigation } = this.props
-    await dispatch(signInWithEmail(this.state.email, this.state.password, this.state.remember))
-    console.log('current user is', firebase.auth().currentUser)
-    if(firebase.auth().currentUser) {
-      navigation.navigate('App')
-    }
+    const { navigation, signInWithEmail, user } = this.props
+    const { email, password, remember} = this.state
+    console.log(user)
+    await signInWithEmail(email, password, remember, navigation)
   }
+
   render() {
     return(
       <Container style={styles.container}>
@@ -89,8 +83,6 @@ class LoginPage extends React.Component {
   }
 }
 
-export default connect()(LoginPage);
-
 const styles = StyleSheet.create({
   container: {
     justifyContent: 'space-between',
@@ -138,3 +130,5 @@ const styles = StyleSheet.create({
     paddingRight: 20,
   }
 })
+
+export default Login
