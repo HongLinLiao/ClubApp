@@ -1,7 +1,7 @@
 import { combineReducers } from 'redux'
-import { userReducer } from './UserReducer'
+import { authReducer } from './AuthReducer'
 
 
 export const rootReducer = combineReducers({
-    userReducer
+    authReducer //驗證資料狀態
 })

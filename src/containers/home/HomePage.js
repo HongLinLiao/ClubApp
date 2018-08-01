@@ -6,8 +6,7 @@ import { connect } from 'react-redux'
 
 class HomePage extends React.Component {
   handleLogOut = async () => {
-    await this.props.dispatch(signOut())
-    this.props.navigation.navigate('Auth')
+    await this.props.signOut()
   }
   render() {
     return(
@@ -19,4 +18,13 @@ class HomePage extends React.Component {
   }
 }
 
-export default connect()(HomePage)
+const mapStateToProps = ({ authReducer }) => ({
+  user: authReducer.user
+})
+
+const mapDispatchToProps = {
+  signOut
+}
+
+
+export default connect(mapStateToProps, mapDispatchToProps)(HomePage)

@@ -6,11 +6,10 @@ import { CheckBox } from 'react-native-elements'
 
 class Login extends React.Component {
   componentDidMount() {
-    console.log(this.props.user)
+    
+    // console.log(this.props.user)
   }
-  static navigationOptions = {
-    header: null
-  }
+
   state = {
     email: '',
     password: '',
@@ -33,13 +32,15 @@ class Login extends React.Component {
         <View style={styles.midSection}>
           <Item rounded style={styles.inputItem}>
             <Icon name='mail' />
-            <Input 
+            <Input
+              autoCapitalize="none"
               placeholder='abc123@iclub.com'
               onChangeText={(email) => this.setState({email})}/>
           </Item>
           <Item rounded style={styles.inputItem}>
             <Icon name='lock' />
-            <Input 
+            <Input
+              autoCapitalize="none"
               placeholder='password'
               onChangeText={(password) => this.setState({password})}
             />
@@ -60,11 +61,22 @@ class Login extends React.Component {
             <Text>登入</Text>
           </Button>
           <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-            <Button rounded primary style={styles.fb}>
+            <Button rounded primary style={styles.fb}
+              onPress={() => this.props.signInWithFacebook()}
+            >
               <Text style={{color: 'white'}}>Facebook</Text>
             </Button>
-            <Button rounded warning style={styles.google}>
+            <Button rounded warning style={styles.google}
+              onPress={() => this.props.signInWithGoogle()}
+            >
               <Text style={{color: 'white'}}>Google</Text>
+            </Button>
+          </View>
+          <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+            <Button transparent primary style={{alignSelf: 'center'}}
+              onPress={() => {this.props.navigation.navigate('ForgotEmail')}}
+            >
+              <Text>忘記密碼</Text>
             </Button>
           </View>
         </View>
@@ -90,7 +102,7 @@ const styles = StyleSheet.create({
   },
   topSection: {
     flex: 7,
-    borderWidth: 1,
+    // borderWidth: 1,
     // borderColor: 'red',
   },
   midSection: {

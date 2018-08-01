@@ -9,13 +9,13 @@ const AppRouter = createBottomTabNavigator({
 })
 
 
-const createRootRouter = (signedIn) => {
+const createRootRouter = () => {
     return createSwitchNavigator({
         App: AppRouter,
-        Auth: AuthRouter
+        Auth: AuthRouter,
     },
     {
-        initialRouteName: signedIn ? 'App' : 'Auth'
+        initialRouteName: 'Auth'
     })
 }
 
