@@ -2,16 +2,14 @@ import * as AuthAction from '../actions/AuthAction'
 import * as firebase from "firebase"
 import Expo from 'expo' 
 
-export const signInWithEmail = (email, password, remember, navigation) => async (dispatch) => {
+export const signInWithEmail = (email, password, remember) => async (dispatch) => {
 
   dispatch(AuthAction.signInRequest(remember)) //登入要求
   try {
-    const credential = await firebase.auth().signInWithEmailAndPassword(email, password);
-    dispatch(AuthAction.signInSuccess(credential.user)) //登入成功更新UserState
-    navigation.navigate('App')
+    const {user} = await firebase.auth().signInWithEmailAndPassword(email, password);
+    dispatch(AuthAction.signInSuccess({...user})) //登入成功更新UserState
 
-    console.log(firebase.auth().currentUser)
-
+    
   } catch(error) {
     dispatch(AuthAction.signInFail(error.toString())) //登入失敗
 
@@ -26,14 +24,12 @@ export const signUpUser = (newUser) => async (dispatch) => {
   try {
     const { email, password, nickName } = newUser
     //建立使用者完firebase會自動登入
-    const credential = await firebase.auth().createUserWithEmailAndPassword(email, password)
-    await credential.user.updateProfile({
+    const {user} = await firebase.auth().createUserWithEmailAndPassword(email, password)
+    await user.updateProfile({
       displayName: nickName
     })
-    dispatch(AuthAction.signUpSuccess(credential.user)) //註冊成功並更新UserState
+    dispatch(AuthAction.signUpSuccess({...user})) //註冊成功並更新UserState
 
-
-    console.log(firebase.auth().currentUser)
 
   } catch(error) {
     dispatch(AuthAction.signUpFail(error.toString()))
@@ -56,7 +52,7 @@ export const signInWithFacebook = () => async (dispatch) => {
       
       const {user} = await firebase.auth().signInAndRetrieveDataWithCredential(credential)
       
-      dispatch(AuthAction.signWithFacebookSuccess(user)) //facebook登入並更新狀態
+      dispatch(AuthAction.signWithFacebookSuccess({...user})) //facebook登入並更新狀態
 
     }
 
@@ -83,7 +79,7 @@ export const signInWithGoogle = () => async (dispatch) => {
       const credential = firebase.auth.GoogleAuthProvider.credential(result.idToken, result.accessToken)
 
       const {user} = await firebase.auth().signInAndRetrieveDataWithCredential(credential)
-      dispatch(AuthAction.signWithGoogleSuccess(user)) //google登入並更新狀態
+      dispatch(AuthAction.signWithGoogleSuccess({...user})) //google登入並更新狀態
 
     } else {
       console.log(result.type)
@@ -104,7 +100,7 @@ export const setNickName = (nickName) => async (dispatch) => {
     await user.updateProfile({
       displayName: nickName
     })
-    dispatch(AuthAction.updateUser(user)) //更新使用者狀態
+    dispatch(AuthAction.updateUser({...user})) //更新使用者狀態
 
   } catch(error) {
     dispatch(AuthAction.updateUserFail(error.toString())) 
@@ -144,15 +140,15 @@ export const sendResetMail = (email) => async (dispatch) => {
 
 }
 
-export const reloadUser = () => async (dispatch) => {
+export const reloadUser = () => async (dispatch, getState) => {
   
   try {
     const user = firebase.auth().currentUser
     await user.reload() //重新載入使用者
 
-    dispatch(AuthAction.updateUser(user)) //更新使用者狀態
-    if(user.emailVerified) 
-      dispatch(AuthAction.setEmailVerifiedStatus(true)) //更新驗證狀態
+    console.log(getState())
+    dispatch(AuthAction.updateUser({...user})) //更新使用者狀態
+    
 
   } catch(error) {
     dispatch(AuthAction.updateUserFail(error.toString()))

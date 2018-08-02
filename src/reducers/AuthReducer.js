@@ -18,7 +18,6 @@ import {
 	UPDATE_USER_STATE,
 	UPDATE_USER_FALIURE,
 	SET_VERIFY_EMAIL_AGAIN,
-	SET_EMAIL_VERIFIED_STATUS,
 	SIGN_OUT_FAILURE,
 	CLEAR_USER_STATE
 } from '../actions/AuthAction'
@@ -26,7 +25,6 @@ import {
 
 const initialState = {
 	user: null, //firebase使用者
-	emailVerified: false, //信箱驗證
 	message: null, //錯誤訊息
 	askVerify: true, //提醒驗證信箱
 	status: false //執行狀態
@@ -114,11 +112,6 @@ export const authReducer = (state = initialState, action) => {
 				...state,
 				message: action.message,
 				status: false
-			}
-		case SET_EMAIL_VERIFIED_STATUS:
-			return {
-				...state,
-				emailVerified: action.isVerified
 			}
 		case SET_VERIFY_EMAIL_AGAIN:
 			return {

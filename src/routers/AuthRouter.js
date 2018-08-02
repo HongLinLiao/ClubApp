@@ -4,23 +4,24 @@ import RegisteredPage from '../containers/auth/RegisteredPage'
 import EmailVerifiedPage from '../containers/auth/EmailVerifiedPage'
 import ForgotEmailPage from '../containers/auth/ForgotEmailPage'
 import SendEamilResultPage from '../containers/auth/SendEamilResultPage'
-import requireNotAuth from '../containers/requireNotAuth'
-import requireAuth from '../containers/requireAuth'
+import NickNamePage from '../containers/auth/NickNamePage'
+import requireAuthFlow from '../containers/requireAuthFlow'
+import requireUserFlow from '../containers/requireUserFlow'
 
 
 
 export default createSwitchNavigator({
 
   Login: {
-    screen: requireNotAuth(LoginPage)
+    screen: requireAuthFlow(LoginPage)
   },
 
   Register: {
-    screen: requireNotAuth(RegisteredPage)
+    screen: requireAuthFlow(RegisteredPage)
   },
 
   EmailVerify: {
-    screen: requireAuth(EmailVerifiedPage),
+    screen: requireUserFlow(EmailVerifiedPage),
     navigationOptions: () =>({
       header: null,
       gesturesEnabled: false
@@ -28,10 +29,14 @@ export default createSwitchNavigator({
   },
 
   ForgotEmail: {
-    screen: requireNotAuth(ForgotEmailPage)
+    screen: requireAuthFlow(ForgotEmailPage)
   },
 
   SendEamilResult: {
-    screen: requireNotAuth(SendEamilResultPage)
+    screen: requireAuthFlow(SendEamilResultPage)
+  },
+
+  NickName: {
+    screen: requireUserFlow(NickNamePage)
   }
 })

@@ -9,7 +9,7 @@ import { createStore, applyMiddleware } from 'redux'
 import { logger } from 'redux-logger'
 import thunk from 'redux-thunk'
 import firebaseConfig from './src/firebaseConfig'
-import { updateUser, setEmailVerifiedStatus } from './src/actions/AuthAction'
+import { updateUser } from './src/actions/AuthAction'
 import { Spinner } from './src/components/common/Spinner'
 
 
@@ -30,14 +30,17 @@ export default class App extends React.Component {
     
     firebase.auth().onAuthStateChanged((user) => { //監聽起始點
       
+      console.log('user is', user)
+
       if(!this.state.loaded) {
         this.setState({ loaded: true }); 
         if(user) {
-          store.dispatch(updateUser(user)); //更新UserState
-          if(user.emailVerified) {
-            store.dispatch(setEmailVerifiedStatus(true)) //更新驗證狀態
-          }
+          store.dispatch(updateUser({...user})); //更新UserState
         }
+      }
+      else {
+        this.setState({ loaded: false })
+        setTimeout(()=>this.setState({ loaded: true}), 2000)
       }
       
     })

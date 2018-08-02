@@ -1,7 +1,7 @@
 import { createStackNavigator } from 'react-navigation'
 import HomePage from '../containers/home/HomePage'
-import requireAuth from '../containers/requireAuth'
+import requireAppFlow from '../containers/requireAppFlow'
 
 export default createStackNavigator({
-  Home: requireAuth(HomePage)
+  Home: requireAppFlow(HomePage)
 })

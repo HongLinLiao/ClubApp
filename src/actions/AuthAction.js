@@ -21,7 +21,6 @@ export const SIGN_WITH_FACEBOOK_FAILURE = 'SIGN_WITH_FACEBOOK_FAILURE' //faceboo
 
 export const SEND_VERIFY_EMAIL_SUCCESS = 'SEND_VERIFY_EMAIL_SUCCESS' //寄送驗證信件成功
 export const SEND_VERIFY_EMAIL_FAILURE = 'SEND_VERIFY_EMAIL_FAILURE' //寄送驗證信件失敗
-export const SET_EMAIL_VERIFIED_STATUS = 'SET_EMAIL_VERIFIED_STATUS' //設定信箱驗證狀態
 export const SET_VERIFY_EMAIL_AGAIN = 'SET_VERIFY_EMAIL_AGAIN' //設定是否要詢問驗證信
 
 export const SEND_RESET_MAIL_SUCCESS = 'SEND_RESET_MAIL_SUCCESS' //寄送重設信件成功
@@ -110,11 +109,6 @@ export const sendVerifiedEmailSuccess = () => ({
 export const sendVerifiedEmailFail = (message) => ({
   type: SEND_VERIFY_EMAIL_FAILURE,
   message
-})
-
-export const setEmailVerifiedStatus = (isVerified) => ({
-  type: SET_EMAIL_VERIFIED_STATUS,
-  isVerified
 })
 
 export const setVerifyEmailAgain = (askAgain) => ({
