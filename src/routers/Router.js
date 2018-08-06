@@ -1,14 +1,28 @@
-import { createStackNavigator, createTabNavigator, createSwitchNavigator, createDrawerNavigator } from 'react-navigation'
-import AuthRouter from './LoginRouter'
+import { createStackNavigator, createBottomTabNavigator, createSwitchNavigator, createDrawerNavigator } from 'react-navigation'
+import AuthRouter from './AuthRouter'
+import HomeRouter from './HomeRouter'
+import FirstLoginRouter from './FirstLoginRouter'
+import UserRouter from './UserRouter'
 
-
-const AppRouter = createTabNavigator({
-    //五個主要功能TAB
+//第三層
+const MainRouter = createBottomTabNavigator({
+    HomeRouter: HomeRouter
 })
 
-
-export default createSwitchNavigator({
-    App: AppRouter,
-    Auth: AuthRouter
+//第二層
+const AppRouter = createSwitchNavigator({
+    UserRouter: UserRouter,
+    FirstLoginRouter: FirstLoginRouter,
+    MainRouter: MainRouter,
 })
+
+//第一層
+const createRootRouter = () => {
+    return createSwitchNavigator({
+				AuthRouter: AuthRouter,
+				AppRouter: AppRouter,
+    })
+}
+
+export default createRootRouter
 
