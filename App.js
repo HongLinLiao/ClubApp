@@ -1,7 +1,6 @@
 import React from 'react';
 import Exop from 'expo';
 import * as firebase from "firebase";
-import { StyleSheet, Text, View } from 'react-native';
 import createRootRouter from './src/routers/Router'
 import { rootReducer } from './src/reducers/Reducer'
 import { Provider } from 'react-redux'
@@ -9,8 +8,8 @@ import { createStore, applyMiddleware } from 'redux'
 import { logger } from 'redux-logger'
 import thunk from 'redux-thunk'
 import firebaseConfig from './src/firebaseConfig'
-import { updateUser } from './src/actions/AuthAction'
 import { Spinner } from './src/components/common/Spinner'
+import { updateUserState } from './src/modules/Auth'
 
 
 
@@ -32,11 +31,11 @@ export default class App extends React.Component {
       
       console.log('user is', user)
 
-      if(!this.state.loaded) {
-        this.setState({ loaded: true }); 
+      if(!this.state.loaded) { //初次載入App
         if(user) {
-          store.dispatch(updateUser({...user})); //更新UserState
+          store.dispatch(updateUserState(user))
         }
+        this.setState({ loaded: true }); 
       }
       else {
         this.setState({ loaded: false })

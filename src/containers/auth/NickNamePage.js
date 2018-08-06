@@ -1,4 +1,5 @@
-import { sendResetMail } from '../../modules/Auth'
+import { setNickName } from '../../modules/Auth'
+import { setUserFirstLgoin } from '../../actions/AuthAction'
 import { connect } from 'react-redux';
 import NickName from '../../components/auth/NickName'
 
@@ -8,7 +9,8 @@ const mapStateToProps = ({ authReducer }) => ({
 })
 
 const mapDispatchToProps = {
-  sendResetMail
+  setNickName,
+  setUserFirstLgoin
 }
 
 

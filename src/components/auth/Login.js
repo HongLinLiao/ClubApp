@@ -19,7 +19,7 @@ class Login extends React.Component {
   handleLogin = async () => {
     const { navigation, signInWithEmail, user } = this.props
     const { email, password, remember} = this.state
-    console.log(user)
+
     await signInWithEmail(email, password, remember, navigation)
   }
 
@@ -107,7 +107,7 @@ const styles = StyleSheet.create({
   },
   midSection: {
     flex: 18,
-    borderWidth: 1,
+    // borderWidth: 1,
     // borderColor: 'red',
     paddingTop: 10,
     paddingLeft: 80,
@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
   },
   bottomSection: {
     flex: 1,
-    borderWidth: 1,
+    // borderWidth: 1,
     // borderColor: 'red',
     justifyContent: 'center',
     alignItems: 'center',

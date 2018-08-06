@@ -6,25 +6,25 @@ export default function(ComposedComponent) {
 
   class Authentication extends React.Component {
 
-    handleAuth = (user, routeName) => {
+    handleAuth = (user, firstLogin, routeName) => {
 
       console.log(routeName)
 
       if(user) {
 
-        this.props.navigation.navigate('App')
+        this.props.navigation.navigate('AppRouter')
 
       }
     }
 
     componentWillMount() {
-      const { user, navigation } = this.props
-      this.handleAuth(user, navigation.state.routeName)
+      const { user, firstLogin, navigation } = this.props
+      this.handleAuth(user, firstLogin, navigation.state.routeName)
     }
 
     componentWillUpdate(nextProps) {
-      const { user, navigation } = nextProps
-      this.handleAuth(user, navigation.state.routeName)
+      const { user, firstLogin, navigation } = nextProps
+      this.handleAuth(user, firstLogin, navigation.state.routeName)
     }
 
     render() {
@@ -34,6 +34,7 @@ export default function(ComposedComponent) {
 
   const mapStateToProps = ({ authReducer }) => ({
      user: authReducer.user,
+     firstLogin: authReducer.firstLogin
     });
 
   return connect(mapStateToProps)(Authentication)

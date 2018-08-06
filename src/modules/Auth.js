@@ -2,15 +2,54 @@ import * as AuthAction from '../actions/AuthAction'
 import * as firebase from "firebase"
 import Expo from 'expo' 
 
+const getUserState = async (user) => {
+
+  try {
+    let userState = {
+      user: null,
+      firstLogin: true
+    }
+    let userRef = firebase.database().ref('/users').child(user.uid)
+    const snapShot = await userRef.once('value')
+
+    if(snapShot.val()) { //使用者存在   
+      userState.firstLogin = false
+    }
+    else {
+      await userRef.set({email: user.email})
+    }
+
+    userState.user = {...user}
+
+    return userState
+    
+  } catch(error) {
+
+    console.log(error.toString())
+
+  }
+
+}
+
+const signInSuccess = (action, user) => async (dispatch) => {
+
+  const userState = await getUserState(user)
+
+  dispatch(action(userState)) 
+}
+
 export const signInWithEmail = (email, password, remember) => async (dispatch) => {
 
   dispatch(AuthAction.signInRequest(remember)) //登入要求
+  
   try {
+    
     const {user} = await firebase.auth().signInWithEmailAndPassword(email, password);
-    dispatch(AuthAction.signInSuccess({...user})) //登入成功更新UserState
-
+    
+    dispatch(signInSuccess(AuthAction.signInSuccess, user)) //登入成功
     
   } catch(error) {
+
     dispatch(AuthAction.signInFail(error.toString())) //登入失敗
 
     console.log(error.toString())
@@ -19,16 +58,15 @@ export const signInWithEmail = (email, password, remember) => async (dispatch) =
 }
 
 export const signUpUser = (newUser) => async (dispatch) => {
+
   dispatch(AuthAction.signUpRequest()) //註冊要求
 
   try {
-    const { email, password, nickName } = newUser
+    const { email, password } = newUser
     //建立使用者完firebase會自動登入
     const {user} = await firebase.auth().createUserWithEmailAndPassword(email, password)
-    await user.updateProfile({
-      displayName: nickName
-    })
-    dispatch(AuthAction.signUpSuccess({...user})) //註冊成功並更新UserState
+
+    dispatch(signInSuccess(AuthAction.signUpSuccess, user)) //註冊成功並更新UserState
 
 
   } catch(error) {
@@ -49,10 +87,9 @@ export const signInWithFacebook = () => async (dispatch) => {
     if(type == 'success') {
 
       const credential = firebase.auth.FacebookAuthProvider.credential(token)
-      
       const {user} = await firebase.auth().signInAndRetrieveDataWithCredential(credential)
-      
-      dispatch(AuthAction.signWithFacebookSuccess({...user})) //facebook登入並更新狀態
+
+      dispatch(signInSuccess(AuthAction.signWithFacebookSuccess, user)) //facebook登入並更新狀態
 
     }
 
@@ -76,10 +113,11 @@ export const signInWithGoogle = () => async (dispatch) => {
     });
 
     if (result.type === 'success') {
-      const credential = firebase.auth.GoogleAuthProvider.credential(result.idToken, result.accessToken)
 
+      const credential = firebase.auth.GoogleAuthProvider.credential(result.idToken, result.accessToken)
       const {user} = await firebase.auth().signInAndRetrieveDataWithCredential(credential)
-      dispatch(AuthAction.signWithGoogleSuccess({...user})) //google登入並更新狀態
+
+      dispatch(signInSuccess(AuthAction.signWithGoogleSuccess, user)) //google登入並更新狀態
 
     } else {
       console.log(result.type)
@@ -137,6 +175,20 @@ export const sendResetMail = (email) => async (dispatch) => {
 
     console.log(error.toString())
   }
+
+}
+
+export const updateUserState = (user) => async (dispatch) => {
+
+    try {
+
+      dispatch(signInSuccess(AuthAction.updateUserState, user))
+
+    } catch(error) {
+
+      dispatch(AuthAction.updateUserFail(error.toString()))
+
+    }
 
 }
 

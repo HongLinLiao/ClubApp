@@ -9,8 +9,16 @@ class NickName extends React.Component {
     nickName: ''
   }
 
-  handleSendEmail = async () => {
-
+  handleSetNickName = async () => {
+    const { setNickName, setUserFirstLgoin } = this.props
+    const { nickName } = this.state
+    if(nickName) {
+      await setNickName(nickName)
+      setUserFirstLgoin(false)
+    }
+    else {
+      Alert.alert('請輸入暱稱')
+    }
   }
 
   render() {
@@ -26,18 +34,10 @@ class NickName extends React.Component {
         <Button style={{ marginTop: 10 }} 
         full 
         rounded 
-        warning
-        onPress={this.handleSendEmail}
+        primary
+        onPress={() => this.handleSetNickName()}
         >
-          <Text style={{ color: 'white'}}>發送</Text>
-        </Button>
-        <Button style={{ marginTop: 10 }} 
-        full 
-        rounded 
-        dark
-        onPress={() => this.props.navigation.navigate('Login')}
-        >
-          <Text style={{ color: 'white'}}>返回</Text>
+          <Text style={{ color: 'white'}}>確定</Text>
         </Button>
       </View>
     )
