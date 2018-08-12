@@ -4,7 +4,8 @@ import * as firebase from "firebase"
 import Register from '../../components/auth/Register'
 
 const mapStateToProps = ({ authReducer }) => ({
-  user: authReducer.user
+  user: authReducer.user,
+  status: authReducer.status
 })
 
 const mapDispatchToProps = {

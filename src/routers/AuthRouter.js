@@ -1,13 +1,13 @@
-import { createSwitchNavigator } from 'react-navigation'
+import { createStackNavigator } from 'react-navigation'
 import LoginPage from '../containers/auth/LoginPage'
 import RegisteredPage from '../containers/auth/RegisteredPage'
-import ForgotEmailPage from '../containers/auth/ForgotEmailPage'
+import ForgotPasswordPage from '../containers/auth/ForgotPasswordPage'
 import SendEamilResultPage from '../containers/auth/SendEamilResultPage'
 import requireAuthFlow from '../containers/flowControll/requireAuthFlow'
 
 
 
-export default createSwitchNavigator({
+export default createStackNavigator({
 
   Login: {
     screen: requireAuthFlow(LoginPage)
@@ -18,11 +18,17 @@ export default createSwitchNavigator({
   },
 
   ForgotEmail: {
-    screen: requireAuthFlow(ForgotEmailPage)
+    screen: requireAuthFlow(ForgotPasswordPage)
   },
 
   SendEamilResult: {
     screen: requireAuthFlow(SendEamilResultPage)
   },
 
+},
+{
+  navigationOptions: {
+    header: null,
+    gesturesEnabled: false
+  }
 })

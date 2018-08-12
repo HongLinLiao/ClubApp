@@ -1,11 +1,11 @@
 import { sendResetMail } from '../../modules/Auth'
 import { connect } from 'react-redux';
-import ForgotEmail from '../../components/auth/ForgotEmail'
+import ForgotPassword from '../../components/auth/ForgotPassword'
 
 
 const mapStateToProps = ({ authReducer }) => ({
   user: authReducer.user,
-  status: authReducer.status
+  success: authReducer.success
 })
 
 const mapDispatchToProps = {
@@ -13,4 +13,4 @@ const mapDispatchToProps = {
 }
 
 
-export default connect(mapStateToProps, mapDispatchToProps)(ForgotEmail);
+export default connect(mapStateToProps, mapDispatchToProps)(ForgotPassword);

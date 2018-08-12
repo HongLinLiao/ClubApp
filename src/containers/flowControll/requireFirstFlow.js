@@ -1,5 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import { setLoadingState } from '../../actions/CommonAction'
+import { Spinner } from '../../components/common/Spinner'
 
 
 export default function(ComposedComponent) {
@@ -18,7 +20,10 @@ export default function(ComposedComponent) {
     }
 
     componentWillMount() {
-      const { user, firstLogin, navigation } = this.props
+      const { user, firstLogin, loading, dispatch, navigation } = this.props
+
+      if(loading) dispatch(setLoadingState(false)) //停止載入頁面
+
       this.handleAuth(user, firstLogin, navigation.state.routeName)
     }
 
@@ -28,13 +33,14 @@ export default function(ComposedComponent) {
     }
 
     render() {
-      return <ComposedComponent {...this.props} />
+      return !this.props.loading ? <ComposedComponent {...this.props} /> : <Spinner />
     }
   }
 
-  const mapStateToProps = ({ authReducer }) => ({
-     user: authReducer.user,
-     firstLogin: authReducer.firstLogin
+  const mapStateToProps = ({ authReducer, commonReducer }) => ({
+    user: authReducer.user,
+    firstLogin: authReducer.firstLogin,
+    loading: commonReducer.loading,
     });
 
   return connect(mapStateToProps)(FirstLoginDirection)

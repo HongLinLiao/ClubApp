@@ -1,21 +1,27 @@
 import React from 'react'
-import { StyleSheet, Text, View, Alert } from 'react-native'
-import { Form, Item, Input, Label, Button} from 'native-base'
+import { 
+  Text, 
+  View, 
+  KeyboardAvoidingView,
+  TouchableOpacity,
+  ImageBackground
+} from 'react-native';
 
+import styles from '../../styles/auth/EmailVerify'
 
-class EmailVerify extends React.Component {
+class EmailVerify extends React.Component{
 
 
   handleSendEmail = async () => {
 
     await this.props.sendVerifiedMail()
-    Alert.alert("驗證信已發送！")
 
   }
 
   verify = async () => {
-    
-    await this.props.reloadUser() //重新載入使用者和更新state
+    const { emailVerified } = this.props
+
+    await emailVerified() //重新載入使用者和更新state
 
   }
 
@@ -25,38 +31,42 @@ class EmailVerify extends React.Component {
     
   }
 
-  render() {
-    return (
-      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center',}}>
-        <Label>已寄發驗證碼到信箱</Label>
-        <Label>{this.props.navigation.getParam('email', 'Null')}</Label>
-        <Button style={{ marginTop: 10 }} 
-        full 
-        rounded 
-        warning
+  render(){
+    return(
+  <ImageBackground
+    style={styles.bf}
+    source={require('../../images/myboyfriend.jpg')}
+    imageStyle={{ resizeMode: 'cover' }}
+  > 
+    <View style={styles.container}> 
+      <Text style={styles.title}>您尚未驗證信箱</Text>
+      <Text style={styles.send}>您的信箱為</Text>
+      <Text style={styles.mail}>{this.props.user.email}</Text>
+      <TouchableOpacity 
+        style={styles.againBotton}
         onPress={this.handleSendEmail}
-        >
-          <Text style={{ color: 'white'}}>重新發送驗證碼</Text>
-        </Button>
-        <Button style={{ marginTop: 10 }} 
-        full 
-        rounded 
-        primary
+      >
+        <Text style={styles.againText}>發送驗證信</Text>
+      </TouchableOpacity>
+      <TouchableOpacity 
+        style={styles.loginBotton}
         onPress={this.verify}
-        >
-          <Text style={{ color: 'white'}}>驗證成功</Text>
-        </Button>
-        <Button style={{ marginTop: 10 }} 
-        full 
-        rounded 
-        danger
+      >
+        <Text style={styles.loginText}>驗證</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
         onPress={this.dontAsk}
-        >
-          <Text style={{ color: 'white'}}>稍後驗證</Text>
-        </Button>
-      </View>
-    )
+      >
+        <Text style={styles.backText}>稍後驗證</Text>
+      </TouchableOpacity>
+      <KeyboardAvoidingView behavior='padding'>
+      </KeyboardAvoidingView> 
+    </View>
+  </ImageBackground>
+    );
   }
 }
+
+
 
 export default EmailVerify

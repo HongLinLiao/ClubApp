@@ -1,5 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import { setLoadingState } from '../../actions/CommonAction'
+import { Spinner } from '../../components/common/Spinner'
 
 
 export default function(ComposedComponent) {
@@ -11,28 +13,18 @@ export default function(ComposedComponent) {
       console.log(routeName)
 
       if(user) {
-
-        if(firstLogin) { //第一次登入
-
-          this.props.navigation.navigate('IntroductionRouter')
-          return
-        }
-
-        if(!user.emailVerified && askVerify) { //使用者沒有驗證+重複詢問才導向
-          
-          this.props.navigation.navigate('UserAuthRouter')
-          
-        }
-
-      }
-      
+       
+      }     
       else {
         this.props.navigation.navigate('AuthRouter')
       }
     }
 
     componentWillMount() {
-      const { user, askVerify, firstLogin, navigation } = this.props
+      const { user, askVerify, firstLogin, loading, dispatch, navigation } = this.props
+
+      if(loading) dispatch(setLoadingState(false)) //停止載入頁面
+
       this.handleAuth(user, askVerify, firstLogin, navigation.state.routeName)
     }
 
@@ -42,15 +34,18 @@ export default function(ComposedComponent) {
     }
 
     render() {
-      return <ComposedComponent {...this.props} />
+      return !this.props.loading ? <ComposedComponent {...this.props} /> : <Spinner />
     }
   }
 
-  const mapStateToProps = ({ authReducer }) => ({ 
+  const mapStateToProps = ({ authReducer, commonReducer }) => ({ 
     user: authReducer.user, 
     askVerify: authReducer.askVerify,
-    firstLogin: authReducer.firstLogin
+    firstLogin: authReducer.firstLogin,
+    loading: commonReducer.loading,
   });
+
+
 
   return connect(mapStateToProps)(AppDirection)
 }

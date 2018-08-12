@@ -30,7 +30,7 @@ const initialState = {
 	user: null, //firebase使用者
 	message: null, //錯誤訊息
 	askVerify: true, //提醒驗證信箱
-	status: false, //執行狀態
+	success: null, //執行狀態
 	firstLogin: true, //是否第一次登入
 }
 
@@ -40,7 +40,7 @@ export const authReducer = (state = initialState, action) => {
 		case SIGN_IN_REQUEST:
 			return {
 				...state,
-				status: true,
+				success: true,
 				rememberMe: action.rememberMe
 			}
 		case SIGN_IN_SUCCESS:
@@ -52,6 +52,7 @@ export const authReducer = (state = initialState, action) => {
 		case SIGN_IN_FAILURE:
 			return {
 				...initialState,
+				success: false,
 				message: action.message
 			}
 
@@ -59,7 +60,7 @@ export const authReducer = (state = initialState, action) => {
 		case SIGN_UP_REQUEST:
 			return {
 				...state,
-				status: true,
+				success: true,
 			}
 		case SIGN_UP_SUCCESS:
 			return {
@@ -70,6 +71,7 @@ export const authReducer = (state = initialState, action) => {
 		case SIGN_UP_FAILURE:
 			return {
 				...initialState,
+				statis: false,
 				message: action.message
 			}
 
@@ -77,7 +79,7 @@ export const authReducer = (state = initialState, action) => {
 		case SIGN_WITH_FACEBOOK_REQUEST:
 			return {
 				...state,
-				status: true,
+				success: true,
 			}
 		case SIGN_WITH_FACEBOOK_SUCCESS:
 			return {
@@ -88,6 +90,7 @@ export const authReducer = (state = initialState, action) => {
 		case SIGN_WITH_FACEBOOK_FAILURE:
 			return {
 				...initialState,
+				success: false,
 				message: action.message
 			}
 
@@ -95,7 +98,7 @@ export const authReducer = (state = initialState, action) => {
 		case SIGN_WITH_GOOGLE_REQUEST:
 			return {
 				...state,
-				status: true
+				success: true
 			}
 		case SIGN_WITH_GOOGLE_SUCCESS:
 			return {
@@ -106,6 +109,7 @@ export const authReducer = (state = initialState, action) => {
 		case SIGN_WITH_GOOGLE_FAILURE:
 			return {
 				...initialState,
+				success: false,
 				message: action.message
 			}
 			
@@ -113,25 +117,25 @@ export const authReducer = (state = initialState, action) => {
 		case SEND_VERIFY_EMAIL_SUCCESS:
 			return {
 				...state,
-				status: true
+				success: true
 			}
 		case SEND_VERIFY_EMAIL_FAILURE:
 			return {
 				...state,
 				message: action.message,
-				status: false
+				success: false
 			}
 
 		//發送重設信	
 		case SEND_RESET_MAIL_SUCCESS:
 			return {
 				...state,
-				status: true
+				success: true
 			}
 		case SEND_RESET_MAIL_FAILURE:
 			return {
 				...state,
-				status: false,
+				success: false,
 				message: action.message
 			}
 		case SET_VERIFY_EMAIL_AGAIN:
@@ -144,31 +148,36 @@ export const authReducer = (state = initialState, action) => {
 		case SIGN_OUT_FAILURE:
 			return {
 				...state,
+				success: false,
 				message: action.message
 			}
 		case CLEAR_USER_STATE:
 			return initialState
-		
+			
 		//使用者狀態
 		case UPDATE_USER_STATE_SUCCESS:
 			return {
 				...state,
+				success: true,
 				user: action.userData.user,
 				firstLogin: action.userData.firstLogin
 			}
 		case UPDATE_USER_STATE_FAILURE:
 			return {
 				...initialState,
-				message
+				statis: false,
+				message: action.message
 			}
 		case UPDATE_USER_SUCCESS:
 			return {
 				...state,
+				success: true,
 				user: action.user,
 			}
 		case UPDATE_USER_FALIURE:
 			return {
 				...state,
+				success: false,
 				message: action.message
 			}
 		case SET_USER_FIRSTLOGIN:

@@ -1,13 +1,21 @@
 import React from 'react'
-import { StyleSheet, Text, View } from 'react-native'
-import { Header, Container, Content, Item, Input, Icon, Button, Footer } from 'native-base'
-import { CheckBox } from 'react-native-elements'
+import {  Text, 
+  View, 
+  KeyboardAvoidingView,
+  TextInput,
+  TouchableOpacity,
+  ImageBackground,
+  Image,
+  Alert
+} from 'react-native';
+import { CheckBox }  from 'react-native-elements';
+import styles from '../../styles/auth/Login'
 
 
-class Login extends React.Component {
+class Login extends React.Component{
+
   componentDidMount() {
-    
-    // console.log(this.props.user)
+    console.log(this.props)
   }
 
   state = {
@@ -17,130 +25,114 @@ class Login extends React.Component {
   }
 
   handleLogin = async () => {
-    const { navigation, signInWithEmail, user } = this.props
+    const { navigation, signInWithEmail, dispatch } = this.props
     const { email, password, remember} = this.state
-
-    await signInWithEmail(email, password, remember, navigation)
+    
+    await signInWithEmail(email, password, remember)
+      
   }
 
-  render() {
+  render(){
     return(
-      <Container style={styles.container}>
-        <View style={styles.topSection}>
-          <Text>123</Text>
-        </View>
-        <View style={styles.midSection}>
-          <Item rounded style={styles.inputItem}>
-            <Icon name='mail' />
-            <Input
-              autoCapitalize="none"
-              placeholder='abc123@iclub.com'
-              onChangeText={(email) => this.setState({email})}/>
-          </Item>
-          <Item rounded style={styles.inputItem}>
-            <Icon name='lock' />
-            <Input
-              autoCapitalize="none"
-              placeholder='password'
-              onChangeText={(password) => this.setState({password})}
+      <ImageBackground
+      style={styles.bf}
+      source={require('../../images/myboyfriend.jpg')}
+      imageStyle={{ resizeMode: 'cover' }}
+      >
+        <View style={{flex:1}}>
+          <View style={styles.container}>
+            <View style={styles.logo}></View>
+            
+            <View style={styles.mail}>
+              <Image style={styles.mailIcon}
+                source={require('../../images/envelope.png')}/>
+              <TextInput
+                autoCapitalize='none'
+                placeholder='abc123@iclub.com'
+                placeholderTextColor='rgba(255,255,255,0.8)'
+                style={styles.textInput}
+                underlineColorAndroid={'transparent'}
+                onChangeText={(email) => this.setState({email})}
+              />      
+            </View>
+
+            <View style={styles.psw}>
+              <Image style={styles.pswIcon}
+                source={require('../../images/padlock.png')}/> 
+              <TextInput
+                placeholder='password'
+                placeholderTextColor='rgba(255,255,255,0.8)'
+                secureTextEntry={true}
+                style={styles.textInput}
+                underlineColorAndroid={'transparent'}
+                onChangeText={(password) => this.setState({password})}
+              />         
+            </View>
+
+            <CheckBox
+              center
+              title='記住我'
+              containerStyle={styles.checkContainer}
+              textStyle={styles.checkText}
+              checkedIcon={<Image style={styles.checkIcon}
+                            source={require('../../images/check.png')}
+                          />}
+              uncheckedIcon={<Image style={styles.boxIcon}
+                            source={require('../../images/box.png')}
+                            />}
+              checked={this.state.remember}
+              onPress={() => this.setState({remember: !this.state.remember})}
             />
-          </Item>
-          <CheckBox 
-            center
-            title='記住我'
-            size={13} 
-            containerStyle={styles.rememberMe} 
-            textStyle={{fontSize: 13}}
-            checked={this.state.remember}
-            onPress={() => this.setState({remember: !this.state.remember})}
-          />
-          <Button full rounded bordered dark 
-            style={styles.signIn}
-            onPress={() => this.handleLogin()}
-          >
-            <Text>登入</Text>
-          </Button>
-          <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-            <Button rounded primary style={styles.fb}
-              onPress={() => this.props.signInWithFacebook()}
+            <TouchableOpacity 
+              style={styles.gobotton}
+              onPress={() => this.handleLogin()}
             >
-              <Text style={{color: 'white'}}>Facebook</Text>
-            </Button>
-            <Button rounded warning style={styles.google}
-              onPress={() => this.props.signInWithGoogle()}
-            >
-              <Text style={{color: 'white'}}>Google</Text>
-            </Button>
+              <Text style={styles.gotext}>登入</Text>
+            </TouchableOpacity>
+            <Text style={styles.or}>_______________  or  _______________</Text>
+            <Text style={styles.signinwith}>使用其他方式登入</Text>
+
+            <View style={styles.row}>
+              <TouchableOpacity 
+                style={styles.fbBotton}
+                onPress={() => this.props.signInWithFacebook()}
+              >
+                <Image style={styles.fbIcon}
+                  source={require('../../images/facebook.png')}/>
+                <Text style={styles.fbText}>Facebook</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+               style={styles.gmailBotton}
+               onPress={() => this.props.signInWithGoogle()}
+              >
+                <Image style={styles.gmailIcon}
+                  source={require('../../images/search.png')}/>
+                <Text style={styles.gmailText}>Gmail</Text>
+              </TouchableOpacity>
+            </View>
+
+              <TouchableOpacity
+                onPress={() => {this.props.navigation.push('ForgotEmail')}}
+              >
+                <Text style={styles.forgot}>忘記密碼?</Text>
+              </TouchableOpacity>
           </View>
-          <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-            <Button transparent primary style={{alignSelf: 'center'}}
-              onPress={() => {this.props.navigation.navigate('ForgotEmail')}}
-            >
-              <Text>忘記密碼</Text>
-            </Button>
-          </View>
-        </View>
-        <View style={styles.bottomSection}>
-          <Item>
-            <Text>還沒有帳號嗎?</Text>
-            <Button transparent primary
-              onPress={() => {this.props.navigation.navigate('Register')}}
-            >
-              <Text>註冊</Text>
-            </Button>
-          </Item>
-        </View>
-      </Container>
-    )
+              <View style={styles.signupBottom}>
+                <Text style={styles.noAccount}>還沒有帳號嗎?</Text>
+                  <TouchableOpacity
+                    onPress={() => {this.props.navigation.push('Register')}}
+                  >
+                    <Text style={styles.signup}>註冊</Text>
+                  </TouchableOpacity>
+                <KeyboardAvoidingView behavior='padding'>
+                </KeyboardAvoidingView>
+              </View>      
+        </View>   
+      </ImageBackground>
+    );
   }
 }
 
-const styles = StyleSheet.create({
-  container: {
-    justifyContent: 'space-between',
-    // alignItems: 'center',
-  },
-  topSection: {
-    flex: 7,
-    // borderWidth: 1,
-    // borderColor: 'red',
-  },
-  midSection: {
-    flex: 18,
-    // borderWidth: 1,
-    // borderColor: 'red',
-    paddingTop: 10,
-    paddingLeft: 80,
-    paddingRight: 80,
-  },
-  bottomSection: {
-    flex: 1,
-    // borderWidth: 1,
-    // borderColor: 'red',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  inputItem: {
-    paddingLeft: 10,
-    marginBottom: 20
-  },
-  rememberMe: {
-    marginLeft: 55,
-    marginRight: 55,
-    marginBottom: 20,
-    height: 35,
-  },
-  signIn: {
-    marginBottom: 50,
-  },
-  fb: {
-    paddingLeft: 15,
-    paddingRight: 15,
-  },
-  google: {
-    paddingLeft: 20,
-    paddingRight: 20,
-  }
-})
 
 export default Login
+

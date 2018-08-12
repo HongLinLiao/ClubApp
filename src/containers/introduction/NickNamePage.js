@@ -1,7 +1,7 @@
 import { setNickName } from '../../modules/Auth'
 import { setUserFirstLgoin } from '../../actions/AuthAction'
 import { connect } from 'react-redux';
-import NickName from '../../components/auth/NickName'
+import NickName from '../../components/introduction/NickName'
 
 
 const mapStateToProps = ({ authReducer }) => ({

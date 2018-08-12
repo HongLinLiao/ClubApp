@@ -1,22 +1,25 @@
 import React from 'react';
+import { Alert } from 'react-native'
 import { connect } from 'react-redux';
+import { setLoadingState } from '../../actions/CommonAction'
+import { Spinner } from '../../components/common/Spinner'
 
 
 export default function(ComposedComponent) {
 
   class UserDirection extends React.Component {
 
-    handleAuth = (user, askVerify, firstLogin, routeName) => {
+    handleAuth = (user, askVerify, routeName) => {
 
       console.log(routeName)
 
       if(user) {
-          
-          if(user.emailVerified || !askVerify) { //使用者有驗證+沒有重複詢問才導向
 
-            this.props.navigation.navigate('FirstLoginRouter') //導向App頁面
-              
-          }
+        if(user.emailVerified || !askVerify) { //使用者有驗證+沒有重複詢問才導向
+
+          this.props.navigation.navigate('FirstLoginRouter') //導向App頁面
+            
+        }
 
       }
       else {
@@ -25,24 +28,28 @@ export default function(ComposedComponent) {
     }
 
     componentWillMount() {
-      const { user, askVerify, firstLogin, navigation } = this.props
-      this.handleAuth(user, askVerify, firstLogin, navigation.state.routeName)
+      const { user, askVerify, loading, navigation, dispatch } = this.props
+
+      if(loading) dispatch(setLoadingState(false)) //停止載入頁面
+
+      this.handleAuth(user, askVerify, navigation.state.routeName)
     }
 
     componentWillUpdate(nextProps) {
-      const { user, askVerify, firstLogin, navigation } = nextProps
-      this.handleAuth(user, askVerify, firstLogin, navigation.state.routeName)
+      const { user, askVerify, navigation, dispatch } = nextProps
+      
+      this.handleAuth(user, askVerify, navigation.state.routeName)
     }
 
     render() {
-      return <ComposedComponent {...this.props} />
+      return !this.props.loading ? <ComposedComponent {...this.props} /> : <Spinner />
     }
   }
 
-  const mapStateToProps = ({ authReducer }) => ({
-     user: authReducer.user,
-     askVerify: authReducer.askVerify,
-     firstLogin: authReducer.firstLogin,
+  const mapStateToProps = ({ authReducer, commonReducer }) => ({
+    user: authReducer.user,
+    askVerify: authReducer.askVerify,
+    loading: commonReducer.loading,
   });
 
   return connect(mapStateToProps)(UserDirection)

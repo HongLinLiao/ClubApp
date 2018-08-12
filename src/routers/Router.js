@@ -19,8 +19,8 @@ const AppRouter = createSwitchNavigator({
 //第一層
 const createRootRouter = () => {
     return createSwitchNavigator({
-				AuthRouter: AuthRouter,
-				AppRouter: AppRouter,
+        AuthRouter: AuthRouter,
+        AppRouter: AppRouter,
     })
 }
 

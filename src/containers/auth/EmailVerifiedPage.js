@@ -1,5 +1,5 @@
 import { connect } from 'react-redux'
-import { sendVerifiedMail, reloadUser } from '../../modules/Auth'
+import { sendVerifiedMail, emailVerified } from '../../modules/Auth'
 import { setVerifyEmailAgain } from '../../actions/AuthAction'
 import EmailVerify from '../../components/auth/EmailVerify'
 
@@ -11,7 +11,7 @@ const mapStateToProps = ({ authReducer }) => ({
 const mapDispatchToProps = {
   sendVerifiedMail,
   setVerifyEmailAgain,
-  reloadUser
+  emailVerified
 }
 
 
