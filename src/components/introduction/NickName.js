@@ -5,23 +5,36 @@ import {
   KeyboardAvoidingView,
   TextInput,
   TouchableOpacity,
-  ImageBackground
+  ImageBackground,
+  Alert
 } from 'react-native';
 
 import styles from '../../styles/introduction/NickName'
+import Overlayer from '../common/Overlayer'
 
 class NickName extends React.Component{
 
   state = {
-    nickName: ''
+    nickName: '',
+    loading: false
   }
 
   handleSetNickName = async () => {
-    const { setNickName, setUserFirstLgoin } = this.props
+    const { setNickName, user, navigation } = this.props
     const { nickName } = this.state
     if(nickName) {
-      await setNickName(nickName)
-      setUserFirstLgoin(false)
+      try {
+        this.setState({ loading: true })
+
+        await setNickName(nickName)
+        navigation.navigate('Photo')
+        
+      } catch(e) {
+
+        this.setState({ loading: false })
+        Alert.alert(e.toString())
+      }
+      
     }
     else {
       Alert.alert('請輸入暱稱')
@@ -56,6 +69,7 @@ class NickName extends React.Component{
           <KeyboardAvoidingView behavior='padding'>
           </KeyboardAvoidingView> 
         </View>
+        {this.state.loading ? <Overlayer /> : null }
       </ImageBackground>
     );
   }

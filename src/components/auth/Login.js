@@ -10,26 +10,56 @@ import {  Text,
 } from 'react-native';
 import { CheckBox }  from 'react-native-elements';
 import styles from '../../styles/auth/Login'
+import Overlayer from '../common/Overlayer'
 
 
 class Login extends React.Component{
 
   componentDidMount() {
-    console.log(this.props)
+
   }
 
   state = {
     email: '',
     password: '',
-    remember: false
+    remember: false,
+    loading: false
   }
 
   handleLogin = async () => {
     const { navigation, signInWithEmail, dispatch } = this.props
     const { email, password, remember} = this.state
     
+    this.setState({ loading: true})
     await signInWithEmail(email, password, remember)
       
+  }
+
+  handleFacebook = async () => {
+
+    try {
+      this.setState({ loading: true })
+      await this.props.signInWithFacebook()
+
+    } catch(e) {
+      this.setState({ loading: false })
+      Alert.alert(e)
+    }
+    
+  }
+
+  handleGoogle = async () => {
+
+    try {
+      this.setState({ loading: true })
+      await this.props.signInWithGoogle()
+
+    } catch(e) {
+      this.setState({ loading: false })
+      Alert.alert(e)
+
+    }
+    
   }
 
   render(){
@@ -95,7 +125,7 @@ class Login extends React.Component{
             <View style={styles.row}>
               <TouchableOpacity 
                 style={styles.fbBotton}
-                onPress={() => this.props.signInWithFacebook()}
+                onPress={() => this.handleFacebook()}
               >
                 <Image style={styles.fbIcon}
                   source={require('../../images/facebook.png')}/>
@@ -103,7 +133,7 @@ class Login extends React.Component{
               </TouchableOpacity>
               <TouchableOpacity 
                style={styles.gmailBotton}
-               onPress={() => this.props.signInWithGoogle()}
+               onPress={() => this.handleGoogle}
               >
                 <Image style={styles.gmailIcon}
                   source={require('../../images/search.png')}/>
@@ -127,8 +157,9 @@ class Login extends React.Component{
                 <KeyboardAvoidingView behavior='padding'>
                 </KeyboardAvoidingView>
               </View>      
-        </View>   
-      </ImageBackground>
+        </View>
+        {this.state.loading ? <Overlayer /> : null }
+      </ImageBackground>    
     );
   }
 }

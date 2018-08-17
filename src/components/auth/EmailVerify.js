@@ -8,9 +8,13 @@ import {
 } from 'react-native';
 
 import styles from '../../styles/auth/EmailVerify'
+import Overlayer from '../common/Overlayer'
 
 class EmailVerify extends React.Component{
 
+  state = {
+    loading: false
+  }
 
   handleSendEmail = async () => {
 
@@ -21,6 +25,7 @@ class EmailVerify extends React.Component{
   verify = async () => {
     const { emailVerified } = this.props
 
+    this.setState({ loading: true })
     await emailVerified() //重新載入使用者和更新state
 
   }
@@ -62,6 +67,7 @@ class EmailVerify extends React.Component{
       <KeyboardAvoidingView behavior='padding'>
       </KeyboardAvoidingView> 
     </View>
+    {this.state.loading ? <Overlayer /> : null }
   </ImageBackground>
     );
   }

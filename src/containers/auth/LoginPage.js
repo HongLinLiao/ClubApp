@@ -4,8 +4,8 @@ import Login from '../../components/auth/Login'
 import { auth } from '../../../node_modules/firebase';
 
 
-const mapStateToProps = ({ authReducer }) => ({
-  user: authReducer.user,
+const mapStateToProps = ({ userReducer }) => ({
+  user: userReducer.user,
 })
 
 const mapDispatchToProps = {

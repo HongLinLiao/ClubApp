@@ -28,13 +28,6 @@ export const SEND_RESET_MAIL_FAILURE = 'SEND_RESET_MAIL_FAILURE' //寄送重設�
 
 export const SIGN_OUT_FAILURE = 'SIGN_OUT_FAILURE' //登出失敗
 
-export const UPDATE_USER_STATE_SUCCESS = 'UPDATE_USER_STATE_SUCCESS' //更新使用者所有狀態
-export const UPDATE_USER_STATE_FAILURE = 'UPDATE_USER_STATE_FAILURE' //更新使用者所有狀態失敗
-export const UPDATE_USER_SUCCESS = 'UPDATE_USER_SUCCESS' //更新用戶狀態
-export const UPDATE_USER_FALIURE = 'UPDATE_USER_FALIURE' //更新用戶狀態
-export const SET_USER_FIRSTLOGIN = 'SET_USER_FIRSTLOGIN' //設定是否第一次登入
-export const CLEAR_USER_STATE = 'CLEAR_USER_STATE' //清空使用者狀態
-
 
 /*
 |-----------------------------------------------
@@ -133,36 +126,6 @@ export const sendResetEmailFail = (message) => ({
 export const signOutFail = (message) => ({
   type: SIGN_OUT_FAILURE,
   message
-})
-
-//使用者狀態
-export const updateUserState = (userData) => ({
-  type: UPDATE_USER_STATE_SUCCESS,
-  userData
-})
-
-export const updateUserStateFail = (message) => ({
-  type: UPDATE_USER_STATE_FAILURE,
-  message
-})
-
-export const updateUser = (user) => ({
-  type: UPDATE_USER_SUCCESS,
-  user,
-})
-
-export const updateUserFail = (message) => ({
-  type: UPDATE_USER_FALIURE,
-  message
-})
-
-export const setUserFirstLgoin = (IsFirstLogin) => ({
-  type: SET_USER_FIRSTLOGIN,
-  IsFirstLogin
-})
-
-export const clearUser = () => ({
-  type: CLEAR_USER_STATE,
 })
 
 

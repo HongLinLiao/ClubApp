@@ -1,7 +1,7 @@
-import { setNickName } from '../../modules/User'
+import { changePhoto } from '../../modules/User'
 import { setUserFirstLgoin } from '../../actions/UserAction'
 import { connect } from 'react-redux';
-import NickName from '../../components/introduction/NickName'
+import Photo from '../../components/introduction/Photo'
 
 
 const mapStateToProps = ({ userReducer }) => ({
@@ -9,9 +9,9 @@ const mapStateToProps = ({ userReducer }) => ({
 })
 
 const mapDispatchToProps = {
-  setNickName,
+  changePhoto,
   setUserFirstLgoin
 }
 
 
-export default connect(mapStateToProps, mapDispatchToProps)(NickName);
+export default connect(mapStateToProps, mapDispatchToProps)(Photo);

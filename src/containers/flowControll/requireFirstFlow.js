@@ -37,9 +37,9 @@ export default function(ComposedComponent) {
     }
   }
 
-  const mapStateToProps = ({ authReducer, commonReducer }) => ({
-    user: authReducer.user,
-    firstLogin: authReducer.firstLogin,
+  const mapStateToProps = ({ userReducer, commonReducer }) => ({
+    user: userReducer.user,
+    firstLogin: userReducer.firstLogin,
     loading: commonReducer.loading,
     });
 

@@ -15,15 +15,18 @@ import {
 	SEND_VERIFY_EMAIL_FAILURE,
 	SEND_RESET_MAIL_SUCCESS,
 	SEND_RESET_MAIL_FAILURE,
+	SET_VERIFY_EMAIL_AGAIN,
+	SIGN_OUT_FAILURE,
+} from '../actions/AuthAction'
+
+import {
 	UPDATE_USER_STATE_SUCCESS,
 	UPDATE_USER_STATE_FAILURE,
 	UPDATE_USER_SUCCESS,
 	UPDATE_USER_FALIURE,
-	SET_VERIFY_EMAIL_AGAIN,
-	SIGN_OUT_FAILURE,
 	SET_USER_FIRSTLOGIN,
 	CLEAR_USER_STATE
-} from '../actions/AuthAction'
+} from '../actions/UserAction'
 
 
 const initialState = {
@@ -32,9 +35,10 @@ const initialState = {
 	askVerify: true, //提醒驗證信箱
 	success: null, //執行狀態
 	firstLogin: true, //是否第一次登入
+	loginType: null, //登入類型
 }
 
-export const authReducer = (state = initialState, action) => {
+export const userReducer = (state = initialState, action) => {
 	switch (action.type) {
 		//登入
 		case SIGN_IN_REQUEST:
@@ -47,7 +51,8 @@ export const authReducer = (state = initialState, action) => {
 			return {
 				...state,
 				user: action.userData.user,
-				firstLogin: action.userData.firstLogin
+				firstLogin: action.userData.firstLogin,
+				loginType: action.userData.loginType
 			}
 		case SIGN_IN_FAILURE:
 			return {
@@ -66,7 +71,8 @@ export const authReducer = (state = initialState, action) => {
 			return {
 				...state,
 				user: action.userData.user,
-				firstLogin: action.userData.firstLogin
+				firstLogin: action.userData.firstLogin,
+				loginType: action.userData.loginType
 			}
 		case SIGN_UP_FAILURE:
 			return {
@@ -85,7 +91,8 @@ export const authReducer = (state = initialState, action) => {
 			return {
 				...state,
 				user: action.userData.user,
-				firstLogin: action.userData.firstLogin
+				firstLogin: action.userData.firstLogin,
+				loginType: action.userData.loginType
 			}
 		case SIGN_WITH_FACEBOOK_FAILURE:
 			return {
@@ -104,7 +111,8 @@ export const authReducer = (state = initialState, action) => {
 			return {
 				...state,
 				user: action.userData.user,
-				firstLogin: action.userData.firstLogin
+				firstLogin: action.userData.firstLogin,
+				loginType: action.userData.loginType
 			}
 		case SIGN_WITH_GOOGLE_FAILURE:
 			return {
@@ -160,12 +168,13 @@ export const authReducer = (state = initialState, action) => {
 				...state,
 				success: true,
 				user: action.userData.user,
-				firstLogin: action.userData.firstLogin
+				firstLogin: action.userData.firstLogin,
+				loginType: action.userData.loginType
 			}
 		case UPDATE_USER_STATE_FAILURE:
 			return {
 				...initialState,
-				statis: false,
+				status: false,
 				message: action.message
 			}
 		case UPDATE_USER_SUCCESS:

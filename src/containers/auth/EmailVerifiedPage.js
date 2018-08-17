@@ -4,8 +4,8 @@ import { setVerifyEmailAgain } from '../../actions/AuthAction'
 import EmailVerify from '../../components/auth/EmailVerify'
 
 
-const mapStateToProps = ({ authReducer }) => ({
-  user: authReducer.user
+const mapStateToProps = ({ userReducer }) => ({
+  user: userReducer.user
 })
 
 const mapDispatchToProps = {

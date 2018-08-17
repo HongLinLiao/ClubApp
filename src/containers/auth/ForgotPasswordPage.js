@@ -3,9 +3,9 @@ import { connect } from 'react-redux';
 import ForgotPassword from '../../components/auth/ForgotPassword'
 
 
-const mapStateToProps = ({ authReducer }) => ({
-  user: authReducer.user,
-  success: authReducer.success
+const mapStateToProps = ({ userReducer }) => ({
+  user: userReducer.user,
+  success: userReducer.success
 })
 
 const mapDispatchToProps = {

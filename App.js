@@ -1,5 +1,5 @@
 import React from 'react';
-import Exop from 'expo';
+import { Permissions } from 'expo';
 import * as firebase from "firebase";
 import { rootReducer } from './src/reducers/Reducer'
 import { Provider } from 'react-redux'
@@ -7,7 +7,7 @@ import { createStore, applyMiddleware } from 'redux'
 import { logger } from 'redux-logger'
 import thunk from 'redux-thunk'
 import firebaseConfig from './src/firebaseConfig'
-import { updateUserState } from './src/modules/Auth'
+import { updateUserAllState } from './src/modules/User'
 import createRootRouter from './src/routers/Router'
 import { Spinner } from './src/components/common/Spinner'
 import { setLoadingState } from './src/actions/CommonAction'
@@ -34,7 +34,7 @@ export default class App extends React.Component {
       if(this.state.loading) { //初次載入App
 
         if(user) {
-          store.dispatch(updateUserState(user))
+          store.dispatch(updateUserAllState(user))
         }
         else {
           store.dispatch(setLoadingState(false)) //停止等待畫面顯示login頁面
@@ -44,6 +44,12 @@ export default class App extends React.Component {
       }
       
     })
+
+  }
+
+  async componentDidMount() {
+    await Permissions.askAsync(Permissions.CAMERA_ROLL);
+    await Permissions.askAsync(Permissions.CAMERA);
   }
 
   render() {

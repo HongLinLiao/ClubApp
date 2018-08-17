@@ -18,8 +18,8 @@ class HomePage extends React.Component {
   }
 }
 
-const mapStateToProps = ({ authReducer }) => ({
-  user: authReducer.user
+const mapStateToProps = ({ userReducer }) => ({
+  user: userReducer.user
 })
 
 const mapDispatchToProps = {

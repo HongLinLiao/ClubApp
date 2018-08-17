@@ -3,8 +3,8 @@ import { connect } from 'react-redux';
 import SendEmailResult from '../../components/auth/SendEmailResult'
 
 
-const mapStateToProps = ({ authReducer }) => ({
-  user: authReducer.user
+const mapStateToProps = ({ userReducer }) => ({
+  user: userReducer.user
 })
 
 const mapDispatchToProps = {

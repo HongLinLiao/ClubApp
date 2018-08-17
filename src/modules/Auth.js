@@ -3,46 +3,38 @@ import * as CommonAction from '../actions/CommonAction'
 import * as firebase from "firebase"
 import Expo from 'expo' 
 import { Alert } from 'react-native'
+import { getUserAllState, createUserInDatabase } from './User'
+import { clearUser } from '../actions/UserAction'
 
-const getUserState = async (user) => {
+const signInSuccess = (action, user, password, loginType) => async (dispatch) => {
 
   try {
-    let userState = {
-      user: null,
-      firstLogin: true
-    }
-    let userRef = firebase.database().ref('/users').child(user.uid)
+    const userRef = firebase.database().ref('/users').child(user.uid)
     const snapShot = await userRef.once('value')
+    const userInfo = { password, loginType }
+    let userState = null
 
-    if(snapShot.val()) { //使用者存在   
-      userState.firstLogin = false
+    if(snapShot.val()) { //之前登入過
+      userState = await getUserAllState(user)
     }
-    else {
-      await userRef.set({email: user.email})
+    else { //第一次登入
+      userState = await createUserInDatabase(user, userInfo)
     }
 
-    userState.user = {...user}
-
-    return userState
+      
+    dispatch(action(userState))
     
-  } catch(error) {
 
-    console.log(error.toString())
+  } catch(e) {
 
+    throw e
   }
-
-}
-
-const signInSuccess = (action, user) => async (dispatch) => {
-
-  const userState = await getUserState(user)
-
-  dispatch(action(userState)) 
+  
 }
 
 export const signInWithEmail = (email, password, remember) => async (dispatch) => {
 
-  dispatch(CommonAction.setLoadingState(true)) //進入等待狀態
+  // dispatch(CommonAction.setLoadingState(true)) //進入等待狀態
 
   dispatch(AuthAction.signInRequest(remember)) //登入要求
   
@@ -50,7 +42,7 @@ export const signInWithEmail = (email, password, remember) => async (dispatch) =
     
     const {user} = await firebase.auth().signInWithEmailAndPassword(email, password);
     
-    dispatch(signInSuccess(AuthAction.signInSuccess, user)) //登入成功
+    dispatch(signInSuccess(AuthAction.signInSuccess, user, password, 'normal')) //登入成功
 
     
   } catch(error) {
@@ -68,7 +60,7 @@ export const signInWithEmail = (email, password, remember) => async (dispatch) =
 
 export const signUpUser = (newUser) => async (dispatch) => {
 
-  dispatch(CommonAction.setLoadingState(true)) //進入等待狀態
+  // dispatch(CommonAction.setLoadingState(true)) //進入等待狀態
 
   dispatch(AuthAction.signUpRequest()) //註冊要求
 
@@ -77,7 +69,7 @@ export const signUpUser = (newUser) => async (dispatch) => {
     //建立使用者完firebase會自動登入
     const {user} = await firebase.auth().createUserWithEmailAndPassword(email, password)
 
-    dispatch(signInSuccess(AuthAction.signUpSuccess, user)) //註冊成功並更新UserState
+    dispatch(signInSuccess(AuthAction.signUpSuccess, user, password, 'normal')) //註冊成功並更新UserState
 
     Alert.alert('註冊成功(自動幫您登入)')
 
@@ -96,7 +88,7 @@ export const signUpUser = (newUser) => async (dispatch) => {
 
 export const signInWithFacebook = () => async (dispatch) => {
 
-  dispatch(CommonAction.setLoadingState(true)) //進入等待狀態
+  // dispatch(CommonAction.setLoadingState(true)) //進入等待狀態
 
   dispatch(AuthAction.signWithFacebookRequest()) //facebook登入要求
 
@@ -108,7 +100,7 @@ export const signInWithFacebook = () => async (dispatch) => {
       const credential = firebase.auth.FacebookAuthProvider.credential(token)
       const {user} = await firebase.auth().signInAndRetrieveDataWithCredential(credential)
 
-      dispatch(signInSuccess(AuthAction.signWithFacebookSuccess, user)) //facebook登入並更新狀態
+      dispatch(signInSuccess(AuthAction.signWithFacebookSuccess, user, null, 'Facebook')) //facebook登入並更新狀態
 
     }
     else {
@@ -122,16 +114,16 @@ export const signInWithFacebook = () => async (dispatch) => {
 
     dispatch(CommonAction.setLoadingState(false)) //結束等待狀態
 
-    Alert.alert('Facebook登入失敗')
-
     console.log(error.toString())
+
+    throw error
 
   }
 }
 
 export const signInWithGoogle = () => async (dispatch) => {
 
-  dispatch(CommonAction.setLoadingState(true)) //進入等待狀態
+  // dispatch(CommonAction.setLoadingState(true)) //進入等待狀態
   
   dispatch(AuthAction.signWithGoogleRequest()) //google登入要求
 
@@ -147,7 +139,7 @@ export const signInWithGoogle = () => async (dispatch) => {
       const credential = firebase.auth.GoogleAuthProvider.credential(result.idToken, result.accessToken)
       const {user} = await firebase.auth().signInAndRetrieveDataWithCredential(credential)
 
-      dispatch(signInSuccess(AuthAction.signWithGoogleSuccess, user)) //google登入並更新狀態
+      dispatch(signInSuccess(AuthAction.signWithGoogleSuccess, user, null, 'Google')) //google登入並更新狀態
 
     } else {
       dispatch(CommonAction.setLoadingState(false)) //取消等待狀態
@@ -159,30 +151,9 @@ export const signInWithGoogle = () => async (dispatch) => {
 
     dispatch(CommonAction.setLoadingState(false)) //取消等待狀態
 
-    Alert.alert('Google登入失敗')
-
     console.log(error.toString())
-  }
 
-}
-
-export const setNickName = (nickName) => async (dispatch) => {
-
-  dispatch(CommonAction.setLoadingState(true)) //進入等待狀態
-
-  try {
-    const user = firebase.auth().currentUser
-    await user.updateProfile({
-      displayName: nickName
-    })
-    dispatch(AuthAction.updateUser({...user})) //更新使用者狀態
-
-  } catch(error) {
-    dispatch(AuthAction.updateUserFail(error.toString())) 
-
-    dispatch(CommonAction.setLoadingState(false)) //取消登帶狀態
-
-    console.log(error.toString())
+    throw error
   }
 
 }
@@ -248,45 +219,13 @@ export const sendResetMail = (email) => async (dispatch) => {
 
 }
 
-export const updateUserState = (user) => async (dispatch) => {
-
-    try {
-
-      dispatch(signInSuccess(AuthAction.updateUserState, user))
-
-    } catch(error) {
-
-      dispatch(AuthAction.updateUserFail(error.toString()))
-
-    }
-
-}
-
-export const reloadUser = () => async (dispatch, getState) => {
-
-  try {
-    const user = firebase.auth().currentUser
-    await user.reload() //重新載入使用者
-
-    dispatch(AuthAction.updateUser({...user})) //更新使用者狀態
-    
-
-  } catch(error) {
-
-    dispatch(AuthAction.updateUserFail(error.toString()))
-
-    dispatch(CommonAction.setLoadingState(false)) //開始載入
-  }
-  
-}
-
 export const signOut = () => async (dispatch) => {
 
   dispatch(CommonAction.setLoadingState(true)) //進入等待狀態
 
   try {
     await firebase.auth().signOut()
-    dispatch(AuthAction.clearUser())
+    dispatch(clearUser())
 
     setTimeout(
       () => dispatch(CommonAction.setLoadingState(false)), //進入等待狀態
