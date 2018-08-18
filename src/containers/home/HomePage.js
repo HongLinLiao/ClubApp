@@ -1,30 +1,15 @@
-import React from 'react'
-import { StyleSheet, Text, View, Alert, Button } from 'react-native'
-import { signOut } from '../../modules/Auth'
 import { connect } from 'react-redux'
+import { getPostList , setPostListToPost } from '../../modules/HomeModule'
+import PostList from '../../components/home/PostList'
 
-
-class HomePage extends React.Component {
-  handleLogOut = async () => {
-    await this.props.signOut()
-  }
-  render() {
-    return(
-      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center',}}>
-        <Text style={{fontSize: 50}}>Welcome To Home</Text>
-        <Button title='Log out' onPress={()=>this.handleLogOut()}/>
-      </View>
-    )
-  }
-}
-
-const mapStateToProps = ({ userReducer }) => ({
-  user: userReducer.user
+const mapStateToProps = ({ homeReducer }) => ({
+    postList: homeReducer.postList ,
+    post: homeReducer.post
 })
 
 const mapDispatchToProps = {
-  signOut
+    getPostList ,
+    setPostListToPost
 }
 
-
-export default connect(mapStateToProps, mapDispatchToProps)(HomePage)
+export default connect(mapStateToProps, mapDispatchToProps)(PostList);
