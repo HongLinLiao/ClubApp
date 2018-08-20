@@ -26,6 +26,8 @@ export const SET_VERIFY_EMAIL_AGAIN = 'SET_VERIFY_EMAIL_AGAIN' //設定是否要
 export const SEND_RESET_MAIL_SUCCESS = 'SEND_RESET_MAIL_SUCCESS' //寄送重設信件成功
 export const SEND_RESET_MAIL_FAILURE = 'SEND_RESET_MAIL_FAILURE' //寄送重設信件失敗
 
+export const SET_USER_PASSWORD = 'SET_USER_PASSWORD' //設定使用者密碼
+
 export const SIGN_OUT_FAILURE = 'SIGN_OUT_FAILURE' //登出失敗
 
 
@@ -120,6 +122,11 @@ export const sendResetEmailSuccess = () => ({
 export const sendResetEmailFail = (message) => ({
   type: SEND_RESET_MAIL_FAILURE,
   message
+})
+
+export const setUserPassword = (newPassword) => ({
+  type: SET_USER_PASSWORD,
+  newPassword
 })
 
 //登出

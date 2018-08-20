@@ -4,7 +4,8 @@ import {
   View, 
   KeyboardAvoidingView,
   TouchableOpacity,
-  ImageBackground
+  ImageBackground,
+  Alert
 } from 'react-native';
 
 import styles from '../../styles/auth/EmailVerify'
@@ -25,8 +26,17 @@ class EmailVerify extends React.Component{
   verify = async () => {
     const { emailVerified } = this.props
 
-    this.setState({ loading: true })
-    await emailVerified() //重新載入使用者和更新state
+    try {
+      this.setState({ loading: true })
+      await emailVerified() //重新載入使用者和更新state
+      Alert.alert('驗證成功')
+
+    } catch(e) {
+
+      this.setState({ loading: false })
+      Alert.alert(e.toString())
+    }
+    
 
   }
 

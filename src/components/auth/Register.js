@@ -27,8 +27,17 @@ class Register extends React.Component{
     const { signUpUser } = this.props
     const { newUser } = this.state
 
-    this.setState({ loading: true })
-    await signUpUser(newUser)
+    try {
+      this.setState({ loading: true })
+      await signUpUser(newUser)
+
+      Alert.alert('註冊成功(自動幫您登入)')
+    } catch(e) {
+
+      Alert.alert(e.toString())
+      this.setState({ loading: false })
+    }
+    
     
   }
 

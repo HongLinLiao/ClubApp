@@ -1,9 +1,10 @@
 import * as AuthAction from '../actions/AuthAction'
 import * as CommonAction from '../actions/CommonAction'
+import * as UserAction from '../actions/UserAction'
 import * as firebase from "firebase"
 import Expo from 'expo' 
 import { Alert } from 'react-native'
-import { getUserAllState, createUserInDatabase } from './User'
+import { getUserStateToRedux, createUserInDatabase, reloadUser, setUserStateToDB } from './User'
 import { clearUser } from '../actions/UserAction'
 
 const signInSuccess = (action, user, password, loginType) => async (dispatch) => {
@@ -15,15 +16,13 @@ const signInSuccess = (action, user, password, loginType) => async (dispatch) =>
     let userState = null
 
     if(snapShot.val()) { //之前登入過
-      userState = await getUserAllState(user)
+      userState = await getUserStateToRedux(snapShot, userInfo)
     }
     else { //第一次登入
       userState = await createUserInDatabase(user, userInfo)
     }
-
-      
-    dispatch(action(userState))
     
+    dispatch(action(userState))
 
   } catch(e) {
 
@@ -51,7 +50,7 @@ export const signInWithEmail = (email, password, remember) => async (dispatch) =
 
     dispatch(CommonAction.setLoadingState(false))
 
-    Alert.alert('登入失敗')
+    throw error
 
     console.log(error.toString())
   }
@@ -71,17 +70,15 @@ export const signUpUser = (newUser) => async (dispatch) => {
 
     dispatch(signInSuccess(AuthAction.signUpSuccess, user, password, 'normal')) //註冊成功並更新UserState
 
-    Alert.alert('註冊成功(自動幫您登入)')
-
 
   } catch(error) {
     dispatch(AuthAction.signUpFail(error.toString()))
 
     dispatch(CommonAction.setLoadingState(false)) //取消等待狀態
 
-    Alert.alert('註冊失敗')
-
     console.log(error.toString())
+
+    throw error
   }
 
 }
@@ -179,30 +176,64 @@ export const sendVerifiedMail = () => async (dispatch) => {
 
 export const emailVerified = () => async (dispatch, getState) => {
 
-  dispatch(CommonAction.setLoadingState(true)) //進入等待狀態
+  // dispatch(CommonAction.setLoadingState(true)) //進入等待狀態
 
   try {
     
     await dispatch(reloadUser()) //更新使用者
 
-    const { user } = getState().authReducer
+    const { user } = getState().userReducer
 
-    if(user.emailVerified) {
-
-      Alert.alert('驗證成功')
-
-    } else {
+    if(!user.emailVerified) {
 
       dispatch(CommonAction.setLoadingState(false)) //取消登帶狀態
-      Alert.alert('驗證失敗')
+      throw new Error('驗證失敗')
 
     }
 
   } catch(error) {
 
     console.log(error.toString())
+    throw error
   }
 
+}
+
+export const changeEmail = (newEmail, password) => async (dispatch) => {
+
+  try {
+    const user = firebase.auth().currentUser
+    const credential = firebase.auth.EmailAuthProvider.credential(user.email, password)
+    await user.reauthenticateAndRetrieveDataWithCredential(credential)
+
+    await user.updateEmail(newEmail)
+
+    dispatch(UserAction.updateUser({...user}))
+
+  } catch(e) {
+    console.log(e)
+    throw e
+  }
+}
+
+export const updateUserPassword = (oldPassword, newPassword) => async (dispatch) => {
+
+  try {
+    const user = firebase.auth().currentUser
+    const credential = firebase.auth.EmailAuthProvider.credential(user.email, oldPassword)
+    //重新驗證
+    await user.reauthenticateAndRetrieveDataWithCredential(credential)
+    //更新firebase user密碼
+    await user.updatePassword(newPassword)
+    //更新database user密碼
+    await setUserStateToDB({ password: newPassword })
+    // //更新redux user密碼
+    dispatch(AuthAction.setUserPassword(newPassword))
+
+  } catch(e) {
+    console.log(e.toString())
+    throw e
+  }
 }
 
 export const sendResetMail = (email) => async (dispatch) => {

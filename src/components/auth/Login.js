@@ -30,8 +30,15 @@ class Login extends React.Component{
     const { navigation, signInWithEmail, dispatch } = this.props
     const { email, password, remember} = this.state
     
-    this.setState({ loading: true})
-    await signInWithEmail(email, password, remember)
+    try {
+      this.setState({ loading: true})
+      await signInWithEmail(email, password, remember)
+    } catch(e) {
+
+      this.setState({ loading: false })
+      Alert.alert(e.toString())
+    }
+    
       
   }
 
@@ -43,7 +50,7 @@ class Login extends React.Component{
 
     } catch(e) {
       this.setState({ loading: false })
-      Alert.alert(e)
+      Alert.alert(e.toString())
     }
     
   }

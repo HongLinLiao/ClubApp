@@ -16,6 +16,7 @@ import {
 	SEND_RESET_MAIL_SUCCESS,
 	SEND_RESET_MAIL_FAILURE,
 	SET_VERIFY_EMAIL_AGAIN,
+	SET_USER_PASSWORD,
 	SIGN_OUT_FAILURE,
 } from '../actions/AuthAction'
 
@@ -24,18 +25,22 @@ import {
 	UPDATE_USER_STATE_FAILURE,
 	UPDATE_USER_SUCCESS,
 	UPDATE_USER_FALIURE,
+	UPDATE_USER_PROFILE,
+	UPDATE_USER_PROFILE_FALIURE,
 	SET_USER_FIRSTLOGIN,
 	CLEAR_USER_STATE
 } from '../actions/UserAction'
 
 
 const initialState = {
-	user: null, //firebase使用者
+	user: null, //使用者(信箱+暱稱＋大頭貼＋信箱驗證＋uid)
+	password: null, //密碼
 	message: null, //錯誤訊息
 	askVerify: true, //提醒驗證信箱
 	success: null, //執行狀態
 	firstLogin: true, //是否第一次登入
 	loginType: null, //登入類型
+	aboutMe: null, //自介
 }
 
 export const userReducer = (state = initialState, action) => {
@@ -51,8 +56,10 @@ export const userReducer = (state = initialState, action) => {
 			return {
 				...state,
 				user: action.userData.user,
+				password: action.userData.password,
 				firstLogin: action.userData.firstLogin,
-				loginType: action.userData.loginType
+				loginType: action.userData.loginType,
+				aboutMe: action.userData.aboutMe
 			}
 		case SIGN_IN_FAILURE:
 			return {
@@ -71,8 +78,10 @@ export const userReducer = (state = initialState, action) => {
 			return {
 				...state,
 				user: action.userData.user,
+				password: action.userData.password,
 				firstLogin: action.userData.firstLogin,
-				loginType: action.userData.loginType
+				loginType: action.userData.loginType,
+				aboutMe: action.userData.aboutMe
 			}
 		case SIGN_UP_FAILURE:
 			return {
@@ -91,8 +100,10 @@ export const userReducer = (state = initialState, action) => {
 			return {
 				...state,
 				user: action.userData.user,
+				password: action.userData.password,
 				firstLogin: action.userData.firstLogin,
-				loginType: action.userData.loginType
+				loginType: action.userData.loginType,
+				aboutMe: action.userData.aboutMe
 			}
 		case SIGN_WITH_FACEBOOK_FAILURE:
 			return {
@@ -111,8 +122,10 @@ export const userReducer = (state = initialState, action) => {
 			return {
 				...state,
 				user: action.userData.user,
+				password: action.userData.password,
 				firstLogin: action.userData.firstLogin,
-				loginType: action.userData.loginType
+				loginType: action.userData.loginType,
+				aboutMe: action.userData.aboutMe
 			}
 		case SIGN_WITH_GOOGLE_FAILURE:
 			return {
@@ -168,8 +181,10 @@ export const userReducer = (state = initialState, action) => {
 				...state,
 				success: true,
 				user: action.userData.user,
+				password: action.userData.password,
 				firstLogin: action.userData.firstLogin,
-				loginType: action.userData.loginType
+				loginType: action.userData.loginType,
+				aboutMe: action.userData.aboutMe,
 			}
 		case UPDATE_USER_STATE_FAILURE:
 			return {
@@ -189,10 +204,28 @@ export const userReducer = (state = initialState, action) => {
 				success: false,
 				message: action.message
 			}
+		case UPDATE_USER_PROFILE:
+			return {
+				...state,
+				success: true,
+				user: action.user,
+				aboutMe: action.profile.aboutMe,
+			}
+		case UPDATE_USER_PROFILE_FALIURE:
+			return {
+				...state,
+				success: false,
+				message: action.message
+			}
 		case SET_USER_FIRSTLOGIN:
 			return {
 				...state,
 				firstLogin: action.IsFirstLogin
+			}
+		case SET_USER_PASSWORD:
+			return {
+				...state,
+				password: action.newPassword
 			}
 
 		default:

@@ -1,14 +1,15 @@
-import {} from '../../modules/User'
+import { updateUserProfile } from '../../modules/User'
 import { connect } from 'react-redux';
 import ProfileSetting from '../../components/personal/ProfileSetting'
 
 
 const mapStateToProps = ({ userReducer }) => ({
   user: userReducer.user,
+  aboutMe: userReducer.aboutMe
 })
 
 const mapDispatchToProps = {
-  
+  updateUserProfile
 }
 
 
