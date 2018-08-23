@@ -63,7 +63,7 @@ class Login extends React.Component{
 
     } catch(e) {
       this.setState({ loading: false })
-      Alert.alert(e)
+      Alert.alert(e.toString())
 
     }
     
@@ -140,7 +140,7 @@ class Login extends React.Component{
               </TouchableOpacity>
               <TouchableOpacity 
                style={styles.gmailBotton}
-               onPress={() => this.handleGoogle}
+               onPress={() => this.handleGoogle()}
               >
                 <Image style={styles.gmailIcon}
                   source={require('../../images/search.png')}/>

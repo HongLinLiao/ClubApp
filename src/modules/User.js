@@ -16,10 +16,13 @@ export const updateUserStateAsync = (user) => async (dispatch) => {
 
   try {
     const userRef = firebase.database().ref('/users').child(user.uid)
+    const settingRef = firebase.database().ref('/setting').child(user.uid)
     const snapShot = await userRef.once('value')
 
     if(snapShot.val()) { //不是第一次登入才進入
+      const userSetting = await getUserSetting(settingRef)
       const userState = await getUserStateToRedux(snapShot)
+      userState = {...userState, userSetting}
       dispatch(UserAction.updateUserState(userState)) //更新使用者所有資料
     }
     else {
@@ -65,14 +68,16 @@ export const getUserStateToRedux = async (snapShot) => {
 
   try {
     const user = firebase.auth().currentUser
-    const { nickName, password, loginType, aboutMe } = snapShot.val()
+    const { nickName, password, loginType, aboutMe, joinClub, likeClub } = snapShot.val()
 
     return  {
       user: {...user},
       firstLogin: nickName ? false : true, 
-      password: password || null,
-      loginType,
-      aboutMe: aboutMe || null
+      password: password || null, //串接平台登入沒有密碼
+      loginType: loginType || null, //必要
+      aboutMe: aboutMe || null,
+      joinClub: joinClub ? Object.keys(joinClub) : null,
+      likeClub: likeClub ? Object.keys(likeClub) : null,
     }
     
   } catch(error) {
@@ -82,6 +87,27 @@ export const getUserStateToRedux = async (snapShot) => {
 
   }
 
+}
+
+//從database取得使用者設定
+export const getUserSetting = async (settingRef) => {
+
+  try {
+    const snapShot = await settingRef.once('value')
+    const { globalNotification, nightModeNotification, clubNotification } = snapShot.val()
+
+    return {
+      globalNotification,
+      nightModeNotification,
+      clubNotification: clubNotification ? Object.keys(clubNotification) : null
+    }
+
+  } catch(e) {
+
+    throw error
+    console.log(error.toString())
+
+  }
 }
 
 //把使用者資料寫入資料庫
@@ -117,13 +143,20 @@ export const setUserStateToDB = async (userState) => {
 export const createUserInDatabase = async (user, userInfo) => {
 
   try {
-    const userRef = firebase.database().ref('/users').child(user.uid)
+    const userRef = firebase.database().ref('users').child(user.uid)
+    const settingRef = firebase.database().ref('setting').child(user.uid)
     
-    userRef.set({
+    await userRef.set({
       eamil: user.email,
       password: userInfo.password,
       nickName: user.displayName,
       loginType: userInfo.loginType
+    })
+
+    await settingRef.set({
+      globalNotification: true,
+      nightModeNotification: false,
+      clubNotification: []
     })
 
     return {
@@ -131,6 +164,11 @@ export const createUserInDatabase = async (user, userInfo) => {
       firstLogin: true, //預設都是第一次登入
       password: userInfo.password,
       loginType: userInfo.loginType,
+      userSetting: {
+        globalNotification: true,
+        nightModeNotification: false,
+        clubNotification: []
+      }
     }
 
   } catch(e) {

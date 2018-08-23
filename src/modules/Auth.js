@@ -4,19 +4,23 @@ import * as UserAction from '../actions/UserAction'
 import * as firebase from "firebase"
 import Expo from 'expo' 
 import { Alert } from 'react-native'
-import { getUserStateToRedux, createUserInDatabase, reloadUser, setUserStateToDB } from './User'
+import { getUserStateToRedux, createUserInDatabase, reloadUser, setUserStateToDB, getUserSetting } from './User'
 import { clearUser } from '../actions/UserAction'
 
 const signInSuccess = (action, user, password, loginType) => async (dispatch) => {
 
   try {
     const userRef = firebase.database().ref('/users').child(user.uid)
+    const settingRef = firebase.database().ref('/setting').child(user.uid)
     const snapShot = await userRef.once('value')
     const userInfo = { password, loginType }
     let userState = null
 
     if(snapShot.val()) { //之前登入過
-      userState = await getUserStateToRedux(snapShot, userInfo)
+
+      const userSetting = await getUserSetting(settingRef)
+      userState = await getUserStateToRedux(snapShot)
+      userState = {...userState, userSetting}
     }
     else { //第一次登入
       userState = await createUserInDatabase(user, userInfo)
@@ -101,7 +105,8 @@ export const signInWithFacebook = () => async (dispatch) => {
 
     }
     else {
-      dispatch(CommonAction.setLoadingState(false)) //結束等待狀態
+      // dispatch(CommonAction.setLoadingState(false)) //結束等待狀態
+      throw new Error('取消登入')
     }
 
 
@@ -109,7 +114,7 @@ export const signInWithFacebook = () => async (dispatch) => {
 
     dispatch(AuthAction.signWithFacebookFail(error.toString()))
 
-    dispatch(CommonAction.setLoadingState(false)) //結束等待狀態
+    // dispatch(CommonAction.setLoadingState(false)) //結束等待狀態
 
     console.log(error.toString())
 

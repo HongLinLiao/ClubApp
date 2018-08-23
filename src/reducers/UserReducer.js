@@ -41,6 +41,8 @@ const initialState = {
 	firstLogin: true, //是否第一次登入
 	loginType: null, //登入類型
 	aboutMe: null, //自介
+	joinClub: null, //加入社團
+	likeClub: null, //收藏社團
 }
 
 export const userReducer = (state = initialState, action) => {
@@ -59,7 +61,9 @@ export const userReducer = (state = initialState, action) => {
 				password: action.userData.password,
 				firstLogin: action.userData.firstLogin,
 				loginType: action.userData.loginType,
-				aboutMe: action.userData.aboutMe
+				aboutMe: action.userData.aboutMe,
+				joinClub: action.userData.joinClub,
+				likeClub: action.userData.likeClub
 			}
 		case SIGN_IN_FAILURE:
 			return {
@@ -81,7 +85,9 @@ export const userReducer = (state = initialState, action) => {
 				password: action.userData.password,
 				firstLogin: action.userData.firstLogin,
 				loginType: action.userData.loginType,
-				aboutMe: action.userData.aboutMe
+				aboutMe: action.userData.aboutMe,
+				joinClub: action.userData.joinClub,
+				likeClub: action.userData.likeClub
 			}
 		case SIGN_UP_FAILURE:
 			return {
@@ -103,7 +109,9 @@ export const userReducer = (state = initialState, action) => {
 				password: action.userData.password,
 				firstLogin: action.userData.firstLogin,
 				loginType: action.userData.loginType,
-				aboutMe: action.userData.aboutMe
+				aboutMe: action.userData.aboutMe,
+				joinClub: action.userData.joinClub,
+				likeClub: action.userData.likeClub
 			}
 		case SIGN_WITH_FACEBOOK_FAILURE:
 			return {
@@ -125,7 +133,9 @@ export const userReducer = (state = initialState, action) => {
 				password: action.userData.password,
 				firstLogin: action.userData.firstLogin,
 				loginType: action.userData.loginType,
-				aboutMe: action.userData.aboutMe
+				aboutMe: action.userData.aboutMe,
+				joinClub: action.userData.joinClub,
+				likeClub: action.userData.likeClub
 			}
 		case SIGN_WITH_GOOGLE_FAILURE:
 			return {
@@ -185,6 +195,8 @@ export const userReducer = (state = initialState, action) => {
 				firstLogin: action.userData.firstLogin,
 				loginType: action.userData.loginType,
 				aboutMe: action.userData.aboutMe,
+				joinClub: action.userData.joinClub,
+				likeClub: action.userData.likeClub
 			}
 		case UPDATE_USER_STATE_FAILURE:
 			return {
