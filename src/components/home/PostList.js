@@ -10,8 +10,8 @@ class PostList extends React.Component {
     }
 
     getPost = async () => {
-        const { getPostList, post } = this.props;
-        await getPostList(); //取得貼文列
+        const { getPostList, joinClub, likeClub } = this.props;
+        await getPostList(joinClub, likeClub); //取得貼文列
     }
 
     goSelectingPage = (element) => {

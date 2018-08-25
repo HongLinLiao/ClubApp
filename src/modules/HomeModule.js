@@ -2,18 +2,14 @@ import * as HomeAction from '../actions/HomeAction'
 import * as firebase from "firebase"
 
 //取得貼文列表
-export const getPostList = () => async (dispatch) => {
+export const getPostList = (joinClub, likeClub) => async (dispatch) => {
 
     dispatch(HomeAction.getPostListRequest());
 
     try {
-        var i, j;
+        var i;
         var postList = [];
 
-        //user已加入的社團key
-        var joinClub = ['c001'];
-        //user已收藏的社團key
-        var likeClub = ['c002'];
         var allClub = joinClub.concat(likeClub);
 
         if (allClub.length > 0) {
@@ -38,22 +34,22 @@ export const getPostList = () => async (dispatch) => {
                             else {
                                 copyPost.memo = copyPost.content;
                             }
-
-                            //將uid轉換成value
+                            //把uid移至value
                             Object.keys(copyPost).map(function (element) {
                                 if (element.toString().length > 20) {
                                     copyPost.uid = element.toString();
-                                    //根據抓到的uid下去抓nickName
-                                    var nickNameRef = firebase.database().ref('users/' + element.toString() + '/nickName');
-                                    nickNameRef.once('value')
-                                        .then( function (snapshop){
-                                            copyPost.poster = snapshop.val();
-                                            console.log(copyPost.poster)
-                                        });
                                 }
                             });
                             postList.push(copyPost)
-                        });
+                        });                       
+                    });
+            }
+            for (i = 0; i < postList.length; i++) {
+                //根據抓到的uid下去抓nickName
+                const nickNameRef = firebase.database().ref('users/' + postList[i].uid + '/nickName');
+                await nickNameRef.once('value')
+                    .then(function (snapshop) {
+                        postList[i].poster = snapshop.val();
                     });
             }
         }
