@@ -21,7 +21,7 @@ class Profile extends React.Component {
         <Text>社團數量</Text>
         <Button title='編輯個人' onPress={() => this.props.navigation.push('ProfileSetting')}/>
         <Button title='社團管理'/>
-        <Button title='通知設定'/>
+        <Button title='通知設定' onPress={() => this.props.navigation.push('Notification')}/>
         <Button title='進階管理' onPress={() => this.props.navigation.push('AdvancedSetting')}/>
         <Button title='登出' onPress={() => signOut()}/>
       </View>

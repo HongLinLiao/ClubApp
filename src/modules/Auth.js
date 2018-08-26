@@ -4,7 +4,7 @@ import * as UserAction from '../actions/UserAction'
 import * as firebase from "firebase"
 import Expo from 'expo' 
 import { Alert } from 'react-native'
-import { getUserStateToRedux, createUserInDatabase, reloadUser, setUserStateToDB, getUserSetting } from './User'
+import { getUserStateToRedux, createUserInDatabase, reloadUser, setUserStateToDB, getUserSettingToRedux, createUserSettingInDB } from './User'
 import { clearUser } from '../actions/UserAction'
 
 const signInSuccess = (action, user, password, loginType) => async (dispatch) => {
@@ -12,14 +12,20 @@ const signInSuccess = (action, user, password, loginType) => async (dispatch) =>
   try {
     const userRef = firebase.database().ref('/users').child(user.uid)
     const settingRef = firebase.database().ref('/setting').child(user.uid)
-    const snapShot = await userRef.once('value')
+    const userData = await userRef.once('value')
+    const settingData = await settingRef.once('value')
     const userInfo = { password, loginType }
     let userState = null
 
-    if(snapShot.val()) { //之前登入過
+    if(userData.val()) { //之前登入過
+      let userSetting = null
+      if(settingData.val()) { //是否使用者設定資料
+        userSetting = await getUserSettingToRedux(settingData) 
+      } else {
+        userSetting = await createUserSettingInDB(settingRef)
+      }
 
-      const userSetting = await getUserSetting(settingRef)
-      userState = await getUserStateToRedux(snapShot)
+      userState = await getUserStateToRedux(userData)
       userState = {...userState, userSetting}
     }
     else { //第一次登入

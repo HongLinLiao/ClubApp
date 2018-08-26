@@ -6,6 +6,7 @@ import EmailReVerifiedPage from '../containers/personal/EmailReVerifiedPage'
 import SendEmailSuccessfulPage from '../containers/personal/SendEmailSuccessfulPage'
 import ChangeEamilPage from '../containers/personal/ChangeEamilPage'
 import ChangePasswordPage from '../containers/personal/ChangePasswordPage'
+import NotificationPage from '../containers/personal/NotificationPage'
 
 export default createStackNavigator({
   Profile: ProfilePage,
@@ -14,5 +15,6 @@ export default createStackNavigator({
   EmailReVerified: EmailReVerifiedPage,
   SendEmailSuccessful: SendEmailSuccessfulPage,
   ChangeEamil: ChangeEamilPage,
-  ChangePassword: ChangePasswordPage
+  ChangePassword: ChangePasswordPage,
+  Notification: NotificationPage,
 })

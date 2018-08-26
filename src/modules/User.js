@@ -17,11 +17,19 @@ export const updateUserStateAsync = (user) => async (dispatch) => {
   try {
     const userRef = firebase.database().ref('/users').child(user.uid)
     const settingRef = firebase.database().ref('/setting').child(user.uid)
-    const snapShot = await userRef.once('value')
+    const userData = await userRef.once('value')
+    const settingData = await settingRef.once('value')
 
-    if(snapShot.val()) { //不是第一次登入才進入
-      const userSetting = await getUserSetting(settingRef)
-      const userState = await getUserStateToRedux(snapShot)
+    if(userData.val()) { //不是第一次登入才進入
+      let userSetting = null
+      
+      if(settingData.val()) { //有沒有使用者設定資料
+        userSetting = await getUserSettingToRedux(settingData)
+      } else {
+        userSetting = createUserSettingInDB(settingRef)
+      }
+
+      let userState = await getUserStateToRedux(userData)
       userState = {...userState, userSetting}
       dispatch(UserAction.updateUserState(userState)) //更新使用者所有資料
     }
@@ -33,7 +41,8 @@ export const updateUserStateAsync = (user) => async (dispatch) => {
   } catch(error) {
 
     dispatch(UserAction.updateUserStateFail(error.toString()))
-
+    console.log(error.toString())
+    throw error
   }
 
 }
@@ -90,22 +99,22 @@ export const getUserStateToRedux = async (snapShot) => {
 }
 
 //從database取得使用者設定
-export const getUserSetting = async (settingRef) => {
+export const getUserSettingToRedux = async (snapShot) => {
 
   try {
-    const snapShot = await settingRef.once('value')
+    
     const { globalNotification, nightModeNotification, clubNotification } = snapShot.val()
 
     return {
-      globalNotification,
-      nightModeNotification,
-      clubNotification: clubNotification ? Object.keys(clubNotification) : null
+      globalNotification: globalNotification == undefined ? globalNotification : true,
+      nightModeNotification: nightModeNotification == undefined ? nightModeNotification : false,
+      clubNotification: clubNotification ? Object.keys(clubNotification) : []
     }
 
   } catch(e) {
 
-    throw error
-    console.log(error.toString())
+    throw e
+    console.log(e.toString())
 
   }
 }
@@ -179,6 +188,25 @@ export const createUserInDatabase = async (user, userInfo) => {
 
 }
 
+export const createUserSettingInDB = async (settingRef) => {
+
+  try {
+    await settingRef.set({
+      globalNotification: true,
+      nightModeNotification: false,
+      clubNotification: []
+    })
+
+    return {
+      globalNotification: true,
+      nightModeNotification: false,
+      clubNotification: []
+    }
+  } catch(e) {
+    console.log(e)
+    throw e
+  }
+}
 
 /*
 |-----------------------------------------------
