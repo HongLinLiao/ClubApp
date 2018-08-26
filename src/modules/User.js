@@ -106,9 +106,9 @@ export const getUserSettingToRedux = async (snapShot) => {
     const { globalNotification, nightModeNotification, clubNotification } = snapShot.val()
 
     return {
-      globalNotification: globalNotification == undefined ? globalNotification : true,
-      nightModeNotification: nightModeNotification == undefined ? nightModeNotification : false,
-      clubNotification: clubNotification ? Object.keys(clubNotification) : []
+      globalNotification,
+      nightModeNotification,
+      clubNotification: clubNotification || []
     }
 
   } catch(e) {
@@ -191,17 +191,22 @@ export const createUserInDatabase = async (user, userInfo) => {
 export const createUserSettingInDB = async (settingRef) => {
 
   try {
-    await settingRef.set({
-      globalNotification: true,
-      nightModeNotification: false,
-      clubNotification: []
-    })
-
-    return {
-      globalNotification: true,
-      nightModeNotification: false,
-      clubNotification: []
+    let testData =  {
+      c001: {clubName: '熱舞社', schoolName: '長庚大學', on: false},
+      c002: {clubName: '吉他社', schoolName: '長庚大學', on: true},
+      c003: {clubName: '紫藤花親善社', schoolName: '長庚大學', on: true},
+      c004: {clubName: '跆拳道社', schoolName: '長庚大學', on: false},
+      c005: {clubName: 'xxxx社', schoolName: '長庚大學', on: true},
     }
+    let settingData = {
+      globalNotification: true,
+      nightModeNotification: false,
+      clubNotification: testData
+    }
+    await settingRef.set(settingData)
+
+    return settingData
+
   } catch(e) {
     console.log(e)
     throw e
