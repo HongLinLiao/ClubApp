@@ -1,14 +1,13 @@
 import { connect } from 'react-redux'
-// import {  } from '../../modules/HomeModule'
+import { setClubStatus } from '../../modules/Home'
 import SelectClub from '../../components/home/SelectClub'
 
-const mapStateToProps = ({ userReducer , homeReducer }) => ({
-    user: userReducer.user
+const mapStateToProps = ({ homeReducer }) => ({
+    clubList: homeReducer.clubList
 })
 
 const mapDispatchToProps = {
-    // getPostList ,
-    // setPostListToPost
+    setClubStatus
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(SelectClub);
