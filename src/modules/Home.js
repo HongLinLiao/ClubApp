@@ -1,5 +1,5 @@
 import * as HomeAction from '../actions/HomeAction'
-import { getPostData } from './Data';
+import { getPostData } from './Post';
 import { setClubList } from './Club';
 import * as firebase from "firebase"
 
@@ -22,7 +22,6 @@ export const getHomeClubList = (joinClub, likeClub) => async (dispatch) => {
 //取得首頁貼文列表
 export const getHomePostList = (clubList) => async (dispatch) => {
     try {
-        console.log('haha');
         var i;
         const postList = {};
 

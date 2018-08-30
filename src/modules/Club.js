@@ -1,6 +1,38 @@
-import { getClubData } from './Data';
 import * as firebase from 'firebase'
 import * as ClubAction from '../actions/ClubAction'
+
+//從firebase取得指定club資料
+export const getClubData = async (clubKey) => {
+  const clubRef = firebase.database().ref('clubs/' + clubKey);
+  const snapshot = await clubRef.once('value');
+  return snapshot.val();
+};
+
+//依據傳入club物件去產生一個完整clubList
+export const setClubList = async(allClub) =>  {
+  try {
+      const clubList = {};
+
+      const promises = Object.keys(allClub).map(async (element) => {
+
+          const club = await getClubData(element);
+
+          const tempObj = {};
+          tempObj[element] = {
+              clubKey: element,
+              selectStatus: true,
+              schoolName: club.schoolName,
+              clubName: club.clubName
+          };
+          clubList = { ...clubList, ...tempObj };
+      });
+      await Promise.all(promises);
+      return clubList;
+  }
+  catch (error) {
+      console.log(error.toString());
+  }
+}
 
 export const createClub = (schoolName, clubName, open) => async (dispatch, getState) => {
   
@@ -47,28 +79,3 @@ export const createClub = (schoolName, clubName, open) => async (dispatch, getSt
   }
 }
 
-//依據傳入club物件去產生一個完整clubList
-export const setClubList = async(allClub) =>  {
-    try {
-        const clubList = {};
-
-        const promises = Object.keys(allClub).map(async (element) => {
-
-            const club = await getClubData(element);
-
-            const tempObj = {};
-            tempObj[element] = {
-                clubKey: element,
-                selectStatus: true,
-                schoolName: club.schoolName,
-                clubName: club.clubName
-            };
-            clubList = { ...clubList, ...tempObj };
-        });
-        await Promise.all(promises);
-        return clubList;
-    }
-    catch (error) {
-        console.log(error.toString());
-    }
-}

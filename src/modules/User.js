@@ -366,4 +366,9 @@ export const setNickName = (nickName) => async (dispatch) => {
 
 }
 
-
+//從firebase取得指定uid之nickName
+export const getUserData = async (uid) => {
+  const uidRef = firebase.database().ref('users/' + uid);
+  const snapshot = await uidRef.once('value');
+  return snapshot.val();
+}
