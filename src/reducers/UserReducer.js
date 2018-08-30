@@ -31,6 +31,10 @@ import {
 	CLEAR_USER_STATE
 } from '../actions/UserAction'
 
+import {
+	CREATE_CLUB
+} from '../actions/ClubAction'
+
 
 const initialState = {
 	user: null, //使用者(信箱+暱稱＋大頭貼＋信箱驗證＋uid)
@@ -240,6 +244,13 @@ export const userReducer = (state = initialState, action) => {
 				password: action.newPassword
 			}
 
+		case CREATE_CLUB:
+			let newJoinClub = {...state.joinClub}
+			newJoinClub[action.clubInfo.cid] = true
+			return {
+				...state,
+				joinClub: newJoinClub
+			}
 		default:
 			return state
 	}

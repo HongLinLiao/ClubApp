@@ -16,7 +16,7 @@ export const updateUserStateAsync = (user) => async (dispatch) => {
 
   try {
     const userRef = firebase.database().ref('/users').child(user.uid)
-    const settingRef = firebase.database().ref('/setting').child(user.uid)
+    const settingRef = firebase.database().ref('/settings').child(user.uid)
     const userData = await userRef.once('value')
     const settingData = await settingRef.once('value')
 
@@ -24,13 +24,14 @@ export const updateUserStateAsync = (user) => async (dispatch) => {
       let userSetting = null
       
       if(settingData.val()) { //有沒有使用者設定資料
-        userSetting = await getUserSettingToRedux(settingData)
+        userSetting = await getUserSettingToRedux(userData, settingData)
       } else {
-        userSetting = createUserSettingInDB(settingRef)
+        userSetting = await createUserSettingInDB(settingRef)
       }
 
       let userState = await getUserStateToRedux(userData)
       userState = {...userState, userSetting}
+
       dispatch(UserAction.updateUserState(userState)) //更新使用者所有資料
     }
     else {
@@ -85,8 +86,8 @@ export const getUserStateToRedux = async (snapShot) => {
       password: password || null, //串接平台登入沒有密碼
       loginType: loginType || null, //必要
       aboutMe: aboutMe || null,
-      joinClub: joinClub ? Object.keys(joinClub) : null,
-      likeClub: likeClub ? Object.keys(likeClub) : null,
+      joinClub: joinClub || null,
+      likeClub: likeClub || null,
     }
     
   } catch(error) {
@@ -99,16 +100,27 @@ export const getUserStateToRedux = async (snapShot) => {
 }
 
 //從database取得使用者設定
-export const getUserSettingToRedux = async (snapShot) => {
+export const getUserSettingToRedux = async (userShot, settingShot) => {
 
-  try {
+  try { 
+    const { globalNotification, nightModeNotification, clubNotificationList } = settingShot.val()
+
+    const promises = Object.keys(clubNotificationList).map(
+      async (key) => {
+        const clubShot = await firebase.database().ref('clubs/' + key).once('value')
+        const { clubName, schoolName } = clubShot.val()
+        const { on } = settingShot.val().clubNotificationList[key]
+        clubNotificationList[key] = {clubName, schoolName, on}
+        console.log(clubNotificationList)
+      }
+    )
     
-    const { globalNotification, nightModeNotification, clubNotification } = snapShot.val()
+    await Promise.all(promises)
 
     return {
       globalNotification,
       nightModeNotification,
-      clubNotification: clubNotification || []
+      clubNotificationList: clubNotificationList || null
     }
 
   } catch(e) {
@@ -153,7 +165,7 @@ export const createUserInDatabase = async (user, userInfo) => {
 
   try {
     const userRef = firebase.database().ref('users').child(user.uid)
-    const settingRef = firebase.database().ref('setting').child(user.uid)
+    const settingRef = firebase.database().ref('settings').child(user.uid)
     
     await userRef.set({
       eamil: user.email,
@@ -165,7 +177,7 @@ export const createUserInDatabase = async (user, userInfo) => {
     await settingRef.set({
       globalNotification: true,
       nightModeNotification: false,
-      clubNotification: []
+      clubNotificationList: true
     })
 
     return {
@@ -176,7 +188,7 @@ export const createUserInDatabase = async (user, userInfo) => {
       userSetting: {
         globalNotification: true,
         nightModeNotification: false,
-        clubNotification: []
+        clubNotificationList: {}
       }
     }
 
@@ -188,22 +200,43 @@ export const createUserInDatabase = async (user, userInfo) => {
 
 }
 
+
+
 export const createUserSettingInDB = async (settingRef) => {
 
   try {
-    let testData =  {
-      c001: {clubName: '熱舞社', schoolName: '長庚大學', on: false},
-      c002: {clubName: '吉他社', schoolName: '長庚大學', on: true},
-      c003: {clubName: '紫藤花親善社', schoolName: '長庚大學', on: true},
-      c004: {clubName: '跆拳道社', schoolName: '長庚大學', on: false},
-      c005: {clubName: 'xxxx社', schoolName: '長庚大學', on: true},
-    }
+    const user = firebase.auth().currentUser
+    const joinClub = await firebase.database().ref('users/' + user.uid + '/joinClub').orderByKey().once('value')
+
+    let clubNotificationList = {}
+    let DB_clubNotificationList = {}
+    
+    //抓取每個社團的資料
+    const promises = Object.keys(joinClub.val()).map(
+      async (key) => {
+        const clubShot = await firebase.database().ref('clubs/' + key).once('value')
+        const { clubName, schoolName } = clubShot.val()
+        clubNotificationList[key] = {clubName, schoolName, on: true}
+        DB_clubNotificationList[key] = { on: true }
+        console.log(DB_clubNotificationList)
+      }
+    )
+
+    await Promise.all(promises)
+
     let settingData = {
       globalNotification: true,
       nightModeNotification: false,
-      clubNotification: testData
+      clubNotificationList: clubNotificationList || null
     }
-    await settingRef.set(settingData)
+
+    let DB_settingData = {
+      globalNotification: true,
+      nightModeNotification: false,
+      clubNotificationList: DB_clubNotificationList ? DB_clubNotificationList : true
+    }
+
+    await settingRef.set(DB_settingData)
 
     return settingData
 

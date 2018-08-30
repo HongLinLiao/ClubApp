@@ -1,6 +1,6 @@
 import React from 'react'
-import { View } from 'react-native'
-import { CheckBox, ListItem } from 'react-native-elements'
+import { View, Alert } from 'react-native'
+import { ListItem } from 'react-native-elements'
 
 class Notification extends React.Component {
 
@@ -8,53 +8,75 @@ class Notification extends React.Component {
     loading: false,
     globalChecked: true,
     nightModeChecked: false,
-    clubList: [
-      {clubName: '熱舞社', schoolName: '長庚大學', on: false}, 
-      {clubName: '吉他社', schoolName: '長庚大學', on: true},
-      {clubName: '紫藤花親善社', schoolName: '長庚大學', on: true},
-      {clubName: '跆拳道社', schoolName: '長庚大學', on: false},
-      {clubName: 'xxxx社', schoolName: '長庚大學', on: true},
-    ],
+    clubList: {}
   }
 
-  setGlobal = async () => {
+  setGlobal = async (on) => {
+
+    try {
+      await this.props.setGlobalNotification(on)
+
+    } catch(e) {
+      Alert.alert(e.toString())
+    }
+  }
+
+  setNight = async (on) => {
+
+    try {
+      await this.props.setNightModeNotification(on)
+
+    } catch(e) {
+      Alert.alert(e.toString())
+    }
+  }
+
+  setClub = async (key, on) => {
+
+    try {
+      let clubSetting = {...this.props.clubNotificationList[key]}
+      clubSetting.on = on
+      await this.props.setClubNotification(key, clubSetting)
+      console.log(clubSetting)
+
+    } catch(e) {
+      Alert.alert(e.toString())
+    }
 
   }
 
-  setNight = async () => {
+  objectToArray = (object) => {
 
-  }
-
-  setClub = async (index, on) => {
-
-    let list = this.state.clubList
-    let club = list[index]
-    list.splice(index, 1, {...club, on: !on})
-    this.setState({
-      clubList: list
+    let result = []
+    Object.keys(object).map((key) => {
+      result.push(object[key])
     })
 
-    
+    return result
   }
 
   render() {
+    const { globalNotification, nightModeNotification, clubNotificationList } = this.props
     return (
       <View>
         <ListItem
           title='提醒'
-          switch={{value: this.state.globalChecked, onValueChange: () => this.setState({globalChecked: !this.state.globalChecked}) }}
+          switch={{value: globalNotification, onValueChange: () => this.setGlobal(!globalNotification) }}
         />
         <ListItem
           title='夜間模式'
-          switch={{value: this.state.nightModeChecked, onValueChange: () => this.setState({nightModeChecked: !this.state.nightModeChecked}) }}          
+          switch={{value: nightModeNotification, onValueChange: () => this.setNight(!nightModeNotification) }}          
         />
-        {this.state.clubList.map((item, index) => (
-          <ListItem
-            title={ item.schoolName + '  ' + item.clubName }
-            key={index}
-            switch={{value: item.on, onValueChange: () => this.setClub(index, item.on), disabled: this.state.globalChecked}}
-          />
-        ))}
+        {Object.keys(clubNotificationList).map((key) => {
+          const item = clubNotificationList[key]
+          return (
+            <ListItem
+              title={ item.schoolName + '  ' + item.clubName }
+              key={key}
+              switch={{value: item.on, onValueChange: () => this.setClub(key, !item.on), disabled: globalNotification}}
+            />
+          )
+        })}
       </View>
     )
   }

@@ -1,6 +1,6 @@
 import { } from '../../modules/App'
 import { connect } from 'react-redux';
-import FavoriteClub from '../../components/personal/FavoriteClub'
+import CreateClub from '../../components/personal/CreateClub'
 
 
 const mapStateToProps = ({ userReducer, settingReducer }) => ({
@@ -12,4 +12,4 @@ const mapDispatchToProps = {
 }
 
 
-export default connect(mapStateToProps, mapDispatchToProps)(FavoriteClub);
+export default connect(mapStateToProps, mapDispatchToProps)(CreateClub);

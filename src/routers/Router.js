@@ -1,6 +1,7 @@
 import { createStackNavigator, createBottomTabNavigator, createSwitchNavigator, createDrawerNavigator } from 'react-navigation'
 import AuthRouter from './AuthRouter'
 import HomeRouter from './HomeRouter'
+import ClubRouter from './ClubRouter'
 import PersonalRouter from './PersonalRouter'
 import FirstLoginRouter from './FirstLoginRouter'
 import UserRouter from './UserRouter'
@@ -8,7 +9,8 @@ import UserRouter from './UserRouter'
 //第三層
 const MainRouter = createBottomTabNavigator({
     HomeRouter: HomeRouter,
-    PersonalRouter: PersonalRouter
+    ClubRouter: ClubRouter,
+    PersonalRouter: PersonalRouter,
 },
 {
     navigationOptions: {
