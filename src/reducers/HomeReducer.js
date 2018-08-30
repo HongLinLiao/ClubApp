@@ -1,8 +1,6 @@
 import {
-    SET_CLUB_LIST_REQUEST,
     SET_CLUB_LIST_SUCCESS,
     SET_CLUB_LIST_FAILURE,
-    GET_POST_LIST_REQUEST,
     GET_POST_LIST_SUCCESS,
     GET_POST_LIST_FAILURE,
     PRESS_POST_SUCCESS,
@@ -17,21 +15,19 @@ const initialState = {
     postList: [],//貼文列
     post: [],//首頁點擊的那篇貼文
     status: false,//執行狀態
-    clubList: [],//社團列表（控制篩選bool）
+    clubList: [],//社團列表（控制篩選bool
+    numSelectingStatusTrue: null //計算clubList中有幾個是true
 }
 
 export const homeReducer = (state = initialState, action) => {
     switch (action.type) {
-        //取得user club
-        case SET_CLUB_LIST_REQUEST:
-            return {
-                ...state,
-                status: true
-            }
+        //取得user clubList
         case SET_CLUB_LIST_SUCCESS:
             return {
                 ...state,
                 clubList: action.clubList,
+                numSelectingStatusTrue: action.numSelectingStatusTrue,
+                status: true
             }
         case SET_CLUB_LIST_FAILURE:
             return {
@@ -40,11 +36,6 @@ export const homeReducer = (state = initialState, action) => {
                 message: action.message
             }
         //取得貼文列
-        case GET_POST_LIST_REQUEST:
-            return {
-                ...state,
-                status: true
-            }
         case GET_POST_LIST_SUCCESS:
             return {
                 ...state,
@@ -70,15 +61,11 @@ export const homeReducer = (state = initialState, action) => {
                 message: action.message
             }
         //篩選頁面按鈕觸發
-        case SET_CLUB_STATUS_REQUEST:
-            return {
-                ...state,
-                status: true,
-            }
         case SET_CLUB_STATUS_SUCCESS:
             return {
                 ...state,
-                clubList: action.clubList
+                clubList: action.clubList,
+                numSelectingStatusTrue: action.numSelectingStatusTrue
             }
         case SET_CLUB_STATUS_FAILURE:
             return {

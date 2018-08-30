@@ -1,9 +1,8 @@
 import * as UserAction from '../actions/UserAction'
 import * as CommonAction from '../actions/CommonAction'
 import * as firebase from "firebase"
-import { ImagePicker } from 'expo' 
+import { ImagePicker } from 'expo'
 import { Alert } from 'react-native'
-
 
 export const selectPhoto = async () => {
 
@@ -12,13 +11,13 @@ export const selectPhoto = async () => {
       allowsEditing: true,
       aspect: [4, 3],
     });
-  
-    if(!pickerResult.cancelled) {
-      
+
+    if (!pickerResult.cancelled) {
+
       return pickerResult.uri
     }
 
-  } catch(e) {
+  } catch (e) {
 
     console.log(e)
     throw e

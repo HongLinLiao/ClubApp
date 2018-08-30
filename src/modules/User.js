@@ -76,8 +76,8 @@ export const getUserStateToRedux = async (snapShot) => {
       password: password || null, //串接平台登入沒有密碼
       loginType: loginType || null, //必要
       aboutMe: aboutMe || null,
-      joinClub: joinClub ? Object.keys(joinClub) : null,
-      likeClub: likeClub ? Object.keys(likeClub) : null,
+      joinClub: joinClub || null,
+      likeClub: likeClub || null,
     }
     
   } catch(error) {

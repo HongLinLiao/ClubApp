@@ -1,31 +1,17 @@
 import * as HomeAction from '../actions/HomeAction'
+import { getPostData } from './Data';
+import { setClubList } from './Club';
 import * as firebase from "firebase"
 
-//從userReducer取得user clubs
-export const setClubList = (joinClub, likeClub) => async (dispatch) => {
-
-    dispatch(HomeAction.setClubListRequest());
-
+//取得clubList放入homeReducer控制篩選（初始狀態）
+export const getHomeClubList = (joinClub, likeClub) => async (dispatch) => {
     try {
-        var i;
-        var clubList = [];
-        var allClub = joinClub.concat(likeClub);
-        for (i = 0; i < allClub.length; i++) {
-            if (allClub[i] == null) {
-                continue;
-            }
-            else {
-                var obj = {};
-                obj.index = i
-                obj.id = allClub[i];
-                obj.status = true;
+        const allClub = { ...joinClub, ...likeClub };
+        const clubList = await setClubList(allClub);
+        const numSelectingStatusTrue = Object.keys(clubList).length;
 
-                //name會在getPostList裡讀取放入clubList
-
-                clubList.push(obj);
-            }
-        }
-        dispatch(HomeAction.setClubListSuccess(clubList));
+        dispatch(HomeAction.setClubListSuccess(clubList, numSelectingStatusTrue));
+        return clubList;
     }
     catch (error) {
         dispatch(HomeAction.setClubListFailure(error.toString()));
@@ -33,88 +19,46 @@ export const setClubList = (joinClub, likeClub) => async (dispatch) => {
     }
 }
 
-//取得貼文列表
-export const getPostList = () => async (dispatch, getState) => {
-
-    //從store裡面拿clubList
-    var clubList = getState().homeReducer.clubList;
-    console.log(clubList)
-
-    dispatch(HomeAction.setClubListRequest());
-    dispatch(HomeAction.getPostListRequest());
+//取得首頁貼文列表
+export const getHomePostList = (clubList) => async (dispatch) => {
     try {
+        console.log('haha');
         var i;
-        var postList = [];
+        const postList = {};
 
-        if (clubList.length > 0) {
+        //clubList裡有社團才搜尋貼文
+        if (Object.keys(clubList).length > 0) {
 
-            //根據user的社團去搜尋社團key下的post子樹
-            for (i = 0; i < clubList.length; i++) {
-                var postRef;
+            const clubKey = Object.keys(clubList);
+            //根據clubList去搜尋clubKey下的post
+            for (i = 0; i < clubKey.length; i++) {
 
-                //將
-                var clubRef = firebase.database().ref('Club/' + clubList[i].id);
-                var snapshot = await clubRef.once('value');
-                clubList[i].name = snapshot.val().schoolName + snapshot.val().clubName;
-
-                if (clubList[i].status == false) {
+                //篩選關掉則跳過搜尋
+                if (clubList[clubKey[i]].selectStatus == false) {
                     continue;
                 }
                 else {
-                    postRef = firebase.database().ref('Post/' + clubList[i].id);
+                    const post = await getPostData(clubKey[i]);
+                    if (post == null) {
+                        continue;
+                    }
+                    else {
+                        postList = { ...postList, ...post };
+                    }
                 }
-
-                await postRef.once('value')
-                    .then(function (snapshot) {
-                        //過濾掉第一層 post的key
-                        snapshot.forEach(function (childSnapshot) {
-
-                            //不能add property進childSnapshot
-                            var copyPost = childSnapshot.val();
-
-                            //把content縮短成memo簡寫
-                            if (copyPost.content.length > 10) {
-                                //取content 0~21個字元
-                                copyPost.memo = copyPost.content.substring(0, 21) + '......';
-                            }
-                            else {
-                                copyPost.memo = copyPost.content;
-                            }
-
-                            copyPost.clubName = clubList[i].name;
-
-                            //把uid移至value
-                            Object.keys(copyPost).map(function (element) {
-                                if (element.toString().length > 20) {
-                                    copyPost.uid = element.toString();
-                                }
-                            });
-                            postList.push(copyPost)
-                        });
-                    });
             }
-            for (i = 0; i < postList.length; i++) {
-                //根據抓到的uid下去抓nickName
-                const nickNameRef = firebase.database().ref('users/' + postList[i].uid + '/nickName');
-                await nickNameRef.once('value')
-                    .then(function (snapshot) {
-                        postList[i].poster = snapshot.val();
-                    });
+            //使用者收藏與加入的社團皆未有文章存在
+            if (Object.keys(postList).length == 0) {
+                alert('使用者之社團未存在貼文');
             }
         }
         else {
             //user沒加入或收藏社團
+            alert('使用者沒加入或收藏社團');
         }
-
-        if (postList.length == 0) {
-            alert('Your clubs have not exist post!');
-        }
-
-        dispatch(HomeAction.setClubListSuccess(clubList));
         dispatch(HomeAction.getPostListSuccess(postList));
     }
     catch (error) {
-        dispatch(HomeAction.setClubListFailure(error.toString()));
         dispatch(HomeAction.getPostListFailure(error.toString()))
         console.log(error.toString())
     }
@@ -134,14 +78,32 @@ export const setPostListToPost = (element) => async (dispatch) => {
     }
 }
 
-export const setClubStatus = (index, clubList) => async (dispatch) => {
-
-    dispatch(HomeAction.setClubStatusRequest());
-
+//改變HomeClubList的selectStatus，並判斷是否有關閉全部selectStatus
+export const setHomeClubStatus = (clubKey, clubList, numSelectingStatusTrue) => async (dispatch) => {
     try {
-        clubList[index].status = !(clubList[index].status);
-
-        dispatch(HomeAction.setClubStatusSuccess(clubList));
+        if (numSelectingStatusTrue == 1) {
+            if (clubList[clubKey].selectStatus == true) {
+                alert('至少需有一個社團保持開啟！');
+            }
+            else {
+                clubList[clubKey].selectStatus = !(clubList[clubKey].selectStatus);
+                numSelectingStatusTrue=numSelectingStatusTrue+1;
+                dispatch(HomeAction.setClubStatusSuccess(clubList,numSelectingStatusTrue));
+                dispatch(getHomePostList(clubList));
+            }
+        }
+        else {
+            if(clubList[clubKey].selectStatus== false){
+                numSelectingStatusTrue=numSelectingStatusTrue+1;
+            }
+            else{
+                numSelectingStatusTrue=numSelectingStatusTrue-1;
+            }
+            clubList[clubKey].selectStatus = !(clubList[clubKey].selectStatus);
+            dispatch(HomeAction.setClubStatusSuccess(clubList,numSelectingStatusTrue));
+            dispatch(getHomePostList(clubList));
+        }
+        
     }
     catch (error) {
         dispatch(HomeAction.setClubStatusFailure(error.toString()));

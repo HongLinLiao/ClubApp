@@ -5,10 +5,11 @@ const SelectClubElement = (element) => {
 
     return (
         <View>
-            <Text>{element.name}</Text>
+            <Text>{element.clubName}</Text>
+            <Text>{element.schoolName}</Text>
             <Switch
-                value={element.status}
-                onValueChange={async()=>await element.setClubStatus(element.index, element.clubList)}
+                value={element.selectStatus}
+                onValueChange={async()=>await element.setHomeClubStatus(element.clubKey, element.clubList,element.numSelectingStatusTrue)}
             />
         </View>
     );

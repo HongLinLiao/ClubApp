@@ -5,43 +5,39 @@ import PostListElement from './PostListElement'
 
 class PostList extends React.Component {
 
-    componentWillMount() {
-        this.setClub();
+    componentDidMount(){
+        this.setHomeData();
+    }
+    
+    setHomeData = async () => {
+        const { getHomeClubList, joinClub, likeClub, getHomePostList } = this.props;
+        //從userReducer將UserClubs存入homeReducer
+        const clubList = await getHomeClubList(joinClub, likeClub);
+        //用clubList去搜尋產生postList
+        await getHomePostList(clubList);
     }
 
-    componentDidMount() {
-        this.getPost();
-    }
-
-    setClub = async () => {
-        const { setClubList, joinClub, likeClub } = this.props;
-        await setClubList(joinClub, likeClub);//取得user club
-    }
-
-    getPost = async () => {
-        const { getPostList } = this.props;
-        await getPostList(); //取得貼文列
-    }
-
+    //進入內頁onPress()事件，放入postList讓元件render
     goSelectingPage = (navigation) => {
         navigation.navigate('Selecting')
     }
 
     render() {
+
         return (
             <ScrollView>
                 <Button
                     title='reload!'
-                    onPress={()=>{this.getPost();}}
+                    onPress={() => { this.props.getHomePostList(this.props.clubList); }}
                 />
                 <Button
                     title='selecting!'
-                    onPress={() => { this.goSelectingPage(this.props.navigation);}}
+                    onPress={() => { this.goSelectingPage(this.props.navigation); }}
                 />
                 {
-                    this.props.postList.map((element) => (
+                    Object.values(this.props.postList).map((element) => (
                         <PostListElement
-                            key={element.title}
+                            key = {element.postKey}
                             title={element.title}
                             clubName={element.clubName}
                             date={element.date}

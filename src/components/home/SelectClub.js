@@ -4,25 +4,22 @@ import SelectClubElement from './SelectClubElement'
 
 class SelectClub extends React.Component {
 
-
-    componentWillUpdate () {
-        console.log('haha');
-    }
-
     render() {
-        const newList = [...this.props.clubList];
+        const newClubList = { ...this.props.clubList };
+        const newNumSelectingStatsTrue = this.props.numSelectingStatusTrue;
         return (
             <ScrollView>
                 {
-                    this.props.clubList.map((element) => (
+                    Object.values(newClubList).map((element) => (
                         <SelectClubElement
-                            key={element.index}
-                            id={element.id}
-                            name={element.name}
-                            index={element.index}
-                            status={element.status}
-                            clubList={newList}
-                            setClubStatus={this.props.setClubStatus}
+                            key={element.clubKey}
+                            clubKey={element.clubKey}
+                            clubName={element.clubName}
+                            schoolName={element.schoolName}
+                            selectStatus={element.selectStatus}
+                            clubList={newClubList}
+                            setHomeClubStatus={this.props.setHomeClubStatus}
+                            numSelectingStatusTrue={newNumSelectingStatsTrue}
                         >
                         </SelectClubElement>
                     ))

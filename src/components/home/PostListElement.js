@@ -5,7 +5,7 @@ import { Button } from 'react-native-elements';
 const PostListElement = (element) => {
 
     const { titleText } = styles;
-
+    
     return (
         <View>
             <Text>{element.clubName}</Text>
