@@ -9,6 +9,7 @@ class PostData extends React.Component {
         return (
             <ScrollView>
                 <View>
+                    <Text>{this.props.post.clubName}</Text>
                     <Text>{this.props.post.poster}</Text>
                     <Text>{this.props.post.title}</Text>
                     <Text>{this.props.post.content}</Text>

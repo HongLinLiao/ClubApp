@@ -1,7 +1,7 @@
 import { createStackNavigator } from 'react-navigation'
 import HomePage from '../containers/home/HomePage'
 import PostPage from '../containers/club/PostPage'
-import SelectingPage from '../containers/home/SelectingPage'
+import SelectingPage from '../containers/home/HomeSelectingPage'
 // import HomeActivitiesPage from '../containers/club/HomeActivitiesPage'
 // import ActivityPage from '../containers/club/ActivityPage'
 import requireAppFlow from '../containers/flowControll/requireAppFlow'

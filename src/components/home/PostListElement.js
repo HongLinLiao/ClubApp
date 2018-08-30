@@ -5,9 +5,10 @@ import { Button } from 'react-native-elements';
 const PostListElement = (element) => {
 
     const { titleText } = styles;
-
+    
     return (
         <View>
+            <Text>{element.clubName}</Text>
             <Text>{element.poster}</Text>
             <Text style={titleText}>{element.title}</Text>
             <Text>{element.memo}</Text>
@@ -18,8 +19,6 @@ const PostListElement = (element) => {
             />
         </View>
     );
-
-    
 };
 
 const styles = {
