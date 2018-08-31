@@ -5,11 +5,11 @@ import { Button } from 'react-native-elements';
 const PostListElement = (element) => {
 
     const { titleText } = styles;
-    
     return (
         <View>
+            <Text>{element.schoolName}</Text>
             <Text>{element.clubName}</Text>
-            <Text>{element.poster}</Text>
+            <Text>{element.posterNickName}</Text>
             <Text style={titleText}>{element.title}</Text>
             <Text>{element.memo}</Text>
             <Text>{element.date}</Text>

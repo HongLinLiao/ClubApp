@@ -9,7 +9,7 @@ const SelectClubElement = (element) => {
             <Text>{element.schoolName}</Text>
             <Switch
                 value={element.selectStatus}
-                onValueChange={async()=>await element.setHomeClubStatus(element.clubKey, element.clubList,element.numSelectingStatusTrue)}
+                onValueChange={async()=>await element.setHomeClubListStatus(element.clubKey, element.clubList,element.numSelectingStatusTrue)}
             />
         </View>
     );

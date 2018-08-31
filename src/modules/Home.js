@@ -1,13 +1,14 @@
 import * as HomeAction from '../actions/HomeAction'
-import { getPostData } from './Post';
-import { setClubList } from './Club';
+import { getPostData , getClubData } from './Data';
+import { getClubListForSelecting } from './Club';
+import { getPosterNickName } from './Post';
 import * as firebase from "firebase"
 
 //取得clubList放入homeReducer控制篩選（初始狀態）
 export const getHomeClubList = (joinClub, likeClub) => async (dispatch) => {
     try {
         const allClub = { ...joinClub, ...likeClub };
-        const clubList = await setClubList(allClub);
+        const clubList = await getClubListForSelecting(allClub);
         const numSelectingStatusTrue = Object.keys(clubList).length;
 
         dispatch(HomeAction.setClubListSuccess(clubList, numSelectingStatusTrue));
@@ -20,7 +21,7 @@ export const getHomeClubList = (joinClub, likeClub) => async (dispatch) => {
 }
 
 //取得首頁貼文列表
-export const getHomePostList = (clubList) => async (dispatch) => {
+export const getHomePostList = (clubList) => async (dispatch,getState) => {
     try {
         var i;
         const postList = {};
@@ -42,7 +43,24 @@ export const getHomePostList = (clubList) => async (dispatch) => {
                         continue;
                     }
                     else {
-                        postList = { ...postList, ...post };
+                        //找到該貼文屬於哪個社團
+                        Object.keys(post).map((element) => {
+                            post[element].schoolName = clubList[clubKey[i]].schoolName;
+                            post[element].clubName = clubList[clubKey[i]].clubName;
+                            //將clubKey放進attribute，否則找不到貼文社團
+                            post[element].clubKey = clubKey[i];
+                            post[element].postKey = element;
+                            //將content縮寫成memo
+                            if (post[element].content.length > 20) {
+                                post[element].memo = post[element].content.substring(0, 21) + '...more';
+                            }
+                            else {
+                                post[element].memo = post[element].content;
+                            }
+                        });
+                        //找到該poster的nickName
+                        const newPost  = await getPosterNickName(post);
+                        postList = { ...postList, ...newPost };
                     }
                 }
             }
@@ -78,7 +96,7 @@ export const setPostListToPost = (element) => async (dispatch) => {
 }
 
 //改變HomeClubList的selectStatus，並判斷是否有關閉全部selectStatus
-export const setHomeClubStatus = (clubKey, clubList, numSelectingStatusTrue) => async (dispatch) => {
+export const setHomeClubListStatus = (clubKey, clubList, numSelectingStatusTrue) => async (dispatch) => {
     try {
         if (numSelectingStatusTrue == 1) {
             if (clubList[clubKey].selectStatus == true) {
@@ -86,23 +104,23 @@ export const setHomeClubStatus = (clubKey, clubList, numSelectingStatusTrue) => 
             }
             else {
                 clubList[clubKey].selectStatus = !(clubList[clubKey].selectStatus);
-                numSelectingStatusTrue=numSelectingStatusTrue+1;
-                dispatch(HomeAction.setClubStatusSuccess(clubList,numSelectingStatusTrue));
+                numSelectingStatusTrue = numSelectingStatusTrue + 1;
+                dispatch(HomeAction.setClubStatusSuccess(clubList, numSelectingStatusTrue));
                 dispatch(getHomePostList(clubList));
             }
         }
         else {
-            if(clubList[clubKey].selectStatus== false){
-                numSelectingStatusTrue=numSelectingStatusTrue+1;
+            if (clubList[clubKey].selectStatus == false) {
+                numSelectingStatusTrue = numSelectingStatusTrue + 1;
             }
-            else{
-                numSelectingStatusTrue=numSelectingStatusTrue-1;
+            else {
+                numSelectingStatusTrue = numSelectingStatusTrue - 1;
             }
             clubList[clubKey].selectStatus = !(clubList[clubKey].selectStatus);
-            dispatch(HomeAction.setClubStatusSuccess(clubList,numSelectingStatusTrue));
+            dispatch(HomeAction.setClubStatusSuccess(clubList, numSelectingStatusTrue));
             dispatch(getHomePostList(clubList));
         }
-        
+
     }
     catch (error) {
         dispatch(HomeAction.setClubStatusFailure(error.toString()));

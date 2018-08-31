@@ -18,7 +18,7 @@ class SelectClub extends React.Component {
                             schoolName={element.schoolName}
                             selectStatus={element.selectStatus}
                             clubList={newClubList}
-                            setHomeClubStatus={this.props.setHomeClubStatus}
+                            setHomeClubListStatus={this.props.setHomeClubListStatus}
                             numSelectingStatusTrue={newNumSelectingStatsTrue}
                         >
                         </SelectClubElement>

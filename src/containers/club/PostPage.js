@@ -1,5 +1,5 @@
 import { connect } from 'react-redux'
-import PostData from '../../components/club/postData'
+import PostData from '../../components/club/PostData'
 
 const mapStateToProps = ({ homeReducer }) => ({
     post: homeReducer.post

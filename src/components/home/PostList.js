@@ -38,12 +38,7 @@ class PostList extends React.Component {
                     Object.values(this.props.postList).map((element) => (
                         <PostListElement
                             key = {element.postKey}
-                            title={element.title}
-                            clubName={element.clubName}
-                            date={element.date}
-                            content={element.content}
-                            poster={element.poster}
-                            memo={element.memo}
+                            {...element}
                             navigation={this.props.navigation}
                             setPostListToPost={this.props.setPostListToPost}
                         >

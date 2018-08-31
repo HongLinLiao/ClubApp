@@ -1,5 +1,6 @@
 import * as firebase from 'firebase'
 import * as ClubAction from '../actions/ClubAction'
+import { getClubData } from './Data'
 
 /*
 |-----------------------------------------------
@@ -7,36 +8,29 @@ import * as ClubAction from '../actions/ClubAction'
 |-----------------------------------------------
 */
 
-//從firebase取得指定club資料
-export const getClubData = async (clubKey) => {
-  const clubRef = firebase.database().ref('clubs/' + clubKey);
-  const snapshot = await clubRef.once('value');
-  return snapshot.val();
-};
-
-//依據傳入club物件去產生一個完整clubList
-export const setClubList = async (allClub) => {
+//依據傳入club物件去產生一個完整clubList(含selectStatus)
+export const getClubListForSelecting  = async (allClub) => {
   try {
-      const clubList = {};
+    const clubList = {};
 
-      const promises = Object.keys(allClub).map(async (element) => {
+    const promises = Object.keys(allClub).map(async (element) => {
 
-          const club = await getClubData(element);
+      const club = await getClubData(element);
 
-          const tempObj = {};
-          tempObj[element] = {
-              clubKey: element,
-              selectStatus: true,
-              schoolName: club.schoolName,
-              clubName: club.clubName
-          };
-          clubList = { ...clubList, ...tempObj };
-      });
-      await Promise.all(promises);
-      return clubList;
+      const tempObj = {};
+      tempObj[element] = {
+        clubKey: element,
+        selectStatus: true,
+        schoolName: club.schoolName,
+        clubName: club.clubName
+      };
+      clubList = { ...clubList, ...tempObj };
+    });
+    await Promise.all(promises);
+    return clubList;
   }
   catch (error) {
-      console.log(error.toString());
+    console.log(error.toString());
   }
 }
 
@@ -47,15 +41,15 @@ export const getAllClubData = async (userShot) => {
     let allClubCid = []
     let allClubData = {}
 
-    if(joinClub)
+    if (joinClub)
       allClubCid = [...allClubCid, ...Object.keys(joinClub)]
 
-    if(likeClub)
+    if (likeClub)
       allClubCid = [...allClubCid, ...Object.keys(likeClub)]
 
     const promises = allClubCid.map(
       async (cid) => {
-        const clubShot = await firebase.database().ref('clubs/' + cid ).once('value')
+        const clubShot = await firebase.database().ref('clubs/' + cid).once('value')
         allClubData[cid] = clubShot.val()
       }
     )
@@ -66,12 +60,12 @@ export const getAllClubData = async (userShot) => {
 
     return allClubData
 
-  } catch(e) {
+  } catch (e) {
     console.log(e)
     throw e
   }
-  
-  
+
+
 }
 
 /*
@@ -81,11 +75,11 @@ export const getAllClubData = async (userShot) => {
 */
 
 export const createClub = (schoolName, clubName, open) => async (dispatch, getState) => {
-  
+
   try {
     const user = firebase.auth().currentUser
     const cid = await firebase.database().ref('club').push().key
-    let newJoinClub = {...getState().userReducer.joinClub}
+    let newJoinClub = { ...getState().userReducer.joinClub }
     let newClubSetting = { on: true }
 
     newJoinClub[cid] = true
@@ -119,17 +113,17 @@ export const createClub = (schoolName, clubName, open) => async (dispatch, getSt
 
     dispatch(ClubAction.createClub(clubInfo))
 
-  } catch(e) {
+  } catch (e) {
     console.log(e)
     throw e
   }
 }
 
 export const quitTheClub = (cid) => async (dispatch) => {
- 
+
   try {
-    
-  } catch(e) {
+
+  } catch (e) {
 
   }
 
