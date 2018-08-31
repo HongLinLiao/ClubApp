@@ -10,6 +10,7 @@ const PostListElement = (element) => {
             <Text>{element.schoolName}</Text>
             <Text>{element.clubName}</Text>
             <Text>{element.posterNickName}</Text>
+            <Text>{element.posterStatusChinese}</Text>
             <Text style={titleText}>{element.title}</Text>
             <Text>{element.memo}</Text>
             <Text>{element.date}</Text>

@@ -12,6 +12,7 @@ class PostData extends React.Component {
                     <Text>{this.props.post.schoolName}</Text>
                     <Text>{this.props.post.clubName}</Text>
                     <Text>{this.props.post.posterNickName}</Text>
+                    <Text>{this.props.post.posterStatusChinese}</Text>
                     <Text>{this.props.post.title}</Text>
                     <Text>{this.props.post.content}</Text>
                     <Text>{this.props.post.date}</Text>

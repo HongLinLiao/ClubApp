@@ -129,7 +129,14 @@ export const quitTheClub = (cid) => async (dispatch) => {
 
 }
 
-
-
+//轉換status成中文
+export const changeMemberStatusToChinese = (status) => {
+  if(status==='master'){
+    return '社長';
+  }
+  else{
+    return '社員';
+  }
+}
 
 

@@ -1,6 +1,6 @@
 import * as HomeAction from '../actions/HomeAction'
-import { getPostData , getClubData } from './Data';
-import { getClubListForSelecting } from './Club';
+import { getPostData, getClubData } from './Data';
+import { getClubListForSelecting, changeMemberStatusToChinese } from './Club';
 import { getPosterNickName } from './Post';
 import * as firebase from "firebase"
 
@@ -21,7 +21,7 @@ export const getHomeClubList = (joinClub, likeClub) => async (dispatch) => {
 }
 
 //取得首頁貼文列表
-export const getHomePostList = (clubList) => async (dispatch,getState) => {
+export const getHomePostList = (clubList) => async (dispatch, getState) => {
     try {
         var i;
         const postList = {};
@@ -33,6 +33,9 @@ export const getHomePostList = (clubList) => async (dispatch,getState) => {
             //根據clubList去搜尋clubKey下的post
             for (i = 0; i < clubKey.length; i++) {
 
+                const club = getState().clubReducer.clubs[clubKey[i]];
+                const clubMember = club.member;
+
                 //篩選關掉則跳過搜尋
                 if (clubList[clubKey[i]].selectStatus == false) {
                     continue;
@@ -43,10 +46,12 @@ export const getHomePostList = (clubList) => async (dispatch,getState) => {
                         continue;
                     }
                     else {
+                        const newPost = {};
                         //找到該貼文屬於哪個社團
-                        Object.keys(post).map((element) => {
-                            post[element].schoolName = clubList[clubKey[i]].schoolName;
-                            post[element].clubName = clubList[clubKey[i]].clubName;
+                        const promisesDeal = Object.keys(post).map(async (element) => {
+                            post[element].schoolName = club.schoolName;
+                            post[element].clubName = club.clubName;
+
                             //將clubKey放進attribute，否則找不到貼文社團
                             post[element].clubKey = clubKey[i];
                             post[element].postKey = element;
@@ -57,9 +62,12 @@ export const getHomePostList = (clubList) => async (dispatch,getState) => {
                             else {
                                 post[element].memo = post[element].content;
                             }
+                            //找到該poster的nickName
+                            newPost = await getPosterNickName(post);
+                            post[element].posterStatus = clubMember[newPost[element]['posterUid']].status;
+                            post[element].posterStatusChinese = changeMemberStatusToChinese(post[element].posterStatus);
                         });
-                        //找到該poster的nickName
-                        const newPost  = await getPosterNickName(post);
+                        await Promise.all(promisesDeal);
                         postList = { ...postList, ...newPost };
                     }
                 }
