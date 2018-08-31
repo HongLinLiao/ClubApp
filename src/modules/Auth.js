@@ -1,38 +1,52 @@
 import * as AuthAction from '../actions/AuthAction'
 import * as CommonAction from '../actions/CommonAction'
 import * as UserAction from '../actions/UserAction'
+import * as ClubAction from '../actions/ClubAction'
 import * as firebase from "firebase"
 import Expo from 'expo' 
 import { Alert } from 'react-native'
-import { getUserStateToRedux, createUserInDatabase, reloadUser, setUserStateToDB, getUserSettingToRedux, createUserSettingInDB } from './User'
-import { clearUser } from '../actions/UserAction'
+import { 
+  getUserStateToRedux,
+  createUserInDatabase,
+  reloadUser,
+  setUserStateToDB,
+  getUserSettingToRedux,
+  createUserSettingInDB
+} from './User'
+
+import {
+  getAllClubData
+} from './Club'
 
 const signInSuccess = (action, user, password, loginType) => async (dispatch) => {
 
   try {
     const userRef = firebase.database().ref('/users').child(user.uid)
-    const settingRef = firebase.database().ref('/setting').child(user.uid)
-    const userData = await userRef.once('value')
-    const settingData = await settingRef.once('value')
+    const settingRef = firebase.database().ref('/settings').child(user.uid)
+    const userShot = await userRef.once('value')
+    const settingShot = await settingRef.once('value')
+    const allClubData = await getAllClubData(userShot)
     const userInfo = { password, loginType }
-    let userState = null
+    let userData = null
 
-    if(userData.val()) { //之前登入過
-      let userSetting = null
-      if(settingData.val()) { //是否使用者設定資料
-        userSetting = await getUserSettingToRedux(settingData) 
+    if(userShot.val()) { //之前登入過
+      let settingData = null
+      if(settingShot.val()) { //是否使用者設定資料
+        settingData = await getUserSettingToRedux(settingShot) 
       } else {
-        userSetting = await createUserSettingInDB(settingRef)
+        settingData = await createUserSettingInDB(settingRef)
       }
 
-      userState = await getUserStateToRedux(userData)
-      userState = {...userState, userSetting}
+      userData = await getUserStateToRedux(userShot)
+      userData = {...userData, settingData}
     }
     else { //第一次登入
-      userState = await createUserInDatabase(user, userInfo)
+      userData = await createUserInDatabase(user, userInfo)
     }
     
-    dispatch(action(userState))
+    dispatch(action(userData))
+
+    dispatch(ClubAction.setAllClubData(allClubData))
 
   } catch(e) {
 
@@ -267,7 +281,7 @@ export const signOut = () => async (dispatch) => {
 
   try {
     await firebase.auth().signOut()
-    dispatch(clearUser())
+    dispatch(UserAction.clearUser())
 
     setTimeout(
       () => dispatch(CommonAction.setLoadingState(false)), //進入等待狀態

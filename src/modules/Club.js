@@ -1,6 +1,12 @@
 import * as firebase from 'firebase'
 import * as ClubAction from '../actions/ClubAction'
 
+/*
+|-----------------------------------------------
+|   Database相關
+|-----------------------------------------------
+*/
+
 //從firebase取得指定club資料
 export const getClubData = async (clubKey) => {
   const clubRef = firebase.database().ref('clubs/' + clubKey);
@@ -9,7 +15,7 @@ export const getClubData = async (clubKey) => {
 };
 
 //依據傳入club物件去產生一個完整clubList
-export const setClubList = async(allClub) =>  {
+export const setClubList = async (allClub) => {
   try {
       const clubList = {};
 
@@ -33,6 +39,46 @@ export const setClubList = async(allClub) =>  {
       console.log(error.toString());
   }
 }
+
+export const getAllClubData = async (userShot) => {
+
+  try {
+    const { joinClub, likeClub } = userShot.val()
+    let allClubCid = []
+    let allClubData = {}
+
+    if(joinClub)
+      allClubCid = [...allClubCid, ...Object.keys(joinClub)]
+
+    if(likeClub)
+      allClubCid = [...allClubCid, ...Object.keys(likeClub)]
+
+    const promises = allClubCid.map(
+      async (cid) => {
+        const clubShot = await firebase.database().ref('clubs/' + cid ).once('value')
+        allClubData[cid] = clubShot.val()
+      }
+    )
+
+    await Promise.all(promises)
+
+    console.log(allClubData)
+
+    return allClubData
+
+  } catch(e) {
+    console.log(e)
+    throw e
+  }
+  
+  
+}
+
+/*
+|-----------------------------------------------
+|   社團相關操作
+|-----------------------------------------------
+*/
 
 export const createClub = (schoolName, clubName, open) => async (dispatch, getState) => {
   
@@ -78,4 +124,18 @@ export const createClub = (schoolName, clubName, open) => async (dispatch, getSt
     throw e
   }
 }
+
+export const quitTheClub = (cid) => async (dispatch) => {
+ 
+  try {
+    
+  } catch(e) {
+
+  }
+
+}
+
+
+
+
 

@@ -17,9 +17,19 @@ class FavoriteClub extends React.Component {
   }
 
   render() {
+    const { likeClub, clubs } = this.props
     return (
       <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-        <Text>已收藏社團</Text>
+        <Text>已加入社團</Text>
+        {Object.keys(likeClub).map((key, index) => {
+          const { clubName, schoolName} = clubs[key]
+          return(
+            <ListItem
+              title={clubName + '  ' + schoolName}
+              rightTitle={ <Button title='取消收藏'/> }
+            />
+          )
+        })}
       </View>
     )
   }

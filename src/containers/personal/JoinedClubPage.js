@@ -3,8 +3,9 @@ import { connect } from 'react-redux';
 import JoinedClub from '../../components/personal/JoinedClub'
 
 
-const mapStateToProps = ({ userReducer, settingReducer }) => ({
+const mapStateToProps = ({ userReducer, clubReducer }) => ({
   user: userReducer.user,
+  clubs: clubReducer.clubs,
   joinClub: userReducer.joinClub
 })
 

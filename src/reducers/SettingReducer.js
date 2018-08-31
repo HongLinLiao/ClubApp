@@ -35,9 +35,9 @@ export const settingReducer = (state = initialState, action) => {
     case UPDATE_USER_STATE_SUCCESS:
       return {
         ...state,
-        globalNotification: action.userData.userSetting.globalNotification,
-        nightModeNotification: action.userData.userSetting.nightModeNotification,
-        clubNotificationList: action.userData.userSetting.clubNotificationList
+        globalNotification: action.userData.settingData.globalNotification,
+        nightModeNotification: action.userData.settingData.nightModeNotification,
+        clubNotificationList: action.userData.settingData.clubNotificationList
       }
     case SET_GLOBAL_NOTIFICATION:
       return {

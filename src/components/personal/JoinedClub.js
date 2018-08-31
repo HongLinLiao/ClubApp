@@ -11,27 +11,36 @@ import { ListItem } from 'react-native-elements'
 class JoinedClub extends React.Component {
   
   componentDidMount() {
-    console.log(this.props.navigation)
+    // console.log(this.props.navigation)
   }
 
   state = {
     
   }
 
-  nextStep = () => {
-    if(school && clubName)
-      this.props.navigation.push('ClubPrivateSetting', {school: this.state.school, clubName: this.state.clubName})
+  handleQuit = async (cid) => {
+
+    try {
+
+
+    } catch(e) {
+      console.log(e)
+      Alert.alert(e.toString())
+    }
   }
 
   render() {
-    const { joinClub } = this.props
+    const { joinClub, clubs } = this.props
     return (
-      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-        <Text>已加入社團</Text>
-        {Object.keys(joinClub).map((key, index) => {
-          <ListItem
-            title={key}
-          />
+      <View style={{flex: 1}}>
+        {Object.keys(joinClub).map((cid, index) => {
+          const { clubName, schoolName} = clubs[cid]
+          return(
+            <ListItem
+              title={clubName + '  ' + schoolName}
+              rightTitle={ <Button title='退出社團' onPress={() => this.handleQuit(cid) }/> }
+            />
+          )
         })}
       </View>
     )
