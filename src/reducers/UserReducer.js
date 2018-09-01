@@ -32,21 +32,23 @@ import {
 } from '../actions/UserAction'
 
 import {
-	CREATE_CLUB
+	CREATE_CLUB_SUCCESS,
+	CREATE_CLUB_FAILURE,
+	REMOVE_THE_CLUB
 } from '../actions/ClubAction'
 
 
 const initialState = {
-	user: null, //使用者(信箱+暱稱＋大頭貼＋信箱驗證＋uid)
-	password: null, //密碼
-	message: null, //錯誤訊息
+	user: {}, //使用者(信箱+暱稱＋大頭貼＋信箱驗證＋uid)
+	password: '', //密碼
+	message: '', //錯誤訊息
 	askVerify: true, //提醒驗證信箱
-	success: null, //執行狀態
+	success: true, //執行狀態
 	firstLogin: true, //是否第一次登入
-	loginType: null, //登入類型
-	aboutMe: null, //自介
-	joinClub: null, //加入社團
-	likeClub: null, //收藏社團
+	loginType: '', //登入類型
+	aboutMe: '', //自介
+	joinClub: {}, //加入社團
+	likeClub: {}, //收藏社團
 }
 
 export const userReducer = (state = initialState, action) => {
@@ -244,12 +246,21 @@ export const userReducer = (state = initialState, action) => {
 				password: action.newPassword
 			}
 
-		case CREATE_CLUB:
-			let newJoinClub = {...state.joinClub}
-			newJoinClub[action.clubInfo.cid] = true
+		//社團相關
+		case CREATE_CLUB_SUCCESS:
 			return {
 				...state,
-				joinClub: newJoinClub
+				joinClub: action.clubData.newJoinClub
+			}
+		case CREATE_CLUB_FAILURE:
+			return {
+				...state,
+				message: action.message
+			}
+		case REMOVE_THE_CLUB:
+			return {
+				...state,
+				joinClub: action.clubData.newJoinClub,
 			}
 		default:
 			return state

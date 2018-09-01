@@ -1,4 +1,4 @@
-import {  } from '../../modules/Club'
+import { quitTheClub } from '../../modules/Club'
 import { connect } from 'react-redux';
 import JoinedClub from '../../components/personal/JoinedClub'
 
@@ -10,7 +10,7 @@ const mapStateToProps = ({ userReducer, clubReducer }) => ({
 })
 
 const mapDispatchToProps = {
-  
+  quitTheClub
 }
 
 

@@ -3,18 +3,24 @@
 |   ActionType Const
 |-----------------------------------------------
 */
-export const CREATE_CLUB = 'CREATE_CLUB'
+export const CREATE_CLUB_SUCCESS = 'CREATE_CLUB_SUCCESS'
+export const CREATE_CLUB_FAILURE = 'CREATE_CLUB_FAILURE'
 export const SET_ALL_CLUB_DATA = 'SET_ALL_CLUB_DATA'
-export const QUIT_CLUB_SUCCESS = 'QUIT_CLUB_SUCCESS'
+export const REMOVE_THE_CLUB = 'REMOVE_THE_CLUB'
 
 /*
 |-----------------------------------------------
 |   Action Creator
 |-----------------------------------------------
 */
-export const createClub = (clubInfo) => ({
-  type: CREATE_CLUB,
-  clubInfo
+export const createClubSuccess = (clubData) => ({
+  type: CREATE_CLUB_SUCCESS,
+  clubData
+})
+
+export const createClubFail = (message) => ({
+  type: CREATE_CLUB_FAILURE,
+  message
 })
 
 export const setAllClubData = (clubData) => ({
@@ -22,7 +28,7 @@ export const setAllClubData = (clubData) => ({
   clubData
 })
 
-export const quitTheClub = () => ({
-  type: QUIT_CLUB_SUCCESS,
-
+export const removeTheClub = (clubData) => ({
+  type: REMOVE_THE_CLUB,
+  clubData
 })

@@ -22,9 +22,8 @@ export const setNightModeNotification = (on) => ({
   on
 })
 
-export const setClubNotification = (cid, clubSetting) => ({
+export const setClubNotification = (newClubNotificationList) => ({
   type: SET_CLUB_NOTIFICATION,
-  cid,
-  clubSetting,
+  newClubNotificationList
 })
 

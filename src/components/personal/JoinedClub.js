@@ -4,6 +4,7 @@ import {
   TextInput,
   Button,
   Text,
+  Alert
 } from 'react-native'
 import { ListItem } from 'react-native-elements'
 
@@ -18,10 +19,21 @@ class JoinedClub extends React.Component {
     
   }
 
+  quit = (cid) => {
+    Alert.alert('退出社團', '確定要退出社團(一旦退出社團相關資料將被刪除))', 
+        [
+          {text: '再思考一下', onPress: () => console.log('再思考一下'), style: 'cancel'},
+          {text: '退出', onPress: () => this.handleQuit(cid)},
+        ],
+        { cancelable: false }
+    )
+  }
   handleQuit = async (cid) => {
 
     try {
+      this.props.quitTheClub(cid)
 
+      Alert.alert('成功退出社團')
 
     } catch(e) {
       console.log(e)
@@ -38,7 +50,7 @@ class JoinedClub extends React.Component {
           return(
             <ListItem
               title={clubName + '  ' + schoolName}
-              rightTitle={ <Button title='退出社團' onPress={() => this.handleQuit(cid) }/> }
+              rightTitle={ <Button title='退出社團' onPress={() => this.quit(cid) }/> }
             />
           )
         })}

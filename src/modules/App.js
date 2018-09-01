@@ -44,11 +44,12 @@ export const setClubNotification = (cid, clubSetting) => async (dispatch, getSta
   try {
     const user = firebase.auth().currentUser
     const clubSettingRef = firebase.database().ref('settings/' + user.uid + '/clubNotificationList/' + cid)
+    let newClubNotificationList = {...getState().settingReducer.clubNotificationList}
+    newClubNotificationList[cid] = clubSetting
 
-    console.log(clubSetting)
     await clubSettingRef.update({ on: clubSetting.on})
 
-    dispatch(SettingAction.setClubNotification(cid, clubSetting))
+    dispatch(SettingAction.setClubNotification(newClubNotificationList))
 
   } catch(e) {
     console.log(e)
