@@ -18,6 +18,12 @@ import {
   getAllClubData
 } from './Club'
 
+import {
+  getHomeClubList , 
+  getHomePostList ,
+  determinToSearch
+} from './Home'
+
 const signInSuccess = (action, user, password, loginType) => async (dispatch) => {
 
   try {
@@ -47,6 +53,11 @@ const signInSuccess = (action, user, password, loginType) => async (dispatch) =>
     dispatch(action(userData))
 
     dispatch(ClubAction.setAllClubData(allClubData))
+
+    //直接在登入先抓首頁資料
+    const homeClubList = await dispatch(getHomeClubList(userData.joinClub,userData.likeClub));
+    const homePostList = await dispatch(getHomePostList(homeClubList));
+    await dispatch(determinToSearch(homeClubList,homePostList));
 
   } catch(e) {
 

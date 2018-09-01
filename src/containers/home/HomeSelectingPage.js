@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { setHomeClubListStatus } from '../../modules/Home'
+import { setHomeClubListStatus, determinToSearch } from '../../modules/Home'
 import SelectClub from '../../components/home/SelectClub'
 
 class HomeSelectingPage extends Component {
@@ -13,12 +13,12 @@ class HomeSelectingPage extends Component {
 
 const mapStateToProps = ({ homeReducer }) => ({
     clubList: homeReducer.clubList,
-    postList: homeReducer.postList,
     numSelectingStatusTrue: homeReducer.numSelectingStatusTrue
 })
 
 const mapDispatchToProps = {
-    setHomeClubListStatus
+    setHomeClubListStatus,
+    determinToSearch
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(HomeSelectingPage);

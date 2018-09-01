@@ -6,6 +6,11 @@ import { selectPhoto } from './Common'
 import { Alert } from 'react-native'
 import { getAllClubData } from './Club'
 
+import {
+  getHomeClubList , 
+  getHomePostList , 
+  determinToSearch
+} from './Home'
 
 /*
 |-----------------------------------------------
@@ -23,29 +28,33 @@ export const updateUserStateAsync = (user) => async (dispatch) => {
     const settingShot = await settingRef.once('value')
     const allClubData = await getAllClubData()
 
-    if(userShot.val()) { //不是第一次登入才進入
+    if (userShot.val()) { //不是第一次登入才進入
       let settingData = null
-      
-      if(settingShot.val()) { //有沒有使用者設定資料
+
+      if (settingShot.val()) { //有沒有使用者設定資料
         settingData = await getUserSettingToRedux(settingShot)
       } else {
         settingData = await createUserSettingInDB(settingRef)
       }
 
       let userState = await getUserStateToRedux(userShot)
-      userState = {...userState, settingData}
+      userState = { ...userState, settingData }
 
       dispatch(UserAction.updateUserState(userState)) //更新使用者所有資料
 
       dispatch(ClubAction.setAllClubData(allClubData))
 
+      //直接在登入先抓首頁資料
+      const homeClubList = await dispatch(getHomeClubList(userState.joinClub, userState.likeClub));
+      const homePostList = await dispatch(getHomePostList(homeClubList));
+      await dispatch(determinToSearch(homeClubList,homePostList));
     }
     else {
       dispatch(CommonAction.setLoadingState(false)) //沒有使用者停止等待畫面
     }
-    
-    
-  } catch(error) {
+
+
+  } catch (error) {
 
     dispatch(UserAction.updateUserStateFail(error.toString()))
     console.log(error.toString())
@@ -61,10 +70,10 @@ export const reloadUser = () => async (dispatch, getState) => {
     const user = firebase.auth().currentUser
     await user.reload() //重新載入使用者
 
-    dispatch(UserAction.updateUser({...user})) //更新使用者狀態
-    
+    dispatch(UserAction.updateUser({ ...user })) //更新使用者狀態
 
-  } catch(error) {
+
+  } catch (error) {
 
     dispatch(UserAction.updateUserFail(error.toString()))
 
@@ -87,8 +96,8 @@ export const getUserStateToRedux = async (userShot) => {
     const { nickName, password, loginType, aboutMe, joinClub, likeClub } = userShot.val()
 
     let userState = {
-      user: {...user},
-      firstLogin: nickName ? false : true, 
+      user: { ...user },
+      firstLogin: nickName ? false : true,
       password: password || null, //串接平台登入沒有密碼
       loginType: loginType || null, //必要
       aboutMe: aboutMe || '',
@@ -97,8 +106,8 @@ export const getUserStateToRedux = async (userShot) => {
     }
 
     return userState
-    
-  } catch(error) {
+
+  } catch (error) {
 
     throw error
     console.log(error.toString())
@@ -110,7 +119,7 @@ export const getUserStateToRedux = async (userShot) => {
 //從database取得使用者設定
 export const getUserSettingToRedux = async (settingShot) => {
 
-  try { 
+  try {
     const { globalNotification, nightModeNotification, clubNotificationList } = settingShot.val()
 
     //抓取每個社團的資料
@@ -119,10 +128,10 @@ export const getUserSettingToRedux = async (settingShot) => {
         const clubShot = await firebase.database().ref('clubs/' + key).once('value')
         const { clubName, schoolName } = clubShot.val()
         const { on } = settingShot.val().clubNotificationList[key]
-        clubNotificationList[key] = {clubName, schoolName, on}
+        clubNotificationList[key] = { clubName, schoolName, on }
       }
     )
-    
+
     await Promise.all(promises)
 
     let settingData = {
@@ -133,11 +142,11 @@ export const getUserSettingToRedux = async (settingShot) => {
 
     return settingData
 
-  } catch(e) {
+  } catch (e) {
 
     console.log(e.toString())
     throw e
-    
+
   }
 }
 
@@ -150,24 +159,24 @@ export const setUserStateToDB = async (userState) => {
     const userShot = await userRef.once('value')
     const DB_userState = userShot.val()
 
-    if(userState.nickName)
-      DB_userState = {...DB_userState, nickName: userState.nickName}
+    if (userState.nickName)
+      DB_userState = { ...DB_userState, nickName: userState.nickName }
 
-    if(userState.password)
-      DB_userState = {...DB_userState, password: userState.password}
+    if (userState.password)
+      DB_userState = { ...DB_userState, password: userState.password }
 
-    if(userState.aboutMe)
-      DB_userState = {...DB_userState, aboutMe: userState.aboutMe}
+    if (userState.aboutMe)
+      DB_userState = { ...DB_userState, aboutMe: userState.aboutMe }
 
     await userRef.set(DB_userState)
 
-  } catch(e) {
+  } catch (e) {
 
     console.log(e)
 
     throw e
   }
-  
+
 }
 
 //新增一個user資料進database
@@ -176,7 +185,7 @@ export const createUserInDatabase = async (user, userInfo) => {
   try {
     const userRef = firebase.database().ref('users').child(user.uid)
     const settingRef = firebase.database().ref('settings').child(user.uid)
-    
+
     await userRef.set({
       eamil: user.email,
       password: userInfo.password,
@@ -191,7 +200,7 @@ export const createUserInDatabase = async (user, userInfo) => {
     })
 
     let userData = {
-      user: {...user},
+      user: { ...user },
       firstLogin: true, //預設都是第一次登入
       password: userInfo.password,
       loginType: userInfo.loginType,
@@ -206,7 +215,7 @@ export const createUserInDatabase = async (user, userInfo) => {
 
     return userData
 
-  } catch(e) {
+  } catch (e) {
 
     console.log(e)
     throw e
@@ -224,13 +233,13 @@ export const createUserSettingInDB = async (settingRef) => {
 
     let clubNotificationList = {} //settingReducer使用
     let DB_clubNotificationList = {} //database使用
-    
+
     //抓取每個社團的資料
     const promises = Object.keys(joinClub.val()).map(
       async (key) => {
         const clubShot = await firebase.database().ref('clubs/' + key).once('value')
         const { clubName, schoolName } = clubShot.val()
-        clubNotificationList[key] = {clubName, schoolName, on: true}
+        clubNotificationList[key] = { clubName, schoolName, on: true }
         DB_clubNotificationList[key] = { on: true }
       }
     )
@@ -253,7 +262,7 @@ export const createUserSettingInDB = async (settingRef) => {
 
     return settingData
 
-  } catch(e) {
+  } catch (e) {
     console.log(e)
     throw e
   }
@@ -292,23 +301,23 @@ export const changePhoto = () => async (dispatch) => {
     const user = firebase.auth().currentUser
     const photoUrl = await selectPhoto() //選擇照片
 
-    if(photoUrl) {
+    if (photoUrl) {
       uploadUrl = await uploadImageAsync(photoUrl, user)
 
       //更新使用者url
-      await user.updateProfile({ 
+      await user.updateProfile({
         photoURL: uploadUrl
       })
 
-      dispatch(UserAction.updateUser({...user}))
+      dispatch(UserAction.updateUser({ ...user }))
     }
 
-  } catch(error) {
+  } catch (error) {
 
     Alert.alert(error.toString())
     console.log(error.toString())
   }
-  
+
 }
 
 //更新使用者基本資料
@@ -325,28 +334,28 @@ export const updateUserProfile = (profile) => async (dispatch, getState) => {
     await user.updateProfile({ photoURL: uploadUrl })
 
     //更新nickName
-    if(user.displayName != profile.nickName)
+    if (user.displayName != profile.nickName)
       await user.updateProfile({ displayName: profile.nickName })
-      userState = {...userState, nickName: profile.nickName}
+    userState = { ...userState, nickName: profile.nickName }
 
     //更新aboutMe
-    if(aboutMe != profile.aboutMe)
-      userState = {...userState, aboutMe: profile.aboutMe}
+    if (aboutMe != profile.aboutMe)
+      userState = { ...userState, aboutMe: profile.aboutMe }
 
     //寫入database
     await setUserStateToDB(userState)
-      
-    //更新redux
-    dispatch(UserAction.updateUserProfile({...user}, profile)) 
 
-  } catch(e) {
+    //更新redux
+    dispatch(UserAction.updateUserProfile({ ...user }, profile))
+
+  } catch (e) {
 
     dispatch(UserAction.updateUserProfileFail(e.toString()))
     console.log(e)
 
     throw e
   }
-} 
+}
 
 //設定暱稱
 export const setNickName = (nickName) => async (dispatch) => {
@@ -362,15 +371,15 @@ export const setNickName = (nickName) => async (dispatch) => {
     await user.updateProfile({
       displayName: nickName
     })
-    
+
     //更新 database
     await userRef.set(nickName)
-    
-    //更新 redux state
-    dispatch(UserAction.updateUser({...user})) 
 
-  } catch(error) {
-    dispatch(UserAction.updateUserFail(error.toString())) 
+    //更新 redux state
+    dispatch(UserAction.updateUser({ ...user }))
+
+  } catch (error) {
+    dispatch(UserAction.updateUserFail(error.toString()))
 
     dispatch(CommonAction.setLoadingState(false)) //取消登帶狀態
 

@@ -42,14 +42,13 @@ export default function(ComposedComponent) {
     }
 
     render() {
-      return !this.props.loading ? <ComposedComponent {...this.props} /> : <Spinner />
+      return <ComposedComponent {...this.props} />
     }
   }
 
-  const mapStateToProps = ({ userReducer, commonReducer }) => ({
+  const mapStateToProps = ({ userReducer }) => ({
     user: userReducer.user,
-    askVerify: userReducer.askVerify,
-    loading: commonReducer.loading,
+    askVerify: userReducer.askVerify
   });
 
   return connect(mapStateToProps)(UserDirection)

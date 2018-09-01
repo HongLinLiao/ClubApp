@@ -4,7 +4,7 @@ import PostData from '../../components/club/PostData'
 
 class PostPage extends Component {
     render() {
-        const { post } = this.props.post;
+        const  post  = this.props.post;
         return (
             <PostData
                 post={post}

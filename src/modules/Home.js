@@ -1,8 +1,23 @@
 import * as HomeAction from '../actions/HomeAction'
-import { getPostData, getClubData } from './Data';
+import { getPostData } from './Data';
 import { getClubListForSelecting, changeMemberStatusToChinese } from './Club';
 import { getPosterNickName } from './Post';
 import * as firebase from "firebase"
+
+//判斷是否使用者有收藏或加入社團與社團是否有存在文章
+export const determinToSearch = (clubList, postList) => async(dispatch) => {
+    if(Object.keys(clubList).length==0){
+        alert('You haven\'t joined or liked clubs!');
+    }
+    else{
+        if(Object.keys(postList).length==0){
+            alert('Your clubs haven\'t exist posts!');
+        }
+        else{
+            console.log('pass!');
+        }
+    }
+}
 
 //取得clubList放入homeReducer控制篩選（初始狀態）
 export const getHomeClubList = (joinClub, likeClub) => async (dispatch) => {
@@ -72,16 +87,9 @@ export const getHomePostList = (clubList) => async (dispatch, getState) => {
                     }
                 }
             }
-            //使用者收藏與加入的社團皆未有文章存在
-            if (Object.keys(postList).length == 0) {
-                alert('使用者之社團未存在貼文');
-            }
-        }
-        else {
-            //user沒加入或收藏社團
-            alert('使用者沒加入或收藏社團');
         }
         dispatch(HomeAction.getPostListSuccess(postList));
+        return postList;
     }
     catch (error) {
         dispatch(HomeAction.getPostListFailure(error.toString()))
@@ -106,15 +114,17 @@ export const setPostListToPost = (element) => async (dispatch) => {
 //改變HomeClubList的selectStatus，並判斷是否有關閉全部selectStatus
 export const setHomeClubListStatus = (clubKey, clubList, numSelectingStatusTrue) => async (dispatch) => {
     try {
+        const postList={};
         if (numSelectingStatusTrue == 1) {
             if (clubList[clubKey].selectStatus == true) {
                 alert('至少需有一個社團保持開啟！');
+                return null;
             }
             else {
                 clubList[clubKey].selectStatus = !(clubList[clubKey].selectStatus);
                 numSelectingStatusTrue = numSelectingStatusTrue + 1;
                 dispatch(HomeAction.setClubStatusSuccess(clubList, numSelectingStatusTrue));
-                dispatch(getHomePostList(clubList));
+                postList = await dispatch(getHomePostList(clubList));
             }
         }
         else {
@@ -126,9 +136,9 @@ export const setHomeClubListStatus = (clubKey, clubList, numSelectingStatusTrue)
             }
             clubList[clubKey].selectStatus = !(clubList[clubKey].selectStatus);
             dispatch(HomeAction.setClubStatusSuccess(clubList, numSelectingStatusTrue));
-            dispatch(getHomePostList(clubList));
+            postList = await dispatch(getHomePostList(clubList));
         }
-
+        return postList;
     }
     catch (error) {
         dispatch(HomeAction.setClubStatusFailure(error.toString()));
