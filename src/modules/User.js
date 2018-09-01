@@ -21,7 +21,7 @@ export const updateUserStateAsync = (user) => async (dispatch) => {
     const settingRef = firebase.database().ref('/settings').child(user.uid)
     const userShot = await userRef.once('value')
     const settingShot = await settingRef.once('value')
-    const allClubData = await getAllClubData(userShot)
+    const allClubData = await getAllClubData()
 
     if(userShot.val()) { //不是第一次登入才進入
       let settingData = null
@@ -195,7 +195,9 @@ export const createUserInDatabase = async (user, userInfo) => {
       firstLogin: true, //預設都是第一次登入
       password: userInfo.password,
       loginType: userInfo.loginType,
-      userSetting: {
+      joinClub: {},
+      likeClub: {},
+      settingData: {
         globalNotification: true,
         nightModeNotification: false,
         clubNotificationList: {}
