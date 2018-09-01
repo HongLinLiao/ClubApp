@@ -34,18 +34,22 @@ export const getClubListForSelecting  = async (allClub) => {
   }
 }
 
-export const getAllClubData = async (userShot) => {
+export const getAllClubData = async () => {
 
   try {
-    const { joinClub, likeClub } = userShot.val()
+    const user = firebase.auth().currentUser
+    const userRef = firebase.database().ref('users/' + user.uid)
+    const joinClubShot = await userRef.child('joinClub').once('value')
+    const likeClubShot = await userRef.child('likeClub').once('value')
+    const userShot = await userRef.once('value')
     let allClubCid = []
     let allClubData = {}
 
-    if (joinClub)
-      allClubCid = [...allClubCid, ...Object.keys(joinClub)]
+    if (joinClubShot.exists())
+      allClubCid = [...allClubCid, ...Object.keys(joinClubShot.val())]
 
-    if (likeClub)
-      allClubCid = [...allClubCid, ...Object.keys(likeClub)]
+    if (likeClubShot.exists())
+      allClubCid = [...allClubCid, ...Object.keys(likeClubShot.val())]
 
     const promises = allClubCid.map(
       async (cid) => {

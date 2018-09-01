@@ -39,7 +39,7 @@ import {
 
 
 const initialState = {
-	user: {}, //使用者(信箱+暱稱＋大頭貼＋信箱驗證＋uid)
+	user: null, //使用者(信箱+暱稱＋大頭貼＋信箱驗證＋uid)
 	password: '', //密碼
 	message: '', //錯誤訊息
 	askVerify: true, //提醒驗證信箱

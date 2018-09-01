@@ -42,9 +42,9 @@ export default function(ComposedComponent) {
   }
 
   const mapStateToProps = ({ userReducer, commonReducer }) => ({
-     user: userReducer.user,
-     loading: commonReducer.loading,
-    });
+    user: userReducer.user,
+    loading: commonReducer.loading,
+  });
 
   return connect(mapStateToProps)(Authentication)
 }
