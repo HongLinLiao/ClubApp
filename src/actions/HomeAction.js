@@ -4,14 +4,18 @@
 |-----------------------------------------------
 */
 
-export const SET_CLUB_LIST_SUCCESS = 'SET_CLUB_LIST_SUCCESS' //取得user club成功
-export const SET_CLUB_LIST_FAILURE = 'SET_CLUB_LIST_FAILURE' //取得user club失敗
+export const SET_CLUB_LIST_SUCCESS = 'SET_CLUB_LIST_SUCCESS' //取得clubList For selecting成功
+export const SET_CLUB_LIST_FAILURE = 'SET_CLUB_LIST_FAILURE' //取得clubList For selecting失敗
 export const GET_POST_LIST_SUCCESS = 'GET_POST_LIST_SUCCESS' //取得貼文列表成功
 export const GET_POST_LIST_FAILURE = 'GET_POST_LIST_FAILURE' //取得貼文列表失敗
 export const PRESS_POST_SUCCESS = 'PRESS_POST_SUCCESS' //選取貼文成功
 export const PRESS_POST_FAILURE = 'PRESS_POST_FAILURE' //選取貼文失敗
 export const SET_CLUB_STATUS_SUCCESS = 'SET_CLUB_STATUS_SUCCESS' //篩選頁面按鈕觸發成功
 export const SET_CLUB_STATUS_FAILURE = 'SET_CLUB_STATUS_FAILURE' //篩選頁面按鈕觸發失敗
+// export const SET_LIKE_POST_SUCCESS = 'SET_LIKE_POST_SUCCESS' //點擊喜歡貼文成功
+// export const SET_LIKE_POST_FAILURE = 'SET_LIKE_POST_FAILURE' //點擊喜歡貼文失敗
+// export const SET_READ_POST_SUCCESS = 'SET_READ_POST_SUCCESS' //首次點擊進入貼文，造成觀看計量成功（只針對屬於社團成員）
+// export const SET_READ_POST_FAILURE = 'SET_READ_POST_FAILURE' //首次點擊進入貼文，造成觀看計量失敗（只針對屬於社團成員）
 
 
 /*
@@ -20,7 +24,7 @@ export const SET_CLUB_STATUS_FAILURE = 'SET_CLUB_STATUS_FAILURE' //篩選頁面�
 |-----------------------------------------------
 */
 
-//取得user club
+//取得clubList For selecting成功
 export const setClubListSuccess =(clubList,numSelectingStatusTrue) =>({
     type: SET_CLUB_LIST_SUCCESS,
     clubList,
