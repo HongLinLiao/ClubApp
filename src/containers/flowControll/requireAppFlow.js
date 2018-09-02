@@ -13,7 +13,6 @@ export default function(ComposedComponent) {
       console.log(routeName)
 
       if(user) {
-       
       }     
       else {
         this.props.navigation.navigate('AuthRouter')
@@ -34,7 +33,7 @@ export default function(ComposedComponent) {
     }
 
     render() {
-      return !this.props.loading ? <ComposedComponent {...this.props} /> : <Spinner />
+      return <ComposedComponent {...this.props} />
     }
   }
 
@@ -42,7 +41,6 @@ export default function(ComposedComponent) {
     user: userReducer.user, 
     askVerify: userReducer.askVerify,
     firstLogin: userReducer.firstLogin,
-    loading: commonReducer.loading,
   });
 
 

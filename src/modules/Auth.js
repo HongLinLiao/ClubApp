@@ -2,6 +2,7 @@ import * as AuthAction from '../actions/AuthAction'
 import * as CommonAction from '../actions/CommonAction'
 import * as UserAction from '../actions/UserAction'
 import * as ClubAction from '../actions/ClubAction'
+import * as SettingAction from '../actions/SettingAction'
 import * as firebase from "firebase"
 import Expo from 'expo' 
 import { Alert } from 'react-native'
@@ -23,41 +24,47 @@ const signInSuccess = (action, user, password, loginType) => async (dispatch) =>
   try {
     const userRef = firebase.database().ref('/users').child(user.uid)
     const settingRef = firebase.database().ref('/settings').child(user.uid)
+
     const userShot = await userRef.once('value')
     const settingShot = await settingRef.once('value')
-    const allClubData = await getAllClubData(userShot)
+
     const userInfo = { password, loginType }
-    let userData = null
 
-    if(userShot.val()) { //之前登入過
-      let settingData = null
-      if(settingShot.val()) { //是否使用者設定資料
-        settingData = await getUserSettingToRedux(settingShot) 
-      } else {
-        settingData = await createUserSettingInDB(settingRef)
-      }
+    let userData = {}
+    let settingData = {}
+    let allClubData = {}
 
+    //使用者基本資料
+    if(userShot.val()) { //之前登入過 
       userData = await getUserStateToRedux(userShot)
-      userData = {...userData, settingData}
-    }
-    else { //第一次登入
+    } else { //第一次登入
       userData = await createUserInDatabase(user, userInfo)
     }
-    
-    dispatch(action(userData))
 
+    //使用者設定資料
+    if(settingShot.val()) { //是否有使用者設定資料
+      settingData = await getUserSettingToRedux(settingShot) 
+    } else {
+      settingData = await createUserSettingInDB(settingRef)
+    }
+    
+    //使用者相關社團資料
+    allClubData = await getAllClubData(userShot)
+
+    //更新reducer
+    dispatch(SettingAction.setAllSetting(settingData))
     dispatch(ClubAction.setAllClubData(allClubData))
+    dispatch(action(userData)) //最後更新user才出發authFlow
 
   } catch(e) {
 
+    console.log(e.toString())
     throw e
   }
   
 }
 
 export const signInWithEmail = (email, password, remember) => async (dispatch) => {
-
-  // dispatch(CommonAction.setLoadingState(true)) //進入等待狀態
 
   dispatch(AuthAction.signInRequest(remember)) //登入要求
   
@@ -72,8 +79,6 @@ export const signInWithEmail = (email, password, remember) => async (dispatch) =
 
     dispatch(AuthAction.signInFail(error.toString())) //登入失敗
 
-    dispatch(CommonAction.setLoadingState(false))
-
     throw error
 
     console.log(error.toString())
@@ -82,8 +87,6 @@ export const signInWithEmail = (email, password, remember) => async (dispatch) =
 }
 
 export const signUpUser = (newUser) => async (dispatch) => {
-
-  // dispatch(CommonAction.setLoadingState(true)) //進入等待狀態
 
   dispatch(AuthAction.signUpRequest()) //註冊要求
 
@@ -98,8 +101,6 @@ export const signUpUser = (newUser) => async (dispatch) => {
   } catch(error) {
     dispatch(AuthAction.signUpFail(error.toString()))
 
-    dispatch(CommonAction.setLoadingState(false)) //取消等待狀態
-
     console.log(error.toString())
 
     throw error
@@ -108,8 +109,6 @@ export const signUpUser = (newUser) => async (dispatch) => {
 }
 
 export const signInWithFacebook = () => async (dispatch) => {
-
-  // dispatch(CommonAction.setLoadingState(true)) //進入等待狀態
 
   dispatch(AuthAction.signWithFacebookRequest()) //facebook登入要求
 
@@ -125,7 +124,7 @@ export const signInWithFacebook = () => async (dispatch) => {
 
     }
     else {
-      // dispatch(CommonAction.setLoadingState(false)) //結束等待狀態
+
       throw new Error('取消登入')
     }
 
@@ -162,16 +161,12 @@ export const signInWithGoogle = () => async (dispatch) => {
       const {user} = await firebase.auth().signInAndRetrieveDataWithCredential(credential)
 
       dispatch(signInSuccess(AuthAction.signWithGoogleSuccess, user, null, 'Google')) //google登入並更新狀態
-
-    } else {
-      dispatch(CommonAction.setLoadingState(false)) //取消等待狀態
+    
     }
     
   } catch(error) {
 
     dispatch(AuthAction.signWithGoogleFail(error.toString()))
-
-    dispatch(CommonAction.setLoadingState(false)) //取消等待狀態
 
     console.log(error.toString())
 

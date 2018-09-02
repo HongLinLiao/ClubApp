@@ -21,7 +21,7 @@ export const CLEAR_USER_STATE = 'CLEAR_USER_STATE' //清空使用者狀態
 //使用者狀態
 export const updateUserState = (userData) => ({
   type: UPDATE_USER_STATE_SUCCESS,
-  userData
+  ...userData
 })
 
 export const updateUserStateFail = (message) => ({
