@@ -7,7 +7,7 @@ import { createStore, applyMiddleware } from 'redux'
 import { logger } from 'redux-logger'
 import thunk from 'redux-thunk'
 import firebaseConfig from './src/firebaseConfig'
-import { updateUserStateAsync } from './src/modules/User'
+import { getAllUserData } from './src/modules/User'
 import createRootRouter from './src/routers/Router'
 import { Spinner } from './src/components/common/Spinner'
 import { setLoadingState } from './src/actions/CommonAction'
@@ -34,7 +34,7 @@ export default class App extends React.Component {
       if(this.state.loading) { //初次載入App
 
         if(user) {
-          store.dispatch(updateUserStateAsync(user))
+          store.dispatch(getAllUserData(user))
         }
         else {
           store.dispatch(setLoadingState(false)) //停止等待畫面顯示login頁面

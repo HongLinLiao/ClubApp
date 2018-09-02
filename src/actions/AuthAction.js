@@ -45,7 +45,7 @@ export const signInRequest = (rememberMe) => ({
 
 export const signInSuccess = (userData) => ({
   type: SIGN_IN_SUCCESS,
-  userData
+  ...userData
 })
 
 export const signInFail = (message) => ({
@@ -60,7 +60,7 @@ export const signUpRequest = () => ({
 
 export const signUpSuccess = (userData) => ({
   type: SIGN_UP_SUCCESS,
-  userData
+  ...userData
 })
 
 export const signUpFail = (message) => ({
@@ -75,7 +75,7 @@ export const signWithFacebookRequest = () => ({
 
 export const signWithFacebookSuccess = (userData) => ({
   type: SIGN_WITH_FACEBOOK_SUCCESS,
-  userData
+  ...userData
 })
 
 export const signWithFacebookFail = (message) => ({
@@ -90,7 +90,7 @@ export const signWithGoogleRequest = () => ({
 
 export const signWithGoogleSuccess = (userData) => ({
   type: SIGN_WITH_GOOGLE_SUCCESS,
-  userData
+  ...userData
 })
 
 export const signWithGoogleFail = (message) => ({
