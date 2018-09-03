@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import Club from '../../components/club/Club'
 
 
-const mapStateToProps = ({ userReducer, settingReducer }) => ({
+const mapStateToProps = ({ userReducer, clubReducer }) => ({
   user: userReducer.user,
 })
 
