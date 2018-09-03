@@ -12,7 +12,8 @@ import {
 import {
   SET_GLOBAL_NOTIFICATION,
   SET_NIGHT_MODE_NOTIFICATION,
-  SET_CLUB_NOTIFICATION
+  SET_CLUB_NOTIFICATION,
+  SET_ALL_SETTING
 } from '../actions/SettingAction'
 
 import {
@@ -31,16 +32,12 @@ const initialState = {
 
 export const settingReducer = (state = initialState, action) => {
   switch(action.type) {
-    case SIGN_IN_SUCCESS:
-    case SIGN_UP_SUCCESS:
-    case SIGN_WITH_FACEBOOK_SUCCESS:
-    case SIGN_WITH_GOOGLE_SUCCESS:
-    case UPDATE_USER_STATE_SUCCESS:
+    case SET_ALL_SETTING:
       return {
         ...state,
-        globalNotification: action.userData.settingData.globalNotification,
-        nightModeNotification: action.userData.settingData.nightModeNotification,
-        clubNotificationList: action.userData.settingData.clubNotificationList
+        globalNotification: action.globalNotification,
+        nightModeNotification: action.nightModeNotification,
+        clubNotificationList: action.clubNotificationList
       }
     case SET_GLOBAL_NOTIFICATION:
       return {

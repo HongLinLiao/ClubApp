@@ -13,7 +13,6 @@ export default function(ComposedComponent) {
       console.log(routeName)
 
       if(user) {
-       
       }     
       else {
         this.props.navigation.navigate('AuthRouter')

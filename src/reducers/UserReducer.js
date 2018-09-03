@@ -63,13 +63,13 @@ export const userReducer = (state = initialState, action) => {
 		case SIGN_IN_SUCCESS:
 			return {
 				...state,
-				user: action.userData.user,
-				password: action.userData.password,
-				firstLogin: action.userData.firstLogin,
-				loginType: action.userData.loginType,
-				aboutMe: action.userData.aboutMe,
-				joinClub: action.userData.joinClub,
-				likeClub: action.userData.likeClub
+				user: action.user,
+				password: action.password,
+				firstLogin: action.firstLogin,
+				loginType: action.loginType,
+				aboutMe: action.aboutMe,
+				joinClub: action.joinClub,
+				likeClub: action.likeClub
 			}
 		case SIGN_IN_FAILURE:
 			return {
@@ -87,13 +87,13 @@ export const userReducer = (state = initialState, action) => {
 		case SIGN_UP_SUCCESS:
 			return {
 				...state,
-				user: action.userData.user,
-				password: action.userData.password,
-				firstLogin: action.userData.firstLogin,
-				loginType: action.userData.loginType,
-				aboutMe: action.userData.aboutMe,
-				joinClub: action.userData.joinClub,
-				likeClub: action.userData.likeClub
+				user: action.user,
+				password: action.password,
+				firstLogin: action.firstLogin,
+				loginType: action.loginType,
+				aboutMe: action.aboutMe,
+				joinClub: action.joinClub,
+				likeClub: action.likeClub
 			}
 		case SIGN_UP_FAILURE:
 			return {
@@ -111,13 +111,13 @@ export const userReducer = (state = initialState, action) => {
 		case SIGN_WITH_FACEBOOK_SUCCESS:
 			return {
 				...state,
-				user: action.userData.user,
-				password: action.userData.password,
-				firstLogin: action.userData.firstLogin,
-				loginType: action.userData.loginType,
-				aboutMe: action.userData.aboutMe,
-				joinClub: action.userData.joinClub,
-				likeClub: action.userData.likeClub
+				user: action.user,
+				password: action.password,
+				firstLogin: action.firstLogin,
+				loginType: action.loginType,
+				aboutMe: action.aboutMe,
+				joinClub: action.joinClub,
+				likeClub: action.likeClub
 			}
 		case SIGN_WITH_FACEBOOK_FAILURE:
 			return {
@@ -135,13 +135,13 @@ export const userReducer = (state = initialState, action) => {
 		case SIGN_WITH_GOOGLE_SUCCESS:
 			return {
 				...state,
-				user: action.userData.user,
-				password: action.userData.password,
-				firstLogin: action.userData.firstLogin,
-				loginType: action.userData.loginType,
-				aboutMe: action.userData.aboutMe,
-				joinClub: action.userData.joinClub,
-				likeClub: action.userData.likeClub
+				user: action.user,
+				password: action.password,
+				firstLogin: action.firstLogin,
+				loginType: action.loginType,
+				aboutMe: action.aboutMe,
+				joinClub: action.joinClub,
+				likeClub: action.likeClub
 			}
 		case SIGN_WITH_GOOGLE_FAILURE:
 			return {
@@ -196,13 +196,13 @@ export const userReducer = (state = initialState, action) => {
 			return {
 				...state,
 				success: true,
-				user: action.userData.user,
-				password: action.userData.password,
-				firstLogin: action.userData.firstLogin,
-				loginType: action.userData.loginType,
-				aboutMe: action.userData.aboutMe,
-				joinClub: action.userData.joinClub,
-				likeClub: action.userData.likeClub
+				user: action.user,
+				password: action.password,
+				firstLogin: action.firstLogin,
+				loginType: action.loginType,
+				aboutMe: action.aboutMe,
+				joinClub: action.joinClub,
+				likeClub: action.likeClub
 			}
 		case UPDATE_USER_STATE_FAILURE:
 			return {
