@@ -4,14 +4,14 @@
 |-----------------------------------------------
 */
 
-export const SET_CLUB_LIST_SUCCESS = 'SET_CLUB_LIST_SUCCESS' //取得clubList For selecting成功
-export const SET_CLUB_LIST_FAILURE = 'SET_CLUB_LIST_FAILURE' //取得clubList For selecting失敗
-export const GET_POST_LIST_SUCCESS = 'GET_POST_LIST_SUCCESS' //取得貼文列表成功
-export const GET_POST_LIST_FAILURE = 'GET_POST_LIST_FAILURE' //取得貼文列表失敗
-export const PRESS_POST_SUCCESS = 'PRESS_POST_SUCCESS' //選取貼文成功
-export const PRESS_POST_FAILURE = 'PRESS_POST_FAILURE' //選取貼文失敗
-export const SET_CLUB_STATUS_SUCCESS = 'SET_CLUB_STATUS_SUCCESS' //篩選頁面按鈕觸發成功
-export const SET_CLUB_STATUS_FAILURE = 'SET_CLUB_STATUS_FAILURE' //篩選頁面按鈕觸發失敗
+export const GET_HOME_CLUBLIST_SUCCESS = 'GET_HOME_CLUBLIST_SUCCESS' //取得clubList For selecting成功
+export const GET_HOME_CLUBLIST_FAILURE = 'GET_HOME_CLUBLIST_FAILURE' //取得clubList For selecting失敗
+export const GET_HOME_POSTLIST_SUCCESS = 'GET_HOME_POSTLIST_SUCCESS' //取得首頁貼文列表成功
+export const GET_HOME_POSTLIST_FAILURE = 'GET_HOME_POSTLIST_FAILURE' //取得首頁貼文列表失敗
+export const PRESS_POST_SUCCESS = 'PRESS_POST_SUCCESS' //點擊貼文進入貼文內頁成功
+export const PRESS_POST_FAILURE = 'PRESS_POST_FAILURE' //點擊貼文進入貼文內頁失敗
+export const SET_HOME_CLUBLIST_STATUS_SUCCESS = 'SET_HOME_CLUBLIST_STATUS_SUCCESS' //首頁篩選頁面按鈕觸發成功
+export const SET_HOME_CLUBLIST_STATUS_FAILURE = 'SET_HOME_CLUBLIST_STATUS_FAILURE' //首頁篩選頁面按鈕觸發失敗
 // export const SET_LIKE_POST_SUCCESS = 'SET_LIKE_POST_SUCCESS' //點擊喜歡貼文成功
 // export const SET_LIKE_POST_FAILURE = 'SET_LIKE_POST_FAILURE' //點擊喜歡貼文失敗
 // export const SET_READ_POST_SUCCESS = 'SET_READ_POST_SUCCESS' //首次點擊進入貼文，造成觀看計量成功（只針對屬於社團成員）
@@ -25,25 +25,23 @@ export const SET_CLUB_STATUS_FAILURE = 'SET_CLUB_STATUS_FAILURE' //篩選頁面�
 */
 
 //取得clubList For selecting成功
-export const setClubListSuccess =(clubList,numSelectingStatusTrue) =>({
-    type: SET_CLUB_LIST_SUCCESS,
+export const getHomeClubListSuccess =(clubList,numSelectingStatusTrue) =>({
+    type: GET_HOME_CLUBLIST_SUCCESS,
     clubList,
     numSelectingStatusTrue
 })
-
-export const setClubListFailure =(message) =>({
-    type: SET_CLUB_LIST_FAILURE,
+export const getHomeClubListFailure =(message) =>({
+    type: GET_HOME_CLUBLIST_FAILURE,
     message
 })
 
-//取得貼文列表
-export const getPostListSuccess = (postList) => ({
-    type: GET_POST_LIST_SUCCESS,
+//取得首頁貼文列表
+export const getHomePostListSuccess = (postList) => ({
+    type: GET_HOME_POSTLIST_SUCCESS,
     postList
 })
-
-export const getPostListFailure = (message) => ({
-    type: GET_POST_LIST_FAILURE,
+export const getHomePostListFailure = (message) => ({
+    type: GET_HOME_POSTLIST_FAILURE,
     message
 })
 
@@ -58,14 +56,14 @@ export const pressPostFailure = (message) => ({
     message
 })
 
-//篩選頁面按鈕觸發
-export const setClubStatusSuccess = (clubList,numSelectingStatusTrue) => ({
-    type: SET_CLUB_STATUS_SUCCESS,
+//首頁篩選頁面按鈕觸發
+export const setHomeClubListStatusSuccess = (clubList,numSelectingStatusTrue) => ({
+    type: SET_HOME_CLUBLIST_STATUS_SUCCESS,
     clubList,
     numSelectingStatusTrue
 })
 
-export const setClubStatusFailure = (message) => ({
-    type: SET_CLUB_STATUS_FAILURE,
+export const setHomeClubListStatusFailure = (message) => ({
+    type: SET_HOME_CLUBLIST_STATUS_FAILURE,
     message
 })

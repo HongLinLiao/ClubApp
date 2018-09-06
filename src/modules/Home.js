@@ -26,11 +26,11 @@ export const getHomeClubList = (joinClub, likeClub) => async (dispatch) => {
         const clubList = await getClubListForSelecting(allClub);
         const numSelectingStatusTrue = Object.keys(clubList).length;
 
-        dispatch(HomeAction.setClubListSuccess(clubList, numSelectingStatusTrue));
+        dispatch(HomeAction.getHomeClubListSuccess(clubList, numSelectingStatusTrue));
         return clubList;
     }
     catch (error) {
-        dispatch(HomeAction.setClubListFailure(error.toString()));
+        dispatch(HomeAction.getHomeClubListFailure(error.toString()));
         console.log(error.toString());
     }
 }
@@ -88,11 +88,11 @@ export const getHomePostList = (clubList) => async (dispatch, getState) => {
                 }
             }
         }
-        dispatch(HomeAction.getPostListSuccess(postList));
+        dispatch(HomeAction.getHomePostListSuccess(postList));
         return postList;
     }
     catch (error) {
-        dispatch(HomeAction.getPostListFailure(error.toString()))
+        dispatch(HomeAction.getHomePostListFailure(error.toString()))
         console.log(error.toString())
     }
 }
@@ -123,7 +123,7 @@ export const setHomeClubListStatus = (clubKey, clubList, numSelectingStatusTrue)
             else {
                 clubList[clubKey].selectStatus = !(clubList[clubKey].selectStatus);
                 numSelectingStatusTrue = numSelectingStatusTrue + 1;
-                dispatch(HomeAction.setClubStatusSuccess(clubList, numSelectingStatusTrue));
+                dispatch(HomeAction.setHomeClubListStatusSuccess(clubList, numSelectingStatusTrue));
                 postList = await dispatch(getHomePostList(clubList));
             }
         }
@@ -135,13 +135,13 @@ export const setHomeClubListStatus = (clubKey, clubList, numSelectingStatusTrue)
                 numSelectingStatusTrue = numSelectingStatusTrue - 1;
             }
             clubList[clubKey].selectStatus = !(clubList[clubKey].selectStatus);
-            dispatch(HomeAction.setClubStatusSuccess(clubList, numSelectingStatusTrue));
+            dispatch(HomeAction.setHomeClubListStatusSuccess(clubList, numSelectingStatusTrue));
             postList = await dispatch(getHomePostList(clubList));
         }
         return postList;
     }
     catch (error) {
-        dispatch(HomeAction.setClubStatusFailure(error.toString()));
+        dispatch(HomeAction.setHomeClubListStatusFailure(error.toString()));
         console.log(error.toString());
     }
 }
