@@ -99,8 +99,8 @@ export const createClub = (schoolName, clubName, open) => async (dispatch, getSt
       open,
       member,
       initDate: new Date().toLocaleString(), //格式：2018/8/30 下午3:07:08
-      imgUrl: true,
-      introduction: true,
+      imgUrl: false,
+      introduction: false,
     }
 
     newClubs[cid] = newClub

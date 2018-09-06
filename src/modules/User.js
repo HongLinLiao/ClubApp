@@ -155,7 +155,7 @@ export const setUserStateToDB = async (userState) => {
     const userRef = firebase.database().ref('/users').child(user.uid)
     const userShot = await userRef.once('value')
     const DB_userState = userShot.val()
-
+    
     if(userState.nickName)
       DB_userState = {...DB_userState, nickName: userState.nickName}
 
@@ -187,7 +187,8 @@ export const createUserInDatabase = async (user, userInfo) => {
       password: userInfo.password,
       nickName: user.displayName,
       loginType: userInfo.loginType,
-      aboutMe: true
+      photoUrl: user.photoURL,
+      aboutMe: false
     })
 
     let userData = {
@@ -218,7 +219,7 @@ export const createUserSettingInDB = async (settingRef) => {
     const joinClub = await firebase.database().ref('users/' + user.uid + '/joinClub').once('value')
 
     let clubNotificationList = {} //settingReducer使用
-    let DB_clubNotificationList = {} //database使用
+    let DB_clubNotificationList = null //database使用
     
     //抓取每個社團的資料
     const promises = Object.keys(joinClub.val()).map(
@@ -285,6 +286,7 @@ export const changePhoto = () => async (dispatch) => {
 
   try {
     const user = firebase.auth().currentUser
+    const userRef = firebase.database().ref('users/' + user.uid)
     const photoUrl = await selectPhoto() //選擇照片
 
     if(photoUrl) {
@@ -294,6 +296,8 @@ export const changePhoto = () => async (dispatch) => {
       await user.updateProfile({ 
         photoURL: uploadUrl
       })
+
+      await userRef.update({photoUrl: uploadUrl})
 
       dispatch(UserAction.updateUser({...user}))
     }
