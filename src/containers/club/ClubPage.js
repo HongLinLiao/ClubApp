@@ -5,6 +5,7 @@ import Club from '../../components/club/Club'
 
 const mapStateToProps = ({ userReducer, clubReducer }) => ({
   user: userReducer.user,
+  clubs: clubReducer.clubs
 })
 
 const mapDispatchToProps = {
