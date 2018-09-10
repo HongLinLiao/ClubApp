@@ -5,6 +5,7 @@ import { Button } from 'react-native-elements';
 const PostListElement = (element) => {
 
     const { titleText } = styles;
+    const { views, favorites } = element;
     return (
         <View>
             <Text>{element.schoolName}</Text>
@@ -12,11 +13,10 @@ const PostListElement = (element) => {
             <Text>{element.posterNickName}</Text>
             <Text>{element.posterStatusChinese}</Text>
             <Text style={titleText}>{element.title}</Text>
-            <Text>{element.memo}</Text>
             <Text>{element.date}</Text>
             <Button
                 title='go insidePage!'
-                onPress={async() => await element.setPostListToPost(element)}
+                onPress={async () => await element.setPostListToPost(element)}
             />
         </View>
     );

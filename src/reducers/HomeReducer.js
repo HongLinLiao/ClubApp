@@ -11,10 +11,10 @@ import {
 
 const initialState = {
     message: null,//錯誤訊息
-    postList: [],//貼文列
-    post: [],//首頁點擊的那篇貼文
+    postList: {},//貼文列
+    post: {},//首頁點擊的那篇貼文
     status: false,//執行狀態
-    clubList: [],//社團列表（控制篩選bool
+    clubList: {},//社團列表（控制篩選bool
     numSelectingStatusTrue: null //計算clubList中有幾個是true
 }
 

@@ -4,7 +4,7 @@ import PostData from '../../components/club/PostData'
 
 class PostPage extends Component {
     render() {
-        const  post  = this.props.post;
+        const  post  = this.props.navigation.state.params;
         return (
             <PostData
                 post={post}
@@ -14,7 +14,7 @@ class PostPage extends Component {
 }
 
 const mapStateToProps = ({ homeReducer }) => ({
-    post: homeReducer.post
+    // post: homeReducer.post
 })
 
 export default connect(mapStateToProps)(PostPage);

@@ -6,7 +6,7 @@ import PostListElement from './PostListElement'
 class PostList extends React.Component {
 
     getHomePost = async () => {
-        const { getHomePostList, clubList, postList, determinToSearch } = this.props;
+        const { getHomePostList, clubList, determinToSearch } = this.props;
         //用clubList去搜尋產生postList
         const newPostList = await getHomePostList(clubList);
         await determinToSearch(clubList, newPostList);
@@ -18,7 +18,6 @@ class PostList extends React.Component {
     }
 
     render() {
-
         return (
             <ScrollView>
                 <Button
