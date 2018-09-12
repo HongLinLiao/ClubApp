@@ -28,8 +28,8 @@ import {
 const signInSuccess = (action, user, password, loginType) => async (dispatch) => {
 
   try {
-    const userRef = firebase.database().ref('/users').child(user.uid)
-    const settingRef = firebase.database().ref('/settings').child(user.uid)
+    const userRef = firebase.database().ref('users').child(user.uid)
+    const settingRef = firebase.database().ref('userSettings').child(user.uid)
 
     const userShot = await userRef.once('value')
     const settingShot = await settingRef.once('value')

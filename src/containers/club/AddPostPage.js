@@ -1,6 +1,7 @@
 import { } from '../../modules/App'
 import { connect } from 'react-redux';
-import Club from '../../components/club/Club'
+import AddPost from '../../components/club/AddPost'
+import { selectPhoto, takePhoto } from '../../modules/Common'
 
 
 const mapStateToProps = ({ userReducer, clubReducer }) => ({
@@ -13,4 +14,4 @@ const mapDispatchToProps = {
 }
 
 
-export default connect(mapStateToProps, mapDispatchToProps)(Club);
+export default connect(mapStateToProps, mapDispatchToProps)(AddPost);

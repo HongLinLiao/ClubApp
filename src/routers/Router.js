@@ -13,9 +13,13 @@ const MainRouter = createBottomTabNavigator({
     PersonalRouter: PersonalRouter,
 },
 {
-    navigationOptions: {
-        animationEnabled: true,
-        swipeEnabled: true
+    navigationOptions: ({navigation}) => {
+        const { index, routes } = navigation.state
+        return {
+            tabBarVisible: !(routes[index].routeName == 'AddPost'),
+            animationEnabled: true,
+            swipeEnabled: true
+        }
     }
 })
 

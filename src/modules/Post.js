@@ -67,3 +67,14 @@ export const getViewFavoriteData = (post,userUid) => async (dispatch) => {
         post.statusFavorite = false;
     return post;
 }
+
+export const createPost = (cid) => async (dispatch) => {
+
+	try {
+		dispatch(PostAction.createPostRequest())
+
+		
+	} catch (e) {
+
+    }
+}
