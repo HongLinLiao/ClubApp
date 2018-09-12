@@ -7,6 +7,11 @@ import { selectPhoto } from './Common'
 import { Alert } from 'react-native'
 import { getAllClubData } from './Club'
 
+import {
+  getHomeClubList , 
+  getHomePostList , 
+  determinToSearch
+} from './Home'
 
 /*
 |-----------------------------------------------
@@ -46,6 +51,11 @@ export const getAllUserData = (user) => async (dispatch) => {
       dispatch(SettingAction.setAllSetting(settingData)) 
       dispatch(ClubAction.setAllClubData(allClubData))
       dispatch(UserAction.updateUserState(userData)) //最後更新user才觸發authFlow
+
+      //直接在登入先抓首頁資料
+      const homeClubList = await dispatch(getHomeClubList(userData.joinClub, userData.likeClub));
+      const homePostList = await dispatch(getHomePostList(homeClubList));
+      await dispatch(determinToSearch(homeClubList,homePostList));
 
     } else {
       dispatch(CommonAction.setLoadingState(false)) //沒有使用者停止等待畫面

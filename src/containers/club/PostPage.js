@@ -1,8 +1,20 @@
+import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import PostData from '../../components/club/PostData'
 
+class PostPage extends Component {
+    render() {
+        const  post  = this.props.navigation.state.params;
+        return (
+            <PostData
+                post={post}
+            />
+        );
+    }
+}
+
 const mapStateToProps = ({ homeReducer }) => ({
-    post: homeReducer.post
+    // post: homeReducer.post
 })
 
-export default connect(mapStateToProps)(PostData);
+export default connect(mapStateToProps)(PostPage);

@@ -46,9 +46,9 @@ export default function(ComposedComponent) {
     }
   }
 
-  const mapStateToProps = ({ userReducer, commonReducer }) => ({
+  const mapStateToProps = ({ userReducer }) => ({
     user: userReducer.user,
-    askVerify: userReducer.askVerify,
+    askVerify: userReducer.askVerify
   });
 
   return connect(mapStateToProps)(UserDirection)

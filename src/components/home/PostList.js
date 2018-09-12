@@ -5,16 +5,11 @@ import PostListElement from './PostListElement'
 
 class PostList extends React.Component {
 
-    componentDidMount(){
-        this.setHomeData();
-    }
-    
-    setHomeData = async () => {
-        const { getHomeClubList, joinClub, likeClub, getHomePostList } = this.props;
-        //從userReducer將UserClubs存入homeReducer
-        const clubList = await getHomeClubList(joinClub, likeClub);
+    getHomePost = async () => {
+        const { getHomePostList, clubList, determinToSearch } = this.props;
         //用clubList去搜尋產生postList
-        await getHomePostList(clubList);
+        const newPostList = await getHomePostList(clubList);
+        await determinToSearch(clubList, newPostList);
     }
 
     //進入內頁onPress()事件，放入postList讓元件render
@@ -23,12 +18,11 @@ class PostList extends React.Component {
     }
 
     render() {
-
         return (
             <ScrollView>
                 <Button
                     title='reload!'
-                    onPress={() => { this.props.getHomePostList(this.props.clubList); }}
+                    onPress={async () => { await this.getHomePost(); }}
                 />
                 <Button
                     title='selecting!'
@@ -37,7 +31,7 @@ class PostList extends React.Component {
                 {
                     Object.values(this.props.postList).map((element) => (
                         <PostListElement
-                            key = {element.postKey}
+                            key={element.postKey}
                             {...element}
                             navigation={this.props.navigation}
                             setPostListToPost={this.props.setPostListToPost}
