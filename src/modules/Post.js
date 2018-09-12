@@ -76,4 +76,5 @@ export const createPost = (cid) => async (dispatch) => {
 		
 	} catch (e) {
 
-	}
+    }
+}
