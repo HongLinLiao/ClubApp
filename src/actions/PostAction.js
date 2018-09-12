@@ -16,7 +16,8 @@ export const createPostRequest = () => ({
   type: CREATE_POST_REQUEST,
 })
 
-export const createPostSuccess = (postData) => ({
+export const createPostSuccess = (postData, newClubs) => ({
   type: CREATE_POST_SUCCESS,
-  postData
+  postData,
+  newClubs,
 })

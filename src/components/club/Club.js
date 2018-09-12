@@ -75,7 +75,7 @@ class Club extends React.Component {
               </View>
     
               <View style={{height: 100, flexDirection: 'row'}}>
-                <Button title='發布文章'/>
+                <Button title='發布文章' onPress={() => this.props.navigation.push('AddPost', {schoolName, clubName, status: member[user.uid].status})}/>
                 <Button title='舉辦活動'/>
                 <Button title='切換管理者'/>
                 <Button title='編輯成員'/>

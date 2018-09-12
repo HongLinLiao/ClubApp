@@ -19,7 +19,7 @@ export const getAllUserData = (user) => async (dispatch) => {
 
   try {
     const userRef = firebase.database().ref('users').child(user.uid)
-    const settingRef = firebase.database().ref('settings').child(user.uid)
+    const settingRef = firebase.database().ref('userSettings').child(user.uid)
 
     const userShot = await userRef.once('value')
     const settingShot = await settingRef.once('value')
@@ -219,7 +219,7 @@ export const createUserSettingInDB = async (settingRef) => {
     const joinClub = await firebase.database().ref('users/' + user.uid + '/joinClub').once('value')
 
     let clubNotificationList = {} //settingReducer使用
-    let DB_clubNotificationList = null //database使用
+    let DB_clubNotificationList = {} //database使用
     
     //抓取每個社團的資料
     const promises = Object.keys(joinClub.val()).map(
