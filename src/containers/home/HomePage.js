@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { getHomePostList, setPostListToPost , determinToSearch } from '../../modules/Home'
+import { getHomePostList , determinToSearch } from '../../modules/Home'
 import PostList from '../../components/home/PostList'
 
 class HomePage extends Component {
@@ -25,7 +25,6 @@ const mapStateToProps = ({ homeReducer }) => ({
 
 const mapDispatchToProps = {
     getHomePostList,
-    setPostListToPost,
     determinToSearch
 }
 

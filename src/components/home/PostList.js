@@ -34,7 +34,6 @@ class PostList extends React.Component {
                             key={element.postKey}
                             {...element}
                             navigation={this.props.navigation}
-                            setPostListToPost={this.props.setPostListToPost}
                         >
                         </PostListElement>
                     ))

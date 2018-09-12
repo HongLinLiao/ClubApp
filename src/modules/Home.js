@@ -63,20 +63,6 @@ export const getHomePostList = (clubList) => async (dispatch) => {
     }
 }
 
-//依據選取的貼文將貼文資料傳入post，並進入貼文內頁
-export const setPostListToPost = (element) => async (dispatch) => {
-
-    try {
-        dispatch(HomeAction.pressPostSuccess(element));
-        console.log(element);
-        element.navigation.navigate('Post', element);
-    }
-    catch (error) {
-        dispatch(HomeAction.pressPostFailure(error.toString()))
-        console.log(error.toString())
-    }
-}
-
 //改變HomeClubList的selectStatus，並判斷是否有關閉全部selectStatus
 export const setHomeClubListStatus = (clubKey, clubList, numSelectingStatusTrue) => async (dispatch) => {
     try {
