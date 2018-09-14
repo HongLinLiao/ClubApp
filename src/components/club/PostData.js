@@ -14,9 +14,6 @@ class PostData extends React.Component {
         this.getData(getInsidePost, clubKey, postKey, router);
     }
 
-    componentWillUpdate() {
-    }
-
     render() {
         const newPost = { ...this.props.post }
         return (

@@ -11,8 +11,9 @@ import {
 import {
     SET_POST_FAVORITE_SUCCESS,
     SET_POST_FAVORITE_FAILURE,
-    SET_POST_VIEW_SUCCESS,
-    SET_POST_VIEW_FAILURE
+    SET_POST_VIEW_FAILURE,
+    SET_POST_CHANGE_TO_REDUCER_SUCCESS,
+    SET_POST_CHANGE_TO_REDUCER_FAILURE
 } from '../actions/PostAction'
 
 const initialState = {
@@ -77,12 +78,7 @@ export const homeReducer = (state = initialState, action) => {
                 status: false,
                 message: action.message
             }
-        //加入觀看
-        case SET_POST_VIEW_SUCCESS:
-            return {
-                ...state,
-                postList: action.postList
-            }
+        //加入觀看失敗
         case SET_POST_VIEW_FAILURE:
             return {
                 ...state,
@@ -96,6 +92,18 @@ export const homeReducer = (state = initialState, action) => {
                 post: action.post
             }
         case GET_HOME_INSIDE_POST_FAILURE:
+            return {
+                ...state,
+                status: false,
+                message: action.message
+            }
+        //動態更改post進各個reducer
+        case SET_POST_CHANGE_TO_REDUCER_SUCCESS:
+            return {
+                ...state,
+                postList: action.homePostList
+            }
+        case SET_POST_CHANGE_TO_REDUCER_FAILURE:
             return {
                 ...state,
                 status: false,

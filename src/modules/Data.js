@@ -43,6 +43,20 @@ export const getInsidePostData = async (clubKey, postKey) => {
 |-----------------------------------------------
 */
 
+//更改Post.Views
+export const updatePostViews = async (clubKey,postKey,updateViews) =>{
+    const update = {};
+    update['posts/'+clubKey+'/'+postKey+'/views'] = updateViews
+    firebase.database().ref().update(update);
+}
+
+//更改Post.Favorites
+export const updatePostFavorites = async (clubKey,postKey,updateFavorites) =>{
+    const update = {};
+    update['posts/'+clubKey+'/'+postKey+'/favorites'] = updateFavorites
+    firebase.database().ref().update(update);
+}
+
 export const updateUser = async (uid) => {
 
 }

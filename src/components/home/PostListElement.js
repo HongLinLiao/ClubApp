@@ -2,14 +2,19 @@ import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { Button } from 'react-native-elements';
 
-const PostListElement = ({ post, navigation, setPostView }) => {
+const PostListElement = ({ post, navigation, setPostFavorite }) => {
     const { titleText } = styles;
 
     async function insidePage() {
         const viewPost = {};
         viewPost[post.postKey] = { ...post };
-        await setPostView(viewPost);
         navigation.navigate('Post', { clubKey: post.clubKey, postKey: post.postKey, router: 'Home' })
+    }
+
+    async function pressFavorite(post){
+        const viewPost = {};
+        viewPost[post.postKey] = { ...post };
+        await setPostFavorite(viewPost);
     }
 
     return (
@@ -23,7 +28,7 @@ const PostListElement = ({ post, navigation, setPostView }) => {
                 <Text>{post.content}</Text>
                 <Text>{post.date}</Text>
                 <Text>觀看人數: {post.numViews} {post.statusView.toString()}</Text>
-                <TouchableOpacity onPress={() => console.log('favorites')}>
+                <TouchableOpacity onPress={async () => await pressFavorite(post)}>
                     <Text>按讚人數: {post.numFavorites} {post.statusFavorite.toString()}</Text>
                 </TouchableOpacity>
             </TouchableOpacity>

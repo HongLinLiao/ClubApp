@@ -1,5 +1,5 @@
 import * as firebase from "firebase"
-import { getUserData, getPostData, getClubData, getInsidePostData } from "./Data"
+import { getUserData, getPostData, getClubData, getInsidePostData, updatePostViews, updatePostFavorites } from "./Data"
 import { changeMemberStatusToChinese } from './Club';
 import * as PostAction from '../actions/PostAction'
 import * as HomeAction from '../actions/HomeAction'
@@ -11,8 +11,10 @@ export const getInsidePost = (clubKey, postKey, router) => async (dispatch) => {
             try {
                 const post = await dispatch(getInsidePostComplete(clubKey, postKey));
                 const newPost = {};
-                newPost[postKey] = { ...post };
-                dispatch(HomeAction.getHomeInsidePostSuccess(newPost));
+                newPost[post.postKey] = post;
+                const viewPost = await dispatch(setPostView(newPost));
+                dispatch(HomeAction.getHomeInsidePostSuccess(viewPost));
+                await dispatch(setPostChangeToPostList(viewPost[postKey]));
             }
             catch (error) {
                 dispatch(HomeAction.getHomeInsidePostFailure(error.toString()));
@@ -93,7 +95,7 @@ export const setPosterNickName = async (post) => {
     return post;
 };
 
-//處理Views和Favorites
+//產生statusView和statusFavorite
 export const getViewFavoriteData = (post, userUid) => async (dispatch) => {
     //views與favorite數量
     post.numViews = Object.keys(post.views).length;
@@ -113,7 +115,8 @@ export const getViewFavoriteData = (post, userUid) => async (dispatch) => {
 //按讚
 export const setPostFavorite = (post) => async (dispatch, getState) => {
     try {
-        Object.keys(post).map((element) => {
+        const promisesFavorites = Object.keys(post).map(async (element) => {
+            const userUid = getState().userReducer.user.uid;
             //按讚
             if (post[element].statusFavorite == false) {
                 post[element].statusFavorite = !post[element].statusFavorite;
@@ -122,12 +125,12 @@ export const setPostFavorite = (post) => async (dispatch, getState) => {
                 if (post[element].numFavorites == 0) {
                     post[element].numFavorites = post[element].numFavorites + 1;
                     post[element].favorites = {};
-                    post[element].favorites[post[element].posterUid] = true;
+                    post[element].favorites[userUid] = true;
                 }
                 //有其他使用者按過讚
                 else {
                     post[element].numFavorites = post[element].numFavorites + 1;
-                    post[element].favorites[post[element].posterUid] = true;
+                    post[element].favorites[userUid] = true;
                 }
             }
             //取消讚
@@ -143,10 +146,15 @@ export const setPostFavorite = (post) => async (dispatch, getState) => {
                 //設為null寫進firebase會自動消失
                 else {
                     post[element].numFavorites = post[element].numFavorites - 1;
-                    post[element].favorites[post[element].posterUid] = null;
+                    post[element].favorites[userUid] = null;
                 }
             }
+            //更改firebasePostFavorites
+            await updatePostFavorites(post[element].clubKey, post[element].postKey, post[element].favorites);
+            //連動更改所有已讀取該篇文章的reducer
+            await dispatch(setPostChangeToPostList(post[element]));
         });
+        await Promise.all(promisesFavorites);
         dispatch(PostAction.setPostFavoriteSuccess(post));
     }
     catch (error) {
@@ -156,27 +164,54 @@ export const setPostFavorite = (post) => async (dispatch, getState) => {
 }
 
 //觀看
-export const setPostView = (post) => (dispatch, getState) => {
+export const setPostView = (post) => async (dispatch, getState) => {
     try {
-        Object.keys(post).map((element) => {
-            //沒有其他使用者看過
-            if (post[element].numViews == 0) {
-                post[element].numViews = post[element].numViews + 1;
-                post[element].views = {};
-                post[element].views[post[element].posterUid] = true;
+        const promisesViews = Object.keys(post).map(async (element) => {
+            const userUid = getState().userReducer.user.uid;
+            //檢查使用者是否是第一次查看
+            //不是第一次看
+            if (post[element].views[userUid] == true) {
+                console.log('已看過');
             }
-            //有其他使用者看過
+            //是第一次看
             else {
-                post[element].numViews = post[element].numViews + 1;
-                post[element].views[post[element].posterUid] = true;
+                //沒有其他使用者看過
+                if (post[element].numViews == 0) {
+                    post[element].numViews = post[element].numViews + 1;
+                    post[element].views = {};
+                    post[element].views[userUid] = true;
+                    post[element].statusView = true;
+                }
+                //有其他使用者看過
+                else {
+                    post[element].numViews = post[element].numViews + 1;
+                    post[element].views[userUid] = true;
+                    post[element].statusView = true;
+                }
+                await updatePostViews(post[element].clubKey, post[element].postKey, post[element].views);
             }
         })
-        const homePostList = getState().homeReducer.postList;
-        homePostList = { ...homePostList, ...post }
-        dispatch(PostAction.setPostViewSuccess(homePostList));
+        await Promise.all(promisesViews);
+        return post;
     }
     catch (error) {
         dispatch(PostAction.setPostViewFailure(error));
+        console.log(error.toString());
+    }
+}
+
+//同步更改reducer資料
+export const setPostChangeToPostList = (post) => async (dispatch, getState) => {
+    try {
+        //讀取不同reducer裡的postList
+        const homePostList = { ...getState().homeReducer.postList };
+        if (homePostList.hasOwnProperty(post.postKey)) {
+            homePostList[post.postKey] = post;
+        }
+        dispatch(PostAction.setPostChangeToReducerSuccess(homePostList));
+    }
+    catch (error) {
+        dispatch(PostAction.setPostChangeToReducerFailure(error));
         console.log(error.toString());
     }
 }
