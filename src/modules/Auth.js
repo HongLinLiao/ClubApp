@@ -42,20 +42,20 @@ const signInSuccess = (action, user, password, loginType) => async (dispatch) =>
 
     //使用者基本資料
     if(userShot.val()) { //之前登入過 
-      userData = await getUserStateToRedux(userShot)
+      userData = await getUserStateToRedux()
     } else { //第一次登入
       userData = await createUserInDatabase(user, userInfo)
     }
 
     //使用者設定資料
     if(settingShot.val()) { //是否有使用者設定資料
-      settingData = await getUserSettingToRedux(settingShot) 
+      settingData = await getUserSettingToRedux() 
     } else {
-      settingData = await createUserSettingInDB(settingRef)
+      settingData = await createUserSettingInDB()
     }
     
     //使用者相關社團資料
-    allClubData = await getAllClubData(userShot)
+    allClubData = await getAllClubData()
 
     //更新reducer
     dispatch(SettingAction.setAllSetting(settingData))

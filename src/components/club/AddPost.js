@@ -10,11 +10,13 @@ import {
 
 import { takePhoto, selectPhoto } from '../../modules/Common'
 
+
 class AddPost extends React.Component {
 
   state ={
     topic: '',
     content: '',
+    data: []
   }
 
   componentDidMount() {
@@ -32,13 +34,19 @@ class AddPost extends React.Component {
     try {
 
     } catch(e) {
-
       
     }
+
   }
 
   handleSelectPhoto = async () => {
     
+    try {
+
+    } catch(e) {
+  
+    }
+
   }
 
   render() {
@@ -70,6 +78,7 @@ class AddPost extends React.Component {
             onChangeText={(content) => this.setState({content})}
           />
         </View>
+
         <View style={{
             flexDirection: 'row',
             backgroundColor: 'white',

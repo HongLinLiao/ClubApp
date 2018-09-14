@@ -12,7 +12,9 @@ import {
 
 import Expo from 'expo'
 
-import ModalDropdown from 'react-native-modal-dropdown'; 
+import ModalDropdown from 'react-native-modal-dropdown';
+import Masonry from 'react-native-masonry'
+
 import PostComponent from './PostData'
 
 class Club extends React.Component {
@@ -62,7 +64,7 @@ class Club extends React.Component {
         <View style={{flex: 1, marginTop: Expo.Constants.statusBarHeight}}>
           <View style={{flex: 1}}>
             <ScrollView>
-            
+              
               <View style={{height: 400, alignItems: 'center', justifyContent: 'center',}}>
                 <View style={{position: 'absolute', height: 400, width: '100%'}}>
                   <Image source={{uri: this.props.imgUrl}} resizeMode='contain' style={{height: 400}}/>

@@ -34,10 +34,14 @@ export const getClubListForSelecting  = async (allClub) => {
   }
 }
 
-export const getAllClubData = async (userShot) => {
+export const getAllClubData = async () => {
 
   try {
+    const user = firebase.auth().currentUser
+    const userRef = firebase.database().ref('users').child(user.uid)
+    const userShot = await userRef.once('value')
     const { joinClub, likeClub } = userShot.val()
+    
     let allClubCid = []
     let allClubData = {}
 
