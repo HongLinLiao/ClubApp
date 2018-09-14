@@ -16,7 +16,7 @@ class AddPost extends React.Component {
   state ={
     topic: '',
     content: '',
-    data: []
+    images: []
   }
 
   componentDidMount() {
@@ -49,11 +49,21 @@ class AddPost extends React.Component {
 
   }
 
+  setData = () => {
+    this.setState({
+      images: [
+        'https://www.w3schools.com/w3css/img_lights.jpg',
+        'https://cdn.pixabay.com/photo/2016/06/18/17/42/image-1465348_960_720.jpg'
+      ]
+    })
+  }
+
   render() {
     const { displayName } = this.props.user
     const { schoolName, clubName, status} = this.props.navigation.state.params
     return (
       <View style={{flex: 1}}>
+        <Button title='hahaha' onPress={() => this.setData()} />
         <View style={{flex: 1, justifyContent: 'center',}}>
           <View style={{flexDirection: 'row', width: 100}}>
             <Image source={{}} style={{height: 100, width: 100}}/>
@@ -66,6 +76,17 @@ class AddPost extends React.Component {
             </View>
           </View>
           <TextInput placeholder='標題' onChangeText={(topic) => this.setState({topic})}/>
+          <ScrollView horizontal style={{height: 100}}>
+            <View style={{flexDirection: 'row', height: 100}}>
+              {
+                this.state.images.map((uri, index) => {
+                  <View style={{height: 100, width: 100, margin: 5}}>
+                    <Image source={{uri}} resizeMode='cover' style={{height: 100, width: 100}}/>
+                  </View>
+                })
+              }
+            </View>            
+          </ScrollView>
           <TextInput 
             placeholder='內容......'
             multiline={true}
