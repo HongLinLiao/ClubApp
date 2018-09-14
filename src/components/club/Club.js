@@ -13,8 +13,6 @@ import {
 import Expo from 'expo'
 
 import ModalDropdown from 'react-native-modal-dropdown';
-import Masonry from 'react-native-masonry'
-
 import PostComponent from './PostData'
 
 class Club extends React.Component {
