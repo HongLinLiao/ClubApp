@@ -55,7 +55,6 @@ export const getAllUserData = (user) => async (dispatch) => {
       //直接在登入先抓首頁資料
       const homeClubList = await dispatch(getHomeClubList(userData.joinClub, userData.likeClub));
       const homePostList = await dispatch(getHomePostList(homeClubList));
-      await dispatch(determinToSearch(homeClubList,homePostList));
 
     } else {
       dispatch(CommonAction.setLoadingState(false)) //沒有使用者停止等待畫面
