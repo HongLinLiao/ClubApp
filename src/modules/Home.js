@@ -1,6 +1,6 @@
 import * as HomeAction from '../actions/HomeAction'
 import { getClubListForSelecting } from './Club';
-import { getPostComplete } from './Post';
+import { getPostListComplete } from './Post';
 import * as firebase from "firebase"
 
 //判斷是否使用者有收藏或加入社團與社團是否有存在文章
@@ -49,7 +49,7 @@ export const getHomePostList = (clubList) => async (dispatch) => {
                     continue;
                 }
                 else {
-                    post = await dispatch(getPostComplete(clubKey[i]));
+                    post = await dispatch(getPostListComplete(clubKey[i]));
                 }
                 postList = { ...postList, ...post };
             }
@@ -97,3 +97,4 @@ export const setHomeClubListStatus = (clubKey, clubList, numSelectingStatusTrue)
         console.log(error.toString());
     }
 }
+

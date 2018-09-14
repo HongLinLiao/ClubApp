@@ -5,6 +5,12 @@ import PostListElement from './PostListElement'
 
 class PostList extends React.Component {
 
+
+    componentWillMount() {
+        const { determinToSearch, clubList, postList } = this.props;
+        // determinToSearch(clubList, postList);
+    }
+
     getHomePost = async () => {
         const { getHomePostList, clubList, determinToSearch } = this.props;
         //用clubList去搜尋產生postList
@@ -18,6 +24,7 @@ class PostList extends React.Component {
     }
 
     render() {
+        const newPostList = { ...this.props.postList };
         return (
             <ScrollView>
                 <Button
@@ -29,11 +36,12 @@ class PostList extends React.Component {
                     onPress={() => { this.goSelectingPage(this.props.navigation); }}
                 />
                 {
-                    Object.values(this.props.postList).map((element) => (
+                    Object.values(newPostList).map((element) => (
                         <PostListElement
                             key={element.postKey}
-                            {...element}
+                            post={element}
                             navigation={this.props.navigation}
+                            setPostView={this.props.setPostView}
                         >
                         </PostListElement>
                     ))
