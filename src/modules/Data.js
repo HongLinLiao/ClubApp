@@ -29,6 +29,14 @@ export const getPostData = async (clubKey) => {
     return postData;
 }
 
+//從firebase取得指定club下指定post
+export const getInsidePostData = async (clubKey, postKey) => {
+    const postRef = firebase.database().ref('posts/' + clubKey + '/' + postKey);
+    const snapShot = await postRef.once('value');
+    const postData = snapShot.val();
+    return postData;
+}
+
 /*
 |-----------------------------------------------
 |   database更新資料
@@ -44,6 +52,6 @@ export const updateUserSetting = async (uid) => {
 }
 
 export const updateClub = async (cid) => {
-    
+
 }
 

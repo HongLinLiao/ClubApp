@@ -76,17 +76,7 @@ class AddPost extends React.Component {
             </View>
           </View>
           <TextInput placeholder='標題' onChangeText={(topic) => this.setState({topic})}/>
-          <ScrollView horizontal style={{height: 100}}>
-            <View style={{flexDirection: 'row', height: 100}}>
-              {
-                this.state.images.map((uri, index) => {
-                  <View style={{height: 100, width: 100, margin: 5}}>
-                    <Image source={{uri}} resizeMode='cover' style={{height: 100, width: 100}}/>
-                  </View>
-                })
-              }
-            </View>            
-          </ScrollView>
+          
           <TextInput 
             placeholder='內容......'
             multiline={true}

@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { getHomePostList, setPostListToPost , determinToSearch } from '../../modules/Home'
+import { getHomePostList , determinToSearch } from '../../modules/Home'
+import { setPostView } from '../../modules/Post'
 import PostList from '../../components/home/PostList'
 
 class HomePage extends Component {
@@ -13,6 +14,7 @@ class HomePage extends Component {
                 setPostListToPost={this.props.setPostListToPost}
                 navigation={this.props.navigation}
                 determinToSearch={this.props.determinToSearch}
+                setPostView={this.props.setPostView}
             />
         );
     }
@@ -25,8 +27,8 @@ const mapStateToProps = ({ homeReducer }) => ({
 
 const mapDispatchToProps = {
     getHomePostList,
-    setPostListToPost,
-    determinToSearch
+    determinToSearch,
+    setPostView
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(HomePage);
