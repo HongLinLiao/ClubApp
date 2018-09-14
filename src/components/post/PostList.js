@@ -42,6 +42,8 @@ class PostList extends React.Component {
                             post={element}
                             navigation={this.props.navigation}
                             setPostFavorite={this.props.setPostFavorite}
+                            getInsidePost={this.props.getInsidePost}
+                            router='Home'
                         >
                         </PostListElement>
                     ))

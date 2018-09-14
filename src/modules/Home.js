@@ -49,7 +49,7 @@ export const getHomePostList = (clubList) => async (dispatch) => {
                     continue;
                 }
                 else {
-                    post = await dispatch(getPostListComplete(clubKey[i]));
+                    post = await getPostListComplete(clubKey[i]);
                 }
                 postList = { ...postList, ...post };
             }
