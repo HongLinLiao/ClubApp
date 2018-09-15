@@ -18,6 +18,9 @@ export const selectPhoto = async () => {
 
       return pickerResult.uri
     }
+    else {
+      return null
+    }
 
   } catch (e) {
 
@@ -39,6 +42,8 @@ export const takePhoto = async () => {
     if (!pickerResult.cancelled) {
 
       return pickerResult.uri
+    } else {
+      return null
     }
 
   } catch (e) {

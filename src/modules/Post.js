@@ -224,13 +224,34 @@ export const setPostChangeToPostList = (post) => async (dispatch, getState) => {
     }
 }
 
-export const createPost = (cid) => async (dispatch) => {
+export const createPost = (cid, postData) => async (dispatch) => {
 
     try {
         dispatch(PostAction.createPostRequest())
 
+        console.log(cid)
+        const user = firebase.auth().currentUser
+        const postRef = firebase.database().ref('posts').child(cid).push()
+
+        const postDB = {
+            title: postData.title,
+            content: postData.content,
+            images: postData.images,
+            poster: user.uid,
+            date: new Date().toLocaleString(),
+            favorites: false,
+            views: false,
+        }
+
+        await postRef.set(postDB)
+        
+
+        //更新reducer還沒做
 
     } catch (e) {
 
+        console.log(e)
+
+        throw e
     }
 }

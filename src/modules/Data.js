@@ -51,7 +51,7 @@ export const updatePostViews = async (clubKey,postKey,updateViews) =>{
 }
 
 //更改Post.Favorites
-export const updatePostFavorites = async (clubKey,postKey,updateFavorites) =>{
+export const updatePostFavorites = async (clubKey, postKey, updateFavorites) =>{
     const update = {};
     update['posts/'+clubKey+'/'+postKey+'/favorites'] = updateFavorites
     firebase.database().ref().update(update);

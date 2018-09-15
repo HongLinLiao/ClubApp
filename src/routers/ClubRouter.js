@@ -18,9 +18,9 @@ export default createStackNavigator({
     screen: AddPostPage,
     navigationOptions: ({navigation}) => {
 
-      const { createPost } = navigation.state.params
+      const { askCreate } = navigation.state.params
       return {
-        headerRight: <Button title='發送' onPress={() => createPost()}/>
+        headerRight: <Button title='發送' onPress={() => askCreate()}/>
       }
     }
   }
