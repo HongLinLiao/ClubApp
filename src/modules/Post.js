@@ -1,25 +1,53 @@
 import * as firebase from "firebase"
-import { getUserData, getPostData, getClubData, getInsidePostData, updatePostViews, updatePostFavorites } from "./Data"
-import { changeMemberStatusToChinese } from './Club';
+import {
+    getUserData,
+    getPostData,
+    getClubData,
+    getInsidePostData,
+    updatePostViews,
+    updatePostFavorites,
+    getPostComments
+} from "./Data"
+import { changeMemberStatusToChinese, getNickName } from './Common';
 import * as PostAction from '../actions/PostAction'
 import * as HomeAction from '../actions/HomeAction'
 
-//取得貼文內頁資料
+//取得貼文內頁資料(含留言)
 export const getInsidePost = (clubKey, postKey, router) => async (dispatch) => {
     try {
+        //取得貼文基本基料
         const post = await getInsidePostComplete(clubKey, postKey);
         const newPost = {};
         newPost[post.postKey] = post;
+        //判斷是否是第一遍看文章
         const viewPost = await setPostView(newPost);
+        //取得貼文所有留言
+        const commentPost = {};
+        const commentData = await getPostComments(clubKey, postKey);
+        if (commentData != null) {
+            //將key放進物件裡
+            Object.keys(commentData).map((element) => {
+                commentData[element].clubKey = clubKey;
+                commentData[element].postKey = postKey;
+                commentData[element].commentKey = element;
+            })
+            commentPost[postKey] = commentData;
+        }
         switch (router) {
             case 'Home':
                 dispatch(HomeAction.getHomeInsidePostSuccess(viewPost));
                 break;
-            //club
             default:
                 console.log(router);
         }
-        dispatch(setPostChangeToPostList(viewPost[postKey]));
+        switch (router) {
+            case 'Home':
+                dispatch(HomeAction.getHomeInsidePostCommentSuccess(commentPost));
+                break;
+            default:
+                console.log(router);
+        }
+        dispatch(setPostChangeToReducer(viewPost[postKey], commentPost));
     }
     catch (error) {
         switch (router) {
@@ -32,75 +60,52 @@ export const getInsidePost = (clubKey, postKey, router) => async (dispatch) => {
     }
 }
 
-//取得完整的貼文資訊
-export const getPostListComplete = async(clubKey) => {
+//取得貼文列資訊(不含留言)
+export const getPostListComplete = async (clubKey) => {
     var postList = {};
     var i;
     //取得該社團資訊
     const club = await getClubData(clubKey);
     const post = await getPostData(clubKey);
-    const user = firebase.auth().currentUser;
     if (post != null) {
         const key = Object.keys(post);
         for (i = 0; i < key.length > 0; i++) {
-            //該貼文社團與學校名稱
-            post[key[i]].schoolName = club.schoolName;
-            post[key[i]].clubName = club.clubName;
-
-            //將clubKey放進attribute，否則找不到該貼文社團
-            post[key[i]].clubKey = clubKey;
-            post[key[i]].postKey = key[i];
-
-            //處理posterNickName
-            post[key[i]] = await setPosterNickName(post[key[i]]);
-
-            //處理poster職位名稱
-            post[key[i]].posterStatus = club.member[post[key[i]].poster].status;
-            post[key[i]].posterStatusChinese = changeMemberStatusToChinese(post[key[i]].posterStatus);
-
-            //處理view和favorite
-            post[key[i]] = getViewFavoriteData(post[key[i]], user.uid);
-
+            //取得貼文基本屬性
+            post[key[i]] = await getPostFoundations(clubKey, key[i], post[key[i]], club);
             postList = { ...postList, ...post };
         }
     }
     return postList;
 }
 
-//取得完整的貼文資訊
+//取得貼文資訊(不含留言)
 export const getInsidePostComplete = async (clubKey, postKey) => {
-    const user = firebase.auth().currentUser;
     const club = await getClubData(clubKey);
-    var post = await getInsidePostData(clubKey, postKey);
-
+    let post = await getInsidePostData(clubKey, postKey);
     if (post != null) {
-        //該貼文社團與學校名稱
-        post.schoolName = club.schoolName;
-        post.clubName = club.clubName;
-
-        //將clubKey放進attribute，否則找不到該貼文社團
-        post.clubKey = clubKey;
-        post.postKey = postKey;
-
-        //處理posterNickName
-        post = await setPosterNickName(post);
-
-        //處理poster職位名稱
-        post.posterStatus = club.member[post.poster].status;
-        post.posterStatusChinese = changeMemberStatusToChinese(post.posterStatus);
-
-        //處理view和favorite
-        post = getViewFavoriteData(post, user.uid);
+        post = await getPostFoundations(clubKey, postKey, post, club);
     }
     return post;
 }
 
-//找到該poster的nickName
-export const setPosterNickName = async (post) => {
-    const user = await getUserData(post.poster);
-    post.posterNickName = user.nickName;
+//處理貼文基本屬性(學校與社團名稱、key值、nickName、職位、views、favorites)
+export const getPostFoundations = async (clubKey, postKey, post, club) => {
+    //該貼文社團與學校名稱
+    post.clubName = club.clubName;
+    post.schoolName = club.schoolName;
+    //處理poster職位名稱
+    post.posterStatus = club.member[post.poster].status;
+    post.posterStatusChinese = changeMemberStatusToChinese(post.posterStatus);
+    //將clubKey放進attribute，否則找不到該貼文社團
+    post.clubKey = clubKey;
+    post.postKey = postKey;
+    //處理NickName
+    post.posterNickName = await getNickName(post.poster);
+    //處理view和favorite
+    const user = firebase.auth().currentUser;
+    post = getViewFavoriteData(post, user.uid);
     return post;
-};
+}
 
 //產生statusView和statusFavorite
 export const getViewFavoriteData = (post, userUid) => {
@@ -120,49 +125,14 @@ export const getViewFavoriteData = (post, userUid) => {
 }
 
 //按讚
-export const setPostFavorite = (post) => async (dispatch) => {
+export const setPostFavorite = (clubKey, postKey) => async (dispatch) => {
     try {
+        const club = await getClubData(clubKey);
         const user = firebase.auth().currentUser;
-        const promisesFavorites = Object.keys(post).map(async (element) => {
-            //按讚
-            if (post[element].statusFavorite == false) {
-                post[element].statusFavorite = !post[element].statusFavorite;
-                //牽扯到物件形狀
-                //沒其他使用者按過讚
-                if (post[element].numFavorites == 0) {
-                    post[element].numFavorites = post[element].numFavorites + 1;
-                    post[element].favorites = {};
-                    post[element].favorites[user.uid] = true;
-                }
-                //有其他使用者按過讚
-                else {
-                    post[element].numFavorites = post[element].numFavorites + 1;
-                    post[element].favorites[user.uid] = true;
-                }
-            }
-            //取消讚
-            else {
-                post[element].statusFavorite = !post[element].statusFavorite;
-                //牽扯到物件形狀
-                //沒其他使用者按過讚
-                if (post[element].numFavorites == 1) {
-                    post[element].numFavorites = post[element].numFavorites - 1;
-                    post[element].favorites = false;
-                }
-                //有其他使用者按過讚
-                //設為null寫進firebase會自動消失
-                else {
-                    post[element].numFavorites = post[element].numFavorites - 1;
-                    post[element].favorites[user.uid] = null;
-                }
-            }
-            //更改firebasePostFavorites
-            await updatePostFavorites(post[element].clubKey, post[element].postKey, post[element].favorites);
-            //連動更改所有已讀取該篇文章的reducer
-            await dispatch(setPostChangeToPostList(post[element]));
-        });
-        await Promise.all(promisesFavorites);
-        dispatch(PostAction.setPostFavoriteSuccess(post));
+        const post = await getInsidePostData(clubKey, postKey);
+
+
+        // dispatch(PostAction.setPostFavoriteSuccess(post));
     }
     catch (error) {
         dispatch(PostAction.setPostFavoriteFailure(error));
@@ -208,19 +178,36 @@ export const setPostView = async (post) => {
 }
 
 //同步更改reducer資料
-export const setPostChangeToPostList = (post) => async (dispatch, getState) => {
+export const setPostChangeToReducer = (post, comment) => async (dispatch, getState) => {
     try {
-        //讀取不同reducer裡的postList
+        //************************************************************************
+        //postList 與 post 同步
+        //************************************************************************
         const homePostList = { ...getState().homeReducer.postList };
+        const homePost = { ...getState().homeReducer.post };
         if (homePostList.hasOwnProperty(post.postKey)) {
             homePostList[post.postKey] = post;
         }
-        //club
-        dispatch(PostAction.setPostChangeToReducerSuccess(homePostList));
+        if (homePost.hasOwnProperty(post.postKey)) {
+            homePost[post.postKey] = post;
+        }
+        //dispatch進Reducer.postList
+        dispatch(PostAction.setPostToReducerPostListSuccess(homePostList));
+        //dispatch進Reducer.post
+        dispatch(PostAction.setPostToReducerPostSuccess(homePost));
+
+        //************************************************************************
+        //comment 同步
+        //************************************************************************
+        const homeComment = { ...getState().homeReducer.comment };
+        if (homeComment.hasOwnProperty(post.postKey)) {
+            homeComment = comment;
+        }
+        //dispatch進Reducer.comment
+        dispatch(PostAction.setCommentToReducerCommentSuccess(homeComment));
     }
     catch (error) {
-        dispatch(PostAction.setPostChangeToReducerFailure(error));
-        console.log(error.toString());
+        throw error;
     }
 }
 
@@ -241,10 +228,11 @@ export const createPost = (cid, postData) => async (dispatch) => {
             date: new Date().toLocaleString(),
             favorites: false,
             views: false,
+            numComments: 0
         }
 
         await postRef.set(postDB)
-        
+
 
         //更新reducer還沒做
 

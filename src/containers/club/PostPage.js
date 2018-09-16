@@ -11,9 +11,9 @@ class PostPage extends Component {
                     <PostData
                         setPostFavorite={this.props.setPostFavorite}
                         post={this.props.homePost}
+                        comment={this.props.homeComment}
                     />
                 );
-            //club
             default:
                 return null;
         }
@@ -22,8 +22,9 @@ class PostPage extends Component {
 }
 
 const mapStateToProps = ({ homeReducer }) => ({
-    homePost: homeReducer.post
-    //club
+    //這裡不用傳postList，只要傳post
+    homePost: homeReducer.post,
+    homeComment: homeReducer.comment
 })
 
 const mapDispatchToProps = {

@@ -31,6 +31,7 @@ export const getClubListForSelecting  = async (allClub) => {
   }
   catch (error) {
     console.log(error.toString());
+    throw error;
   }
 }
 
@@ -160,14 +161,6 @@ export const quitTheClub = (cid) => async (dispatch, getState) => {
 
 }
 
-//轉換status成中文
-export const changeMemberStatusToChinese = (status) => {
-  if(status==='master'){
-    return '社長';
-  }
-  else{
-    return '社員';
-  }
-}
+
 
 

@@ -18,9 +18,7 @@ const PostListElement = ({ post, navigation, router, setPostFavorite, getInsideP
     }
 
     async function pressFavorite(post) {
-        const viewPost = {};
-        viewPost[post.postKey] = { ...post };
-        await setPostFavorite(viewPost);
+        await setPostFavorite(post.clubKey,post.postKey);
     }
 
     return (
@@ -33,6 +31,7 @@ const PostListElement = ({ post, navigation, router, setPostFavorite, getInsideP
                 <Text style={titleText}>{post.title}</Text>
                 <Text>{post.content}</Text>
                 <Text>{post.date}</Text>
+                <Text>留言數量: {post.numComments}</Text>
                 <Text>觀看人數: {post.numViews}</Text>
                 <TouchableOpacity onPress={async () => await pressFavorite(post)}>
                     <Text>按讚人數: {post.numFavorites}</Text>

@@ -1,9 +1,9 @@
 import React from 'react'
 import { ScrollView } from 'react-native'
 import { Button } from 'react-native-elements'
-import PostListElement from './PostListElement'
+import PostListElement from '../post/PostListElement'
 
-class PostList extends React.Component {
+class Home extends React.Component {
 
 
     componentWillMount() {
@@ -53,4 +53,4 @@ class PostList extends React.Component {
     }
 }
 
-export default PostList
+export default Home

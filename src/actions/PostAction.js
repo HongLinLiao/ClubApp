@@ -12,8 +12,9 @@ export const SET_POST_FAVORITE_FAILURE = 'SET_POST_FAVORITE_FAILURE'
 
 //Dynamic Action
 export const SET_POST_VIEW_FAILURE = 'SET_POST_VIEW_FAILURE'//加入貼文觀看列失敗
-export const SET_POST_CHANGE_TO_REDUCER_SUCCESS = 'SET_POST_CHANGE_TO_REDUCER_SUCCESS'//動態更改post進各個reducer
-export const SET_POST_CHANGE_TO_REDUCER_FAILURE = 'SET_POST_CHANGE_TO_REDUCER_FAILURE'
+export const SET_POST_TO_REDUCER_POSTLIST_SUCCESS = 'SET_POST_TO_REDUCER_POSTLIST_SUCCESS'//動態更改post進各個reducer.postList
+export const SET_POST_TO_REDUCER_POST_SUCCESS = 'SET_POST_TO_REDUCER_POST_SUCCESS'//動態更改post進各個reducer.post
+export const SET_COMMENT_TO_REDUCER_COMMENT_SUCCESS = 'SET_COMMENT_TO_REDUCER_COMMENT_SUCCESS'//動態更改comment進各個reducer.comment
 
 /*
 |-----------------------------------------------
@@ -45,12 +46,20 @@ export const setPostViewFailure = (message) => ({
   message
 })
 
-//動態更改post進各個reducer
-export const setPostChangeToReducerSuccess = (homePostList) => ({
-  type: SET_POST_CHANGE_TO_REDUCER_SUCCESS,
+//動態更改post進各個reducer.postList
+export const setPostToReducerPostListSuccess = (homePostList) => ({
+  type: SET_POST_TO_REDUCER_POSTLIST_SUCCESS,
   homePostList
 })
-export const setPostChangeToReducerFailure= (message) => ({
-  type: SET_POST_CHANGE_TO_REDUCER_FAILURE,
-  message
+
+//動態更改post進各個reducer.post
+export const setPostToReducerPostSuccess = (homePost) => ({
+  type: SET_POST_TO_REDUCER_POST_SUCCESS,
+  homePost
+})
+
+//動態更改comment進各個reducer.comment
+export const setCommentToReducerCommentSuccess = (homeComment) => ({
+  type: SET_COMMENT_TO_REDUCER_COMMENT_SUCCESS,
+  homeComment
 })

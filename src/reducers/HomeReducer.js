@@ -6,20 +6,23 @@ import {
     SET_HOME_CLUBLIST_STATUS_SUCCESS,
     SET_HOME_CLUBLIST_STATUS_FAILURE,
     GET_HOME_INSIDE_POST_SUCCESS,
-    GET_HOME_INSIDE_POST_FAILURE
+    GET_HOME_INSIDE_POST_FAILURE,
+    GET_HOME_INSIDE_POST_COMMENT_SUCCESS
 } from '../actions/HomeAction'
 import {
     SET_POST_FAVORITE_SUCCESS,
     SET_POST_FAVORITE_FAILURE,
     SET_POST_VIEW_FAILURE,
-    SET_POST_CHANGE_TO_REDUCER_SUCCESS,
-    SET_POST_CHANGE_TO_REDUCER_FAILURE
+    SET_POST_TO_REDUCER_POSTLIST_SUCCESS,
+    SET_POST_TO_REDUCER_POST_SUCCESS,
+    SET_COMMENT_TO_REDUCER_COMMENT_SUCCESS
 } from '../actions/PostAction'
 
 const initialState = {
     message: null,//錯誤訊息
     postList: {},//貼文列
     post: {},//內頁貼文
+    comment: {},//內頁貼文之留言
     status: false,//執行狀態
     clubList: {},//社團列表（控制篩選bool
     numSelectingStatusTrue: null //計算clubList中有幾個是true
@@ -97,17 +100,29 @@ export const homeReducer = (state = initialState, action) => {
                 status: false,
                 message: action.message
             }
-        //動態更改post進各個reducer
-        case SET_POST_CHANGE_TO_REDUCER_SUCCESS:
+        //取得貼文留言
+        case GET_HOME_INSIDE_POST_COMMENT_SUCCESS:
+            return {
+                ...state,
+                comment: action.comment
+            }
+        //動態更改post進各個reducer.postList
+        case SET_POST_TO_REDUCER_POSTLIST_SUCCESS:
             return {
                 ...state,
                 postList: action.homePostList
             }
-        case SET_POST_CHANGE_TO_REDUCER_FAILURE:
+        //動態更改post進各個reducer.post
+        case SET_POST_TO_REDUCER_POST_SUCCESS:
             return {
                 ...state,
-                status: false,
-                message: action.message
+                post: action.homePost
+            }
+        //動態更改comment進各個reducer.comment
+        case SET_COMMENT_TO_REDUCER_COMMENT_SUCCESS:
+            return {
+                ...state,
+                comment: action.homeComment
             }
         default:
             return state

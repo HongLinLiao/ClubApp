@@ -37,6 +37,14 @@ export const getInsidePostData = async (clubKey, postKey) => {
     return postData;
 }
 
+//從firebase取得指定club下指定post之所有留言
+export const getPostComments = async (clubKey, postKey) => {
+    const commentRef = firebase.database().ref('comments/' + clubKey + '/' + postKey);
+    const snapShot = await commentRef.once('value');
+    const CommentData = snapShot.val();
+    return CommentData;
+}
+
 /*
 |-----------------------------------------------
 |   database更新資料
@@ -69,3 +77,8 @@ export const updateClub = async (cid) => {
 
 }
 
+/*
+|-----------------------------------------------
+|   database建立資料
+|-----------------------------------------------
+*/
