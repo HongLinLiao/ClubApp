@@ -1,6 +1,5 @@
 import * as firebase from "firebase"
 import {
-    getUserData,
     getPostData,
     getClubData,
     getInsidePostData,
@@ -22,17 +21,8 @@ export const getInsidePost = (clubKey, postKey, router) => async (dispatch) => {
         //判斷是否是第一遍看文章
         const viewPost = await setPostView(newPost);
         //取得貼文所有留言
-        const commentPost = {};
-        const commentData = await getPostComments(clubKey, postKey);
-        if (commentData != null) {
-            //將key放進物件裡
-            Object.keys(commentData).map((element) => {
-                commentData[element].clubKey = clubKey;
-                commentData[element].postKey = postKey;
-                commentData[element].commentKey = element;
-            })
-            commentPost[postKey] = commentData;
-        }
+        const commentPost = await getPostComment(clubKey, postKey);
+
         switch (router) {
             case 'Home':
                 dispatch(HomeAction.getHomeInsidePostSuccess(viewPost));
@@ -88,6 +78,22 @@ export const getInsidePostComplete = async (clubKey, postKey) => {
     return post;
 }
 
+//取得貼文留言
+export const getPostComment = async (clubKey, postKey) => {
+    const commentPost = {};
+    const commentData = await getPostComments(clubKey, postKey);
+    if (commentData != null) {
+        //將key放進物件裡
+        Object.keys(commentData).map((element) => {
+            commentData[element].clubKey = clubKey;
+            commentData[element].postKey = postKey;
+            commentData[element].commentKey = element;
+        })
+        commentPost[postKey] = commentData;
+    }
+    return commentPost;
+}
+
 //處理貼文基本屬性(學校與社團名稱、key值、nickName、職位、views、favorites)
 export const getPostFoundations = async (clubKey, postKey, post, club) => {
     //該貼文社團與學校名稱
@@ -125,14 +131,57 @@ export const getViewFavoriteData = (post, userUid) => {
 }
 
 //按讚
-export const setPostFavorite = (clubKey, postKey) => async (dispatch) => {
+export const setPostFavorite = (clubKey, postKey, dealInsidePost) => async (dispatch) => {
     try {
         const club = await getClubData(clubKey);
         const user = firebase.auth().currentUser;
+        //更新貼文資訊
         const post = await getInsidePostData(clubKey, postKey);
+        post = await getPostFoundations(clubKey, postKey, post, club);
 
+        //按讚處理
+        //按讚
+        if (post.statusFavorite == false) {
+            post.statusFavorite = !post.statusFavorite;
+            //牽扯到物件形狀
+            //沒其他使用者按過讚
+            if (post.numFavorites == 0) {
+                post.numFavorites = post.numFavorites + 1;
+                post.favorites = {};
+                post.favorites[user.uid] = true;
+            }
+            //有其他使用者按過讚
+            else {
+                post.numFavorites = post.numFavorites + 1;
+                post.favorites[user.uid] = true;
+            }
+        }
+        //取消讚
+        else {
+            post.statusFavorite = !post.statusFavorite;
+            //牽扯到物件形狀
+            //沒其他使用者按過讚
+            if (post.numFavorites == 1) {
+                post.numFavorites = post.numFavorites - 1;
+                post.favorites = false;
+            }
+            //有其他使用者按過讚
+            //設為null寫進firebase會自動消失
+            else {
+                post.numFavorites = post.numFavorites - 1;
+                post.favorites[user.uid] = null;
+            }
+        }
 
-        // dispatch(PostAction.setPostFavoriteSuccess(post));
+        const commentPost = {}
+        if (dealInsidePost) {
+            commentPost = await getPostComment(clubKey, postKey);
+        }
+
+        //更改firebasePostFavorites
+        await updatePostFavorites(post.clubKey, post.postKey, post.favorites);
+        //同步更改reducer資料
+        await dispatch(setPostChangeToReducer(post, commentPost));
     }
     catch (error) {
         dispatch(PostAction.setPostFavoriteFailure(error));

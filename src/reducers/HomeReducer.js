@@ -10,7 +10,6 @@ import {
     GET_HOME_INSIDE_POST_COMMENT_SUCCESS
 } from '../actions/HomeAction'
 import {
-    SET_POST_FAVORITE_SUCCESS,
     SET_POST_FAVORITE_FAILURE,
     SET_POST_VIEW_FAILURE,
     SET_POST_TO_REDUCER_POSTLIST_SUCCESS,
@@ -70,11 +69,6 @@ export const homeReducer = (state = initialState, action) => {
                 message: action.message
             }
         //加入或刪除貼文讚列
-        case SET_POST_FAVORITE_SUCCESS:
-            return {
-                ...state,
-                post: action.post
-            }
         case SET_POST_FAVORITE_FAILURE:
             return {
                 ...state,

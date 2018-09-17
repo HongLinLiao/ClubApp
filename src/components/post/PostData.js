@@ -20,7 +20,7 @@ class PostData extends React.Component {
                         <Text>{element.content}</Text>
                         <Text>{element.date}</Text>
                         <Text>觀看人數: {element.numViews}</Text>
-                        <TouchableOpacity onPress={async () => await this.props.setPostFavorite(element.clubKey, element.postKey)}>
+                        <TouchableOpacity onPress={async () => await this.props.setPostFavorite(element.clubKey, element.postKey,true)}>
                             <Text>按讚人數: {element.numFavorites}</Text>
                         </TouchableOpacity>
                     </View>

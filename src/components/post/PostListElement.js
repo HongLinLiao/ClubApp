@@ -18,7 +18,7 @@ const PostListElement = ({ post, navigation, router, setPostFavorite, getInsideP
     }
 
     async function pressFavorite(post) {
-        await setPostFavorite(post.clubKey,post.postKey);
+        await setPostFavorite(post.clubKey,post.postKey,false);
     }
 
     return (
