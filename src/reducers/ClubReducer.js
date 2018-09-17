@@ -5,8 +5,14 @@ import {
   REMOVE_THE_CLUB,
 } from '../actions/ClubAction'
 
+import {
+  CREATE_POST_REQUEST,
+  CREATE_POST_SUCCESS
+} from '../actions/PostAction'
+
 const initialState = {
   message: '',
+  status: null, //執行狀態
   clubs: {}, //所有使用者加入或收藏的社團資料
 }
 
@@ -31,6 +37,16 @@ export const clubReducer = (state = initialState, action) => {
       return {
         ...state,
         clubs: action.clubData.newClubs
+      }
+    case CREATE_POST_REQUEST:
+      return {
+        ...state,
+        status: true
+      }
+    case CREATE_POST_SUCCESS:
+      return {
+        ...state,
+        clubs: action.newClubs
       }
     default:
       return state

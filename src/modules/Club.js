@@ -34,10 +34,14 @@ export const getClubListForSelecting  = async (allClub) => {
   }
 }
 
-export const getAllClubData = async (userShot) => {
+export const getAllClubData = async () => {
 
   try {
+    const user = firebase.auth().currentUser
+    const userRef = firebase.database().ref('users').child(user.uid)
+    const userShot = await userRef.once('value')
     const { joinClub, likeClub } = userShot.val()
+    
     let allClubCid = []
     let allClubData = {}
 
@@ -99,8 +103,8 @@ export const createClub = (schoolName, clubName, open) => async (dispatch, getSt
       open,
       member,
       initDate: new Date().toLocaleString(), //格式：2018/8/30 下午3:07:08
-      imgUrl: true,
-      introduction: true,
+      imgUrl: false,
+      introduction: false,
     }
 
     newClubs[cid] = newClub

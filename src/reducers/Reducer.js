@@ -4,6 +4,7 @@ import { commonReducer } from './CommonReducer'
 import { homeReducer } from './HomeReducer'
 import { settingReducer} from './SettingReducer'
 import { clubReducer } from './ClubReducer'
+import { postReducer } from './PostReducer'
 
 
 export const rootReducer = combineReducers({
@@ -12,4 +13,5 @@ export const rootReducer = combineReducers({
     homeReducer, //首頁貼文資料
     settingReducer, //app相關設定
     clubReducer, //使用者所有相關社團資料
+    postReducer, //文章內頁資料
 })

@@ -3,16 +3,23 @@ import {
     GET_HOME_CLUBLIST_FAILURE,
     GET_HOME_POSTLIST_SUCCESS,
     GET_HOME_POSTLIST_FAILURE,
-    PRESS_POST_SUCCESS,
-    PRESS_POST_FAILURE,
     SET_HOME_CLUBLIST_STATUS_SUCCESS,
-    SET_HOME_CLUBLIST_STATUS_FAILURE
+    SET_HOME_CLUBLIST_STATUS_FAILURE,
+    GET_HOME_INSIDE_POST_SUCCESS,
+    GET_HOME_INSIDE_POST_FAILURE
 } from '../actions/HomeAction'
+import {
+    SET_POST_FAVORITE_SUCCESS,
+    SET_POST_FAVORITE_FAILURE,
+    SET_POST_VIEW_FAILURE,
+    SET_POST_CHANGE_TO_REDUCER_SUCCESS,
+    SET_POST_CHANGE_TO_REDUCER_FAILURE
+} from '../actions/PostAction'
 
 const initialState = {
     message: null,//錯誤訊息
     postList: {},//貼文列
-    post: {},//首頁點擊的那篇貼文
+    post: {},//內頁貼文
     status: false,//執行狀態
     clubList: {},//社團列表（控制篩選bool
     numSelectingStatusTrue: null //計算clubList中有幾個是true
@@ -46,19 +53,6 @@ export const homeReducer = (state = initialState, action) => {
                 status: false,
                 message: action.message
             }
-        //點擊貼文進入貼文內頁
-        case PRESS_POST_SUCCESS:
-            return {
-                ...state,
-                status: true,
-                post: action.post
-            }
-        case PRESS_POST_FAILURE:
-            return {
-                ...state,
-                status: false,
-                message: action.message
-            }
         //首頁篩選頁面按鈕觸發
         case SET_HOME_CLUBLIST_STATUS_SUCCESS:
             return {
@@ -67,6 +61,49 @@ export const homeReducer = (state = initialState, action) => {
                 numSelectingStatusTrue: action.numSelectingStatusTrue
             }
         case SET_HOME_CLUBLIST_STATUS_FAILURE:
+            return {
+                ...state,
+                status: false,
+                message: action.message
+            }
+        //加入或刪除貼文讚列
+        case SET_POST_FAVORITE_SUCCESS:
+            return {
+                ...state,
+                post: action.post
+            }
+        case SET_POST_FAVORITE_FAILURE:
+            return {
+                ...state,
+                status: false,
+                message: action.message
+            }
+        //加入觀看失敗
+        case SET_POST_VIEW_FAILURE:
+            return {
+                ...state,
+                status: false,
+                message: action.message
+            }
+        //進入貼文內頁
+        case GET_HOME_INSIDE_POST_SUCCESS:
+            return {
+                ...state,
+                post: action.post
+            }
+        case GET_HOME_INSIDE_POST_FAILURE:
+            return {
+                ...state,
+                status: false,
+                message: action.message
+            }
+        //動態更改post進各個reducer
+        case SET_POST_CHANGE_TO_REDUCER_SUCCESS:
+            return {
+                ...state,
+                postList: action.homePostList
+            }
+        case SET_POST_CHANGE_TO_REDUCER_FAILURE:
             return {
                 ...state,
                 status: false,

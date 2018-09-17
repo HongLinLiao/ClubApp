@@ -29,11 +29,33 @@ export const getPostData = async (clubKey) => {
     return postData;
 }
 
+//從firebase取得指定club下指定post
+export const getInsidePostData = async (clubKey, postKey) => {
+    const postRef = firebase.database().ref('posts/' + clubKey + '/' + postKey);
+    const snapShot = await postRef.once('value');
+    const postData = snapShot.val();
+    return postData;
+}
+
 /*
 |-----------------------------------------------
 |   database更新資料
 |-----------------------------------------------
 */
+
+//更改Post.Views
+export const updatePostViews = async (clubKey,postKey,updateViews) =>{
+    const update = {};
+    update['posts/'+clubKey+'/'+postKey+'/views'] = updateViews
+    firebase.database().ref().update(update);
+}
+
+//更改Post.Favorites
+export const updatePostFavorites = async (clubKey, postKey, updateFavorites) =>{
+    const update = {};
+    update['posts/'+clubKey+'/'+postKey+'/favorites'] = updateFavorites
+    firebase.database().ref().update(update);
+}
 
 export const updateUser = async (uid) => {
 
@@ -44,6 +66,6 @@ export const updateUserSetting = async (uid) => {
 }
 
 export const updateClub = async (cid) => {
-    
+
 }
 

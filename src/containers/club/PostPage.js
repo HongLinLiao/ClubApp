@@ -1,20 +1,33 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import PostData from '../../components/club/PostData'
+import PostData from '../../components/post/PostData'
+import { setPostFavorite } from '../../modules/Post'
 
 class PostPage extends Component {
     render() {
-        const  post  = this.props.navigation.state.params;
-        return (
-            <PostData
-                post={post}
-            />
-        );
+        switch (this.props.navigation.state.params) {
+            case 'Home':
+                return (
+                    <PostData
+                        setPostFavorite={this.props.setPostFavorite}
+                        post={this.props.homePost}
+                    />
+                );
+            //club
+            default:
+                return null;
+        }
+
     }
 }
 
 const mapStateToProps = ({ homeReducer }) => ({
-    // post: homeReducer.post
+    homePost: homeReducer.post
+    //club
 })
 
-export default connect(mapStateToProps)(PostPage);
+const mapDispatchToProps = {
+    setPostFavorite
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(PostPage);

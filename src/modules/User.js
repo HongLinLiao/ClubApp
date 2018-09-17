@@ -24,7 +24,7 @@ export const getAllUserData = (user) => async (dispatch) => {
 
   try {
     const userRef = firebase.database().ref('users').child(user.uid)
-    const settingRef = firebase.database().ref('settings').child(user.uid)
+    const settingRef = firebase.database().ref('userSettings').child(user.uid)
 
     const userShot = await userRef.once('value')
     const settingShot = await settingRef.once('value')
@@ -36,17 +36,17 @@ export const getAllUserData = (user) => async (dispatch) => {
     if(userShot.val()) { //不是第一次登入才進入
       
       //使用者基本資料
-      userData = await getUserStateToRedux(userShot)
+      userData = await getUserStateToRedux()
 
       //使用者設定資料
       if(settingShot.val()) { //有沒有使用者設定資料
-        settingData = await getUserSettingToRedux(settingShot)
+        settingData = await getUserSettingToRedux()
       } else {
-        settingData = await createUserSettingInDB(settingRef)
+        settingData = await createUserSettingInDB()
       }
 
       //使用者相關社團資料
-      allClubData = await getAllClubData(userShot)
+      allClubData = await getAllClubData()
       
       dispatch(SettingAction.setAllSetting(settingData)) 
       dispatch(ClubAction.setAllClubData(allClubData))
@@ -55,7 +55,6 @@ export const getAllUserData = (user) => async (dispatch) => {
       //直接在登入先抓首頁資料
       const homeClubList = await dispatch(getHomeClubList(userData.joinClub, userData.likeClub));
       const homePostList = await dispatch(getHomePostList(homeClubList));
-      await dispatch(determinToSearch(homeClubList,homePostList));
 
     } else {
       dispatch(CommonAction.setLoadingState(false)) //沒有使用者停止等待畫面
@@ -96,10 +95,12 @@ export const reloadUser = () => async (dispatch, getState) => {
 */
 
 //從database取得redux資料
-export const getUserStateToRedux = async (userShot) => {
+export const getUserStateToRedux = async () => {
 
   try {
     const user = firebase.auth().currentUser
+    const userRef = firebase.database().ref('users').child(user.uid)
+    const userShot = await userRef.once('value')
     const { nickName, password, loginType, aboutMe, joinClub, likeClub } = userShot.val()
 
     let userData = {
@@ -108,8 +109,8 @@ export const getUserStateToRedux = async (userShot) => {
       password: password || '', //串接平台登入沒有密碼
       loginType: loginType || '', //必要
       aboutMe: aboutMe || '',
-      joinClub: joinClub || {},
-      likeClub: likeClub || {},
+      joinClub: joinClub ? joinClub : {},
+      likeClub: likeClub ? likeClub : {},
     }
 
     return userData
@@ -124,9 +125,12 @@ export const getUserStateToRedux = async (userShot) => {
 }
 
 //從database取得使用者設定
-export const getUserSettingToRedux = async (settingShot) => {
+export const getUserSettingToRedux = async () => {
 
-  try { 
+  try {
+    const user = firebase.auth().currentUser
+    const settingRef = firebase.database().ref('userSettings').child(user.uid)
+    const settingShot = await settingRef.once('value')
     const { globalNotification, nightModeNotification, clubNotificationList } = settingShot.val()
 
     //抓取每個社團的資料
@@ -165,7 +169,7 @@ export const setUserStateToDB = async (userState) => {
     const userRef = firebase.database().ref('/users').child(user.uid)
     const userShot = await userRef.once('value')
     const DB_userState = userShot.val()
-
+    
     if(userState.nickName)
       DB_userState = {...DB_userState, nickName: userState.nickName}
 
@@ -191,15 +195,21 @@ export const createUserInDatabase = async (user, userInfo) => {
 
   try {
     const userRef = firebase.database().ref('users').child(user.uid)
-        
+    
+
+    //資料庫新增
     await userRef.set({
       eamil: user.email,
       password: userInfo.password,
       nickName: user.displayName,
       loginType: userInfo.loginType,
-      aboutMe: true
+      photoUrl: user.photoURL,
+      aboutMe: false,
+      joinClub: false,
+      likeClub: false,
     })
 
+    //userReducer新增
     let userData = {
       user: {...user},
       firstLogin: true, //預設都是第一次登入
@@ -221,17 +231,23 @@ export const createUserInDatabase = async (user, userInfo) => {
 
 
 
-export const createUserSettingInDB = async (settingRef) => {
+export const createUserSettingInDB = async () => {
 
   try {
     const user = firebase.auth().currentUser
-    const joinClub = await firebase.database().ref('users/' + user.uid + '/joinClub').once('value')
+    const settingRef = firebase.database().ref('userSettings').child(user.uid)
+
+    const joinClubShot = await firebase.database().ref('users/' + user.uid + '/joinClub').once('value')
+    const likeClubShot = await firebase.database().ref('users/' + user.uid + '/likeClub').once('value')
+
+    const joinClub = joinClubShot.val() ? joinClubShot.val() : {}
+    const likeClub = likeClubShot.val() ? likeClubShot.val() : {}
 
     let clubNotificationList = {} //settingReducer使用
     let DB_clubNotificationList = {} //database使用
     
     //抓取每個社團的資料
-    const promises = Object.keys(joinClub.val()).map(
+    const promises = Object.keys(joinClub).map(
       async (key) => {
         const clubShot = await firebase.database().ref('clubs/' + key).once('value')
         const { clubName, schoolName } = clubShot.val()
@@ -251,7 +267,7 @@ export const createUserSettingInDB = async (settingRef) => {
     let DB_settingData = {
       globalNotification: true,
       nightModeNotification: false,
-      clubNotificationList: DB_clubNotificationList ? DB_clubNotificationList : false
+      clubNotificationList: Object.keys(DB_clubNotificationList).length != 0 ? DB_clubNotificationList : false
     }
 
     await settingRef.set(DB_settingData)
@@ -295,6 +311,7 @@ export const changePhoto = () => async (dispatch) => {
 
   try {
     const user = firebase.auth().currentUser
+    const userRef = firebase.database().ref('users/' + user.uid)
     const photoUrl = await selectPhoto() //選擇照片
 
     if(photoUrl) {
@@ -304,6 +321,8 @@ export const changePhoto = () => async (dispatch) => {
       await user.updateProfile({ 
         photoURL: uploadUrl
       })
+
+      await userRef.update({photoUrl: uploadUrl})
 
       dispatch(UserAction.updateUser({...user}))
     }
