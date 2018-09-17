@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import PostData from '../../components/post/PostData'
-import { setPostFavorite } from '../../modules/Post'
+import { setPostFavorite , addComment } from '../../modules/Post'
 
 class PostPage extends Component {
     render() {
@@ -10,6 +10,7 @@ class PostPage extends Component {
                 return (
                     <PostData
                         setPostFavorite={this.props.setPostFavorite}
+                        addComment={this.props.addComment}
                         post={this.props.homePost}
                         comment={this.props.homeComment}
                     />
@@ -28,7 +29,8 @@ const mapStateToProps = ({ homeReducer }) => ({
 })
 
 const mapDispatchToProps = {
-    setPostFavorite
+    setPostFavorite,
+    addComment
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(PostPage);

@@ -26,6 +26,9 @@ class PostData extends React.Component {
                     </View>
                     <Comment
                         comment={newComment}
+                        clubKey={newPost[Object.keys(newPost)[0]].clubKey}
+                        postKey={newPost[Object.keys(newPost)[0]].postKey}
+                        addComment={this.props.addComment}
                     />
                 </ScrollView>
             ))

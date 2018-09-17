@@ -5,11 +5,16 @@ import {
     getInsidePostData,
     updatePostViews,
     updatePostFavorites,
-    getPostComments
+    getPostComments,
+    createComment
 } from "./Data"
 import { changeMemberStatusToChinese, getNickName } from './Common';
 import * as PostAction from '../actions/PostAction'
 import * as HomeAction from '../actions/HomeAction'
+
+//********************************************************************************
+//主函式
+//********************************************************************************
 
 //取得貼文內頁資料(含留言)
 export const getInsidePost = (clubKey, postKey, router) => async (dispatch) => {
@@ -68,6 +73,10 @@ export const getPostListComplete = async (clubKey) => {
     return postList;
 }
 
+//********************************************************************************
+//貼文
+//********************************************************************************
+
 //取得貼文資訊(不含留言)
 export const getInsidePostComplete = async (clubKey, postKey) => {
     const club = await getClubData(clubKey);
@@ -76,22 +85,6 @@ export const getInsidePostComplete = async (clubKey, postKey) => {
         post = await getPostFoundations(clubKey, postKey, post, club);
     }
     return post;
-}
-
-//取得貼文留言
-export const getPostComment = async (clubKey, postKey) => {
-    const commentPost = {};
-    const commentData = await getPostComments(clubKey, postKey);
-    if (commentData != null) {
-        //將key放進物件裡
-        Object.keys(commentData).map((element) => {
-            commentData[element].clubKey = clubKey;
-            commentData[element].postKey = postKey;
-            commentData[element].commentKey = element;
-        })
-        commentPost[postKey] = commentData;
-    }
-    return commentPost;
 }
 
 //處理貼文基本屬性(學校與社團名稱、key值、nickName、職位、views、favorites)
@@ -113,6 +106,44 @@ export const getPostFoundations = async (clubKey, postKey, post, club) => {
     return post;
 }
 
+//新增貼文
+export const createPost = (cid, postData) => async (dispatch) => {
+
+    try {
+        dispatch(PostAction.createPostRequest())
+
+        console.log(cid)
+        const user = firebase.auth().currentUser
+        const postRef = firebase.database().ref('posts').child(cid).push()
+
+        const postDB = {
+            title: postData.title,
+            content: postData.content,
+            images: postData.images,
+            poster: user.uid,
+            date: new Date().toLocaleString(),
+            favorites: false,
+            views: false,
+            numComments: 0
+        }
+
+        await postRef.set(postDB)
+
+
+        //更新reducer還沒做
+
+    } catch (e) {
+
+        console.log(e)
+
+        throw e
+    }
+}
+
+//********************************************************************************
+//按讚與觀看
+//********************************************************************************
+
 //產生statusView和statusFavorite
 export const getViewFavoriteData = (post, userUid) => {
     //views與favorite數量
@@ -131,7 +162,7 @@ export const getViewFavoriteData = (post, userUid) => {
 }
 
 //按讚
-export const setPostFavorite = (clubKey, postKey, dealInsidePost) => async (dispatch) => {
+export const setPostFavorite = (clubKey, postKey, dealInsidePostStatus) => async (dispatch) => {
     try {
         const club = await getClubData(clubKey);
         const user = firebase.auth().currentUser;
@@ -139,6 +170,7 @@ export const setPostFavorite = (clubKey, postKey, dealInsidePost) => async (disp
         const post = await getInsidePostData(clubKey, postKey);
         post = await getPostFoundations(clubKey, postKey, post, club);
 
+        let updateFavorites = {};
         //按讚處理
         //按讚
         if (post.statusFavorite == false) {
@@ -149,11 +181,13 @@ export const setPostFavorite = (clubKey, postKey, dealInsidePost) => async (disp
                 post.numFavorites = post.numFavorites + 1;
                 post.favorites = {};
                 post.favorites[user.uid] = true;
+                updateFavorites[user.uid] = true;
             }
             //有其他使用者按過讚
             else {
                 post.numFavorites = post.numFavorites + 1;
                 post.favorites[user.uid] = true;
+                updateFavorites[user.uid] = true;
             }
         }
         //取消讚
@@ -163,23 +197,25 @@ export const setPostFavorite = (clubKey, postKey, dealInsidePost) => async (disp
             //沒其他使用者按過讚
             if (post.numFavorites == 1) {
                 post.numFavorites = post.numFavorites - 1;
-                post.favorites = false;
+                delete post.favorites[user.uid];
+                updateFavorites[user.uid] = false;
             }
             //有其他使用者按過讚
             //設為null寫進firebase會自動消失
             else {
                 post.numFavorites = post.numFavorites - 1;
-                post.favorites[user.uid] = null;
+                delete post.favorites[user.uid];
+                updateFavorites[user.uid] = null;
             }
         }
 
         const commentPost = {}
-        if (dealInsidePost) {
+        if (dealInsidePostStatus) {
             commentPost = await getPostComment(clubKey, postKey);
         }
 
         //更改firebasePostFavorites
-        await updatePostFavorites(post.clubKey, post.postKey, post.favorites);
+        await updatePostFavorites(post.clubKey, post.postKey, updateFavorites);
         //同步更改reducer資料
         await dispatch(setPostChangeToReducer(post, commentPost));
     }
@@ -201,20 +237,23 @@ export const setPostView = async (post) => {
             }
             //是第一次看
             else {
+                let updateViews = {};
                 //沒有其他使用者看過
-                if (post[element].numViews == 0) {
+                if (Object.keys(post[element].views).length == 0) {
                     post[element].numViews = post[element].numViews + 1;
                     post[element].views = {};
                     post[element].views[user.uid] = true;
                     post[element].statusView = true;
+                    updateViews[user.uid] = true;
                 }
                 //有其他使用者看過
                 else {
                     post[element].numViews = post[element].numViews + 1;
                     post[element].views[user.uid] = true;
                     post[element].statusView = true;
+                    updateViews[user.uid] = true;
                 }
-                await updatePostViews(post[element].clubKey, post[element].postKey, post[element].views);
+                await updatePostViews(post[element].clubKey, post[element].postKey, updateViews);
             }
         })
         await Promise.all(promisesViews);
@@ -225,6 +264,60 @@ export const setPostView = async (post) => {
         throw error;
     }
 }
+
+
+//********************************************************************************
+//留言
+//********************************************************************************
+
+//取得貼文留言
+export const getPostComment = async (clubKey, postKey) => {
+    const commentPost = {};
+    const commentData = await getPostComments(clubKey, postKey);
+    if (commentData != null) {
+        //將key放進物件裡
+        const promisesComment = Object.keys(commentData).map(async (element) => {
+            commentData[element].clubKey = clubKey;
+            commentData[element].postKey = postKey;
+            commentData[element].commentKey = element;
+            commentData[element].commenterNickName = await getNickName(commentData[element].commenter);
+        })
+        await Promise.all(promisesComment);
+        commentPost[postKey] = commentData;
+    }
+    return commentPost;
+}
+
+//新增留言
+export const addComment = (clubKey, postKey, content) => async (dispatch) => {
+
+    try {
+        //新增貼文進firebase
+        await createComment(clubKey, postKey, content);
+
+        //貼文資料全部重抓更新
+        const club = await getClubData(clubKey);
+        let post = await getInsidePostData(clubKey, postKey);
+        post = await getPostFoundations(clubKey, postKey, post, club);
+        const commentPost = await getPostComment(clubKey, postKey);
+        if (Object.values(commentPost)[0] == false) {
+            commentPost[Object.keys(commentPost)[0]] = {};
+        }
+        //同步更改reducer資料
+        await dispatch(setPostChangeToReducer(post, commentPost));
+    }
+    catch(error){
+        console.log(error);
+        throw erroe;
+    }
+
+    
+}
+
+
+//********************************************************************************
+//同步處理
+//********************************************************************************
 
 //同步更改reducer資料
 export const setPostChangeToReducer = (post, comment) => async (dispatch, getState) => {
@@ -257,38 +350,5 @@ export const setPostChangeToReducer = (post, comment) => async (dispatch, getSta
     }
     catch (error) {
         throw error;
-    }
-}
-
-export const createPost = (cid, postData) => async (dispatch) => {
-
-    try {
-        dispatch(PostAction.createPostRequest())
-
-        console.log(cid)
-        const user = firebase.auth().currentUser
-        const postRef = firebase.database().ref('posts').child(cid).push()
-
-        const postDB = {
-            title: postData.title,
-            content: postData.content,
-            images: postData.images,
-            poster: user.uid,
-            date: new Date().toLocaleString(),
-            favorites: false,
-            views: false,
-            numComments: 0
-        }
-
-        await postRef.set(postDB)
-
-
-        //更新reducer還沒做
-
-    } catch (e) {
-
-        console.log(e)
-
-        throw e
     }
 }
