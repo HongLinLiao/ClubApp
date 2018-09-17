@@ -1,9 +1,12 @@
 import { createStackNavigator } from 'react-navigation'
 import ClubPage from '../containers/club/ClubPage'
+import ActivitiesPage from '../containers/club/ActivitiesPage'
 
 
 export default createStackNavigator({
-  Club: ClubPage
+  Activities: ActivitiesPage,
+  Club: ClubPage,
+  
 },
 {
   navigationOptions: {
