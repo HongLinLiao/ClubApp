@@ -78,7 +78,7 @@ class Club extends React.Component {
 			
 					<View style={{height: 100, flexDirection: 'row'}}>
 						<Button title='發布文章' onPress={() => this.props.navigation.push('AddPost', {cid, schoolName, clubName, status: member[user.uid].status})}/>
-						<Button title='舉辦活動'/>
+						<Button title='舉辦活動' onPress={() => this.props.navigation.push('AddActivity')}/>
 						<Button title='切換管理者'/>
 						<Button title='編輯成員'/>
 					</View>
@@ -89,19 +89,19 @@ class Club extends React.Component {
 			
 					<View style={{height: 200, borderWidth: 1, borderColor: 'red'}}>
 						<Text>最新活動</Text>
-						<ScrollView horizontal={true}>
-						<View style={{flexDirection: 'row'}}>
-							{Object.keys(this.state.activities).map(
-							(actId, index) => {
-								return (
-								<TouchableOpacity key={actId}>
-									<Image source={require('../../images/search.png')} style={{height: 50, width: 50}}/>
-								</TouchableOpacity>
-								)
-							}
-							)}
-							<Button title='查看更多'/>
-						</View>
+						<ScrollView horizontal>
+							<View style={{flexDirection: 'row'}}>
+								{Object.keys(this.state.activities).map(
+									(actId, index) => {
+										return (
+										<TouchableOpacity key={actId}>
+											<Image source={require('../../images/search.png')} style={{height: 200, width: 50}}/>
+										</TouchableOpacity>
+										)
+									}
+								)}
+								<Button title='查看更多'/>
+							</View>
 						</ScrollView>
 					</View>
 					

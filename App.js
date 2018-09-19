@@ -50,6 +50,7 @@ export default class App extends React.Component {
   async componentDidMount() {
     await Permissions.askAsync(Permissions.CAMERA_ROLL);
     await Permissions.askAsync(Permissions.CAMERA);
+    await Permissions.askAsync(Permissions.LOCATION);
   }
 
   render() {
