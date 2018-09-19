@@ -25,13 +25,9 @@ const ClubManagePage = createMaterialTopTabNavigator({
 
 export default createStackNavigator({
 
-  AdvancedSetting: {
-    screen: AdvancedSettingPage,
-  },
-
   Profile: ProfilePage,
   ProfileSetting: ProfileSettingPage,
-  //AdvancedSetting: AdvancedSettingPage,
+  AdvancedSetting: AdvancedSettingPage,
   EmailReVerified: EmailReVerifiedPage,
   SendEmailSuccessful: SendEmailSuccessfulPage,
   ChangeEamil: ChangeEamilPage,

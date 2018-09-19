@@ -14,11 +14,10 @@ class AdvancedSetting extends React.Component {
   render() {
     return (
       <View style={styles.container}>
-        <StatusBarPaddingIOS style={{backgroundColor: '#f6b456'}}/>
-        
         <View style={styles.headView}>
             <View>
-                <TouchableOpacity>
+                <TouchableOpacity
+                onPress={() => this.props.navigation.navigate('Profile')}>
                 <Image source={require('../../images/arrowLeft.png')}
                 style={styles.arrow}/>
                 </TouchableOpacity>
@@ -73,7 +72,7 @@ class AdvancedSetting extends React.Component {
         </View>
 
       </View>
-      <View style={styles.tabBar}></View>  
+    
     </View>  
   );
   }
@@ -81,3 +80,6 @@ class AdvancedSetting extends React.Component {
 
 
 export default AdvancedSetting
+
+//<StatusBarPaddingIOS style={{backgroundColor: '#ffffff'}}/
+// <View style={styles.tabBar}></View>

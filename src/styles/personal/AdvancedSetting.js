@@ -67,8 +67,8 @@ export default StyleSheet.create({
         fontSize:12,
         color:'rgba(102,102,102,0.25)',
     },
-    tabBar:{
-        height:50,
-        backgroundColor:'#f6b456'
-    },
+    //tabBar:{
+    //   height:50,
+    // backgroundColor:'#f6b456'
+    //}
 })
