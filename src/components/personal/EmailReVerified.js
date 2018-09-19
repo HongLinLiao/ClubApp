@@ -83,7 +83,7 @@ class EmailReVerified extends React.Component {
         </View>
 
     );
-}
+ }
 }
 
 export default EmailReVerified
