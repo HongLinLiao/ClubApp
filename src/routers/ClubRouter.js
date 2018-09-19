@@ -8,10 +8,10 @@ import { Button } from 'react-native'
 
 
 export default createStackNavigator({
-  // Activities: {
+  //Activities: {
   //   screen: ActivitiesPage,
 
-  // },
+  //},
   Club: {
     screen: ClubPage,
     navigationOptions: {

@@ -12,6 +12,7 @@ import ClubPrivateSettingPage from '../containers/personal/ClubPrivateSettingPag
 import JoinedClubPage from '../containers/personal/JoinedClubPage'
 import FavoriteClubPage from '../containers/personal/FavoriteClubPage'
 
+
 import React from 'react'
 import { Button } from 'react-native'
 
@@ -23,9 +24,14 @@ const ClubManagePage = createMaterialTopTabNavigator({
 
 
 export default createStackNavigator({
+
+  AdvancedSetting: {
+    screen: AdvancedSettingPage,
+  },
+
   Profile: ProfilePage,
   ProfileSetting: ProfileSettingPage,
-  AdvancedSetting: AdvancedSettingPage,
+  //AdvancedSetting: AdvancedSettingPage,
   EmailReVerified: EmailReVerifiedPage,
   SendEmailSuccessful: SendEmailSuccessfulPage,
   ChangeEamil: ChangeEamilPage,
@@ -42,5 +48,7 @@ export default createStackNavigator({
         headerRight: <Button title='創建社團' onPress={() => navigation.push('CreateClub')}/>
       }    
     }
-  }
+  },
+
+  
 })
