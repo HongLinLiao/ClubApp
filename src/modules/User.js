@@ -133,6 +133,8 @@ export const getUserSettingToRedux = async () => {
     const settingShot = await settingRef.once('value')
     const { globalNotification, nightModeNotification, clubNotificationList } = settingShot.val()
 
+    clubNotificationList = clubNotificationList ? clubNotificationList : {} //如果沒有社團(false)需要給一個空物件
+
     //抓取每個社團的資料
     const promises = Object.keys(clubNotificationList).map(
       async (key) => {

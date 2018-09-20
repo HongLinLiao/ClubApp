@@ -4,12 +4,16 @@ import {
     Button,
     TextInput,
     Text,
+    ScrollView,
+    TouchableOpacity
 } from 'react-native'
 
 import { Location, DangerZone } from 'expo'
 import MapView from 'react-native-maps'
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import { showLocation } from 'react-native-map-link'
+import DateTimePicker from 'react-native-modal-datetime-picker';
+
 
 
 
@@ -22,9 +26,8 @@ class AddActivity extends React.Component {
             latitudeDelta: 0.0922,
             longitudeDelta: 0.0421,
         },
-        result: 'hongwei',
-        tempText: '',
-        text: '',
+        showDatePicker: false,
+        date: '',
     }
 
     componentWillMount() {
@@ -75,22 +78,58 @@ class AddActivity extends React.Component {
         console.log(response)
     }
 
+    setDateTime = (date) => {
+        
+        this.setState({ 
+            date,
+            showDatePicker: false
+        })
+    }
+
+    getDateTime = () => {
+        let { date } = this.state
+        let newDate = new Date(date)
+        let day = newDate.toLocaleDateString()
+        let time = newDate.getHours() + ':' + newDate.getMinutes()
+        let result = day + ' ' + time
+
+        return result 
+    }
+
     render() {
         const { latitude, longitude } = this.state.region
+        const date = this.getDateTime()
         console.log(latitude)
         console.log(longitude)
+        
         return (
             <View style={{flex: 1}}>
-                <Button title='hahaha' onPress={() => this.open()} />
+                <ScrollView>
+                    <View>
+                        <TouchableOpacity 
+                            style={{ flex: 1, alignItems: 'center', justifyContent: 'center', height: 300}}
+                            onPress={() => {}}
+                        >
+                            <Text>新增活動照片</Text>
+                        </TouchableOpacity>
+                    </View>
 
-                {
-                    <MapView
-                    style={{ flex: 1 }}
-                    initialRegion={this.state.region}
-                    region={this.state.region}
+                    <View style={{alignItems: 'center', justifyContent: 'center'}}>
+                        <TextInput placeholder='活動名稱' />
+                        <TouchableOpacity onPress={() => this.setState({ showDatePicker: true })}>
+                            <Text>{this.state.date ? date : '請選擇時間'}</Text>
+                        </TouchableOpacity>
+                        
+                        <TextInput placeholder='活動名稱' />
+                        <TextInput placeholder='活動名稱' />
+                    </View>
+                    <DateTimePicker
+                        isVisible={this.state.showDatePicker}
+                        onConfirm={this.setDateTime}
+                        onCancel={() => {console.log('取消')}}
+                        mode='datetime'
                     />
-                }
-
+                </ScrollView>
             </View>
             
         )
@@ -99,6 +138,12 @@ class AddActivity extends React.Component {
 
 export default AddActivity
 
+
+// <MapView
+//     style={{ flex: 1 }}
+//     initialRegion={this.state.region}
+//     region={this.state.region}
+// />
 
 // <GooglePlacesAutocomplete
 // textInputProps={{
