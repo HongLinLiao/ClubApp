@@ -1,16 +1,20 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import PostData from '../../components/post/PostData'
-import { setPostFavorite , addComment } from '../../modules/Post'
+import Post from '../../components/post/Post'
+import { setPostFavorite, creatingComment, deletingComment, editingComment ,setCommentEditStatus } from '../../modules/Post'
 
 class PostPage extends Component {
     render() {
         switch (this.props.navigation.state.params) {
             case 'Home':
                 return (
-                    <PostData
+                    <Post
                         setPostFavorite={this.props.setPostFavorite}
-                        addComment={this.props.addComment}
+                        creatingComment={this.props.creatingComment}
+                        deletingComment={this.props.deletingComment}
+                        editingComment={this.props.editingComment}
+                        setCommentEditStatus={this.props.setCommentEditStatus}
+                        router={this.props.navigation.state.params}
                         post={this.props.homePost}
                         comment={this.props.homeComment}
                     />
@@ -30,7 +34,10 @@ const mapStateToProps = ({ homeReducer }) => ({
 
 const mapDispatchToProps = {
     setPostFavorite,
-    addComment
+    creatingComment,
+    deletingComment,
+    editingComment,
+    setCommentEditStatus
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(PostPage);

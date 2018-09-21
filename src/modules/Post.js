@@ -6,7 +6,9 @@ import {
     updatePostViews,
     updatePostFavorites,
     getPostComments,
-    createComment
+    createComment,
+    deleteComment,
+    editComment
 } from "./Data"
 import { changeMemberStatusToChinese, getNickName } from './Common';
 import * as PostAction from '../actions/PostAction'
@@ -272,6 +274,7 @@ export const setPostView = async (post) => {
 
 //取得貼文留言
 export const getPostComment = async (clubKey, postKey) => {
+    const user = firebase.auth().currentUser;
     const commentPost = {};
     const commentData = await getPostComments(clubKey, postKey);
     if (commentData != null) {
@@ -281,6 +284,13 @@ export const getPostComment = async (clubKey, postKey) => {
             commentData[element].postKey = postKey;
             commentData[element].commentKey = element;
             commentData[element].commenterNickName = await getNickName(commentData[element].commenter);
+            if (commentData[element].commenter === user.uid) {
+                commentData[element].statusEnable = true;
+            }
+            else {
+                commentData[element].statusEnable = false;
+            }
+            commentData[element].statusEdit = false;
         })
         await Promise.all(promisesComment);
         commentPost[postKey] = commentData;
@@ -289,7 +299,7 @@ export const getPostComment = async (clubKey, postKey) => {
 }
 
 //新增留言
-export const addComment = (clubKey, postKey, content) => async (dispatch) => {
+export const creatingComment = (clubKey, postKey, content) => async (dispatch) => {
 
     try {
         //新增貼文進firebase
@@ -306,14 +316,58 @@ export const addComment = (clubKey, postKey, content) => async (dispatch) => {
         //同步更改reducer資料
         await dispatch(setPostChangeToReducer(post, commentPost));
     }
-    catch(error){
+    catch (error) {
         console.log(error);
-        throw erroe;
     }
-
-    
 }
 
+//刪除留言
+export const deletingComment = (clubKey, postKey, commentKey) => async (dispatch) => {
+    try {
+        //從firebase刪除留言
+        await deleteComment(clubKey, postKey, commentKey);
+
+        //貼文資料全部重抓更新
+        const club = await getClubData(clubKey);
+        let post = await getInsidePostData(clubKey, postKey);
+        post = await getPostFoundations(clubKey, postKey, post, club);
+        const commentPost = await getPostComment(clubKey, postKey);
+        if (Object.values(commentPost)[0] == false) {
+            commentPost[Object.keys(commentPost)[0]] = {};
+        }
+        //同步更改reducer資料
+        await dispatch(setPostChangeToReducer(post, commentPost));
+    }
+    catch (error) {
+        console.log(error);
+    }
+}
+
+//編輯留言
+export const editingComment = (clubKey, postKey, commentKey, content) => async (dispatch) => {
+    try {
+        //從firebase編輯留言
+        await editComment(clubKey, postKey, commentKey, content);
+
+        //貼文資料全部更新
+        const club = await getClubData(clubKey);
+        let post = await getInsidePostData(clubKey, postKey);
+        post = await getPostFoundations(clubKey, postKey, post, club);
+        const commentPost = await getPostComment(clubKey, postKey);
+        if (Object.values(commentPost)[0] == false) {
+            commentPost[Object.keys(commentPost)[0]] = {};
+        }
+        //同步更改reducer資料
+        await dispatch(setPostChangeToReducer(post, commentPost));
+    }
+    catch (error) {
+        console.log(error);
+    }
+}
+
+//********************************************************************************
+//多Reducer function
+//********************************************************************************
 
 //********************************************************************************
 //同步處理
@@ -350,5 +404,30 @@ export const setPostChangeToReducer = (post, comment) => async (dispatch, getSta
     }
     catch (error) {
         throw error;
+    }
+}
+
+//********************************************************************************
+//Comment component顯示關係處理
+//********************************************************************************
+export const setCommentEditStatus = (postKey, commentKey, router, comments, element) => async (dispatch) => {
+    try {
+        const commentList = { ...comments };
+        const tempElement = { ...element };
+        tempElement.statusEdit = !tempElement.statusEdit;
+        const newElement = {};
+        newElement[commentKey] = tempElement;
+        commentList[postKey] = { ...commentList[postKey], ...newElement };
+
+        switch (router) {
+            case 'Home':
+                dispatch(HomeAction.setHomeCommentStatusSuccess(commentList));
+                break;
+            default:
+                console.log(router);
+        }
+    }
+    catch (error) {
+        console.log(error);
     }
 }

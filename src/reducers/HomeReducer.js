@@ -7,7 +7,8 @@ import {
     SET_HOME_CLUBLIST_STATUS_FAILURE,
     GET_HOME_INSIDE_POST_SUCCESS,
     GET_HOME_INSIDE_POST_FAILURE,
-    GET_HOME_INSIDE_POST_COMMENT_SUCCESS
+    GET_HOME_INSIDE_POST_COMMENT_SUCCESS,
+    SET_HOME_COMMENT_STATUS_SUCCESS
 } from '../actions/HomeAction'
 import {
     SET_POST_FAVORITE_FAILURE,
@@ -96,6 +97,12 @@ export const homeReducer = (state = initialState, action) => {
             }
         //取得貼文留言
         case GET_HOME_INSIDE_POST_COMMENT_SUCCESS:
+            return {
+                ...state,
+                comment: action.comment
+            }
+        //更改留言編輯狀態
+        case SET_HOME_COMMENT_STATUS_SUCCESS:
             return {
                 ...state,
                 comment: action.comment

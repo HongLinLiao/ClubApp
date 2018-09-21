@@ -1,5 +1,4 @@
 import * as firebase from "firebase"
-// import  from "./Post"
 
 /*
 |-----------------------------------------------
@@ -91,8 +90,14 @@ export const updateClub = async (cid) => {
 |-----------------------------------------------
 */
 
-//新增comment貼文、post下numComment+1
+//新增comment、post下numComment+1
 export const createComment = async (clubKey, postKey, content) => {
+    const getNumRef = firebase.database().ref('posts/' + clubKey + '/' + postKey + '/numComments');
+    let snapShot = await getNumRef.once('value');
+    let numComments = snapShot.val();
+    numComments = numComments + 1;
+    await getNumRef.set(numComments);
+
     const user = firebase.auth().currentUser;
     const commentRef = firebase.database().ref('comments/' + clubKey + '/' + postKey).push();
     const commentData = {
@@ -101,10 +106,36 @@ export const createComment = async (clubKey, postKey, content) => {
         content: content
     }
     await commentRef.set(commentData);
-    
+}
+
+//刪除comment、post下numComment-1
+export const deleteComment = async (clubKey, postKey, commentKey) => {
     const getNumRef = firebase.database().ref('posts/' + clubKey + '/' + postKey + '/numComments');
     let snapShot = await getNumRef.once('value');
     let numComments = snapShot.val();
-    numComments = numComments + 1;
+    numComments = numComments - 1;
     await getNumRef.set(numComments);
+
+    let commentRef;
+    if (numComments == 0) {
+        commentRef = firebase.database().ref('comments/' + clubKey + '/' + postKey)
+        await commentRef.set(false);
+    }
+    else {
+        commentRef = firebase.database().ref('comments/' + clubKey + '/' + postKey + '/' + commentKey)
+        await commentRef.set(null);
+    }
+
+}
+
+//編輯留言
+export const editComment = async (clubKey, postKey, commentKey, content) => {
+    if (content == '') {
+        console.log('NO change');
+    }
+    else {
+        let update = {};
+        update['/comments/' + clubKey + '/' + postKey + '/' + commentKey + '/content'] = content;
+        firebase.database().ref().update(update);
+    }
 }

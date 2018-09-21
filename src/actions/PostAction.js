@@ -41,6 +41,10 @@ export const setPostViewFailure = (message) => ({
   message
 })
 
+//********************************************************************************
+//多Reducer連動更改
+//********************************************************************************
+
 //動態更改post進各個reducer.postList
 export const setPostToReducerPostListSuccess = (homePostList) => ({
   type: SET_POST_TO_REDUCER_POSTLIST_SUCCESS,
