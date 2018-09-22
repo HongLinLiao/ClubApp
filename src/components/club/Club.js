@@ -58,6 +58,7 @@ class Club extends React.Component {
 			)
 			const { club } = this.state
 			const { cid, schoolName, clubName, open, member, introduction } = club
+			const clubUserData = {cid, schoolName, clubName, status: member[user.uid].status}
 			const numberOfMember = Object.keys(member).length
 			
 			return (
@@ -77,8 +78,8 @@ class Club extends React.Component {
 					</View>
 			
 					<View style={{height: 100, flexDirection: 'row'}}>
-						<Button title='發布文章' onPress={() => this.props.navigation.push('AddPost', {cid, schoolName, clubName, status: member[user.uid].status})}/>
-						<Button title='舉辦活動' onPress={() => this.props.navigation.push('AddActivity')}/>
+						<Button title='發布文章' onPress={() => this.props.navigation.push('AddPost', {...clubUserData} )}/>
+						<Button title='舉辦活動' onPress={() => this.props.navigation.push('AddActivity', {...clubUserData} )}/>
 						<Button title='切換管理者'/>
 						<Button title='編輯成員'/>
 					</View>

@@ -229,14 +229,13 @@ export const createPost = (cid, postData) => async (dispatch) => {
     try {
         dispatch(PostAction.createPostRequest())
 
-        console.log(cid)
         const user = firebase.auth().currentUser
         const postRef = firebase.database().ref('posts').child(cid).push()
 
         const postDB = {
             title: postData.title,
             content: postData.content,
-            images: postData.images,
+            images: postData.images.length == 0 ? postData.images : false,
             poster: user.uid,
             date: new Date().toLocaleString(),
             favorites: false,

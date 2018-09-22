@@ -28,8 +28,10 @@ export default createStackNavigator({
   AddActivity: {
     screen: AddActivityPage,
     navigationOptions: ({navigation}) => {
+
+      const { askCreate } = navigation.state.params
       return {
-        headerRight: <Button title='建立活動' onPress={() => {}}/>
+        headerRight: <Button title='建立活動' onPress={() => askCreate()}/>
       }
     }
   }

@@ -7,10 +7,16 @@ import {
 	TextInput,
 	Button,
 	TouchableOpacity,
-	Alert
+	Alert,
+	KeyboardAvoidingView,
+	Keyboard,
+	StyleSheet,
 } from 'react-native';
 
 import { takePhoto, selectPhoto } from '../../modules/Common'
+
+
+import Overlayer from '../common/Overlayer'
 
 
 class AddPost extends React.Component {
@@ -18,7 +24,9 @@ class AddPost extends React.Component {
 	state ={
 		title: '',
 		content: '',
-		images: []
+		images: [],
+		loading: false,
+		texting: false,
 	}
 
 	componentDidMount() {
@@ -27,27 +35,47 @@ class AddPost extends React.Component {
 		})
 	}
 
+	checkAllDone = () => {
+		const { title, content } = this.state
+
+		if(title == '') {
+			Alert.alert('請輸入標題')
+			return false
+		}
+		if(content == '') {
+			Alert.alert('請輸入內容')
+			return false
+		}
+
+		return true
+	}
+
 	askCreate = () => {
 
 		const { schoolName, clubName } = this.props.navigation.state.params
-		Alert.alert('新增貼文', '您將新增 ' + this.state.title + ' 於 ' + schoolName + ' ' + clubName, 
-        [
-			{text: '取消', onPress: () => console.log('取消'), style: 'cancel'},
-			{text: '新增', onPress: () => this.createPost()},
-        ],
-        { cancelable: false }
-    	)
+		if(this.checkAllDone()) {
+			Alert.alert('新增貼文', '您將新增 ' + this.state.title + ' 於 ' + schoolName + ' ' + clubName, 
+			[
+				{text: '取消', onPress: () => console.log('取消'), style: 'cancel'},
+				{text: '新增', onPress: () => this.createPost()},
+			],
+			{ cancelable: false }
+			)
+		}
+			
 	}
 
 	createPost = async () => {
 
 		try {
+			this.setState({ loading: true })
 			const { cid } = this.props.navigation.state.params
 			const { title, content, images} = this.state
 			const postData = {title, content, images}
 
 			await this.props.createPost(cid, postData)
 
+			Alert.alert('貼文發佈成功！')
 			this.props.navigation.popToTop()
 
 		} catch(e) {
@@ -114,22 +142,12 @@ class AddPost extends React.Component {
 		})
 	}
 
-	setData = () => {
-		this.setState({
-			images: [
-				'https://www.w3schools.com/w3css/img_lights.jpg',
-				'https://cdn.pixabay.com/photo/2016/06/18/17/42/image-1465348_960_720.jpg'
-			]
-		})
-	}
-
 	render() {
 		const { displayName } = this.props.user
-		const { cid, schoolName, clubName, status} = this.props.navigation.state.params
+		const { cid, schoolName, clubName, status } = this.props.navigation.state.params
 
 		return (
 		<View style={{flex: 1}}>
-			<Button title='hahaha' onPress={() => this.setData()} />
 			<View style={{flex: 1, }}>
 				<View style={{flexDirection: 'row', width: 100}}>
 					<Image source={{}} style={{height: 100, width: 100}}/>
@@ -141,7 +159,11 @@ class AddPost extends React.Component {
 					<Text>{new Date().toLocaleString()}</Text>
 					</View>
 				</View>
-				<TextInput placeholder='標題' onChangeText={(title) => this.setState({title})}/>
+				<TextInput 
+					placeholder='標題' 
+					onChangeText={(title) => this.setState({title})}
+					onFocus={ () => this.setState({ texting: true }) }
+				/>
 				
 				<View>
 					<ScrollView horizontal>
@@ -168,7 +190,8 @@ class AddPost extends React.Component {
 					backgroundColor: '#ffe6b5' 
 					}}
 					onChangeText={(content) => this.setState({content})}
-				/>
+					onFocus={ () => this.setState({ texting: true }) }
+				/> 
 			</View>
 
 			<View style={{
@@ -181,9 +204,20 @@ class AddPost extends React.Component {
 				justifyContent: 'space-between'
 			}}
 			>
-			<Button title='拍攝照片' onPress={() => this.handleTakePhoto()}/>
-			<Button title='從圖庫取得照片' onPress={() => this.handleSelectPhoto()}/>
+				<Button title='拍攝照片' onPress={() => this.handleTakePhoto()}/>
+				<Button title='從圖庫取得照片' onPress={() => this.handleSelectPhoto()}/>
 			</View>
+
+			{ this.state.texting ? 
+				<TouchableOpacity style={[ StyleSheet.absoluteFill ]} 
+					onPress={ () => {
+						Keyboard.dismiss()
+						this.setState({ texting: false })
+					}}
+				>
+				</TouchableOpacity> : null }
+			<KeyboardAvoidingView behavior='padding'></KeyboardAvoidingView>
+			{ this.state.loading ? <Overlayer /> : null }
 		</View>
 		)
 	}

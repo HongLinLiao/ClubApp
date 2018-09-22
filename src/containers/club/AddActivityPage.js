@@ -4,8 +4,8 @@ import {
 } from 'react-redux';
 import AddActivity from '../../components/club/AddActivity'
 import {
-    createPost
-} from '../../modules/Post'
+    createActivity
+} from '../../modules/Activity'
 
 const mapStateToProps = ({
     userReducer,
@@ -16,7 +16,7 @@ const mapStateToProps = ({
 })
 
 const mapDispatchToProps = {
-    createPost
+    createActivity
 }
 
 
