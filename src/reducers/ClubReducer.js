@@ -3,6 +3,9 @@ import {
   CREATE_CLUB_FAILURE,
   SET_ALL_CLUB_DATA,
   REMOVE_THE_CLUB,
+  SET_CLUB_PHOTO,
+  SET_CLUB_OPEN,
+  SET_CURRENT_CLUB,
 } from '../actions/ClubAction'
 
 import {
@@ -12,6 +15,7 @@ import {
 
 const initialState = {
   message: '',
+  currentCid: null,
   status: null, //執行狀態
   clubs: {}, //所有使用者加入或收藏的社團資料
 }
@@ -47,6 +51,21 @@ export const clubReducer = (state = initialState, action) => {
       return {
         ...state,
         clubs: action.newClubs
+      }
+    case SET_CLUB_PHOTO:
+      return {
+        ...state,
+        clubs: action.clubData
+      }
+    case SET_CLUB_OPEN:
+      return {
+        ...state,
+        clubs: action.clubData
+    }
+    case SET_CURRENT_CLUB:
+      return {
+        ...state,
+        currentCid: action.currentCid
       }
     default:
       return state

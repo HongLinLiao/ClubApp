@@ -14,7 +14,7 @@ import { setLoadingState } from './src/actions/CommonAction'
 
 
 
-const store = createStore(rootReducer, {}, applyMiddleware(thunk, logger))
+export const store = createStore(rootReducer, {}, applyMiddleware(thunk, logger))
 
 
 

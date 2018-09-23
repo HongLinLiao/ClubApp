@@ -1,6 +1,7 @@
 import * as firebase from 'firebase'
 import * as ClubAction from '../actions/ClubAction'
 import { getClubData } from './Data'
+import { selectPhoto } from './Common'
 
 /*
 |-----------------------------------------------
@@ -169,5 +170,47 @@ export const changeMemberStatusToChinese = (status) => {
     return '社員';
   }
 }
+
+export const changeClubPhoto = (cid) => async (dispatch, getState) => {
+  try {
+    const clubRef = firebase.database().ref('clubs').child(cid)
+    const url = await selectPhoto()
+    const { clubs } = getState().clubReducer
+    
+    let newClubs = {}
+    newClubs[cid] = { ...clubs[cid] }
+    newClubs[cid].imgUrl = url
+
+    //更新database
+    await clubRef.update(newClubs[cid])
+    //更新redux
+    dispatch(ClubAction.setClubPhoto(newClubs))
+
+  } catch (e) {
+    console.log(e)
+    throw e
+  }
+}
+
+export const setClubOpen = (cid) => async (dispatch, getState) => {
+  try {
+    const clubRef = firebase.database().ref('clubs').child(cid)
+    const { clubs } = getState().clubReducer
+
+    
+    let newClubs = JSON.parse(JSON.stringify(clubs))
+    newClubs[cid].open = !newClubs[cid].open
+
+    //更新database
+    await clubRef.update(newClubs[cid])
+    //更新redux
+    dispatch(ClubAction.setClubOpen(newClubs))
+
+  } catch(e) {
+    console.log(e)
+    throw e
+  }
+}
+
 
 

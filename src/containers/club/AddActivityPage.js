@@ -1,3 +1,4 @@
+import React from 'react'
 import {} from '../../modules/App'
 import {
     connect
@@ -7,12 +8,14 @@ import {
     createActivity
 } from '../../modules/Activity'
 
+
 const mapStateToProps = ({
     userReducer,
     clubReducer
 }) => ({
     user: userReducer.user,
-    clubs: clubReducer.clubs
+    clubs: clubReducer.clubs,
+    currentCid: clubReducer.currentCid,
 })
 
 const mapDispatchToProps = {
