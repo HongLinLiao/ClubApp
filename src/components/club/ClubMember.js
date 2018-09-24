@@ -5,15 +5,8 @@ import {
 } from 'react-native'
 
 import {
-    List,
     ListItem,
-    left,
-    Thumbnail,
-    Text,
-    Right,
-    Body,
-    Left,
-} from 'native-base'
+} from 'react-native-elements'
 
 class ClubMember extends React.Component {
     state = {
@@ -25,29 +18,22 @@ class ClubMember extends React.Component {
 
         }]
     }
+
     render() {
         return (
             <View style={{flex: 1}}>
-                <List>
-                    <ListItem itemHeader>
-                        <Text>社長</Text>
-                    </ListItem>
-                    {this.state.data.map((item, index) => (
-                        <ListItem avatar>
-                            <Left>
-                                <Thumbnail source={{uri: item.img}}/>
-                            </Left>
-                            
-                                <Text>{item.name}</Text>
-                                <Text>{item.time}</Text>
-                            
-                            <Right>
-                                <Button title='退出社團'/>
-                            </Right>
-                        </ListItem>
-                    ))}
-                    
-                </List>
+                {this.state.data.map((item, index) => (
+                    <ListItem
+                        key={index}
+                        leftAvatar={{
+                            source: {uri: item.img},
+                            size: 'medium',
+                        }}
+                        title={item.name}
+                        subtitle={item.time}
+                        rightElement={<Button title='退出社團' onPress={() => {}}/>}
+                    />
+                ))}
             </View>
         )
     }

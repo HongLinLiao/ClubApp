@@ -219,6 +219,21 @@ export const setClubOpen = (cid) => async (dispatch, getState) => {
   }
 }
 
+export const kickClubMember = (cid, uid) => async (dispatch, getState) => {
+  try {
+    const clubRef = firebase.database().ref('clubs').child(cid)
+    const { clubs } = getState().clubReducer
+
+    let newClubs = JSON.parse(JSON.stringify(clubs))
+    delete newClubs[cid].member[uid]
+
+    
+
+  } catch(e) {
+
+  }
+}
+
 
 
 
