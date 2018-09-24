@@ -175,16 +175,23 @@ export const changeClubPhoto = (cid) => async (dispatch, getState) => {
   try {
     const clubRef = firebase.database().ref('clubs').child(cid)
     const url = await selectPhoto()
-    const { clubs } = getState().clubReducer
-    
-    let newClubs = {}
-    newClubs[cid] = { ...clubs[cid] }
-    newClubs[cid].imgUrl = url
 
-    //更新database
-    await clubRef.update(newClubs[cid])
-    //更新redux
-    dispatch(ClubAction.setClubPhoto(newClubs))
+    if(url) {
+      let { clubs } = getState().clubReducer
+      let newClubs = JSON.parse(JSON.stringify(clubs))
+      newClubs[cid].imgUrl = url
+      //更新database
+      await clubRef.update(newClubs[cid])
+
+      //更新firestore
+      
+      //更新redux
+      dispatch(ClubAction.setClubPhoto(newClubs))
+      
+    } else {
+      throw new Error('取消選擇照片')
+    }
+
 
   } catch (e) {
     console.log(e)
@@ -211,6 +218,7 @@ export const setClubOpen = (cid) => async (dispatch, getState) => {
     throw e
   }
 }
+
 
 
 

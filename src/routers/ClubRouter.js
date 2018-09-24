@@ -3,6 +3,7 @@ import ClubPage from '../containers/club/ClubPage'
 import AddPostPage from '../containers/club/AddPostPage'
 import AddActivityPage from '../containers/club/AddActivityPage'
 import ClubAdminPage from '../containers/club/ClubAdminPage'
+import ClubMemberPage from '../containers/club/ClubMemberPage'
 
 import React from 'react'
 import { Button } from 'react-native'
@@ -37,5 +38,9 @@ export default createStackNavigator({
   },
   ClubAdmin: {
     screen: ClubAdminPage,
+  },
+
+  ClubMember: {
+    screen: ClubMemberPage,
   }
 })

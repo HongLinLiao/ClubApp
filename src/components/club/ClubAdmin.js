@@ -36,12 +36,24 @@ class ClubAdmin extends React.Component {
 
             await setClubOpen(currentCid)
 
-            Alert.alert('社團已' + clubs[currentCid].open ? '關閉' : '公開')
+            Alert.alert('社團已' + (clubs[currentCid].open ? '關閉' : '公開'))
 
         } catch(e) {
             Alert.alert(e.toString())
         }
         
+    }
+
+    handleChangePhoto = async () => {
+        try {
+            const { changeClubPhoto, currentCid } = this.props
+            await changeClubPhoto(currentCid)
+
+            Alert.alert('照片新增成功')
+
+        } catch(e) {
+            Alert.alert(e.toString())
+        }
     }
 
     render() {
@@ -52,44 +64,44 @@ class ClubAdmin extends React.Component {
 
         return (
             <KeyboardAvoidingView style={{flex : 1}} behavior='padding' >
-                <View style={{flex: 1, marginTop: Expo.Constants.statusBarHeight}}>
-                    <View style={{flex: 1}}>
-                        <ScrollView>
-                            <TouchableOpacity 
-                                style={{height: 400, alignItems: 'center', justifyContent: 'center',}}
-                                onPress={ () => {} }
-                            >
-								{ imgUrl ? <Image source={{uri: imgUrl}} resizeMode='contain' style={{height: 400}}/> : null}	
-                                <Text>{schoolName}</Text>
-                                <Text>{clubName}</Text>
-                                <Button title={open ? '公開' : '非公開'} onPress={this.askClubOpen}/>
-                                <Text>{numberOfMember}</Text>
-                                <Text>{numberOfMember != 0 ? status : '沒有成員'}</Text>					
-                                <Button title='加入社團' disabled/>
-                                <Button title='收藏社團' disabled/>
-                            </TouchableOpacity>
-
-                            <View style={{height: 100, flexDirection: 'row'}}>
-                                <Button title='發布文章' disabled/>
-                                <Button title='舉辦活動' disabled/>
-                                <Button title='管理者模式' disabled/>
-                                <Button title='編輯成員' disabled/>
+                <View style={{flex: 1}}>
+                    <ScrollView>
+                        <TouchableOpacity 
+                            style={{height: 400, alignItems: 'center', justifyContent: 'center',}}
+                            onPress={ () => this.handleChangePhoto() }
+                        >
+                            <View style={{position: 'absolute', height: 400, width: '100%'}}>
+                                { imgUrl ? <Image source={{uri: imgUrl}} resizeMode='cover' style={{height: 400}}/> : null}
                             </View>
+                            <Text>{schoolName}</Text>
+                            <Text>{clubName}</Text>
+                            <Button title={open ? '公開' : '非公開'} onPress={this.askClubOpen}/>
+                            <Text>{numberOfMember}</Text>
+                            <Text>{numberOfMember != 0 ? status : '沒有成員'}</Text>					
+                            <Button title='加入社團' disabled/>
+                            <Button title='收藏社團' disabled/>
+                        </TouchableOpacity>
 
-                            <View style={{height: 200, borderWidth: 1, borderColor: 'red'}}>
-                                <TextInput
-                                    multiline
-                                    value={introduction}
-                                />
-                            </View>
+                        <View style={{height: 100, flexDirection: 'row'}}>
+                            <Button title='發布文章' disabled/>
+                            <Button title='舉辦活動' disabled/>
+                            <Button title='管理者模式' disabled/>
+                            <Button title='編輯成員' disabled/>
+                        </View>
 
-                            <View style={{alignItems: 'center', justifyContent: 'center',}}>
-                                <Button title='文章管理' />
-                                <Button title='活動管理' />
-                            </View>
-                            
-                        </ScrollView>
-                    </View>
+                        <View style={{height: 200, borderWidth: 1, borderColor: 'red'}}>
+                            <TextInput
+                                multiline
+                                value={introduction}
+                            />
+                        </View>
+
+                        <View style={{alignItems: 'center', justifyContent: 'center',}}>
+                            <Button title='文章管理' />
+                            <Button title='活動管理' />
+                        </View>
+                        
+                    </ScrollView>
                 </View>
             </KeyboardAvoidingView>
 
