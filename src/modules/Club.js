@@ -1,6 +1,6 @@
 import * as firebase from 'firebase'
 import * as ClubAction from '../actions/ClubAction'
-import { getClubData } from './Data'
+import { getClubData, updateClub, updateUser } from './Data'
 import { selectPhoto } from './Common'
 
 /*
@@ -221,16 +221,37 @@ export const setClubOpen = (cid) => async (dispatch, getState) => {
 
 export const kickClubMember = (cid, uid) => async (dispatch, getState) => {
   try {
-    const clubRef = firebase.database().ref('clubs').child(cid)
+    const memberRef = firebase.database().ref('clubs').child(cid).child('member')
+    const joinClubRef = firebase.database().ref('users').child(uid).child('joinClub')
     const { clubs } = getState().clubReducer
 
     let newClubs = JSON.parse(JSON.stringify(clubs))
     delete newClubs[cid].member[uid]
 
-    
+    //資料庫
+    await memberRef.remove(uid)
+    await joinClubRef.remove(cid)
+
+    //redux
+    dispatch(ClubAction.deleteClubMember(newClubs))
 
   } catch(e) {
+    console.log(e)
+    throw e
+  }
+}
 
+export const searchAllClub = async () => {
+  try {
+    const allClubRef = firebase.database().ref('clubs')
+    const allClubShot = await allClubRef.once('value')
+    const allClubData = allClubShot.val()
+
+    return allClubData
+
+  } catch(e) {
+    console.log(e)
+    throw e
   }
 }
 

@@ -5,10 +5,12 @@ import ClubRouter from './ClubRouter'
 import PersonalRouter from './PersonalRouter'
 import FirstLoginRouter from './FirstLoginRouter'
 import UserRouter from './UserRouter'
+import SearchRouter from './SearchRouter'
 
 //第三層
 const MainRouter = createBottomTabNavigator({
     HomeRouter: HomeRouter,
+    SearchRouter: SearchRouter,
     ClubRouter: ClubRouter,
     PersonalRouter: PersonalRouter,
 },

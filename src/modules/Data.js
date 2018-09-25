@@ -7,31 +7,31 @@ import * as firebase from "firebase"
 |-----------------------------------------------
 */
 
-//從firebase取得指定uid之nickName
+//取得user
 export const getUserData = async (uid) => {
-    const uidRef = firebase.database().ref('users/' + uid);
-    const snapshot = await uidRef.once('value');
+    const userRef = firebase.database().ref('users').child(uid)
+    const snapshot = await userRef.once('value');
     return snapshot.val();
 }
 
-//從firebase取得指定club資料
-export const getClubData = async (clubKey) => {
-    const clubRef = firebase.database().ref('clubs/' + clubKey);
+//取得club
+export const getClubData = async (cid) => {
+    const clubRef = firebase.database().ref('clubs').child(cid)
     const snapshot = await clubRef.once('value');
     return snapshot.val();
 };
 
-//從firebase取得指定club下之所有post
-export const getPostData = async (clubKey) => {
-    const postRef = firebase.database().ref('posts/' + clubKey);
+//取得所有文章資料
+export const getPostData = async (cid) => {
+    const postRef = firebase.database().ref('posts').child(cid)
     const snapShot = await postRef.once('value');
     const postData = snapShot.val();
     return postData;
 }
 
-//從firebase取得指定club下指定post
-export const getInsidePostData = async (clubKey, postKey) => {
-    const postRef = firebase.database().ref('posts/' + clubKey + '/' + postKey);
+//取得某一篇文章資料
+export const getInsidePostData = async (cid, pid) => {
+    const postRef = firebase.database().ref('posts').child(cid).child(pid)
     const snapShot = await postRef.once('value');
     const postData = snapShot.val();
     return postData;
@@ -44,28 +44,48 @@ export const getInsidePostData = async (clubKey, postKey) => {
 */
 
 //更改Post.Views
-export const updatePostViews = async (clubKey,postKey,updateViews) =>{
-    const update = {};
-    update['posts/'+clubKey+'/'+postKey+'/views'] = updateViews
-    firebase.database().ref().update(update);
+export const updatePostViews = async (cid, pid, viewsNumber) =>{
+    const viewsRef = firebase.database().ref('posts').child(cid).child(pid).child('views')
+    await viewsRef.update(viewsNumber)
 }
 
 //更改Post.Favorites
-export const updatePostFavorites = async (clubKey, postKey, updateFavorites) =>{
-    const update = {};
-    update['posts/'+clubKey+'/'+postKey+'/favorites'] = updateFavorites
-    firebase.database().ref().update(update);
+export const updatePostFavorites = async (cid, pid, favoritesNumber) =>{
+    const favoritesRef = firebase.database().ref('posts').child(cid).child(pid).child('favorites')
+    await favoritesRef.update(favoritesNumber)
 }
 
-export const updateUser = async (uid) => {
-
+//更新使用者基本資料
+export const updateUser = async (uid, userData) => {
+    const userRef = firebase.database().ref('users').child(uid)
+    await userRef.update(userData)
 }
 
-export const updateUserSetting = async (uid) => {
-
+//更新使用者設定
+export const updateUserSetting = async (uid, settingData) => {
+    const settingRef = firebase.database().ref('userSettings').child(uid)
+    await settingRef.update(settingData)
 }
 
-export const updateClub = async (cid) => {
-
+//更新社團基本資料
+export const updateClub = async (cid, clubData) => {
+    const clubRef = firebase.database().ref('clubs').child(cid)
+    await clubRef.update(clubData)
 }
+
+
+/*
+|-----------------------------------------------
+|   database刪除資料
+|-----------------------------------------------
+*/
+
+//移除一個使用者
+// export const removeUser = async (uid) => {
+//     const userRef = firebase.database().ref('users').child(uid)
+//     const settingRef = firebase.database().ref('userSettings').child(uid)
+//     await userRef.remove()
+//     await settingRef.remove()
+// }
+
 

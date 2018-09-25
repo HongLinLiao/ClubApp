@@ -132,15 +132,17 @@ class Club extends React.Component {
 							
 							<View style={{height: 500, borderWidth: 1, borderColor: 'red'}}>
 								<Text>最新文章</Text>
-								{Object.keys(this.state.posts).map(
-								(postId, index) => {
-									return (
-									<View key={postId} style={{height: 100, borderWidth: 1, borderColor: 'green'}}>
-										<PostComponent key={postId} post={this.state.posts[postId]}/>
-									</View>     
-									)
+								{
+								// Object.keys(this.state.posts).map(
+								// 	(postId, index) => {
+								// 		return (
+								// 		<View key={postId} style={{height: 100, borderWidth: 1, borderColor: 'green'}}>
+								// 			<PostComponent key={postId} post={this.state.posts[postId]}/>
+								// 		</View>     
+								// 		)
+								// 	}
+								// )
 								}
-								)}
 								<Button title='查看更多' onPress={() => {}}/>
 							</View>
 						</ScrollView>
