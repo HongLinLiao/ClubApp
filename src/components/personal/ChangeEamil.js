@@ -57,7 +57,7 @@ class ChangeEamil extends React.Component {
             <View style={styles.passwordView}>
                 <Text style={styles.passwordText}>輸入新的電子信箱</Text>
                 <TextInput 
-                placeholder='新的電子信箱' autoCapitalize='none'
+                autoCapitalize='none'
                 onChangeText={(newEmail) => {this.setState({ newEmail })}} 
                 style={styles.passwordInput}></TextInput>
             </View>
@@ -65,7 +65,6 @@ class ChangeEamil extends React.Component {
             <View style={styles.passwordView}>
                 <Text style={styles.passwordText}>輸入登入密碼</Text>
                 <TextInput 
-                placeholder='請輸入密碼'
                 onChangeText={(password) => {this.setState({ password })}} 
                 style={styles.passwordInput}
                 secureTextEntry={true}></TextInput>
