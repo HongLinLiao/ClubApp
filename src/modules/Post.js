@@ -326,19 +326,7 @@ export const deletingComment = (clubKey, postKey, commentKey) => async (dispatch
     try {
         //從firebase刪除留言
         await deleteComment(clubKey, postKey, commentKey);
-
-        const user = firebase.auth().currentUser
-        const postRef = firebase.database().ref('posts').child(cid).push()
-
-        const postDB = {
-            title: postData.title,
-            content: postData.content,
-            images: postData.images.length == 0 ? postData.images : false,
-            poster: user.uid,
-            date: new Date().toLocaleString(),
-            favorites: false,
-            views: false,
-        }
+        
         //貼文資料全部重抓更新
         const club = await getClubData(clubKey);
         let post = await getInsidePostData(clubKey, postKey);
