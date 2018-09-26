@@ -98,3 +98,6 @@ export const setHomeClubListStatus = (clubKey, clubList, numSelectingStatusTrue)
     }
 }
 
+export const goHomeActivitiesPage = (navigation) => async(dispatch) =>{
+    navigation.navigate('Stories');
+}

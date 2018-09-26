@@ -23,6 +23,8 @@ const initialState = {
     postList: {},//貼文列
     post: {},//內頁貼文
     comment: {},//內頁貼文之留言
+    activityList: {},//首頁活動動態
+    activity: {},//內頁活動 
     status: false,//執行狀態
     clubList: {},//社團列表（控制篩選bool
     numSelectingStatusTrue: null //計算clubList中有幾個是true

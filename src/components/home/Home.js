@@ -25,6 +25,7 @@ class Home extends React.Component {
 
     render() {
         const newPostList = { ...this.props.postList };
+        console.log(newPostList);
         return (
             <ScrollView>
                 <Button
@@ -48,6 +49,10 @@ class Home extends React.Component {
                         </PostListElement>
                     ))
                 }
+                <Button
+                    title='Stories'
+                    onPress={()=>{this.props.goHomeActivitiesPage(this.props.navigation)}}
+                />
             </ScrollView>
         );
     }
