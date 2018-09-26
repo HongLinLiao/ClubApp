@@ -261,7 +261,7 @@ export const userReducer = (state = initialState, action) => {
 		case REMOVE_THE_CLUB:
 			return {
 				...state,
-				joinClub: action.clubData.newJoinClub,
+				joinClub: action.userData,
 			}
 		case ADD_THE_CLUB:
 			return {

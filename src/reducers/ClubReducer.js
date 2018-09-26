@@ -41,7 +41,8 @@ export const clubReducer = (state = initialState, action) => {
     case REMOVE_THE_CLUB:
       return {
         ...state,
-        clubs: action.clubData.newClubs
+        clubs: action.clubData,
+        currentCid: action.cid,
       }
     case CREATE_POST_REQUEST:
       return {

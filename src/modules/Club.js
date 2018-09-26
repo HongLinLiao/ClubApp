@@ -132,6 +132,7 @@ export const createClub = (schoolName, clubName, open) => async (dispatch, getSt
   }
 }
 
+//退出社團
 export const quitTheClub = (cid) => async (dispatch, getState) => {
 
   try {
@@ -139,21 +140,23 @@ export const quitTheClub = (cid) => async (dispatch, getState) => {
     const joinClubRef = firebase.database().ref('users/' + user.uid + '/joinClub/' + cid)
     const clubNotificationRef = firebase.database().ref('settings/' + user.uid + '/clubNotificationList/' + cid)
 
-    let newJoinClub = {...getState().userReducer.joinClub}
-    let newClubNotificationList = {...getState().settingReducer.clubNotificationList}
-    let newClubs = {...getState().clubReducer.clubs}
+    
+    let newJoinClub = JSON.parse(JSON.stringify(getState().userReducer.joinClub)) 
+    let newClubNotificationList = JSON.parse(JSON.stringify(getState().settingReducer.clubNotificationList))
+    let newClubs = JSON.parse(JSON.stringify(getState().clubReducer.clubs))
 
     delete newJoinClub[cid]
     delete newClubNotificationList[cid]
     delete newClubs[cid]
 
-    let clubData = { newJoinClub, newClubNotificationList, newClubs }
-
     await joinClubRef.remove()
     await clubNotificationRef.remove()
 
-    dispatch(ClubAction.removeTheClub(clubData))
-    //club setCurrentCid 要設定
+    
+    const randomCid = randomClub(newClubs)
+    dispatch(ClubAction.removeTheClub(newClubs, newJoinClub, newClubNotificationList, randomCid))
+    
+    
 
   } catch (e) {
     console.log(e.toString())
@@ -298,6 +301,20 @@ export const joinTheClub = (cid) => async ( dispatch, getState ) => {
   } catch (e) {
     console.log(e)
     throw e
+  }
+}
+
+
+export const randomClub = (clubs) => {
+
+  const cids = Object.keys(clubs)
+
+  if(cids.length != 0) {
+    const number = Math.floor(Math.random() * cids.length)
+    return cids[number]
+
+  } else {
+    return null
   }
 }
 

@@ -14,6 +14,7 @@ import Expo from 'expo'
 
 import ModalDropdown from 'react-native-modal-dropdown';
 import PostComponent from '../post/PostData'
+import { randomClub } from '../../modules/Club'
 
 class Club extends React.Component {
 
@@ -31,15 +32,8 @@ class Club extends React.Component {
 	}
 
 	componentWillMount() {
-		this.randomClub()
-	}
-
-	randomClub = () => {
-		const cids = Object.keys(this.props.clubs)
-		if(cids.length != 0) {
-			const number = Math.floor(Math.random() * cids.length)
-			this.props.setCurrentClub(cids[number])
-		} 
+		const randomCid = randomClub(this.props.clubs)
+		this.props.setCurrentClub(randomCid)
 	}
 
 	generateClubsArray = () => {

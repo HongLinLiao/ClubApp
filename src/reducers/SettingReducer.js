@@ -68,7 +68,7 @@ export const settingReducer = (state = initialState, action) => {
     case REMOVE_THE_CLUB:
       return {
         ...state,
-        clubNotificationList: action.clubData.newClubNotificationList
+        clubNotificationList: action.settingData
       }
     case ADD_THE_CLUB:
       return {

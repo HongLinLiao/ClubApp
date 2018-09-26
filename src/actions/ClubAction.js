@@ -33,9 +33,12 @@ export const setAllClubData = (clubData) => ({
   clubData
 })
 
-export const removeTheClub = (clubData) => ({
+export const removeTheClub = (clubData, userData, settingData, cid) => ({
   type: REMOVE_THE_CLUB,
-  clubData
+  clubData,
+  userData,
+  settingData,
+  cid,
 })
 
 export const setClubPhoto = (clubData) => ({
