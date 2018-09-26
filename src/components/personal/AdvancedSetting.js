@@ -32,7 +32,7 @@ class AdvancedSetting extends React.Component {
             <Text style={styles.redText}>(已驗證)</Text> 
             <View style={styles.fake}></View>
             <View style={styles.fake}></View>
-            <Text style={styles.mailText}>qwertas@gmail.com</Text>
+            <Text style={styles.mailText}>{this.props.user.email}</Text>
             <View>
                 <TouchableOpacity
                 onPress={() => this.props.navigation.navigate('EmailReVerified')}>
