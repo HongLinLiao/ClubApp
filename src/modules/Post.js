@@ -46,6 +46,7 @@ export const getInsidePost = (clubKey, postKey, router) => async (dispatch) => {
                 console.log(router);
         }
         dispatch(setPostChangeToReducer(viewPost[postKey], commentPost));
+        return viewPost;
     }
     catch (error) {
         switch (router) {

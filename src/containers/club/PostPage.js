@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import Post from '../../components/post/Post'
-import { setPostFavorite, creatingComment, deletingComment, editingComment ,setCommentEditStatus } from '../../modules/Post'
+import { setPostFavorite, creatingComment, deletingComment, editingComment, setCommentEditStatus, getInsidePost } from '../../modules/Post'
 
 class PostPage extends Component {
     render() {
@@ -15,8 +15,11 @@ class PostPage extends Component {
                         editingComment={this.props.editingComment}
                         setCommentEditStatus={this.props.setCommentEditStatus}
                         router={this.props.navigation.state.params}
+                        navigation={this.props.navigation}
+                        postList={this.props.homePostList}
                         post={this.props.homePost}
                         comment={this.props.homeComment}
+                        getInsidePost={this.props.getInsidePost}
                     />
                 );
             default:
@@ -27,7 +30,7 @@ class PostPage extends Component {
 }
 
 const mapStateToProps = ({ homeReducer }) => ({
-    //這裡不用傳postList，只要傳post
+    homePostList: homeReducer.postList,
     homePost: homeReducer.post,
     homeComment: homeReducer.comment
 })
@@ -37,7 +40,8 @@ const mapDispatchToProps = {
     creatingComment,
     deletingComment,
     editingComment,
-    setCommentEditStatus
+    setCommentEditStatus,
+    getInsidePost
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(PostPage);

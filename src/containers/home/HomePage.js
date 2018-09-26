@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { getHomePostList, determinToSearch , goHomeActivitiesPage } from '../../modules/Home'
+import { getHomePostList, getHomePostReload, determinToSearch } from '../../modules/Home'
 import { setPostFavorite, getInsidePost } from '../../modules/Post'
 import Home from '../../components/home/Home'
 
@@ -11,10 +11,10 @@ const mapStateToProps = ({ homeReducer }) => ({
 
 const mapDispatchToProps = {
     getHomePostList,
-    determinToSearch,
     setPostFavorite,
     getInsidePost,
-    goHomeActivitiesPage
+    getHomePostReload,
+    determinToSearch
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Home);

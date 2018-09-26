@@ -8,7 +8,7 @@ const PostListElement = ({ post, navigation, router, setPostFavorite, getInsideP
         const viewPost = {};
         viewPost[post.postKey] = { ...post };
         try {
-            await getInsidePost(post.clubKey, post.postKey, router);
+            const newPost = await getInsidePost(post.clubKey, post.postKey, router);
         }
         catch (error) {
             console.log(error.toString());
@@ -25,7 +25,7 @@ const PostListElement = ({ post, navigation, router, setPostFavorite, getInsideP
             <View style={styles.containView}>
                 <View style={styles.newsView}>
                     <View style={styles.shadow}>
-                        <Image source={require('../../images/dogMan.jpg')}
+                        <Image source={{uri: post.posterPhotoUrl}}
                             style={styles.managerImageView}
                             imageStyle={styles.managerImageView} />
                     </View>

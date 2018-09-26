@@ -63,6 +63,14 @@ export const getHomePostList = (clubList) => async (dispatch) => {
     }
 }
 
+//重整
+export const getHomePostReload = () => async (dispatch, getState) => {
+    const clubList = getState().homeReducer.clubList;
+    const newPostList = await dispatch(getHomePostList(clubList));
+    await dispatch(determinToSearch(clubList, newPostList));
+    return newPostList;
+}
+
 //改變HomeClubList的selectStatus，並判斷是否有關閉全部selectStatus
 export const setHomeClubListStatus = (clubKey, clubList, numSelectingStatusTrue) => async (dispatch) => {
     try {
@@ -96,8 +104,4 @@ export const setHomeClubListStatus = (clubKey, clubList, numSelectingStatusTrue)
         dispatch(HomeAction.setHomeClubListStatusFailure(error.toString()));
         console.log(error.toString());
     }
-}
-
-export const goHomeActivitiesPage = (navigation) => async(dispatch) =>{
-    navigation.navigate('Stories');
 }
