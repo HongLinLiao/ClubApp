@@ -117,14 +117,10 @@ export const deleteComment = async (clubKey, postKey, commentKey) => {
     await getNumRef.set(numComments);
 
     let commentRef;
-    if (numComments == 0) {
-        commentRef = firebase.database().ref('comments/' + clubKey + '/' + postKey)
-        await commentRef.set(false);
-    }
-    else {
-        commentRef = firebase.database().ref('comments/' + clubKey + '/' + postKey + '/' + commentKey)
-        await commentRef.set(null);
-    }
+
+    commentRef = firebase.database().ref('comments/' + clubKey + '/' + postKey + '/' + commentKey)
+    await commentRef.set(null);
+
 
 }
 

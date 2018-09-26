@@ -51,7 +51,7 @@ class Comment extends React.Component {
     render() {
         const comment = { ...this.props.comment };
         let commentData = comment[Object.keys(comment)[0]];
-        if (commentData === undefined) {
+        if (commentData === undefined ||commentData === false) {
             commentData = {};
         }
         return (

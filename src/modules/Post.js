@@ -302,6 +302,9 @@ export const getPostComment = async (clubKey, postKey) => {
         await Promise.all(promisesComment);
         commentPost[postKey] = commentData;
     }
+    if(Object.keys(commentPost).length==0){
+        commentPost[postKey] =false;
+    }
     return commentPost;
 }
 
@@ -317,9 +320,6 @@ export const creatingComment = (clubKey, postKey, content) => async (dispatch) =
         let post = await getInsidePostData(clubKey, postKey);
         post = await getPostFoundations(clubKey, postKey, post, club);
         const commentPost = await getPostComment(clubKey, postKey);
-        if (Object.values(commentPost)[0] == false) {
-            commentPost[Object.keys(commentPost)[0]] = {};
-        }
         //同步更改reducer資料
         await dispatch(setPostChangeToReducer(post, commentPost));
     }
@@ -339,9 +339,6 @@ export const deletingComment = (clubKey, postKey, commentKey) => async (dispatch
         let post = await getInsidePostData(clubKey, postKey);
         post = await getPostFoundations(clubKey, postKey, post, club);
         const commentPost = await getPostComment(clubKey, postKey);
-        if (Object.values(commentPost)[0] == false) {
-            commentPost[Object.keys(commentPost)[0]] = {};
-        }
         //同步更改reducer資料
         await dispatch(setPostChangeToReducer(post, commentPost));
     }
@@ -361,9 +358,6 @@ export const editingComment = (clubKey, postKey, commentKey, content) => async (
         let post = await getInsidePostData(clubKey, postKey);
         post = await getPostFoundations(clubKey, postKey, post, club);
         const commentPost = await getPostComment(clubKey, postKey);
-        if (Object.values(commentPost)[0] == false) {
-            commentPost[Object.keys(commentPost)[0]] = {};
-        }
         //同步更改reducer資料
         await dispatch(setPostChangeToReducer(post, commentPost));
     }
