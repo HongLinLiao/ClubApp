@@ -33,4 +33,5 @@ const mapDispatchToProps = {
     getInsidePost
 }
 
+
 export default connect(mapStateToProps, mapDispatchToProps)(HomePage);
