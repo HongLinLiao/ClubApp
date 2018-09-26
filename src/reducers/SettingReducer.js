@@ -20,6 +20,7 @@ import {
   CREATE_CLUB_SUCCESS,
   CREATE_CLUB_FAILURE,
   REMOVE_THE_CLUB,
+  ADD_THE_CLUB,
 } from '../actions/ClubAction'
 
 
@@ -68,6 +69,11 @@ export const settingReducer = (state = initialState, action) => {
       return {
         ...state,
         clubNotificationList: action.clubData.newClubNotificationList
+      }
+    case ADD_THE_CLUB:
+      return {
+        ...state,
+        clubNotificationList: action.settingData
       }
     default:
       return state

@@ -2,6 +2,7 @@ import React from 'react'
 import {
     View,
     Button,
+    Alert,
 } from 'react-native'
 
 import { ListItem } from 'react-native-elements'
@@ -27,6 +28,20 @@ class Search extends React.Component {
 
     }
 
+    handleJoinClub = async (cid) => {
+        try {
+            this.setState({ loading: true })
+
+            await this.props.joinTheClub(cid)
+
+            this.setState({ loading: false })
+
+            Alert.alert('已成功加入!')
+        } catch(e) {
+            Alert.alert(e.toString())
+        }
+    }
+
     render() {
         return (
             <View style={{flex: 1}}>
@@ -43,7 +58,7 @@ class Search extends React.Component {
                                 }}
                                 title={club.schoolName + ' ' + club.clubName}
                                 subtitle={club.initDate}
-                                rightElement={<Button title='加入社團' onPress={() => {}}/>}
+                                rightElement={<Button title='加入社團' onPress={() => this.handleJoinClub(cid)} />}
                             />
                         )
                     }) : null

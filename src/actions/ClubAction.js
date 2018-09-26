@@ -11,6 +11,7 @@ export const SET_CLUB_PHOTO = 'SET_CLUB_PHOTO'
 export const SET_CLUB_OPEN = 'SET_CLUB_OPEN'
 export const SET_CURRENT_CLUB = 'SET_CURRENT_CLUB'
 export const DELETE_CLUB_MEMBER = 'DELETE_CLUB_MEMBER'
+export const ADD_THE_CLUB = 'ADD_THE_CLUB'
 
 /*
 |-----------------------------------------------
@@ -55,6 +56,13 @@ export const setCurrentClub = (currentCid) => ({
 export const deleteClubMember = (clubData) => ({
   type: DELETE_CLUB_MEMBER,
   clubData
+})
+
+export const addTheClub = (clubData, userData, settingData) => ({
+  type: ADD_THE_CLUB,
+  clubData,
+  userData,
+  settingData,
 })
 
 

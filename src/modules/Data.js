@@ -10,15 +10,22 @@ import * as firebase from "firebase"
 //取得user
 export const getUserData = async (uid) => {
     const userRef = firebase.database().ref('users').child(uid)
-    const snapshot = await userRef.once('value');
-    return snapshot.val();
+    const snapShot = await userRef.once('value');
+    return snapShot.val();
+}
+
+//取得userSetting
+export const getUserSetting = async (uid) => {
+    const settingRef = firebase.database().ref('userSettings').child(uid)
+    const snapShot = await settingRef.once('value')
+    return snapShot.val()
 }
 
 //取得club
 export const getClubData = async (cid) => {
     const clubRef = firebase.database().ref('clubs').child(cid)
-    const snapshot = await clubRef.once('value');
-    return snapshot.val();
+    const snapShot = await clubRef.once('value');
+    return snapShot.val();
 };
 
 //取得所有文章資料

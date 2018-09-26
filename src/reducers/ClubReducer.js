@@ -6,6 +6,7 @@ import {
   SET_CLUB_PHOTO,
   SET_CLUB_OPEN,
   SET_CURRENT_CLUB,
+  ADD_THE_CLUB,
 } from '../actions/ClubAction'
 
 import {
@@ -66,6 +67,11 @@ export const clubReducer = (state = initialState, action) => {
       return {
         ...state,
         currentCid: action.currentCid
+      }
+    case ADD_THE_CLUB:
+      return {
+        ...state,
+        clubs: action.clubData
       }
     default:
       return state

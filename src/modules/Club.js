@@ -1,6 +1,6 @@
 import * as firebase from 'firebase'
 import * as ClubAction from '../actions/ClubAction'
-import { getClubData, updateClub, updateUser } from './Data'
+import { getClubData, getUserSetting, updateClub, updateUser, updateUserSetting } from './Data'
 import { selectPhoto } from './Common'
 
 /*
@@ -153,6 +153,7 @@ export const quitTheClub = (cid) => async (dispatch, getState) => {
     await clubNotificationRef.remove()
 
     dispatch(ClubAction.removeTheClub(clubData))
+    //club setCurrentCid 要設定
 
   } catch (e) {
     console.log(e.toString())
@@ -250,6 +251,51 @@ export const searchAllClub = async () => {
     return allClubData
 
   } catch(e) {
+    console.log(e)
+    throw e
+  }
+}
+
+export const joinTheClub = (cid) => async ( dispatch, getState ) => {
+  try {
+    const { uid } = firebase.auth().currentUser
+    const { clubs } = getState().clubReducer
+    const { joinClub } = getState().userReducer
+    const { clubNotificationList } = getState().settingReducer
+    
+    //資料庫變數
+    const newClub = await getClubData(cid)
+    const DB_userSetting = await getUserSetting(uid)
+    const DB_joinClub = {}
+    const DB_clubNotificationList = DB_userSetting.clubNotificationList ? DB_userSetting.clubNotificationList : {}
+    
+    //redux變數
+    const newClubs = JSON.parse(JSON.stringify(clubs))
+    const newJoinClub = JSON.parse(JSON.stringify(joinClub))
+    const newClubNotificationList = JSON.parse(JSON.stringify(clubNotificationList))
+
+    //資料庫修改
+    newClub.member = newClub.member ? newClub.member : {}
+    newClub.member[uid] = { status: 'member' }
+    DB_joinClub[cid] = true
+    DB_clubNotificationList[cid] = { on: true }
+    
+
+    //redux修改
+    newClubs[cid] = newClub
+    newJoinClub[cid] = true
+    newClubNotificationList[cid] = { schoolName: newClub.schoolName, clubName: newClub.clubName, on: true}
+
+    //資料庫更新
+    await updateUser(uid, { joinClub: newJoinClub })
+    await updateUserSetting(uid, { clubNotificationList : DB_clubNotificationList })
+    await updateClub(cid, newClub)  
+
+    //redux更新
+    dispatch(ClubAction.addTheClub(newClubs, newJoinClub, newClubNotificationList))
+    dispatch(ClubAction.setCurrentClub(cid))
+    
+  } catch (e) {
     console.log(e)
     throw e
   }

@@ -34,7 +34,8 @@ import {
 import {
 	CREATE_CLUB_SUCCESS,
 	CREATE_CLUB_FAILURE,
-	REMOVE_THE_CLUB
+	REMOVE_THE_CLUB,
+	ADD_THE_CLUB,
 } from '../actions/ClubAction'
 
 
@@ -261,6 +262,11 @@ export const userReducer = (state = initialState, action) => {
 			return {
 				...state,
 				joinClub: action.clubData.newJoinClub,
+			}
+		case ADD_THE_CLUB:
+			return {
+				...state,
+				joinClub: action.userData
 			}
 		default:
 			return state
