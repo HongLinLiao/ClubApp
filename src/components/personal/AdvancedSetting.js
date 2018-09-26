@@ -71,11 +71,11 @@ class AdvancedSetting extends React.Component {
         <Text style={styles.boxText}>關於我們</Text>  
         </View>
 
-      </View>
+    </View>
     
     </View>  
-  );
-  }
+    );
+}
 }
 
 
