@@ -29,7 +29,7 @@ class AddPost extends React.Component {
 		texting: false,
 	}
 
-	componentDidMount() {
+	componentWillMount() {	
 		this.props.navigation.setParams({
 			askCreate: this.askCreate.bind(this)
 		})
@@ -52,8 +52,8 @@ class AddPost extends React.Component {
 
 	askCreate = () => {
 
-		const { schoolName, clubName } = this.props.navigation.state.params
-		if(this.checkAllDone()) {
+		const { clubs, currentCid } = this.props
+		const { schoolName, clubName } = clubs[currentCid]
 			Alert.alert('新增貼文', '您將新增 ' + this.state.title + ' 於 ' + schoolName + ' ' + clubName, 
 			[
 				{text: '取消', onPress: () => console.log('取消'), style: 'cancel'},
@@ -61,7 +61,6 @@ class AddPost extends React.Component {
 			],
 			{ cancelable: false }
 			)
-		}
 			
 	}
 
@@ -69,11 +68,11 @@ class AddPost extends React.Component {
 
 		try {
 			this.setState({ loading: true })
-			const { cid } = this.props.navigation.state.params
+			const { createPost, currentCid } = this.props
 			const { title, content, images} = this.state
 			const postData = {title, content, images}
 
-			await this.props.createPost(cid, postData)
+			await createPost(currentCid, postData)
 
 			Alert.alert('貼文發佈成功！')
 			this.props.navigation.popToTop()
@@ -88,14 +87,20 @@ class AddPost extends React.Component {
 
 		try {
 			const url = await takePhoto()
-			const imagesList = [...this.state.images]
-			imagesList.push(url)
-			this.setState({
-				images: imagesList
-			})
+			if(url) {
+				const imagesList = [...this.state.images]
+				imagesList.push(url)
+				this.setState({
+					images: imagesList
+				})
+			} else {
+				Alert.alert('取消')
+			}			
 
 		} catch(e) {
-		
+			
+			console.log(e)
+			Alert.alert('發生錯誤')
 		}
 
 	}
@@ -119,6 +124,7 @@ class AddPost extends React.Component {
 		} catch(e) {
 			
 			console.log(e)
+			Alert.alert('發生錯誤')
 		}
 
 	}
@@ -142,83 +148,87 @@ class AddPost extends React.Component {
 		})
 	}
 
+	
 	render() {
-		const { displayName } = this.props.user
-		const { cid, schoolName, clubName, status } = this.props.navigation.state.params
+		const { user, clubs, currentCid } = this.props
+		const { schoolName, clubName, member } = clubs[currentCid]
+		const status = member[user.uid].status
 
 		return (
-		<View style={{flex: 1}}>
-			<View style={{flex: 1, }}>
-				<View style={{flexDirection: 'row', width: 100}}>
-					<Image source={{}} style={{height: 100, width: 100}}/>
-					<View style={{height: 100}}>
-					<Text>{schoolName}</Text>
-					<Text>{clubName}</Text>
-					<Text>{displayName}</Text>
-					<Text>{status}</Text>
-					<Text>{new Date().toLocaleString()}</Text>
-					</View>
-				</View>
-				<TextInput 
-					placeholder='標題' 
-					onChangeText={(title) => this.setState({title})}
-					onFocus={ () => this.setState({ texting: true }) }
-				/>
-				
-				<View>
-					<ScrollView horizontal>
-						<View style={{flexDirection: 'row'}}>
-							{
-								this.state.images.map((uri, index) => (
-									<TouchableOpacity key={index} onPress={() => this.askDelete(index) } style={{height: 100, width: 100, marginRight: 0}}>
-										<Image source={{uri}} style={{height: 100, width: 100 }}/>
-									</TouchableOpacity>
-								))
-							}
+		<KeyboardAvoidingView style={{flex : 1}} behavior='padding' >
+			<View style={{flex: 1}}>
+				<View style={{ flex: 1 }}>
+					<View style={{flexDirection: 'row', width: 100}}>
+						<Image source={{uri: user.photoURL }} style={{height: 100, width: 100}}/>
+						<View style={{height: 100}}>
+						<Text>{schoolName}</Text>
+						<Text>{clubName}</Text>
+						<Text>{user.displayName}</Text>
+						<Text>{status}</Text>
+						<Text>{new Date().toLocaleString()}</Text>
 						</View>
-					</ScrollView>
+					</View>
+					<TextInput 
+						placeholder='標題' 
+						onChangeText={(title) => this.setState({title})}
+						onFocus={ () => this.setState({ texting: true }) }
+					/>
+					
+					<View>
+						<ScrollView horizontal>
+							<View style={{flexDirection: 'row'}}>
+								{
+									this.state.images.map((uri, index) => (
+										<TouchableOpacity key={index} onPress={() => this.askDelete(index) } style={{height: 100, width: 100, marginRight: 0}}>
+											<Image source={{uri}} style={{height: 100, width: 100 }}/>
+										</TouchableOpacity>
+									))
+								}
+							</View>
+						</ScrollView>
+					</View>
+					
+					<TextInput 
+						placeholder='內容......'
+						multiline={true}
+						style={{
+						width: '100%',
+						flex: 1,
+						backgroundColor: '#ffe6b5' 
+						}}
+						onChangeText={(content) => this.setState({content})}
+						onFocus={ () => this.setState({ texting: true }) }
+					/> 
 				</View>
 				
 
-				<TextInput 
-					placeholder='內容......'
-					multiline={true}
-					numberOfLines={30}
-					style={{
+				<View style={{
+					flexDirection: 'row',
+					backgroundColor: 'white',
+					height: 50,
 					width: '100%',
-					flex: 1,
-					backgroundColor: '#ffe6b5' 
-					}}
-					onChangeText={(content) => this.setState({content})}
-					onFocus={ () => this.setState({ texting: true }) }
-				/> 
-			</View>
-
-			<View style={{
-				flexDirection: 'row',
-				backgroundColor: 'white',
-				height: 50,
-				width: '100%',
-				position: 'absolute', 
-				bottom: 0,
-				justifyContent: 'space-between'
-			}}
-			>
-				<Button title='拍攝照片' onPress={() => this.handleTakePhoto()}/>
-				<Button title='從圖庫取得照片' onPress={() => this.handleSelectPhoto()}/>
-			</View>
-
-			{ this.state.texting ? 
-				<TouchableOpacity style={[ StyleSheet.absoluteFill ]} 
-					onPress={ () => {
-						Keyboard.dismiss()
-						this.setState({ texting: false })
-					}}
+					position: 'absolute', 
+					bottom: 0,
+					justifyContent: 'space-between'
+				}}
 				>
-				</TouchableOpacity> : null }
-			<KeyboardAvoidingView behavior='padding'></KeyboardAvoidingView>
-			{ this.state.loading ? <Overlayer /> : null }
-		</View>
+					<Button title='拍攝照片' onPress={() => this.handleTakePhoto()}/>
+					<Button title='從圖庫取得照片' onPress={() => this.handleSelectPhoto()}/>
+				</View>
+
+				{ this.state.texting ? 
+					<TouchableOpacity style={[ StyleSheet.absoluteFill ]} 
+						onPress={ () => {
+							Keyboard.dismiss()
+							this.setState({ texting: false })
+						}}
+					>
+					</TouchableOpacity> : null }
+				
+				{ this.state.loading ? <Overlayer /> : null }
+			</View>
+		</KeyboardAvoidingView>
+	
 		)
 	}
 }

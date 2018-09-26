@@ -20,6 +20,7 @@ import {
   CREATE_CLUB_SUCCESS,
   CREATE_CLUB_FAILURE,
   REMOVE_THE_CLUB,
+  ADD_THE_CLUB,
 } from '../actions/ClubAction'
 
 
@@ -27,7 +28,7 @@ const initialState = {
   message: '',
   globalNotification: true, //全域通知
   nightModeNotification: false, //夜間通知模式
-  clubNotificationList: { schoolName: '', clubName: '', on: ''} //所有社團通知設定
+  clubNotificationList: {} //所有社團通知設定
 }
 
 export const settingReducer = (state = initialState, action) => {
@@ -67,7 +68,12 @@ export const settingReducer = (state = initialState, action) => {
     case REMOVE_THE_CLUB:
       return {
         ...state,
-        clubNotificationList: action.clubData.newClubNotificationList
+        clubNotificationList: action.settingData
+      }
+    case ADD_THE_CLUB:
+      return {
+        ...state,
+        clubNotificationList: action.settingData
       }
     default:
       return state

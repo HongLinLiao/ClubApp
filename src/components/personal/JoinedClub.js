@@ -49,6 +49,7 @@ class JoinedClub extends React.Component {
           const { clubName, schoolName} = clubs[cid]
           return(
             <ListItem
+              key={cid}
               title={clubName + '  ' + schoolName}
               rightTitle={ <Button title='退出社團' onPress={() => this.quit(cid) }/> }
             />

@@ -21,9 +21,6 @@ import { takePhoto, selectPhoto } from '../../modules/Common'
 import Overlayer from '../common/Overlayer'
 
 
-
-
-
 class AddActivity extends React.Component {
 
     state = {
@@ -46,13 +43,6 @@ class AddActivity extends React.Component {
         place: '',
         photo: null,
         open: true,
-    }
-
-    componentWillMount() {
-        this.getUserLocation()
-        this.props.navigation.setParams({
-			askCreate: this.askCreate.bind(this)
-		})
     }
 
     getUserLocation = async () => {
@@ -164,7 +154,8 @@ class AddActivity extends React.Component {
 
     askCreate = async () => {
 
-        const { schoolName, clubName } = this.props.navigation.state.params
+        const { clubs, currentCid } = this.props
+		const { schoolName, clubName } = clubs[currentCid]
 
         if(this.checkFormAllDone()) {
             Alert.alert('建立活動', '您將建立 ' + this.state.title + ' 活動於 ' + schoolName + ' ' + clubName, 
@@ -180,12 +171,12 @@ class AddActivity extends React.Component {
 
     createActivity = async () => {
         try {
-			const { cid } = this.props.navigation.state.params
+            const { createActivity, currentCid } = this.props
 			const { title, content, remarks, photo, startDateTime, endDateTime, place, price, open } = this.state
 			const activityData = { title, content, remarks, photo, startDateTime, endDateTime, place, price, open }
 
             this.setState({ loading: true })
-            await this.props.createActivity(cid, activityData)
+            await createActivity(currentCid, activityData)
             
             Alert.alert('活動已新增！')
 			this.props.navigation.popToTop()
@@ -195,14 +186,20 @@ class AddActivity extends React.Component {
 		}
     }
 
+    componentWillMount() {
+        this.getUserLocation()
+        this.props.navigation.setParams({
+			askCreate: this.askCreate.bind(this)
+		})
+    }
+
     render() {
         const dateArray = this.getDateTime()
-        const { displayName } = this.props.user
+        const { user, clubs, currentCid } = this.props
         const { open } = this.state
-        const { cid, schoolName, clubName, status } = this.props.navigation.state.params
+        const { schoolName, clubName, member } = clubs[currentCid]
+        const { status }= member[user.uid]
 
-
-        
         return (
             <View style={{flex: 1}}>
                 <ScrollView>
@@ -221,7 +218,7 @@ class AddActivity extends React.Component {
                     </View>
 
                     <View style={{alignItems: 'center', justifyContent: 'center'}}>
-                        <Text>{'發布者: ' + schoolName + ' ' + clubName + ' ' + status + ' ' + displayName }</Text>
+                        <Text>{'發布者: ' + schoolName + ' ' + clubName + ' ' + status + ' ' + user.displayName }</Text>
                         <Button title={ open ? '公開狀態' : '暫不公開'} onPress={() => this.setState({ open: !open})}/> 
                         <TextInput placeholder='活動名稱' style={{width: 100}} onChangeText={title => this.setState({title}) } />
                         <TouchableOpacity onPress={() => this.setState({ showDatePicker: true, datePickerId: 0 })}>
@@ -286,6 +283,8 @@ class AddActivity extends React.Component {
             
         )
     }
+
+    
 }
 
 export default AddActivity

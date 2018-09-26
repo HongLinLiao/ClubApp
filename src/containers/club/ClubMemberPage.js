@@ -1,8 +1,8 @@
 import React from 'react'
+import { setCurrentClub } from '../../actions/ClubAction'
+import { } from '../../modules/Club'
 import { connect } from 'react-redux';
-import Search from '../../components/search/Search'
-import { joinTheClub } from '../../modules/Club'
-
+import ClubMember from '../../components/club/ClubMember'
 
 const mapStateToProps = ({ userReducer, clubReducer }) => ({
     user: userReducer.user,
@@ -11,8 +11,8 @@ const mapStateToProps = ({ userReducer, clubReducer }) => ({
 })
 
 const mapDispatchToProps = {
-    joinTheClub
+    setCurrentClub
 }
 
 
-export default connect(mapStateToProps, mapDispatchToProps)(Search);
+export default connect(mapStateToProps, mapDispatchToProps)(ClubMember);
