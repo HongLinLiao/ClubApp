@@ -14,6 +14,9 @@ const initialState = {
   message: '',
   status: null, //執行狀態
   clubs: {}, //所有使用者加入或收藏的社團資料
+  postList: {},
+  post: {},
+  comment: {}
 }
 
 export const clubReducer = (state = initialState, action) => {
