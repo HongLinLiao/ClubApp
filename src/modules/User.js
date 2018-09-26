@@ -133,24 +133,10 @@ export const getUserSettingToRedux = async () => {
     const settingShot = await settingRef.once('value')
     const { globalNotification, nightModeNotification, clubNotificationList } = settingShot.val()
 
-    clubNotificationList = clubNotificationList ? clubNotificationList : {} //如果沒有社團(false)需要給一個空物件
-
-    //抓取每個社團的資料
-    const promises = Object.keys(clubNotificationList).map(
-      async (key) => {
-        const clubShot = await firebase.database().ref('clubs/' + key).once('value')
-        const { clubName, schoolName } = clubShot.val()
-        const { on } = settingShot.val().clubNotificationList[key]
-        clubNotificationList[key] = {clubName, schoolName, on}
-      }
-    )
-    
-    await Promise.all(promises)
-
     let settingData = {
       globalNotification,
       nightModeNotification,
-      clubNotificationList: clubNotificationList || {}
+      clubNotificationList: clubNotificationList ? clubNotificationList : {},
     }
 
     return settingData
@@ -245,34 +231,19 @@ export const createUserSettingInDB = async () => {
     const joinClub = joinClubShot.val() ? joinClubShot.val() : {}
     const likeClub = likeClubShot.val() ? likeClubShot.val() : {}
 
-    let clubNotificationList = {} //settingReducer使用
-    let DB_clubNotificationList = {} //database使用
+    let clubNotificationList = {} 
     
-    //抓取每個社團的資料
-    const promises = Object.keys(joinClub).map(
-      async (key) => {
-        const clubShot = await firebase.database().ref('clubs/' + key).once('value')
-        const { clubName, schoolName } = clubShot.val()
-        clubNotificationList[key] = {clubName, schoolName, on: true}
-        DB_clubNotificationList[key] = { on: true }
-      }
-    )
-
-    await Promise.all(promises)
+    Object.keys(joinClub).map((cid) => {
+      clubNotificationList[cid] = { on: true }
+    })
 
     let settingData = {
       globalNotification: true,
       nightModeNotification: false,
-      clubNotificationList: clubNotificationList
+      clubNotificationList: clubNotificationList ? clubNotificationList : {}
     }
 
-    let DB_settingData = {
-      globalNotification: true,
-      nightModeNotification: false,
-      clubNotificationList: Object.keys(DB_clubNotificationList).length != 0 ? DB_clubNotificationList : false
-    }
-
-    await settingRef.set(DB_settingData)
+    await settingRef.set(settingData)
 
     return settingData
 

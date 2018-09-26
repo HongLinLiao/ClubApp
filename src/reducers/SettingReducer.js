@@ -28,7 +28,7 @@ const initialState = {
   message: '',
   globalNotification: true, //全域通知
   nightModeNotification: false, //夜間通知模式
-  clubNotificationList: { schoolName: '', clubName: '', on: ''} //所有社團通知設定
+  clubNotificationList: {} //所有社團通知設定
 }
 
 export const settingReducer = (state = initialState, action) => {

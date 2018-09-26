@@ -1,6 +1,6 @@
 import * as firebase from 'firebase'
 import * as ClubAction from '../actions/ClubAction'
-import { getClubData, getUserSetting, updateClub, updateUser, updateUserSetting } from './Data'
+import { getClubData, getUserSetting, updateClub, updateUser, updateUserSetting, getUserData } from './Data'
 import { selectPhoto } from './Common'
 
 /*
@@ -136,21 +136,45 @@ export const createClub = (schoolName, clubName, open) => async (dispatch, getSt
 export const quitTheClub = (cid) => async (dispatch, getState) => {
 
   try {
-    const user = firebase.auth().currentUser
-    const joinClubRef = firebase.database().ref('users/' + user.uid + '/joinClub/' + cid)
-    const clubNotificationRef = firebase.database().ref('settings/' + user.uid + '/clubNotificationList/' + cid)
+    const { uid } = firebase.auth().currentUser
+    const joinClubRef = firebase.database().ref('users').child(uid).child('joinClub')
+    const clubNotificationRef = firebase.database().ref('userSettings').child(uid).child('clubNotificationList')
+    const memberRef = firebase.database().ref('clubs').child(cid).child('member')
 
-    
+    //資料庫資料
+    const { joinClub } = await getUserData(uid)
+    const { member } = await getClubData(cid)
+    const { clubNotificationList } = await getUserSetting(uid)
+
+    //redux資料
     let newJoinClub = JSON.parse(JSON.stringify(getState().userReducer.joinClub)) 
     let newClubNotificationList = JSON.parse(JSON.stringify(getState().settingReducer.clubNotificationList))
     let newClubs = JSON.parse(JSON.stringify(getState().clubReducer.clubs))
 
+    //資料庫
+    if(Object.keys(joinClub).length > 1) { //社員大於1
+      await joinClubRef.child(cid).remove()
+    } else {
+      await joinClubRef.set(false)
+    }
+
+    if(Object.keys(clubNotificationList).length > 1) { //加入社團大於1
+      await clubNotificationRef.child(cid).remove()
+    } else {
+      await clubNotificationRef.set(false)
+    }
+
+    if(Object.keys(member).length > 1) { //加入社團於1
+      await memberRef.child(uid).remove()
+    } else {
+      await memberRef.set(false)
+    }
+    
+
+    //redux
     delete newJoinClub[cid]
     delete newClubNotificationList[cid]
     delete newClubs[cid]
-
-    await joinClubRef.remove()
-    await clubNotificationRef.remove()
 
     
     const randomCid = randomClub(newClubs)
@@ -268,10 +292,7 @@ export const joinTheClub = (cid) => async ( dispatch, getState ) => {
     
     //資料庫變數
     const newClub = await getClubData(cid)
-    const DB_userSetting = await getUserSetting(uid)
-    const DB_joinClub = {}
-    const DB_clubNotificationList = DB_userSetting.clubNotificationList ? DB_userSetting.clubNotificationList : {}
-    
+
     //redux變數
     const newClubs = JSON.parse(JSON.stringify(clubs))
     const newJoinClub = JSON.parse(JSON.stringify(joinClub))
@@ -280,18 +301,16 @@ export const joinTheClub = (cid) => async ( dispatch, getState ) => {
     //資料庫修改
     newClub.member = newClub.member ? newClub.member : {}
     newClub.member[uid] = { status: 'member' }
-    DB_joinClub[cid] = true
-    DB_clubNotificationList[cid] = { on: true }
     
 
     //redux修改
     newClubs[cid] = newClub
     newJoinClub[cid] = true
-    newClubNotificationList[cid] = { schoolName: newClub.schoolName, clubName: newClub.clubName, on: true}
+    newClubNotificationList[cid] = { on: true }
 
     //資料庫更新
     await updateUser(uid, { joinClub: newJoinClub })
-    await updateUserSetting(uid, { clubNotificationList : DB_clubNotificationList })
+    await updateUserSetting(uid, { clubNotificationList: newClubNotificationList })
     await updateClub(cid, newClub)  
 
     //redux更新
