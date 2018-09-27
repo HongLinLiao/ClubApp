@@ -59,7 +59,9 @@ class ChangeEamil extends React.Component {
                 <TextInput 
                 autoCapitalize='none'
                 onChangeText={(newEmail) => {this.setState({ newEmail })}} 
-                style={styles.passwordInput}></TextInput>
+                style={styles.passwordInput}
+                underlineColorAndroid={'transparent'}
+                ></TextInput>
             </View>
 
             <View style={styles.passwordView}>
@@ -67,7 +69,9 @@ class ChangeEamil extends React.Component {
                 <TextInput 
                 onChangeText={(password) => {this.setState({ password })}} 
                 style={styles.passwordInput}
-                secureTextEntry={true}></TextInput>
+                secureTextEntry={true}
+                underlineColorAndroid={'transparent'}
+                ></TextInput>
             </View>
             </View>
             <TouchableOpacity 
