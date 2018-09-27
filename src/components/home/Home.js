@@ -11,11 +11,10 @@ class Home extends React.Component {
         // determinToSearch(clubList, postList);
     }
 
-    getHomePost = async () => {
-        const { getHomePostList, clubList, determinToSearch } = this.props;
-        //用clubList去搜尋產生postList
-        const newPostList = await getHomePostList(clubList);
-        await determinToSearch(clubList, newPostList);
+    //頁面重整
+    reload = async () => {
+        const { getHomePostReload } = this.props;
+        const newPostList = await getHomePostReload();
     }
 
     //進入內頁onPress()事件，放入postList讓元件render
@@ -28,12 +27,16 @@ class Home extends React.Component {
         return (
             <ScrollView>
                 <Button
-                    title='reload!'
-                    onPress={async () => { await this.getHomePost(); }}
+                    title='Stories'
+                    onPress={() => { }}
                 />
                 <Button
                     title='selecting!'
                     onPress={() => { this.goSelectingPage(this.props.navigation); }}
+                />
+                <Button
+                    title='reload!'
+                    onPress={async () => { await this.reload(); }}
                 />
                 {
                     Object.values(newPostList).map((element) => (

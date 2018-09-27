@@ -5,6 +5,16 @@ import Comment from './Comment';
 
 class Post extends React.Component {
 
+    reload = async (clubKey,postKey,router) => {
+        const { getInsidePost , navigation } = this.props;
+        const newPost = await getInsidePost(clubKey,postKey,router); 
+        console.log(newPost);
+        if(newPost==undefined){
+            alert('Post is not exist!');
+            navigation.goBack();
+        }
+    }
+
     render() {
         const newPost = { ...this.props.post };
         const newComment = { ...this.props.comment };
@@ -16,6 +26,10 @@ class Post extends React.Component {
                     <KeyboardAvoidingView
                         behavior="padding"
                     >
+                        <Button
+                            title='reload'
+                            onPress={async () => { await this.reload(element.clubKey,element.postKey,this.props.router); }}
+                        />
                         <View >
                             <Text>{element.schoolName}</Text>
                             <Text>{element.clubName}</Text>

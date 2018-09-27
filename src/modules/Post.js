@@ -8,9 +8,10 @@ import {
     getPostComments,
     createComment,
     deleteComment,
-    editComment
+    editComment,
+    getUserData
 } from "./Data"
-import { changeMemberStatusToChinese, getNickName } from './Common';
+import { changeMemberStatusToChinese } from './Common';
 import * as PostAction from '../actions/PostAction'
 import * as HomeAction from '../actions/HomeAction'
 
@@ -45,6 +46,7 @@ export const getInsidePost = (clubKey, postKey, router) => async (dispatch) => {
                 console.log(router);
         }
         dispatch(setPostChangeToReducer(viewPost[postKey], commentPost));
+        return viewPost;
     }
     catch (error) {
         switch (router) {
@@ -100,8 +102,10 @@ export const getPostFoundations = async (clubKey, postKey, post, club) => {
     //將clubKey放進attribute，否則找不到該貼文社團
     post.clubKey = clubKey;
     post.postKey = postKey;
-    //處理NickName
-    post.posterNickName = await getNickName(post.poster);
+    //處理User
+    userData = await getUserData(post.poster);
+    post.posterNickName = userData.nickName;
+    post.posterPhotoUrl = userData.photoUrl;
     //處理view和favorite
     const user = firebase.auth().currentUser;
     post = getViewFavoriteData(post, user.uid);
@@ -283,7 +287,10 @@ export const getPostComment = async (clubKey, postKey) => {
             commentData[element].clubKey = clubKey;
             commentData[element].postKey = postKey;
             commentData[element].commentKey = element;
-            commentData[element].commenterNickName = await getNickName(commentData[element].commenter);
+            //處理User
+            userData = await getUserData(commentData[element].commenter);
+            commentData[element].commenterNickName = userData.nickName;
+            commentData[element].posterPhotoUrl = userData.photoUrl;
             if (commentData[element].commenter === user.uid) {
                 commentData[element].statusEnable = true;
             }
@@ -294,6 +301,9 @@ export const getPostComment = async (clubKey, postKey) => {
         })
         await Promise.all(promisesComment);
         commentPost[postKey] = commentData;
+    }
+    if(Object.keys(commentPost).length==0){
+        commentPost[postKey] =false;
     }
     return commentPost;
 }
@@ -310,9 +320,6 @@ export const creatingComment = (clubKey, postKey, content) => async (dispatch) =
         let post = await getInsidePostData(clubKey, postKey);
         post = await getPostFoundations(clubKey, postKey, post, club);
         const commentPost = await getPostComment(clubKey, postKey);
-        if (Object.values(commentPost)[0] == false) {
-            commentPost[Object.keys(commentPost)[0]] = {};
-        }
         //同步更改reducer資料
         await dispatch(setPostChangeToReducer(post, commentPost));
     }
@@ -326,15 +333,12 @@ export const deletingComment = (clubKey, postKey, commentKey) => async (dispatch
     try {
         //從firebase刪除留言
         await deleteComment(clubKey, postKey, commentKey);
-        
+
         //貼文資料全部重抓更新
         const club = await getClubData(clubKey);
         let post = await getInsidePostData(clubKey, postKey);
         post = await getPostFoundations(clubKey, postKey, post, club);
         const commentPost = await getPostComment(clubKey, postKey);
-        if (Object.values(commentPost)[0] == false) {
-            commentPost[Object.keys(commentPost)[0]] = {};
-        }
         //同步更改reducer資料
         await dispatch(setPostChangeToReducer(post, commentPost));
     }
@@ -354,9 +358,6 @@ export const editingComment = (clubKey, postKey, commentKey, content) => async (
         let post = await getInsidePostData(clubKey, postKey);
         post = await getPostFoundations(clubKey, postKey, post, club);
         const commentPost = await getPostComment(clubKey, postKey);
-        if (Object.values(commentPost)[0] == false) {
-            commentPost[Object.keys(commentPost)[0]] = {};
-        }
         //同步更改reducer資料
         await dispatch(setPostChangeToReducer(post, commentPost));
     }
