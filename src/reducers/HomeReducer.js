@@ -18,6 +18,10 @@ import {
     SET_COMMENT_TO_REDUCER_COMMENT_SUCCESS
 } from '../actions/PostAction'
 
+import {
+    CLEAR_USER_STATE
+} from '../actions/UserAction'
+
 const initialState = {
     message: null,//錯誤訊息
     postList: {},//貼文列
@@ -127,6 +131,8 @@ export const homeReducer = (state = initialState, action) => {
                 ...state,
                 comment: action.homeComment
             }
+        case CLEAR_USER_STATE:
+            return initialState
         default:
             return state
     }

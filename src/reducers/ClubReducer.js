@@ -7,12 +7,17 @@ import {
   SET_CLUB_OPEN,
   SET_CURRENT_CLUB,
   ADD_THE_CLUB,
+  DELETE_CLUB_MEMBER,
 } from '../actions/ClubAction'
 
 import {
   CREATE_POST_REQUEST,
   CREATE_POST_SUCCESS
 } from '../actions/PostAction'
+
+import {
+  CLEAR_USER_STATE
+} from '../actions/UserAction'
 
 const initialState = {
   message: '',
@@ -77,6 +82,13 @@ export const clubReducer = (state = initialState, action) => {
         ...state,
         clubs: action.clubData
       }
+    case DELETE_CLUB_MEMBER:
+      return {
+        ...state,
+        clubs: action.clubData
+      }
+    case CLEAR_USER_STATE:
+      return initialState
     default:
       return state
   }
