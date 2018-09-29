@@ -1,6 +1,6 @@
 import React from 'react'
 import { setCurrentClub } from '../../actions/ClubAction'
-import { } from '../../modules/Club'
+import { kickClubMember } from '../../modules/Club'
 import { connect } from 'react-redux';
 import ClubMember from '../../components/club/ClubMember'
 
@@ -11,7 +11,8 @@ const mapStateToProps = ({ userReducer, clubReducer }) => ({
 })
 
 const mapDispatchToProps = {
-    setCurrentClub
+    setCurrentClub,
+    kickClubMember
 }
 
 

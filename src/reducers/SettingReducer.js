@@ -6,7 +6,8 @@ import {
 } from '../actions/AuthAction'
 
 import {
-  UPDATE_USER_STATE_SUCCESS
+  UPDATE_USER_STATE_SUCCESS,
+  CLEAR_USER_STATE,
 } from '../actions/UserAction'
 
 import {
@@ -75,6 +76,8 @@ export const settingReducer = (state = initialState, action) => {
         ...state,
         clubNotificationList: action.settingData
       }
+    case CLEAR_USER_STATE:
+      return initialState
     default:
       return state
   }

@@ -16,6 +16,10 @@ import {
     SET_POST_CHANGE_TO_REDUCER_FAILURE
 } from '../actions/PostAction'
 
+import {
+    CLEAR_USER_STATE
+} from '../actions/UserAction'
+
 const initialState = {
     message: null,//錯誤訊息
     postList: {},//貼文列
@@ -109,6 +113,8 @@ export const homeReducer = (state = initialState, action) => {
                 status: false,
                 message: action.message
             }
+        case CLEAR_USER_STATE:
+            return initialState
         default:
             return state
     }
