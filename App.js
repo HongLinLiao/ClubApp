@@ -36,7 +36,6 @@ export default class App extends React.Component {
 
         if(user) {
           store.dispatch(getAllUserData(user))
-          store.dispatch(listenToClubs())
         }
         else {
           store.dispatch(setLoadingState(false)) //停止等待畫面顯示login頁面

@@ -13,7 +13,6 @@ import {
 import Expo from 'expo'
 
 import ModalDropdown from 'react-native-modal-dropdown';
-import PostComponent from '../post/PostData'
 import { randomCid, getClubMemberData } from '../../modules/Club'
 
 class Club extends React.Component {
