@@ -1,9 +1,10 @@
 import * as firebase from 'firebase'
-import { setAllClubData, setCurrentClub, removeTheClub } from '../actions/ClubAction'
+import { setAllClubData, setCurrentClub, removeTheClub, addTheClub } from '../actions/ClubAction'
 import { updateUserState } from '../actions/UserAction'
 import { setAllSetting } from '../actions/SettingAction'
-import { getUserData } from './Data'
-import { randomCid } from './Club'
+import { getUserData, getClubData } from './Data'
+import { randomCid, getAllClubData } from './Club'
+import { getUserSettingToRedux } from './User'
 import { Alert } from 'react-native'
 
 /*
@@ -21,8 +22,9 @@ export const listenToAllClubs = () => async (dispatch, getState) => {
             Object.keys(joinClub).map((cid) => {
                 const clubRef = firebase.database().ref('clubs').child(cid)
                 const memberRef = firebase.database().ref('clubs').child(cid).child('member')
+     
                 dispatch(listenToClub(clubRef))
-                dispatch(listenToClubsMemberRemove(memberRef))
+                // dispatch(listenToClubsMemberRemove(memberRef))
             })
 
         }
@@ -44,11 +46,28 @@ export const listenToAllClubs = () => async (dispatch, getState) => {
 
 export const listenToClub = (clubRef) => async (dispatch, getState) => {
     try {
-        clubRef.on('value', (dataSnapshot) => {
-            const { clubs } = getState().clubReducer
-            const newClubs = JSON.parse(JSON.stringify(clubs))
-            newClubs[dataSnapshot.key] = dataSnapshot.val()
-            dispatch(setAllClubData(newClubs))
+        clubRef.on('child_changed', (dataSnapshot) => {
+
+            if(dataSnapshot.key != 'member') {
+                const { clubs } = getState().clubReducer
+                const newClubs = JSON.parse(JSON.stringify(clubs))
+                const cid = dataSnapshot.ref.parent.key
+                newClubs[cid][dataSnapshot.key] = dataSnapshot.val()
+                dispatch(setAllClubData(newClubs))
+            }
+
+        })
+
+    } catch(e) {
+        console.log(e)
+        throw e
+    }
+}
+
+export const listenToClubMemberAdd = (memberRef) => async (dispatch, getState) => {
+    try {
+        memberRef.on('child_added', (childSnapshot) => {
+            
         })
 
     } catch(e) {
@@ -76,42 +95,6 @@ export const listenToClubsMemberRemove = (memberRef) => async (dispatch, getStat
 |   users樹相關
 |-----------------------------------------------
 */
-export const listenToUserClubsRemove = (joinClubRef, likeClubRef) => async (dispatch, getState) => {
-    
-    try {
-
-        joinClubRef.on('child_removed', (oldChildSnapshot) => {
-
-            const clubRef = firebase.database().ref('clubs').child(oldChildSnapshot.key)
-            const { currentCid, clubs } = getState().clubReducer
-            const newClubs = JSON.parse(JSON.stringify(clubs))
-            let newJoinClub = JSON.parse(JSON.stringify(getState().userReducer.joinClub))
-            let newClubNotificationList = JSON.parse(JSON.stringify(getState().settingReducer.clubNotificationList))
-
-
-            delete newJoinClub[oldChildSnapshot.key]
-            delete newClubNotificationList[oldChildSnapshot.key]
-            delete newClubs[oldChildSnapshot.key]
-            clubRef.off('value')
-
-            const cid = randomCid(newClubs)
-            // dispatch(setCurrentClub(cid))
-            // dispatch(setAllClubData(newClubs))
-            
-            dispatch(removeTheClub(newClubs, newJoinClub, newClubNotificationList, cid))
-
-            Alert.alert('已被退出社團！')
-        })
-
-        console.log('listenToUserClubs OK!')
-
-    } catch(e) {
-        console.log(e)
-        throw e
-    }
-}
-
-
 export const listenToUser = () => async (dispatch, getState) => {
 
     try {
@@ -119,23 +102,9 @@ export const listenToUser = () => async (dispatch, getState) => {
         const userRef = firebase.database().ref('users').child(uid)
         const joinClubRef = firebase.database().ref('users').child(uid).child('joinClub')
         const likeClubRef = firebase.database().ref('users').child(uid).child('likeClub')
-
-        userRef.on('value', (dataSnapshot) => {
-            const user = firebase.auth().currentUser
-            const { password, loginType, aboutMe, joinClub, likeClub, nickName } = dataSnapshot.val()
-            let userData = {
-                user,
-                password,
-                loginType,
-                aboutMe: aboutMe ? aboutMe : '', 
-                joinClub: joinClub ? joinClub : {},
-                likeClub: likeClub ? likeClub : {},
-                firstLogin: nickName ? false : true, 
-            }
-
-            dispatch(updateUserState(userData))
-        })
-
+        
+        // dispatch(listenToUserProfile(userRef))
+        dispatch(listenToUserClubsAdd(joinClubRef, likeClubRef))
         dispatch(listenToUserClubsRemove(joinClubRef, likeClubRef))
 
         console.log('listenToUser OK!')
@@ -147,7 +116,109 @@ export const listenToUser = () => async (dispatch, getState) => {
 
 }
 
+export const listenToUserProfile = (userRef) => async (dispatch, getState) => {
 
+    try {
+        userRef.on('child_changed', (dataSnapshot) => {
+            const { key, val } = dataSnapshot
+
+            if(key != 'joinClub' || key != 'likeClub') {
+                const user = firebase.auth().currentUser
+                const { } = getState().userReducer
+                const newUserData = JSON.parse(JSON.stringify(userData)) 
+
+                if(key == 'nickName') {
+                    newUserData.firstLogin = val() ? false : true
+                    newUserData.user = user
+                } else if (key == 'eamil' || key == 'photoUrl') {
+                    newUserData.user = user
+                } else {
+                    newUserData[key] = val()
+                }
+
+                dispatch(updateUserState(newUserData))
+            }
+
+        })
+
+    } catch(e) {
+        console.log(e)
+        throw e 
+    }
+}
+
+export const listenToUserClubsAdd = (joinClubRef, likeClubRef) => async (dispatch, getState) => {
+
+    try {
+        joinClubRef.on('child_added', async (childSnapshot) => {
+
+            const cid = childSnapshot.key
+            const { uid } = firebase.auth().currentUser
+            const clubs = await getAllClubData()
+            const newClub = await getClubData(cid)
+            const { joinClub } = await getUserData(uid)
+            const { clubNotificationList } = await getUserSettingToRedux()
+
+            //資料庫修改
+            newClub.member = newClub.member ? newClub.member : {}
+            newClub.member[uid] = { status: 'member' }
+            
+
+            //redux修改
+            clubs[cid] = newClub
+            joinClub[cid] = true
+            clubNotificationList[cid] = { on: true }
+
+            console.log(clubs)
+            //redux更新
+            dispatch(addTheClub(clubs, joinClub, clubNotificationList))
+            // // dispatch(ClubAction.setCurrentClub(cid))
+        })
+
+    } catch(e) {
+        console.log(e)
+        throw e
+    }
+}
+
+export const listenToUserClubsRemove = (joinClubRef, likeClubRef) => async (dispatch, getState) => {
+    
+    try {
+
+        joinClubRef.on('child_removed', (oldChildSnapshot) => {
+
+            const { key } = oldChildSnapshot
+            const clubRef = firebase.database().ref('clubs').child(key)
+            const memberRef = firebase.database().ref('clubs').child(key).child('member')
+            const { currentCid, clubs } = getState().clubReducer
+            const { joinClub } = getState().userReducer
+            const { clubNotificationList } = getState().settingReducer
+
+            let newClubs = JSON.parse(JSON.stringify(clubs))
+            let newJoinClub = JSON.parse(JSON.stringify(joinClub))
+            let newClubNotificationList = JSON.parse(JSON.stringify(clubNotificationList))
+
+
+            delete newJoinClub[key]
+            delete newClubNotificationList[key]
+            delete newClubs[key]
+            
+            clubRef.off('child_changed')
+
+            const cid = randomCid(newClubs)
+            
+            dispatch(removeTheClub(newClubs, newJoinClub, newClubNotificationList, cid))
+
+            Alert.alert('已退出 ' + clubs[key].schoolName + ' ' + clubs[key].clubName)
+        })
+
+        console.log('listenToUserClubs OK!')
+
+    } catch(e) {
+        console.log(e)
+        throw e
+    }
+}
 
 /*
 |-----------------------------------------------

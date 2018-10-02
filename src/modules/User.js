@@ -51,7 +51,8 @@ export const getAllUserData = (user) => async (dispatch) => {
       
       // dispatch(SettingAction.setAllSetting(settingData)) 
       // dispatch(ClubAction.setAllClubData(allClubData))
-      // dispatch(UserAction.updateUserState(userData)) //最後更新user才觸發authFlow
+      dispatch(UserAction.updateUserState(userData)) //最後更新user才觸發authFlow
+
       dispatch(listenToUser())
       dispatch(listenToUserSetting())
       dispatch(listenToAllClubs())

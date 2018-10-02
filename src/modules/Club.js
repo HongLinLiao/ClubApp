@@ -174,7 +174,7 @@ export const quitTheClub = (cid) => async (dispatch, getState) => {
     // //redux
     // delete newJoinClub[cid]
     // delete newClubNotificationList[cid]
-    delete newClubs[cid]
+    // delete newClubs[cid]
 
     
     // const rCid = randomCid(newClubs)
@@ -331,7 +331,7 @@ export const joinTheClub = (cid) => async ( dispatch, getState ) => {
     await updateClub(cid, newClub)  
 
     //redux更新
-    dispatch(listenToClub(clubRef))
+    // dispatch(listenToClub(clubRef))
     // dispatch(ClubAction.addTheClub(newClubs, newJoinClub, newClubNotificationList))
     // dispatch(ClubAction.setCurrentClub(cid))
 

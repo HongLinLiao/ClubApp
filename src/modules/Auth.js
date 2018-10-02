@@ -57,12 +57,13 @@ const signInSuccess = (action, user, password, loginType) => async (dispatch) =>
     }
     
     //使用者相關社團資料
-    // allClubData = await getAllClubData()
+    allClubData = await getAllClubData()
 
     //更新reducer
     // dispatch(SettingAction.setAllSetting(settingData))
-    // dispatch(ClubAction.setAllClubData(allClubData))
-    // dispatch(action(userData)) //最後更新user才出發authFlow
+    dispatch(ClubAction.setAllClubData(allClubData))
+    dispatch(action(userData)) //最後更新user才出發authFlow
+    
     dispatch(listenToUser())
     dispatch(listenToUserSetting())
     dispatch(listenToAllClubs())
