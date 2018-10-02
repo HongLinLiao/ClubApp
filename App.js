@@ -11,6 +11,7 @@ import { getAllUserData } from './src/modules/User'
 import createRootRouter from './src/routers/Router'
 import { Spinner } from './src/components/common/Spinner'
 import { setLoadingState } from './src/actions/CommonAction'
+import { listenToClubs } from './src/modules/Listener'
 
 
 
@@ -35,6 +36,7 @@ export default class App extends React.Component {
 
         if(user) {
           store.dispatch(getAllUserData(user))
+          store.dispatch(listenToClubs())
         }
         else {
           store.dispatch(setLoadingState(false)) //停止等待畫面顯示login頁面
@@ -42,6 +44,8 @@ export default class App extends React.Component {
         this.setState({ loading: false })
 
       }
+
+      
       
     })
 

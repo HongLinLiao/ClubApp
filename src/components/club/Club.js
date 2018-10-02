@@ -13,7 +13,7 @@ import {
 import Expo from 'expo'
 
 import ModalDropdown from 'react-native-modal-dropdown';
-import { randomClub } from '../../modules/Club'
+import { randomCid, getClubMemberData } from '../../modules/Club'
 
 class Club extends React.Component {
 
@@ -31,8 +31,8 @@ class Club extends React.Component {
 	}
 
 	componentWillMount() {
-		const randomCid = randomClub(this.props.clubs)
-		this.props.setCurrentClub(randomCid)
+		const cid = randomCid(this.props.clubs)
+		this.props.setCurrentClub(cid)
 	}
 
 	generateClubsArray = () => {
@@ -68,6 +68,12 @@ class Club extends React.Component {
 
 	}
 
+	handleGoToMember = async () => {
+		const { navigation, clubs, currentCid } = this.props
+		const memberData = await getClubMemberData(clubs[currentCid].member)
+		navigation.push('ClubMember', { memberData })
+	}
+
 	render() {
 		if(this.props.currentCid) {
 			const { user, clubs, currentCid } = this.props
@@ -98,7 +104,7 @@ class Club extends React.Component {
 								<Button title='發布文章' onPress={() => this.props.navigation.push('AddPost', {})}/>
 								<Button title='舉辦活動' onPress={() => this.props.navigation.push('AddActivity', {})}/>
 								<Button title='管理者模式' onPress={() => this.props.navigation.push('ClubAdmin', {})}/>
-								<Button title='編輯成員' onPress={() => this.props.navigation.push('ClubMember', {})}/>
+								<Button title='編輯成員' onPress={this.handleGoToMember}/>
 							</View>
 					
 							<View style={{height: 200, borderWidth: 1, borderColor: 'red'}}>

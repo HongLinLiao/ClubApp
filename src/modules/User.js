@@ -6,6 +6,7 @@ import * as firebase from "firebase"
 import { selectPhoto } from './Common'
 import { Alert } from 'react-native'
 import { getAllClubData } from './Club'
+import { listenToClubs } from './Listener'
 
 import {
   getHomeClubList , 
@@ -46,17 +47,18 @@ export const getAllUserData = (user) => async (dispatch) => {
       }
 
       //使用者相關社團資料
-      allClubData = await getAllClubData()
+      // allClubData = await getAllClubData()
       
       dispatch(SettingAction.setAllSetting(settingData)) 
-      dispatch(ClubAction.setAllClubData(allClubData))
+      // dispatch(ClubAction.setAllClubData(allClubData))
+      dispatch(listenToClubs())
       dispatch(UserAction.updateUserState(userData)) //最後更新user才觸發authFlow
 
       //直接在登入先抓首頁資料
       const homeClubList = await dispatch(getHomeClubList(userData.joinClub, userData.likeClub));
       const homePostList = await dispatch(getHomePostList(homeClubList));
 
-    } else {
+    } else { //有使用者帳號但資料庫沒user資料
       dispatch(CommonAction.setLoadingState(false)) //沒有使用者停止等待畫面
     }
     

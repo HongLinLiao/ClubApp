@@ -62,8 +62,6 @@ export const getAllClubData = async () => {
 
     await Promise.all(promises)
 
-    console.log(allClubData)
-
     return allClubData
 
   } catch (e) {
@@ -178,7 +176,7 @@ export const quitTheClub = (cid) => async (dispatch, getState) => {
     delete newClubs[cid]
 
     
-    const randomCid = randomClub(newClubs)
+    const randomCid = randomCid(newClubs)
     dispatch(ClubAction.removeTheClub(newClubs, newJoinClub, newClubNotificationList, randomCid))
     
     
@@ -244,14 +242,34 @@ export const kickClubMember = (cid, uid) => async (dispatch, getState) => {
   try {
     const memberRef = firebase.database().ref('clubs').child(cid).child('member')
     const joinClubRef = firebase.database().ref('users').child(uid).child('joinClub')
+    const clubNotificationRef = firebase.database().ref('userSettings').child(uid).child('clubNotificationList')
     const { clubs } = getState().clubReducer
+
+    const { joinClub } = await getUserData(uid)
+    const { member } = await getClubData(cid)
+    const { clubNotificationList } = await getUserSetting(uid)
 
     let newClubs = JSON.parse(JSON.stringify(clubs))
     delete newClubs[cid].member[uid]
 
     //資料庫
-    await memberRef.remove(uid)
-    await joinClubRef.remove(cid)
+    if(Object.keys(joinClub).length > 1) { //社員大於1
+      await joinClubRef.child(cid).remove()
+    } else {
+      await joinClubRef.set(false)
+    }
+
+    if(Object.keys(clubNotificationList).length > 1) { //加入社團大於1
+      await clubNotificationRef.child(cid).remove()
+    } else {
+      await clubNotificationRef.set(false)
+    }
+
+    if(Object.keys(member).length > 1) { //加入社團於1
+      await memberRef.child(uid).remove()
+    } else {
+      await memberRef.set(false)
+    }
 
     //redux
     dispatch(ClubAction.deleteClubMember(newClubs))
@@ -261,6 +279,9 @@ export const kickClubMember = (cid, uid) => async (dispatch, getState) => {
     throw e
   }
 }
+
+
+
 
 export const searchAllClub = async () => {
   try {
@@ -317,7 +338,9 @@ export const joinTheClub = (cid) => async ( dispatch, getState ) => {
 }
 
 
-export const randomClub = (clubs) => {
+
+
+export const randomCid = (clubs) => {
 
   const cids = Object.keys(clubs)
 
@@ -329,6 +352,27 @@ export const randomClub = (clubs) => {
     return null
   }
 }
+
+export const getClubMemberData = async (member) => {
+
+  try {
+    let memberData = {}
+    let promises = Object.keys(member).map(async (uid, index) => {
+      let userData = await getUserData(uid)
+      memberData[uid] = userData
+    })
+
+    await Promise.all(promises)
+
+    return memberData
+
+  } catch(e) {
+    console.log(e)
+    throw e
+  }
+}
+
+
 
 
 
