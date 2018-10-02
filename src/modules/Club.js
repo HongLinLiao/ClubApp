@@ -2,6 +2,7 @@ import * as firebase from 'firebase'
 import * as ClubAction from '../actions/ClubAction'
 import { getClubData, getUserSetting, updateClub, updateUser, updateUserSetting, getUserData } from './Data'
 import { selectPhoto } from './Common'
+import { listenToClub } from './Listener'
 
 /*
 |-----------------------------------------------
@@ -170,14 +171,15 @@ export const quitTheClub = (cid) => async (dispatch, getState) => {
     }
     
 
-    //redux
-    delete newJoinClub[cid]
-    delete newClubNotificationList[cid]
+    // //redux
+    // delete newJoinClub[cid]
+    // delete newClubNotificationList[cid]
     delete newClubs[cid]
 
     
-    const randomCid = randomCid(newClubs)
-    dispatch(ClubAction.removeTheClub(newClubs, newJoinClub, newClubNotificationList, randomCid))
+    // const rCid = randomCid(newClubs)
+    // dispatch(ClubAction.setCurrentClub(rCid))
+    // dispatch(ClubAction.removeTheClub(newClubs, newJoinClub, newClubNotificationList, rCid))
     
     
 
@@ -272,7 +274,7 @@ export const kickClubMember = (cid, uid) => async (dispatch, getState) => {
     }
 
     //redux
-    dispatch(ClubAction.deleteClubMember(newClubs))
+    // dispatch(ClubAction.deleteClubMember(newClubs))
 
   } catch(e) {
     console.log(e)
@@ -303,6 +305,7 @@ export const joinTheClub = (cid) => async ( dispatch, getState ) => {
     const { clubs } = getState().clubReducer
     const { joinClub } = getState().userReducer
     const { clubNotificationList } = getState().settingReducer
+    const clubRef = firebase.database().ref('clubs').child(cid)
     
     //資料庫變數
     const newClub = await getClubData(cid)
@@ -328,8 +331,10 @@ export const joinTheClub = (cid) => async ( dispatch, getState ) => {
     await updateClub(cid, newClub)  
 
     //redux更新
-    dispatch(ClubAction.addTheClub(newClubs, newJoinClub, newClubNotificationList))
-    dispatch(ClubAction.setCurrentClub(cid))
+    dispatch(listenToClub(clubRef))
+    // dispatch(ClubAction.addTheClub(newClubs, newJoinClub, newClubNotificationList))
+    // dispatch(ClubAction.setCurrentClub(cid))
+
     
   } catch (e) {
     console.log(e)

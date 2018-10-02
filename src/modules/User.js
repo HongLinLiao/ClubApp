@@ -6,7 +6,7 @@ import * as firebase from "firebase"
 import { selectPhoto } from './Common'
 import { Alert } from 'react-native'
 import { getAllClubData } from './Club'
-import { listenToClubs } from './Listener'
+import { listenToAllClubs, listenToUser, listenToUserSetting } from './Listener'
 
 import {
   getHomeClubList , 
@@ -49,10 +49,13 @@ export const getAllUserData = (user) => async (dispatch) => {
       //使用者相關社團資料
       // allClubData = await getAllClubData()
       
-      dispatch(SettingAction.setAllSetting(settingData)) 
+      // dispatch(SettingAction.setAllSetting(settingData)) 
       // dispatch(ClubAction.setAllClubData(allClubData))
-      dispatch(listenToClubs())
-      dispatch(UserAction.updateUserState(userData)) //最後更新user才觸發authFlow
+      // dispatch(UserAction.updateUserState(userData)) //最後更新user才觸發authFlow
+      dispatch(listenToUser())
+      dispatch(listenToUserSetting())
+      dispatch(listenToAllClubs())
+      
 
       //直接在登入先抓首頁資料
       const homeClubList = await dispatch(getHomeClubList(userData.joinClub, userData.likeClub));
@@ -193,7 +196,7 @@ export const createUserInDatabase = async (user, userInfo) => {
       password: userInfo.password,
       nickName: user.displayName,
       loginType: userInfo.loginType,
-      photoUrl: user.photoURL,
+      photoUrl: user.photoURL ? user.photoURL : false,
       aboutMe: false,
       joinClub: false,
       likeClub: false,

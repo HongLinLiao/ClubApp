@@ -15,7 +15,7 @@ export const setGlobalNotification = (on) => async (dispatch) => {
     const settingRef = firebase.database().ref('userSettings').child(user.uid)
 
     await settingRef.update({ globalNotification: on })
-    dispatch(SettingAction.setGlobalNotification(on))
+    // dispatch(SettingAction.setGlobalNotification(on))
     
 
   } catch(e) { 
@@ -31,7 +31,7 @@ export const setNightModeNotification = (on) => async (dispatch) => {
     const settingRef = firebase.database().ref('userSettings').child(user.uid)
 
     await settingRef.update({ nightModeNotification: on })
-    dispatch(SettingAction.setNightModeNotification(on))
+    // dispatch(SettingAction.setNightModeNotification(on))
 
   } catch(e) {
     console.log(e)
@@ -49,7 +49,7 @@ export const setClubNotification = (cid, clubSetting) => async (dispatch, getSta
 
     await clubSettingRef.update({ on: clubSetting.on})
 
-    dispatch(SettingAction.setClubNotification(newClubNotificationList))
+    // dispatch(SettingAction.setClubNotification(newClubNotificationList))
 
   } catch(e) {
     console.log(e)

@@ -37,7 +37,6 @@ class Notification extends React.Component {
       let clubSetting = {...this.props.clubNotificationList[cid]}
       clubSetting.on = on
       await this.props.setClubNotification(cid, clubSetting)
-      console.log(clubSetting)
 
     } catch(e) {
       Alert.alert(e.toString())

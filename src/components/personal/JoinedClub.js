@@ -46,7 +46,7 @@ class JoinedClub extends React.Component {
     return (
       <View style={{flex: 1}}>
         {Object.keys(joinClub).map((cid, index) => {
-          const { clubName, schoolName} = clubs[cid]
+          const { clubName, schoolName } = clubs[cid]
           return(
             <ListItem
               key={cid}
