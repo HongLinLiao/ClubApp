@@ -104,14 +104,6 @@ export const updateClub = async (cid, clubData) => {
 |-----------------------------------------------
 */
 
-//移除一個使用者
-// export const removeUser = async (uid) => {
-//     const userRef = firebase.database().ref('users').child(uid)
-//     const settingRef = firebase.database().ref('userSettings').child(uid)
-//     await userRef.remove()
-//     await settingRef.remove()
-// }
-
 
 /*
 |-----------------------------------------------
