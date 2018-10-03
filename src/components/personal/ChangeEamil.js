@@ -70,6 +70,7 @@ class ChangeEamil extends React.Component {
                 onChangeText={(password) => {this.setState({ password })}} 
                 style={styles.passwordInput}
                 secureTextEntry={true}
+                secureTextEntry={true}
                 underlineColorAndroid={'transparent'}
                 ></TextInput>
             </View>
