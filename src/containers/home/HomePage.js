@@ -17,9 +17,4 @@ const mapDispatchToProps = {
     determinToSearch
 }
 
-<<<<<<< HEAD
-
-export default connect(mapStateToProps, mapDispatchToProps)(HomePage);
-=======
 export default connect(mapStateToProps, mapDispatchToProps)(Home);
->>>>>>> a9657942ef31a82efe1eb9605d69f1c24361f7ca
