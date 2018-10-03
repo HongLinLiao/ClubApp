@@ -11,10 +11,11 @@ import { getAllUserData } from './src/modules/User'
 import createRootRouter from './src/routers/Router'
 import { Spinner } from './src/components/common/Spinner'
 import { setLoadingState } from './src/actions/CommonAction'
+import { listenToClubs } from './src/modules/Listener'
 
 
 
-const store = createStore(rootReducer, {}, applyMiddleware(thunk, logger))
+export const store = createStore(rootReducer, {}, applyMiddleware(thunk, logger))
 
 
 
@@ -42,6 +43,8 @@ export default class App extends React.Component {
         this.setState({ loading: false })
 
       }
+
+      
       
     })
 
@@ -50,6 +53,7 @@ export default class App extends React.Component {
   async componentDidMount() {
     await Permissions.askAsync(Permissions.CAMERA_ROLL);
     await Permissions.askAsync(Permissions.CAMERA);
+    await Permissions.askAsync(Permissions.LOCATION);
   }
 
   render() {

@@ -12,10 +12,10 @@ export const setGlobalNotification = (on) => async (dispatch) => {
 
   try {
     const user = firebase.auth().currentUser
-    const settingRef = firebase.database().ref('settings').child(user.uid)
+    const settingRef = firebase.database().ref('userSettings').child(user.uid)
 
     await settingRef.update({ globalNotification: on })
-    dispatch(SettingAction.setGlobalNotification(on))
+    // dispatch(SettingAction.setGlobalNotification(on))
     
 
   } catch(e) { 
@@ -28,10 +28,10 @@ export const setNightModeNotification = (on) => async (dispatch) => {
 
   try {
     const user = firebase.auth().currentUser
-    const settingRef = firebase.database().ref('settings').child(user.uid)
+    const settingRef = firebase.database().ref('userSettings').child(user.uid)
 
     await settingRef.update({ nightModeNotification: on })
-    dispatch(SettingAction.setNightModeNotification(on))
+    // dispatch(SettingAction.setNightModeNotification(on))
 
   } catch(e) {
     console.log(e)
@@ -43,13 +43,13 @@ export const setClubNotification = (cid, clubSetting) => async (dispatch, getSta
 
   try {
     const user = firebase.auth().currentUser
-    const clubSettingRef = firebase.database().ref('settings/' + user.uid + '/clubNotificationList/' + cid)
+    const clubSettingRef = firebase.database().ref('userSettings/' + user.uid + '/clubNotificationList/' + cid)
     let newClubNotificationList = {...getState().settingReducer.clubNotificationList}
     newClubNotificationList[cid] = clubSetting
 
     await clubSettingRef.update({ on: clubSetting.on})
 
-    dispatch(SettingAction.setClubNotification(newClubNotificationList))
+    // dispatch(SettingAction.setClubNotification(newClubNotificationList))
 
   } catch(e) {
     console.log(e)

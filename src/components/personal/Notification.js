@@ -31,13 +31,12 @@ class Notification extends React.Component {
     }
   }
 
-  setClub = async (key, on) => {
+  setClub = async (cid, on) => {
 
     try {
-      let clubSetting = {...this.props.clubNotificationList[key]}
+      let clubSetting = {...this.props.clubNotificationList[cid]}
       clubSetting.on = on
-      await this.props.setClubNotification(key, clubSetting)
-      console.log(clubSetting)
+      await this.props.setClubNotification(cid, clubSetting)
 
     } catch(e) {
       Alert.alert(e.toString())
@@ -45,18 +44,9 @@ class Notification extends React.Component {
 
   }
 
-  objectToArray = (object) => {
-
-    let result = []
-    Object.keys(object).map((key) => {
-      result.push(object[key])
-    })
-
-    return result
-  }
-
   render() {
-    const { globalNotification, nightModeNotification, clubNotificationList } = this.props
+    const { globalNotification, nightModeNotification, clubNotificationList, clubs } = this.props
+
     return (
       <View>
         <ListItem
@@ -67,16 +57,18 @@ class Notification extends React.Component {
           title='夜間模式'
           switch={{value: nightModeNotification, onValueChange: () => this.setNight(!nightModeNotification) }}          
         />
-        {Object.keys(clubNotificationList).map((key) => {
-          const item = clubNotificationList[key]
-          return (
-            <ListItem
-              title={ item.schoolName + '  ' + item.clubName }
-              key={key}
-              switch={{value: item.on, onValueChange: () => this.setClub(key, !item.on), disabled: globalNotification}}
-            />
-          )
-        })}
+        {
+          Object.keys(clubNotificationList).map((cid) => {
+            const item = clubNotificationList[cid]
+            return (
+              <ListItem
+                title={ clubs[cid].clubName + '  ' + clubs[cid].schoolName }
+                key={cid}
+                switch={{value: item.on, onValueChange: () => this.setClub(cid, !item.on), disabled: globalNotification}}
+              />
+            )
+          })
+        }
       </View>
     )
   }

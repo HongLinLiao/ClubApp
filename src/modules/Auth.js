@@ -25,6 +25,8 @@ import {
   determinToSearch
 } from './Home'
 
+import { listenToAllClubs, listenToUser, listenToUserSetting } from './Listener'
+
 const signInSuccess = (action, user, password, loginType) => async (dispatch) => {
 
   try {
@@ -55,12 +57,16 @@ const signInSuccess = (action, user, password, loginType) => async (dispatch) =>
     }
     
     //使用者相關社團資料
-    allClubData = await getAllClubData()
+    // allClubData = await getAllClubData()
 
     //更新reducer
-    dispatch(SettingAction.setAllSetting(settingData))
-    dispatch(ClubAction.setAllClubData(allClubData))
-    dispatch(action(userData)) //最後更新user才出發authFlow
+    // dispatch(SettingAction.setAllSetting(settingData))
+    // dispatch(ClubAction.setAllClubData(allClubData))
+    // dispatch(action(userData)) //最後更新user才出發authFlow
+    dispatch(listenToUser())
+    dispatch(listenToUserSetting())
+    dispatch(listenToAllClubs())
+
 
     //直接在登入先抓首頁資料
     const homeClubList = await dispatch(getHomeClubList(userData.joinClub,userData.likeClub));
