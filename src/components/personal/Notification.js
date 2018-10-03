@@ -1,7 +1,10 @@
-import React from 'react'
-import { View, Alert } from 'react-native'
+//import React from 'react'
 import { ListItem } from 'react-native-elements'
-
+import React, { Component } from 'react';
+import {Text,View,StyleSheet,TouchableOpacity,StatusBar,ScrollView,Image,FlatList,Switch,Alert} from 'react-native';
+import { Constants } from 'expo';
+import StatusBarPaddingIOS from 'react-native-ios-status-bar-padding';
+import styles from '../../styles/personal/Notification'
 class Notification extends React.Component {
 
   state = {
@@ -48,15 +51,57 @@ class Notification extends React.Component {
     const { globalNotification, nightModeNotification, clubNotificationList, clubs } = this.props
 
     return (
-      <View>
+      <View style={styles.container}>
+      {
+        <View style={styles.headView}>
+        <View>
+          <TouchableOpacity>
+            <Image source={require('../../images/arrowLeft.png')}
+              style={styles.arrow} />
+          </TouchableOpacity>
+        </View>
+        <Text style={styles.headText}>通知設定</Text>
+        <View style={styles.fake}></View>
+        </View>
+      }
+        
+            {
+              // </View>
+              //   <StatusBar
+              //       backgroundColor='#f6b456'
+              //       barStyle="light-content"
+              //   />
+              //   <View style={styles.headView}>
+              //       <TouchableOpacity>
+              //           <Image source={require('../../images/left.png')}
+              //               style={styles.leftIcon} />
+              //       </TouchableOpacity>
+              //       <Text style={styles.headText}>通知設定</Text>
+              //       <View style={styles.empty}></View>
+              //   </View>
+            }
         <ListItem
+        
           title='提醒'
+          titleStyle={{fontSize:18,color:'#666666', }}
           switch={{value: globalNotification, onValueChange: () => this.setGlobal(!globalNotification) }}
+          subtitle={
+            <View style={styles.subtitleView}>
+              <Image source={require('../../images/alarm.png')} style={styles.alarm}/>
+            </View>}
         />
         <ListItem
           title='夜間模式'
-          switch={{value: nightModeNotification, onValueChange: () => this.setNight(!nightModeNotification) }}          
+          titleStyle={{fontSize:18,color:'#666666', }}
+          switch={{value: nightModeNotification, onValueChange: () => this.setNight(!nightModeNotification) }}    
+          subtitle={
+            <View style={styles.subtitleView}>
+              <Image source={require('../../images/moon.png')} style={styles.alarm}/>
+            </View>}      
         />
+
+
+
         {
           Object.keys(clubNotificationList).map((cid) => {
             const item = clubNotificationList[cid]

@@ -58,8 +58,6 @@ export default StyleSheet.create({
         width: 250,
         height: 40,
         borderRadius: 10,
-       
-        
 
     },
     newPasswordView: {

@@ -4,27 +4,31 @@ import { StyleSheet } from 'react-native'
 export default StyleSheet.create({
     container: {
         flex: 1,
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        flexDirection: 'column',
-        backgroundColor: 'white'
     },
-    headView: {
-        height: 45,
-        backgroundColor: '#f6b456',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        flexDirection: 'row'
-    },
+        arrow:{
+            height:30,
+            width:30,
+        },
+        headView:{
+            height:45,
+            backgroundColor:'#f6b456',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            flexDirection:'row'
+        },
+        headText:{
+            color:'#666666',
+            fontSize:20,
+        },
+        fake:{
+            width:50,
+        },
+    
+    
     leftIcon: {
         height: 30,
         width: 30,
         marginLeft: 10
-    },
-    headText: {
-        color: '#666666',
-        fontSize: 20,
-        alignSelf: 'center'
     },
     empty: {
         width: 40
