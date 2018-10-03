@@ -1,22 +1,25 @@
+import React from 'react'
 import {} from '../../modules/App'
 import {
     connect
 } from 'react-redux';
 import AddActivity from '../../components/club/AddActivity'
 import {
-    createPost
-} from '../../modules/Post'
+    createActivity
+} from '../../modules/Activity'
+
 
 const mapStateToProps = ({
     userReducer,
     clubReducer
 }) => ({
     user: userReducer.user,
-    clubs: clubReducer.clubs
+    clubs: clubReducer.clubs,
+    currentCid: clubReducer.currentCid,
 })
 
 const mapDispatchToProps = {
-    createPost
+    createActivity
 }
 
 

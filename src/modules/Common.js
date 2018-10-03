@@ -52,3 +52,13 @@ export const takePhoto = async () => {
     throw e
   }
 }
+
+//轉換職位status轉換成中文
+export const changeMemberStatusToChinese = (status) => {
+  if(status==='master'){
+    return '社長';
+  }
+  else{
+    return '社員';
+  }
+}

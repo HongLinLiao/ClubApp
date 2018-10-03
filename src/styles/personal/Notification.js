@@ -8,27 +8,6 @@ export default StyleSheet.create({
         flexDirection: 'column',
         backgroundColor: 'white'
     },
-    headView: {
-        alignSelf: 'stretch',
-        height: 45,
-        backgroundColor: '#f6b456',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        flexDirection: 'row'
-    },
-    leftIcon: {
-        height: 30,
-        width: 30,
-        marginLeft:10
-    },
-    headText: {
-        color: '#666666',
-        fontSize: 20,
-        alignSelf: 'center'
-    },
-    empty: {
-        width: 40
-    },
     listView: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -81,10 +60,5 @@ export default StyleSheet.create({
     club: {
         fontSize: 20,
         color: 'rgba(102,102,102,1)'
-    },
-    tabBar: {
-        height: 50,
-        backgroundColor: 'rgba(246,180,86,1)',
-        alignSelf: 'stretch'
     }
 })
