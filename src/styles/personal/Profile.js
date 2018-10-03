@@ -9,7 +9,6 @@ export default StyleSheet.create({
         backgroundColor: 'rgba(246,180,86,0.2)'
     },
     person: {
-        marginTop: 45,
         margin: 15,
         width: 100,
         height: 100,
@@ -35,12 +34,13 @@ export default StyleSheet.create({
         fontSize: 18
     },
     aboutMe: {
-        width: 290,
-        height: 100,
+       width: 290,
+       height: 100,
         backgroundColor: 'rgba(255,255,255,0.5)',
         borderRadius: 25,
         justifyContent: 'center',
-        marginBottom: 10
+        marginBottom: 10,
+        flex: 2.4
     },
     aboutMeText: {
         color: '#666666',
@@ -48,7 +48,7 @@ export default StyleSheet.create({
         alignSelf: 'center'
     },
     botton: {
-        margin: 10,
+        margin:10,
         width: 135,
         height: 90,
         borderRadius: 25,
@@ -91,4 +91,18 @@ export default StyleSheet.create({
         backgroundColor: '#f6b456',
         flexDirection: 'row'
     },
+    one: {
+        flex: 3.8,
+        //flexDirection:'column'
+    },
+    three: {
+        flex: 2.2
+    },
+    four: {
+        flex: 2.2
+    },
+    five: {
+        flex: 1.1,
+        marginBottom:10
+    }
 })

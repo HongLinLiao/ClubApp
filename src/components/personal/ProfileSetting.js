@@ -77,35 +77,34 @@ class ProfileSetting extends React.Component {
         const { aboutMe } = this.props
         const { displayName, photoURL } = this.props.user
         return (
-            <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-                <View style={styles.container}>
-                    <StatusBarPaddingIOS style={{ backgroundColor: '#f6b456' }} />
-                    <StatusBar hidden={false} height={50}
-                        backgroundColor={'#f6b456'} />
-                    {this.state.photoURL ?
-                        <ImageBackground
-                            style={styles.person}
-                            imageStyle={styles.personImage}
-                            source={{ uri: this.state.photoURL }}
-                            resizeMode='cover'>
-                            <TouchableOpacity onPress={() => this.handleSelectPhoto()}>
-                                <Image source={require('../../images/camera.png')}
-                                    style={styles.cameraIcon} />
-                            </TouchableOpacity>
-                        </ImageBackground> :
-                        <ImageBackground
-                            style={styles.person}
-                            imageStyle={styles.personImage}
-                            source={require('../../images/man-user.png')}
-                            resizeMode='contain'>
-                            <TouchableOpacity onPress={() => this.handleSelectPhoto()}>
-                                <Image source={require('../../images/camera.png')}
-                                    style={styles.cameraIcon} />
-                            </TouchableOpacity>
-                        </ImageBackground>
-                    }
-                    }
-                <View style={styles.nameView}>
+            <View style={{flex: 1}}>
+                <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+                    <View style={styles.container}>
+                        <StatusBarPaddingIOS style={{ backgroundColor: '#f6b456' }} />
+                        <StatusBar hidden={false} height={50} backgroundColor={'#f6b456'} />
+                        {this.state.photoURL ?
+                            <ImageBackground
+                                style={styles.person}
+                                imageStyle={styles.personImage}
+                                source={{ uri: this.state.photoURL }}
+                                resizeMode='cover'>
+                                <TouchableOpacity onPress={() => this.handleSelectPhoto()}>
+                                    <Image source={require('../../images/camera.png')}
+                                        style={styles.cameraIcon} />
+                                </TouchableOpacity>
+                            </ImageBackground> :
+                            <ImageBackground
+                                style={styles.person}
+                                imageStyle={styles.personImage}
+                                source={require('../../images/man-user.png')}
+                                resizeMode='contain'>
+                                <TouchableOpacity onPress={() => this.handleSelectPhoto()}>
+                                    <Image source={require('../../images/camera.png')}
+                                        style={styles.cameraIcon} />
+                                </TouchableOpacity>
+                            </ImageBackground>
+                        }
+                    <View style={styles.nameView}>
                         <View style={styles.empty}></View>
                         <TextInput style={[styles.nameInput, { color: this.state.nameColor }]}  //state變數代姓名顏色
                             placeholder='EJ boyfriend'
@@ -152,8 +151,12 @@ class ProfileSetting extends React.Component {
                     <KeyboardAvoidingView behavior='padding'></KeyboardAvoidingView>
                     {this.state.loading ? <Overlayer /> : null}
                 </View>
-            </TouchableWithoutFeedback>
+                </TouchableWithoutFeedback>
+            </View>
         );
     }
+
 }
+
+
 export default ProfileSetting
