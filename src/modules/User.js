@@ -49,13 +49,13 @@ export const getAllUserData = (user) => async (dispatch) => {
       //使用者相關社團資料
       // allClubData = await getAllClubData()
       
-      // dispatch(SettingAction.setAllSetting(settingData)) 
+      dispatch(SettingAction.setAllSetting(settingData)) 
       // dispatch(ClubAction.setAllClubData(allClubData))
       dispatch(UserAction.updateUserState(userData)) //最後更新user才觸發authFlow
 
       dispatch(listenToUser())
       dispatch(listenToUserSetting())
-      dispatch(listenToAllClubs())
+      // dispatch(listenToAllClubs())
       
 
       //直接在登入先抓首頁資料

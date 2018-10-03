@@ -62,7 +62,7 @@ class ClubMember extends React.Component {
                             <ListItem
                                 key={uid}
                                 leftAvatar={{
-                                    source: {uri: photoUrl},
+                                    source: photoUrl ? {uri: photoUrl } : require('../../images/man-user.png'),
                                     size: 'medium',
                                 }}
                                 title={nickName}

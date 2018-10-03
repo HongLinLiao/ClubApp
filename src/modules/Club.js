@@ -147,9 +147,9 @@ export const quitTheClub = (cid) => async (dispatch, getState) => {
     const { clubNotificationList } = await getUserSetting(uid)
 
     //redux資料
-    let newJoinClub = JSON.parse(JSON.stringify(getState().userReducer.joinClub)) 
-    let newClubNotificationList = JSON.parse(JSON.stringify(getState().settingReducer.clubNotificationList))
-    let newClubs = JSON.parse(JSON.stringify(getState().clubReducer.clubs))
+    // let newJoinClub = JSON.parse(JSON.stringify(getState().userReducer.joinClub)) 
+    // let newClubNotificationList = JSON.parse(JSON.stringify(getState().settingReducer.clubNotificationList))
+    // let newClubs = JSON.parse(JSON.stringify(getState().clubReducer.clubs))
 
     //資料庫
     if(Object.keys(joinClub).length > 1) { //社員大於1
@@ -284,7 +284,6 @@ export const kickClubMember = (cid, uid) => async (dispatch, getState) => {
 
 
 
-
 export const searchAllClub = async () => {
   try {
     const allClubRef = firebase.database().ref('clubs')
@@ -332,8 +331,8 @@ export const joinTheClub = (cid) => async ( dispatch, getState ) => {
 
     //redux更新
     // dispatch(listenToClub(clubRef))
-    dispatch(ClubAction.addTheClub(newClubs, newJoinClub, newClubNotificationList))
-    dispatch(ClubAction.setCurrentClub(cid))
+    // dispatch(ClubAction.addTheClub(newClubs, newJoinClub, newClubNotificationList))
+    // dispatch(ClubAction.setCurrentClub(cid))
 
     
   } catch (e) {

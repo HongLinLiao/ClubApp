@@ -60,13 +60,13 @@ const signInSuccess = (action, user, password, loginType) => async (dispatch) =>
     allClubData = await getAllClubData()
 
     //更新reducer
-    // dispatch(SettingAction.setAllSetting(settingData))
+    dispatch(SettingAction.setAllSetting(settingData))
     dispatch(ClubAction.setAllClubData(allClubData))
     dispatch(action(userData)) //最後更新user才出發authFlow
     
     dispatch(listenToUser())
     dispatch(listenToUserSetting())
-    dispatch(listenToAllClubs())
+    // dispatch(listenToAllClubs())
 
 
     //直接在登入先抓首頁資料
