@@ -1,9 +1,6 @@
 import React from 'react'
-import { View, Alert, Text, StyleSheet, TouchableOpacity, StatusBar, ScrollView, Image, FlatList, Switch } from 'react-native'
+import { View, Alert } from 'react-native'
 import { ListItem } from 'react-native-elements'
-import { Constants } from 'expo';
-import StatusBarPaddingIOS from 'react-native-ios-status-bar-padding';
-import styles from '../../styles/personal/Notification'
 
 class Notification extends React.Component {
 
@@ -19,7 +16,7 @@ class Notification extends React.Component {
     try {
       await this.props.setGlobalNotification(on)
 
-    } catch (e) {
+    } catch(e) {
       Alert.alert(e.toString())
     }
   }
@@ -29,7 +26,7 @@ class Notification extends React.Component {
     try {
       await this.props.setNightModeNotification(on)
 
-    } catch (e) {
+    } catch(e) {
       Alert.alert(e.toString())
     }
   }
@@ -41,7 +38,7 @@ class Notification extends React.Component {
       clubSetting.on = on
       await this.props.setClubNotification(cid, clubSetting)
 
-    } catch (e) {
+    } catch(e) {
       Alert.alert(e.toString())
     }
 
@@ -51,12 +48,10 @@ class Notification extends React.Component {
     const { globalNotification, nightModeNotification, clubNotificationList, clubs } = this.props
 
     return (
-      <View style={styles.container}>
-        
-          <StatusBar
-          backgroundColor='#f6b456'
-          barStyle="light-content"
-        
+      <View>
+        <ListItem
+          title='提醒'
+          switch={{value: globalNotification, onValueChange: () => this.setGlobal(!globalNotification) }}
         />
         <ListItem
           title='夜間模式'
@@ -80,7 +75,3 @@ class Notification extends React.Component {
 }
 
 export default Notification
-
-
-
-
