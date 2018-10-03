@@ -5,34 +5,35 @@ export default StyleSheet.create({
     container: {
         flex: 1,
     },
-        arrow:{
-            height:30,
-            width:30,
-        },
-        headView:{
-            height:45,
-            backgroundColor:'#f6b456',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            flexDirection:'row'
-        },
-        headText:{
-            color:'#666666',
-            fontSize:20,
-        },
-        fake:{
-            width:50,
-        },
-    
-    
+    arrow: {
+        height: 30,
+        width: 30,
+    },
+    headView: {
+        height: 45,
+        backgroundColor: '#f6b456',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        flexDirection: 'row'
+    },
+    headText: {
+        color: '#666666',
+        fontSize: 20,
+    },
+    fake: {
+        width: 50,
+    },
+
+
     leftIcon: {
         height: 30,
         width: 30,
-        marginLeft: 10
+
     },
     empty: {
         width: 40
     },
+
     listView: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -47,6 +48,8 @@ export default StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'flex-start',
+
+
     },
     alarm: {
         width: 22,
@@ -83,8 +86,32 @@ export default StyleSheet.create({
         color: 'rgba(102,102,102,1)'
     },
     club: {
-        fontSize: 20,
+        fontSize: 18,
         color: 'rgba(102,102,102,1)'
+    },
+    subtitleView: {
+        flexDirection: 'row',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        borderBottomWidth: 1,
+        borderBottomColor: 'rgba(102,102,102,0.15)',
+    },
+
+    boxView: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        borderBottomWidth: 1,
+        borderBottomColor: 'rgba(102,102,102,0.15)',
+    
+    },
+    boxBottomBorderView: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        borderBottomWidth: 1,
+        borderBottomColor: 'rgba(102,102,102,0.5)',
+        
+
     },
 }
 )
