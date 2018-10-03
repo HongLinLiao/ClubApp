@@ -28,7 +28,7 @@ class Profile extends React.Component {
                         <Image style={styles.person} source={require('../../images/man-user.png')} resizeMode='contain' />
                     }
                     <Text style={styles.name}>{user.displayName}</Text>
-                    <View style={styles.row}>
+                    <View style={styles.rowx}>
                         <Image style={styles.hotPoint}
                             source={require('../../images/star.png')} />
                         <Text style={styles.number}>社團數量</Text>

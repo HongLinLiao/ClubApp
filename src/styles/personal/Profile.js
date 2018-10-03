@@ -3,7 +3,6 @@ import { StyleSheet } from 'react-native'
 export default StyleSheet.create({
     container: {
         flex: 1,
-        alignItems: 'center',
         justifyContent: 'space-between',
         flexDirection: 'column',
         backgroundColor: 'rgba(246,180,86,0.2)'
@@ -21,8 +20,10 @@ export default StyleSheet.create({
     },
     row: {
         flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'center'
+        flex: 1
+    },
+    rowx:{
+        flexDirection: 'row'
     },
     hotPoint: {
         height: 22,
@@ -34,14 +35,12 @@ export default StyleSheet.create({
         fontSize: 18
     },
     aboutMe: {
-        width: 305,
-        //height: 75,
+        marginLeft:50,
+        marginRight:50,
         backgroundColor: 'rgba(255,255,255,0.3)',
         borderRadius: 25,
         justifyContent: 'center',
-        flex: 2.4,
-        borderColor:'red',
-        borderWidth:1
+        flex: 2.4
     },
     aboutMeText: {
         color: '#666666',
@@ -49,18 +48,18 @@ export default StyleSheet.create({
         alignSelf: 'center'
     },
     botton: {
-        //margin:5,
         marginRight:15,
         marginLeft:15,
-        width: 135,
-        height: 85,
+        marginBottom:5,
+        marginTop:5,
         borderRadius: 25,
         backgroundColor: 'rgba(246,180,86,0)',
         borderWidth: 1,
         borderColor: 'rgba(246,180,86,1)',
         alignItems: 'center',
         justifyContent: 'center',
-        flexDirection: 'column'
+        flexDirection: 'column',
+        flex:1,
     },
     bottonIcon: {
         height: 28,
@@ -73,14 +72,14 @@ export default StyleSheet.create({
     },
     signOut: {
         margin: 5,
-        //marginBottom:10,
-        width: 305,
-        height: 30,
+        marginBottom:10,
+        marginTop:10,
         borderRadius: 25,
         backgroundColor: 'rgba(246,180,86,0)',
         borderWidth: 1,
         borderColor: '#f6b456',
-        justifyContent: 'center'
+        justifyContent: 'center',
+        flex:1
     },
     signOutText: {
         color: '#666666',
@@ -89,27 +88,24 @@ export default StyleSheet.create({
     },
     one: {
         flex: 3.8,
-        alignItems: 'center',
-        borderColor:'red',
-        borderWidth:1
+        alignItems: 'center'
     },
     three: {
         flex: 2.2,
-        borderColor:'red',
         justifyContent:'center',
-        borderWidth:1
+        marginLeft:35,
+        marginRight:35
     },
     four: {
         flex: 2.2,
-        borderColor:'red',
         justifyContent:'center',
-        borderWidth:1
+        marginLeft:35,
+        marginRight:35,
     },
     five: {
         flex: 1.1,
-        borderColor:'red',
-        borderWidth:1,
         justifyContent:'center',
-
+        marginLeft:45,
+        marginRight:45
     }
 })
