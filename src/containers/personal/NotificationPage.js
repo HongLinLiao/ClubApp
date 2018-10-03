@@ -3,11 +3,12 @@ import { connect } from 'react-redux';
 import Notification from '../../components/personal/Notification'
 
 
-const mapStateToProps = ({ userReducer, settingReducer }) => ({
+const mapStateToProps = ({ userReducer, settingReducer, clubReducer }) => ({
   user: userReducer.user,
   globalNotification: settingReducer.globalNotification,
   nightModeNotification: settingReducer.nightModeNotification,
-  clubNotificationList: settingReducer.clubNotificationList
+  clubNotificationList: settingReducer.clubNotificationList,
+  clubs: clubReducer.clubs
 })
 
 const mapDispatchToProps = {
