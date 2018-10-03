@@ -332,8 +332,8 @@ export const joinTheClub = (cid) => async ( dispatch, getState ) => {
 
     //redux更新
     // dispatch(listenToClub(clubRef))
-    // dispatch(ClubAction.addTheClub(newClubs, newJoinClub, newClubNotificationList))
-    // dispatch(ClubAction.setCurrentClub(cid))
+    dispatch(ClubAction.addTheClub(newClubs, newJoinClub, newClubNotificationList))
+    dispatch(ClubAction.setCurrentClub(cid))
 
     
   } catch (e) {
