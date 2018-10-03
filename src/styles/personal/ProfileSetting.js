@@ -11,8 +11,8 @@ export default StyleSheet.create({
         width: 40
     },
     person: {
-        marginTop: 50,
-        marginBottom: 50,
+        marginTop: 35,
+        marginBottom: 35,
         width: 130,
         height: 130,
         justifyContent: 'flex-end',

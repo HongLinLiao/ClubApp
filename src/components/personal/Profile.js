@@ -67,8 +67,7 @@ class Profile extends React.Component {
                             onPress={() => this.props.navigation.push('AdvancedSetting')}>
                             <Image style={styles.bottonIcon}
                                 source={require('../../images/settings.png')} />
-                            <Text style={styles.bottonText}>
-                                進階管理</Text>
+                            <Text style={styles.bottonText}>進階管理</Text>
                         </TouchableOpacity>
                     </View>
                 </View>

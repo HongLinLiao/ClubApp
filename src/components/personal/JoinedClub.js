@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react'
 import {
     Text,
     View,
@@ -52,21 +52,21 @@ class JoinedClub extends React.Component {
                     {Object.keys(joinClub).map((cid, index) => {
                         const { clubName, schoolName } = clubs[cid]
                         return (
-                                <View style={styles.listView}>
-                                    <View style={styles.textArea}>
-                                        <Text style={styles.school}>{schoolName}</Text>
-                                        <Text style={styles.club}>{clubName}</Text>
-                                    </View>
-                                    <View>
-                                        <TouchableOpacity onPress={() => this.quit(cid)}>
-                                            <Image source={require('../../images/cancel.png')}
-                                                style={styles.cancelIcon} />
-                                        </TouchableOpacity>
-                                    </View>
+                            <View style={styles.listView}>
+                                <View style={styles.textArea}>
+                                    <Text style={styles.school}>{schoolName}</Text>
+                                    <Text style={styles.club}>{clubName}</Text>
                                 </View>
+                                <View>
+                                    <TouchableOpacity onPress={() => this.quit(cid)}>
+                                        <Image source={require('../../images/cancel.png')}
+                                            style={styles.cancelIcon} />
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
                         )
                     })}
-                    
+
                 </ScrollView>
             </View>
         );

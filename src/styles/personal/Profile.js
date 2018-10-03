@@ -9,14 +9,14 @@ export default StyleSheet.create({
         backgroundColor: 'rgba(246,180,86,0.2)'
     },
     person: {
-        margin: 15,
-        width: 100,
-        height: 100,
-        borderRadius: 50
+        margin: 10,
+        width: 95,
+        height: 95,
+        borderRadius: 50,
     },
     name: {
         color: '#666666',
-        fontSize: 25,
+        fontSize: 22,
         marginBottom: 10
     },
     row: {
@@ -25,35 +25,37 @@ export default StyleSheet.create({
         alignItems: 'center'
     },
     hotPoint: {
-        height: 23,
-        width: 23,
-        marginRight: 5
+        height: 22,
+        width: 22,
+        marginRight: 3
     },
     number: {
         color: '#666666',
         fontSize: 18
     },
     aboutMe: {
-       width: 290,
-       height: 100,
-        backgroundColor: 'rgba(255,255,255,0.5)',
+        width: 305,
+        //height: 75,
+        backgroundColor: 'rgba(255,255,255,0.3)',
         borderRadius: 25,
         justifyContent: 'center',
-        marginBottom: 10,
-        flex: 2.4
+        flex: 2.4,
+        borderColor:'red',
+        borderWidth:1
     },
     aboutMeText: {
         color: '#666666',
-        fontSize: 15,
+        fontSize: 13,
         alignSelf: 'center'
     },
     botton: {
-        margin:10,
+        //margin:5,
+        marginRight:15,
+        marginLeft:15,
         width: 135,
-        height: 90,
+        height: 85,
         borderRadius: 25,
         backgroundColor: 'rgba(246,180,86,0)',
-        marginBottom: 10,
         borderWidth: 1,
         borderColor: 'rgba(246,180,86,1)',
         alignItems: 'center',
@@ -61,19 +63,19 @@ export default StyleSheet.create({
         flexDirection: 'column'
     },
     bottonIcon: {
-        height: 30,
-        width: 30
+        height: 28,
+        width: 28
     },
     bottonText: {
         color: '#666666',
-        fontSize: 13,
-        marginTop: 8
+        fontSize: 12,
+        marginTop: 7
     },
     signOut: {
-        margin: 10,
-        marginBottom: 12,
-        width: 290,
-        height: 35,
+        margin: 5,
+        //marginBottom:10,
+        width: 305,
+        height: 30,
         borderRadius: 25,
         backgroundColor: 'rgba(246,180,86,0)',
         borderWidth: 1,
@@ -82,27 +84,32 @@ export default StyleSheet.create({
     },
     signOutText: {
         color: '#666666',
-        fontSize: 15,
+        fontSize: 16,
         alignSelf: 'center'
-    },
-    tabBar: {
-        height: 50,
-        alignSelf: 'stretch',
-        backgroundColor: '#f6b456',
-        flexDirection: 'row'
     },
     one: {
         flex: 3.8,
-        //flexDirection:'column'
+        alignItems: 'center',
+        borderColor:'red',
+        borderWidth:1
     },
     three: {
-        flex: 2.2
+        flex: 2.2,
+        borderColor:'red',
+        justifyContent:'center',
+        borderWidth:1
     },
     four: {
-        flex: 2.2
+        flex: 2.2,
+        borderColor:'red',
+        justifyContent:'center',
+        borderWidth:1
     },
     five: {
         flex: 1.1,
-        marginBottom:10
+        borderColor:'red',
+        borderWidth:1,
+        justifyContent:'center',
+
     }
 })
