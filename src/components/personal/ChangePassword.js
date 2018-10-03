@@ -82,21 +82,33 @@ class ChangePassword extends React.Component {
               <Text style={styles.passwordText}>輸入原密碼</Text>
               <TextInput
                 onChangeText={(oldPassword) => { this.setState({ oldPassword }) }}
-                style={styles.passwordInput}></TextInput>
+                style={styles.passwordInput}
+                
+                underlineColorAndroid={'transparent'}
+                secureTextEntry={true}
+
+                
+                ></TextInput>
             </View>
 
             <View style={styles.newPasswordView}>
               <Text style={styles.newPasswordText}>輸入新密碼</Text>
               <TextInput
                 onChangeText={(newPassword) => { this.setState({ newPassword }) }}
-                style={styles.newPasswordInput}></TextInput>
+                style={styles.newPasswordInput}
+                underlineColorAndroid={'transparent'}
+                secureTextEntry={true}
+                ></TextInput>
             </View>
 
             <View style={styles.newPasswordAgainView}>
               <Text style={styles.newPasswordAgainText}>再次輸入新密碼</Text>
               <TextInput
                 onChangeText={(newPasswordAgain) => { this.setState({ newPasswordAgain }) }}
-                style={styles.newPasswordAgainInput}></TextInput>
+                style={styles.newPasswordAgainInput}
+                underlineColorAndroid={'transparent'}
+                secureTextEntry={true}
+                ></TextInput>
             </View>
 
             <TouchableOpacity
