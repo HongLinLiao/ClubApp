@@ -17,6 +17,7 @@ export default StyleSheet.create({
     },
     fake: {
         width: 50,
+        
     },
     controlImage: {
         height: 30,
@@ -31,7 +32,7 @@ export default StyleSheet.create({
         alignItems: 'flex-start',
         borderBottomWidth: 1,
         borderBottomColor: 'rgba(102,102,102,0.25)',
-        height: 160,
+        height: 130,
         flexDirection: 'row',
         marginLeft: 5,
         marginRight: 5,
