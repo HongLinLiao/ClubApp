@@ -2,7 +2,7 @@ import { StyleSheet } from 'react-native'
 
 export default StyleSheet.create({
     container: {
-        flex: 1,
+        flex: 1, 
     },
     headView: {
         height: 45,
@@ -31,7 +31,7 @@ export default StyleSheet.create({
         alignItems: 'flex-start',
         borderBottomWidth: 1,
         borderBottomColor: 'rgba(102,102,102,0.25)',
-        height: 160,
+        height: 130,
         flexDirection: 'row',
         marginLeft: 5,
         marginRight: 5,
@@ -45,6 +45,7 @@ export default StyleSheet.create({
         height: 50,
         width: 50,
         borderRadius: 30,
+        elevation: 10,
     },
 
     managerImageView: {
@@ -59,14 +60,21 @@ export default StyleSheet.create({
         marginLeft: 8,
         marginRight:8,
         flexDirection: 'column',
-       
         flex:8,
     },
     clubAndManagerNameView: {
         flex:1,
         flexDirection: 'row',
         alignItems: 'flex-end',
-        marginBottom: 5,
+        marginBottom: 3,
+        //borderWidth:1
+    },
+    schoolNameView: {
+        flex:1,
+        flexDirection: 'row',
+        alignItems: 'flex-end',
+        marginBottom: 3,
+        //borderWidth:1
     },
     newsClubText: {
         color: '#666666',
@@ -78,12 +86,12 @@ export default StyleSheet.create({
         fontSize: 10,
     },
     actNameAndDateView: {
-        flex:1,
+        flex:1.6,
         flexDirection: 'row',
         justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 5,
-       
+        alignItems: 'flex-end',
+        marginBottom: 3,
+        //borderWidth:1
     },
     newsNameText: {
         color: '#666666',
@@ -96,7 +104,7 @@ export default StyleSheet.create({
     },
 
     newsContentView: {
-        flex:3,
+        flex:1.5,
        
     },
     newsContentText: {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity , Image } from 'react-native';
+import { View, Text, TouchableOpacity, Image } from 'react-native';
 import { Button } from 'react-native-elements';
 import styles from '../../styles/home/Home'
 
@@ -21,16 +21,17 @@ const PostListElement = ({ post, navigation, router, setPostFavorite, getInsideP
     }
 
     return (
-        <TouchableOpacity onPress={async () => await insidePage() }>
+        <TouchableOpacity onPress={async () => await insidePage()}>
             <View style={styles.containView}>
                 <View style={styles.newsView}>
                     <View style={styles.shadow}>
-                        <Image source={{uri: post.posterPhotoUrl}}
+                        <Image source={{ uri: post.posterPhotoUrl }}
                             style={styles.managerImageView}
                             imageStyle={styles.managerImageView} />
                     </View>
                     <View style={styles.newsTextView}>
                         <View style={styles.clubAndManagerNameView}>
+                            <Text style={styles.newsClubText}>{post.schoolName}</Text>
                             <Text style={styles.newsClubText}>{post.clubName}</Text>
                             <Text style={styles.newsManagerText}>{post.posterStatusChinese}</Text>
                             <Text style={styles.newsManagerText}>{post.posterNickName}</Text>
