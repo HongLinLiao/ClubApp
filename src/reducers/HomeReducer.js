@@ -113,24 +113,6 @@ export const homeReducer = (state = initialState, action) => {
                 ...state,
                 comment: action.comment
             }
-        //動態更改post進各個reducer.postList
-        case SET_POST_TO_REDUCER_POSTLIST_SUCCESS:
-            return {
-                ...state,
-                postList: action.homePostList
-            }
-        //動態更改post進各個reducer.post
-        case SET_POST_TO_REDUCER_POST_SUCCESS:
-            return {
-                ...state,
-                post: action.homePost
-            }
-        //動態更改comment進各個reducer.comment
-        case SET_COMMENT_TO_REDUCER_COMMENT_SUCCESS:
-            return {
-                ...state,
-                comment: action.homeComment
-            }
         case CLEAR_USER_STATE:
             return initialState
         default:

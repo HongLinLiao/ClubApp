@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity , Image } from 'react-native';
+import { View, Text, TouchableOpacity, Image } from 'react-native';
 import { Button } from 'react-native-elements';
 import styles from '../../styles/home/Home'
 
@@ -7,25 +7,29 @@ const PostListElement = ({ post, navigation, router, setPostFavorite, getInsideP
     async function insidePage() {
         const viewPost = {};
         viewPost[post.postKey] = { ...post };
+        let newPost;
         try {
-            const newPost = await getInsidePost(post.clubKey, post.postKey, router);
+            newPost = await getInsidePost(post.clubKey, post.postKey, router);
         }
         catch (error) {
             console.log(error.toString());
         }
-        navigation.navigate('Post', router)
+        if (newPost != null || newPost != undefined) {
+            navigation.navigate('Post', router);
+        }
     }
 
     async function pressFavorite(post) {
+        //bool參數為是否為貼文內頁按讚
         await setPostFavorite(post.clubKey, post.postKey, false);
     }
 
     return (
-        <TouchableOpacity onPress={async () => await insidePage() }>
+        <TouchableOpacity onPress={async () => await insidePage()}>
             <View style={styles.containView}>
                 <View style={styles.newsView}>
                     <View style={styles.shadow}>
-                        <Image source={{uri: post.posterPhotoUrl}}
+                        <Image source={{ uri: post.posterPhotoUrl }}
                             style={styles.managerImageView}
                             imageStyle={styles.managerImageView} />
                     </View>

@@ -25,28 +25,28 @@ export const getInsidePost = (clubKey, postKey, router) => async (dispatch) => {
         //取得貼文基本基料
         const post = await getInsidePostComplete(clubKey, postKey);
         const newPost = {};
-        newPost[post.postKey] = post;
-        //判斷是否是第一遍看文章
-        const viewPost = await setPostView(newPost);
-        //取得貼文所有留言
-        const commentPost = await getPostComment(clubKey, postKey);
+        if (post != null) {
+            newPost[post.postKey] = post;
+            //判斷是否是第一遍看文章
+            const viewPost = await setPostView(newPost);
+            //取得貼文所有留言
+            const commentPost = await getPostComment(clubKey, postKey);
 
-        switch (router) {
-            case 'Home':
-                dispatch(HomeAction.getHomeInsidePostSuccess(viewPost));
-                break;
-            default:
-                console.log(router);
+            switch (router) {
+                case 'Home':
+                    dispatch(HomeAction.getHomeInsidePostSuccess(viewPost));
+                    dispatch(HomeAction.getHomeInsidePostCommentSuccess(commentPost));
+                    break;
+                default:
+                    console.log(router);
+            }
+            return viewPost;
         }
-        switch (router) {
-            case 'Home':
-                dispatch(HomeAction.getHomeInsidePostCommentSuccess(commentPost));
-                break;
-            default:
-                console.log(router);
+        else {
+            console.log('文章不存在');
+            alert('文章不存在');
+            return null;
         }
-        dispatch(setPostChangeToReducer(viewPost[postKey], commentPost));
-        return viewPost;
     }
     catch (error) {
         switch (router) {
@@ -170,60 +170,68 @@ export const getViewFavoriteData = (post, userUid) => {
 //按讚
 export const setPostFavorite = (clubKey, postKey, dealInsidePostStatus) => async (dispatch) => {
     try {
-        const club = await getClubData(clubKey);
-        const user = firebase.auth().currentUser;
-        //更新貼文資訊
-        const post = await getInsidePostData(clubKey, postKey);
-        post = await getPostFoundations(clubKey, postKey, post, club);
+        //dealInsidePostStatus 為是否為貼文內頁按讚
 
-        let updateFavorites = {};
-        //按讚處理
-        //按讚
-        if (post.statusFavorite == false) {
-            post.statusFavorite = !post.statusFavorite;
-            //牽扯到物件形狀
-            //沒其他使用者按過讚
-            if (post.numFavorites == 0) {
-                post.numFavorites = post.numFavorites + 1;
-                post.favorites = {};
-                post.favorites[user.uid] = true;
-                updateFavorites[user.uid] = true;
+        const postRef = firebase.database().ref('posts/' + clubKey + '/' + postKey);
+        const snapshot = await postRef.once("value");
+        if (snapshot.exists()) {
+
+            const club = await getClubData(clubKey);
+            const user = firebase.auth().currentUser;
+            //更新貼文資訊
+            const post = await getInsidePostData(clubKey, postKey);
+            post = await getPostFoundations(clubKey, postKey, post, club);
+
+            let updateFavorites = {};
+            //按讚處理
+            //按讚
+            if (post.statusFavorite == false) {
+                post.statusFavorite = !post.statusFavorite;
+                //牽扯到物件形狀
+                //沒其他使用者按過讚
+                if (post.numFavorites == 0) {
+                    post.numFavorites = post.numFavorites + 1;
+                    post.favorites = {};
+                    post.favorites[user.uid] = true;
+                    updateFavorites[user.uid] = true;
+                }
+                //有其他使用者按過讚
+                else {
+                    post.numFavorites = post.numFavorites + 1;
+                    post.favorites[user.uid] = true;
+                    updateFavorites[user.uid] = true;
+                }
             }
-            //有其他使用者按過讚
+            //取消讚
             else {
-                post.numFavorites = post.numFavorites + 1;
-                post.favorites[user.uid] = true;
-                updateFavorites[user.uid] = true;
+                post.statusFavorite = !post.statusFavorite;
+                //牽扯到物件形狀
+                //沒其他使用者按過讚
+                if (post.numFavorites == 1) {
+                    post.numFavorites = post.numFavorites - 1;
+                    delete post.favorites[user.uid];
+                    updateFavorites[user.uid] = false;
+                }
+                //有其他使用者按過讚
+                //設為null寫進firebase會自動消失
+                else {
+                    post.numFavorites = post.numFavorites - 1;
+                    delete post.favorites[user.uid];
+                    updateFavorites[user.uid] = null;
+                }
+            }
+            //更改firebasePostFavorites
+            await updatePostFavorites(post.clubKey, post.postKey, updateFavorites);
+
+            const commentPost = {}
+            if (dealInsidePostStatus) {
+                commentPost = await getPostComment(clubKey, postKey);
             }
         }
-        //取消讚
         else {
-            post.statusFavorite = !post.statusFavorite;
-            //牽扯到物件形狀
-            //沒其他使用者按過讚
-            if (post.numFavorites == 1) {
-                post.numFavorites = post.numFavorites - 1;
-                delete post.favorites[user.uid];
-                updateFavorites[user.uid] = false;
-            }
-            //有其他使用者按過讚
-            //設為null寫進firebase會自動消失
-            else {
-                post.numFavorites = post.numFavorites - 1;
-                delete post.favorites[user.uid];
-                updateFavorites[user.uid] = null;
-            }
+            console.log('貼文不存在');
+            alert('貼文不存在');
         }
-
-        const commentPost = {}
-        if (dealInsidePostStatus) {
-            commentPost = await getPostComment(clubKey, postKey);
-        }
-
-        //更改firebasePostFavorites
-        await updatePostFavorites(post.clubKey, post.postKey, updateFavorites);
-        //同步更改reducer資料
-        await dispatch(setPostChangeToReducer(post, commentPost));
     }
     catch (error) {
         dispatch(PostAction.setPostFavoriteFailure(error));
@@ -302,26 +310,29 @@ export const getPostComment = async (clubKey, postKey) => {
         await Promise.all(promisesComment);
         commentPost[postKey] = commentData;
     }
-    if(Object.keys(commentPost).length==0){
-        commentPost[postKey] =false;
+    if (Object.keys(commentPost).length == 0) {
+        commentPost[postKey] = false;
     }
     return commentPost;
 }
 
 //新增留言
-export const creatingComment = (clubKey, postKey, content) => async (dispatch) => {
+export const creatingComment = (clubKey, postKey, router, content) => async (dispatch) => {
 
     try {
-        //新增貼文進firebase
-        await createComment(clubKey, postKey, content);
+        const postRef = firebase.database().ref('posts/' + clubKey + '/' + postKey);
+        const snapshot = await postRef.once("value");
+        if (snapshot.exists()) {
+            //新增留言進firebase
+            await createComment(clubKey, postKey, content);
 
-        //貼文資料全部重抓更新
-        const club = await getClubData(clubKey);
-        let post = await getInsidePostData(clubKey, postKey);
-        post = await getPostFoundations(clubKey, postKey, post, club);
-        const commentPost = await getPostComment(clubKey, postKey);
-        //同步更改reducer資料
-        await dispatch(setPostChangeToReducer(post, commentPost));
+            //貼文資料全部重抓更新
+            const reload = dispatch(getInsidePost(clubKey, postKey, router));
+        }
+        else {
+            console.log('貼文不存在');
+            alert('貼文不存在');
+        }
     }
     catch (error) {
         console.log(error);
@@ -329,18 +340,21 @@ export const creatingComment = (clubKey, postKey, content) => async (dispatch) =
 }
 
 //刪除留言
-export const deletingComment = (clubKey, postKey, commentKey) => async (dispatch) => {
+export const deletingComment = (clubKey, postKey, commentKey, router) => async (dispatch) => {
     try {
-        //從firebase刪除留言
-        await deleteComment(clubKey, postKey, commentKey);
+        const postRef = firebase.database().ref('posts/' + clubKey + '/' + postKey);
+        const snapshot = await postRef.once("value");
+        if (snapshot.exists()) {
+            //從firebase刪除留言
+            await deleteComment(clubKey, postKey, commentKey);
 
-        //貼文資料全部重抓更新
-        const club = await getClubData(clubKey);
-        let post = await getInsidePostData(clubKey, postKey);
-        post = await getPostFoundations(clubKey, postKey, post, club);
-        const commentPost = await getPostComment(clubKey, postKey);
-        //同步更改reducer資料
-        await dispatch(setPostChangeToReducer(post, commentPost));
+            //貼文資料全部重抓更新
+            const reload = dispatch(getInsidePost(clubKey, postKey, router));
+        }
+        else {
+            console.log('貼文不存在');
+            alert('貼文不存在');
+        }
     }
     catch (error) {
         console.log(error);
@@ -348,63 +362,24 @@ export const deletingComment = (clubKey, postKey, commentKey) => async (dispatch
 }
 
 //編輯留言
-export const editingComment = (clubKey, postKey, commentKey, content) => async (dispatch) => {
+export const editingComment = (clubKey, postKey, commentKey, router, content) => async (dispatch) => {
     try {
-        //從firebase編輯留言
-        await editComment(clubKey, postKey, commentKey, content);
+        const postRef = firebase.database().ref('posts/' + clubKey + '/' + postKey);
+        const snapshot = await postRef.once("value");
+        if (snapshot.exists()) {
+            //從firebase編輯留言
+            await editComment(clubKey, postKey, commentKey, content);
 
-        //貼文資料全部更新
-        const club = await getClubData(clubKey);
-        let post = await getInsidePostData(clubKey, postKey);
-        post = await getPostFoundations(clubKey, postKey, post, club);
-        const commentPost = await getPostComment(clubKey, postKey);
-        //同步更改reducer資料
-        await dispatch(setPostChangeToReducer(post, commentPost));
+            //貼文資料全部重抓更新
+            const reload = dispatch(getInsidePost(clubKey, postKey, router));
+        }
+        else {
+            console.log('貼文不存在');
+            alert('貼文不存在');
+        }
     }
     catch (error) {
         console.log(error);
-    }
-}
-
-//********************************************************************************
-//多Reducer function
-//********************************************************************************
-
-//********************************************************************************
-//同步處理
-//********************************************************************************
-
-//同步更改reducer資料
-export const setPostChangeToReducer = (post, comment) => async (dispatch, getState) => {
-    try {
-        //************************************************************************
-        //postList 與 post 同步
-        //************************************************************************
-        const homePostList = { ...getState().homeReducer.postList };
-        const homePost = { ...getState().homeReducer.post };
-        if (homePostList.hasOwnProperty(post.postKey)) {
-            homePostList[post.postKey] = post;
-        }
-        if (homePost.hasOwnProperty(post.postKey)) {
-            homePost[post.postKey] = post;
-        }
-        //dispatch進Reducer.postList
-        dispatch(PostAction.setPostToReducerPostListSuccess(homePostList));
-        //dispatch進Reducer.post
-        dispatch(PostAction.setPostToReducerPostSuccess(homePost));
-
-        //************************************************************************
-        //comment 同步
-        //************************************************************************
-        const homeComment = { ...getState().homeReducer.comment };
-        if (homeComment.hasOwnProperty(post.postKey)) {
-            homeComment = comment;
-        }
-        //dispatch進Reducer.comment
-        dispatch(PostAction.setCommentToReducerCommentSuccess(homeComment));
-    }
-    catch (error) {
-        throw error;
     }
 }
 
