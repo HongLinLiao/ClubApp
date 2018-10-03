@@ -25,8 +25,7 @@ const PostListElement = ({ post, navigation, router, setPostFavorite, getInsideP
     }
 
     return (
-        <TouchableOpacity onPress={async () => await insidePage()}>
-            <View style={styles.containView}>
+        <TouchableOpacity onPress={async () => await insidePage() }>
                 <View style={styles.newsView}>
                     <View style={styles.shadow}>
                         <Image source={{ uri: post.posterPhotoUrl }}
@@ -35,6 +34,7 @@ const PostListElement = ({ post, navigation, router, setPostFavorite, getInsideP
                     </View>
                     <View style={styles.newsTextView}>
                         <View style={styles.clubAndManagerNameView}>
+                        <Text style={styles.newsClubText}>{post.schoolName}</Text>
                             <Text style={styles.newsClubText}>{post.clubName}</Text>
                             <Text style={styles.newsManagerText}>{post.posterStatusChinese}</Text>
                             <Text style={styles.newsManagerText}>{post.posterNickName}</Text>
@@ -44,9 +44,9 @@ const PostListElement = ({ post, navigation, router, setPostFavorite, getInsideP
                             <Text style={styles.newsDateText}>{post.date}</Text>
                         </View>
                         <View style={styles.newsContentView}>
-                            <Text numberOfLines={3} ellipsizeMode='tail' style={styles.newsContentText}>{post.content}
-                                <Text style={styles.moreText}>...more</Text>
+                            <Text numberOfLines={2} ellipsizeMode='tail' style={styles.newsContentText}>{post.content}
                             </Text>
+                            <Text style={styles.moreText}>...more</Text>
 
                         </View>
                         <View style={styles.iconView}>
@@ -71,7 +71,7 @@ const PostListElement = ({ post, navigation, router, setPostFavorite, getInsideP
 
                     </View>
                 </View>
-            </View>
+            
         </TouchableOpacity >
     );
 };
