@@ -21,15 +21,15 @@ class Comment extends React.Component {
     //新增留言
     addComment = async () => {
         const content = this.state.newContent;
-        const { clubKey, postKey, creatingComment } = this.props;
-        await creatingComment(clubKey, postKey, content);
+        const { clubKey, postKey, creatingComment, router } = this.props;
+        await creatingComment(clubKey, postKey, router, content);
         this.setState({ newContent: '' });
     }
 
     //刪除留言
     deleteComment = async (commentKey) => {
-        const { deletingComment, clubKey, postKey } = this.props;
-        await deletingComment(clubKey, postKey, commentKey);
+        const { deletingComment, clubKey, postKey, router } = this.props;
+        await deletingComment(clubKey, postKey, commentKey, router);
     }
 
     //編輯狀態改變
@@ -43,15 +43,15 @@ class Comment extends React.Component {
     //編輯留言完成
     editComment = async (commentKey) => {
         const content = this.state.oldContent;
-        const { editingComment, clubKey, postKey } = this.props;
-        await editingComment(clubKey, postKey, commentKey, content);
+        const { editingComment, clubKey, postKey, router } = this.props;
+        await editingComment(clubKey, postKey, commentKey, router, content);
         this.setState({ oldContent: '' });
     }
 
     render() {
         const comment = { ...this.props.comment };
         let commentData = comment[Object.keys(comment)[0]];
-        if (commentData === undefined ||commentData === false) {
+        if (commentData === undefined || commentData === false) {
             commentData = {};
         }
         return (

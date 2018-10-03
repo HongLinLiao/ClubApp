@@ -17,6 +17,7 @@ export default StyleSheet.create({
     },
     fake: {
         width: 50,
+        
     },
     controlImage: {
         height: 30,
