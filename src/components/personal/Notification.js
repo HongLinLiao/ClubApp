@@ -107,19 +107,25 @@ class Notification extends React.Component {
           Object.keys(clubNotificationList).map((cid) => {
             const item = clubNotificationList[cid]
             return (
-              
-                <ListItem
-                  title={<View style={styles.textArea}>
+                <View>
+                  <ListItem
+                    title={
+                      <View style={styles.textArea}>
 
-                    <View style={styles.empty}></View>
-                    <Text style={styles.school}>{clubs[cid].schoolName}</Text>
-                    <Text style={styles.club}>{clubs[cid].clubName}</Text>
-                  </View>
-                  }
+                        <View style={styles.empty}></View>
+                        <Text style={styles.school}>{clubs[cid].schoolName}</Text>
+                        <Text style={styles.club}>{clubs[cid].clubName}</Text>
+                      </View>
+                    }
 
-                  key={cid}
-                  switch={{ value: item.on, onValueChange: () => this.setClub(cid, !item.on), disabled: globalNotification }}
-                />
+                    key={cid}
+                    switch={{ value: item.on, onValueChange: () => this.setClub(cid, !item.on), disabled: globalNotification }}
+                  />
+
+                  <View style={styles.boxView} />
+                </View>
+                
+
                 
             )
           })
