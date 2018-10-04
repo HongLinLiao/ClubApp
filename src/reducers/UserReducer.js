@@ -41,13 +41,13 @@ import {
 
 const initialState = {
 	user: null, //使用者(信箱+暱稱＋大頭貼＋信箱驗證＋uid)
-	password: '', //密碼
-	message: '', //錯誤訊息
+	password: null, //密碼
+	message: null, //錯誤訊息
 	askVerify: true, //提醒驗證信箱
 	success: true, //執行狀態
 	firstLogin: true, //是否第一次登入
-	loginType: '', //登入類型
-	aboutMe: '', //自介
+	loginType: null, //登入類型
+	aboutMe: null, //自介
 	joinClub: {}, //加入社團
 	likeClub: {}, //收藏社團
 }
