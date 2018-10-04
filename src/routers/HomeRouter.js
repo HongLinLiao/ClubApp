@@ -11,41 +11,61 @@ import { View } from 'native-base';
 import homeStyles from '../styles/home/Home'
 
 export default createStackNavigator({
-  //預設首頁
-  Home: {
-    screen: requireAppFlow(HomePage),
-    navigationOptions: ({ navigation }) => ({
-      title: 'iClubs',
-      headerTitleStyle: {
-        color: '#666666',
-        fontSize: 30,
-      },
-      headerStyle: {
-        backgroundColor: '#f6b456'
-      },
-      headerRight: (
-        <TouchableOpacity>
-          <Image source={require('../images/images2/control.png')}
-              style={homeStyles.controlImage} />
-        </TouchableOpacity>
-      )
-        }
-    )
-  },
-  // 貼文內頁，從Club匯入
-  Post: {
-    screen: requireAppFlow(PostPage)
-  },
-  //篩選
-  Selecting: {
-    screen: requireAppFlow(SelectingPage)
-  },
-  // 動態貼文列表
-  Stories: {
-    screen: requireAppFlow(HomeActivitiesPage)
-  },
-  // 動態貼文內頁，從Club匯入
-  // Activity:{
-  //   screen: ActivityPage
-  // },
+	//預設首頁
+	Home: {
+		screen: requireAppFlow(HomePage),
+		navigationOptions: ({ navigation }) => ({
+			title: 'iClubs',
+			headerBackTitle:'首頁',
+			headerTitleStyle: {
+				color: '#666666',
+				fontSize: 30,
+			},
+			headerStyle: {
+				backgroundColor: '#f6b456'
+			},
+			headerRight: (
+				<TouchableOpacity>
+					<Image source={require('../images/images2/control.png')}
+						style={homeStyles.controlImage} />
+				</TouchableOpacity>
+			)
+		}
+		)
+	},
+	// 貼文內頁，從Club匯入
+	Post: {
+		screen: requireAppFlow(PostPage),
+		navigationOptions: ({ navigation }) => ({
+			title: 'Posttitle',
+			headerTitleStyle: {
+				color: '#666666',
+				fontSize: 20,
+			},
+			headerStyle: {
+				backgroundColor: '#f6b456'
+			}
+		})
+	},
+	//篩選
+	Selecting: {
+		screen: requireAppFlow(SelectingPage),
+		navigationOptions: ({ navigation }) => ({
+			headerTitleStyle: {
+				color: '#666666',
+				fontSize: 20,
+			},
+			headerStyle: {
+				backgroundColor: '#f6b456'
+			}
+		})
+	},
+	// 動態貼文列表
+	Stories: {
+		screen: requireAppFlow(HomeActivitiesPage)
+	},
+	// 動態貼文內頁，從Club匯入
+	// Activity:{
+	//   screen: ActivityPage
+	// },
 })

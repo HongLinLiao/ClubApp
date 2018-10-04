@@ -40,7 +40,7 @@ export default createStackNavigator({
       // console.log(navigation.state.routes)
       return {
         headerRight: <Button title='創建社團' onPress={() => navigation.push('CreateClub')}/>
-      }    
+      }   
     }
   }
 })
