@@ -2,6 +2,8 @@ import React from 'react'
 import { ScrollView } from 'react-native'
 import { Button } from 'react-native-elements'
 import PostListElement from '../post/PostListElement'
+import   styles  from '../../styles/home/Home'
+import { View } from 'native-base';
 
 class Home extends React.Component {
 
@@ -38,6 +40,7 @@ class Home extends React.Component {
                     title='reload!'
                     onPress={async () => { await this.reload(); }}
                 />
+                <View style={styles.containView}>
                 {
                     Object.values(newPostList).map((element) => (
                         <PostListElement
@@ -51,6 +54,7 @@ class Home extends React.Component {
                         </PostListElement>
                     ))
                 }
+                </View>
             </ScrollView>
         );
     }
