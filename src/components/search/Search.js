@@ -3,11 +3,14 @@ import {
     View,
     Button,
     Alert,
+    Text,
+    TextInput,
 } from 'react-native'
 
 import { ListItem } from 'react-native-elements'
 
 import { searchAllClub } from '../../modules/Club'
+import { searchAllClubs } from '../../modules/Data'
 import Overlayer from '../common/Overlayer'
 
 
@@ -16,6 +19,14 @@ class Search extends React.Component {
     state = {
         allClubs: null,
         loading: false,
+        text: '',
+        dataArray: [],
+        tempArray: [],
+    }
+
+    async componentDidMount() {
+        const dataArray = await searchAllClubs()
+        this.setState({dataArray, tempArray: dataArray})
     }
 
     search = async () => {
@@ -42,10 +53,30 @@ class Search extends React.Component {
         }
     }
 
+    handleSearchFilter = async (text) => {
+
+        try {
+            const clearText = text.replace(' ', '')
+            if(clearText != '') {
+                const newDataArray = this.state.dataArray.filter((item) => {
+                    const combindName = item.schoolName + item.clubName
+                    const isMatch = combindName.indexOf(clearText) > -1
+                    return isMatch
+                })
+                this.setState({ text, tempArray: newDataArray })
+            }
+            
+            
+        } catch(e) {
+
+        }
+    }
+
     render() {
         return (
             <View style={{flex: 1}}>
                 <Button title='查詢' onPress={this.search} />
+                <TextInput placeholder='輸入想搜尋的學校或社團' onChangeText={(text) => this.handleSearchFilter(text)}/>
                 {this.state.allClubs ?
                     Object.keys(this.state.allClubs).map((cid, index) => {
                         let club = this.state.allClubs[cid]
@@ -63,6 +94,16 @@ class Search extends React.Component {
                         )
                     }) : null
                 }
+                <Text>{this.state.dataArray.length}</Text>
+                {
+                    this.state.tempArray.map((item, index) => (
+                        <ListItem
+                            key={item.cid}
+                            title={item.schoolName + ' ' + item.clubName}
+                        />
+                    ))
+                }
+                    
                 {this.state.loading ? <Overlayer /> : null}
             </View>
         )
