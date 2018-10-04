@@ -164,10 +164,8 @@ export const searchAllClubs = async () => {
         const allClubs = await clubsRef.orderByChild('schoolName').once('value')
         let dataArray = []
         allClubs.forEach((club) => {
-            const { schoolName, clubName } = club.val()
-            dataArray.push({cid: club.key, schoolName, clubName})
+            dataArray.push({cid: club.key, ...club.val()})
         })
-
 
         return dataArray
 

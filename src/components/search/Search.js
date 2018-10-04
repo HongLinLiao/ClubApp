@@ -17,8 +17,8 @@ import Overlayer from '../common/Overlayer'
 class Search extends React.Component {
 
     state = {
-        allClubs: null,
         loading: false,
+        searching: false,
         text: '',
         dataArray: [],
         tempArray: [],
@@ -27,15 +27,17 @@ class Search extends React.Component {
     async componentDidMount() {
         const dataArray = await searchAllClubs()
         this.setState({dataArray})
+        console.log(dataArray)
     }
 
     search = async () => {
-        this.setState({ loading: true })
-        const clubsData = await searchAllClub()
 
-        this.setState({allClubs: clubsData})
+        this.setState({loading: true})
+        const dataArray = await searchAllClubs()
+        this.setState({dataArray})
+        console.log(dataArray)
 
-        this.setState({ loading: false })
+        this.setState({loading: false})
 
     }
 
@@ -56,50 +58,59 @@ class Search extends React.Component {
     handleSearchFilter = async (text) => {
 
         try {
-            const newDataArray = this.state.dataArray.filter((item) => {
-                const combindName = item.schoolName + item.clubName
-                const isMatch = combindName.indexOf(text) > -1
-                return isMatch
-            })
-            this.setState({ text, tempArray: newDataArray })
+            this.setState({searching: true})
+
+            const newText = text.replace(/\s+/g,"").split('') //去除空白並把每個字分割
+            console.log(newText)
+
+            if(newText.length != 0) {
+                const newDataArray = this.state.dataArray.filter((item) => {
+                    const combindName = item.schoolName + item.clubName
+                    let isMatch = true
+                    newText.filter((char) => {
+                        let charMatch = combindName.indexOf(char) > -1
+                        if(!charMatch) isMatch = false //只要有一個字不對就不列入
+                    })
+                    return isMatch
+                })
+                setTimeout(() => {
+                    this.setState({searching: false, text, tempArray: newDataArray})
+                }, 500)
+            } else {
+                this.setState({searching: false, text, tempArray: []})
+            }
             
             
         } catch(e) {
-
+            this.setState({searching: false})
         }
     }
 
     render() {
         return (
             <View style={{flex: 1}}>
-                <Button title='查詢' onPress={this.search} />
-                <TextInput placeholder='輸入想搜尋的學校或社團' onChangeText={(text) => this.handleSearchFilter(text)}/>
-                {this.state.allClubs ?
-                    Object.keys(this.state.allClubs).map((cid, index) => {
-                        let club = this.state.allClubs[cid]
-                        return (
+                <TextInput placeholder='輸入想搜尋的學校或社團' 
+                    onChangeText={(text) => this.handleSearchFilter(text)}
+                    onFocus={() => this.search()}
+                />
+                <Text>{this.state.dataArray.length}</Text>
+                <View style={{flex: 1}}>
+                    {
+                        this.state.tempArray.map((club, index) => (
                             <ListItem
-                                key={cid}
+                                key={club.cid}
                                 leftAvatar={{
                                     source: {uri: club.imgUrl ? club.imgUrl : 'https://image.freepik.com/free-icon/man-dark-avatar_318-9118.jpg'},
                                     size: 'medium',
                                 }}
                                 title={club.schoolName + ' ' + club.clubName}
                                 subtitle={club.initDate}
-                                rightElement={<Button title='加入社團' onPress={() => this.handleJoinClub(cid)} />}
+                                rightElement={<Button title='加入社團' onPress={() => this.handleJoinClub(club.cid)} />}
                             />
-                        )
-                    }) : null
-                }
-                <Text>{this.state.dataArray.length}</Text>
-                {
-                    this.state.tempArray.map((item, index) => (
-                        <ListItem
-                            key={item.cid}
-                            title={item.schoolName + ' ' + item.clubName}
-                        />
-                    ))
-                }
+                        ))
+                    }
+                    {this.state.searching ? <Overlayer /> : null}
+                </View>
                     
                 {this.state.loading ? <Overlayer /> : null}
             </View>
