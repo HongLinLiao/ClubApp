@@ -9,10 +9,12 @@ import { getAllClubData } from './Club'
 import { listenToAllClubs, listenToUser, listenToUserSetting } from './Listener'
 
 import {
-  getHomeClubList,
-  getHomePostList,
-  determinToSearch
+  initHomeClubList,
+  getHomePostKey
 } from './Home'
+import {
+  getPostDataComplete
+} from './Post'
 
 /*
 |-----------------------------------------------
@@ -56,9 +58,6 @@ export const getAllUserData = (user) => async (dispatch) => {
       dispatch(listenToUserSetting())
       dispatch(listenToAllClubs())
 
-      //直接在登入先抓首頁資料
-      const homeClubList = await dispatch(getHomeClubList(userData.joinClub, userData.likeClub));
-      const homePostList = await dispatch(getHomePostList(homeClubList));
     } else { //有使用者帳號但資料庫沒user資料
       dispatch(CommonAction.setLoadingState(false)) //沒有使用者停止等待畫面
     }

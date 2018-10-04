@@ -13,9 +13,6 @@ import {
 import {
     SET_POST_FAVORITE_FAILURE,
     SET_POST_VIEW_FAILURE,
-    SET_POST_TO_REDUCER_POSTLIST_SUCCESS,
-    SET_POST_TO_REDUCER_POST_SUCCESS,
-    SET_COMMENT_TO_REDUCER_COMMENT_SUCCESS
 } from '../actions/PostAction'
 
 import {
@@ -23,15 +20,22 @@ import {
 } from '../actions/UserAction'
 
 const initialState = {
-    message: null,//錯誤訊息
+    clubList: {},//社團列表（控制篩選bool
     postList: {},//貼文列
+
     post: {},//內頁貼文
+
+    
     comment: {},//內頁貼文之留言
+
+
     activityList: {},//首頁活動動態
     activity: {},//內頁活動 
-    status: false,//執行狀態
-    clubList: {},//社團列表（控制篩選bool
-    numSelectingStatusTrue: null //計算clubList中有幾個是true
+
+    
+    numSelectingStatusTrue: null, //計算clubList中有幾個是true
+
+    message: null,//錯誤訊息
 }
 
 export const homeReducer = (state = initialState, action) => {
@@ -41,13 +45,11 @@ export const homeReducer = (state = initialState, action) => {
             return {
                 ...state,
                 clubList: action.clubList,
-                numSelectingStatusTrue: action.numSelectingStatusTrue,
-                status: true
+                numSelectingStatusTrue: action.numSelectingStatusTrue
             }
         case GET_HOME_CLUBLIST_FAILURE:
             return {
                 ...state,
-                status: false,
                 message: action.message
             }
         //取得首頁貼文列表
@@ -59,7 +61,6 @@ export const homeReducer = (state = initialState, action) => {
         case GET_HOME_POSTLIST_FAILURE:
             return {
                 ...state,
-                status: false,
                 message: action.message
             }
         //首頁篩選頁面按鈕觸發
@@ -72,21 +73,18 @@ export const homeReducer = (state = initialState, action) => {
         case SET_HOME_CLUBLIST_STATUS_FAILURE:
             return {
                 ...state,
-                status: false,
                 message: action.message
             }
         //加入或刪除貼文讚列
         case SET_POST_FAVORITE_FAILURE:
             return {
                 ...state,
-                status: false,
                 message: action.message
             }
         //加入觀看失敗
         case SET_POST_VIEW_FAILURE:
             return {
                 ...state,
-                status: false,
                 message: action.message
             }
         //進入貼文內頁
@@ -98,7 +96,6 @@ export const homeReducer = (state = initialState, action) => {
         case GET_HOME_INSIDE_POST_FAILURE:
             return {
                 ...state,
-                status: false,
                 message: action.message
             }
         //取得貼文留言
