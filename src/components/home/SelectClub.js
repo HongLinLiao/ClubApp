@@ -10,27 +10,27 @@ class SelectClub extends React.Component {
         const newNumSelectingStatsTrue = this.props.numSelectingStatusTrue;
         return (
             <ScrollView>
-            <View>
-                <View style={styles.container}>
-                
-                {
-                    Object.values(newClubList).map((element) => (
-                        <SelectClubElement
-                            key={element.clubKey}
-                            clubKey={element.clubKey}
-                            clubName={element.clubName}
-                            schoolName={element.schoolName}
-                            selectStatus={element.selectStatus}
-                            clubList={newClubList}
-                            setHomeClubListStatus={this.props.setHomeClubListStatus}
-                            numSelectingStatusTrue={newNumSelectingStatsTrue}
-                            determinToSearch={this.props.determinToSearch}
-                        >
-                        </SelectClubElement>
-                    ))
-                }
+                <View>
+                    <View style={styles.container}>
+
+                        {
+                            Object.values(newClubList).map((element) => (
+                                <SelectClubElement
+                                    key={element.clubKey}
+                                    clubKey={element.clubKey}
+                                    clubName={element.clubName}
+                                    schoolName={element.schoolName}
+                                    selectStatus={element.selectStatus}
+                                    clubList={newClubList}
+                                    setHomeClubListStatus={this.props.setHomeClubListStatus}
+                                    numSelectingStatusTrue={newNumSelectingStatsTrue}
+                                    determinToSearch={this.props.determinToSearch}
+                                >
+                                </SelectClubElement>
+                            ))
+                        }
+                    </View>
                 </View>
-            </View>
             </ScrollView>
         );
     }
