@@ -98,12 +98,6 @@ export const updateClub = async (cid, clubData) => {
 }
 
 
-/*
-|-----------------------------------------------
-|   database刪除資料
-|-----------------------------------------------
-*/
-
 
 /*
 |-----------------------------------------------
@@ -154,5 +148,31 @@ export const editComment = async (clubKey, postKey, commentKey, content) => {
         let update = {};
         update['/comments/' + clubKey + '/' + postKey + '/' + commentKey + '/content'] = content;
         firebase.database().ref().update(update);
+    }
+}
+
+/*
+|-----------------------------------------------
+|   database搜尋資料
+|-----------------------------------------------
+*/
+
+export const searchAllClubs = async () => {
+
+    try {
+        const clubsRef = firebase.database().ref('clubs')
+        const allClubs = await clubsRef.orderByChild('schoolName').once('value')
+        let dataArray = []
+        allClubs.forEach((club) => {
+            const { schoolName, clubName } = club.val()
+            dataArray.push({cid: club.key, schoolName, clubName})
+        })
+
+
+        return dataArray
+
+    } catch(e) {
+        console.log(e)
+        throw e
     }
 }

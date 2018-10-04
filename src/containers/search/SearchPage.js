@@ -1,7 +1,7 @@
 import React from 'react'
 import { connect } from 'react-redux';
 import Search from '../../components/search/Search'
-import { joinTheClub } from '../../modules/Club'
+import {  } from '../../modules/Club'
 
 
 const mapStateToProps = ({ userReducer, clubReducer }) => ({
@@ -11,7 +11,7 @@ const mapStateToProps = ({ userReducer, clubReducer }) => ({
 })
 
 const mapDispatchToProps = {
-    joinTheClub
+    
 }
 
 
