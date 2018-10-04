@@ -5,6 +5,7 @@ import {
     Alert,
     Text,
     TextInput,
+    TouchableOpacity,
 } from 'react-native'
 
 import { ListItem } from 'react-native-elements'
@@ -25,9 +26,9 @@ class Search extends React.Component {
     }
 
     async componentDidMount() {
-        const dataArray = await searchAllClubs()
-        this.setState({dataArray})
-        console.log(dataArray)
+        // const dataArray = await searchAllClubs()
+        // this.setState({dataArray})
+        // console.log(dataArray)
     }
 
     search = async () => {
@@ -73,8 +74,9 @@ class Search extends React.Component {
                     })
                     return isMatch
                 })
+                this.setState({text, tempArray: newDataArray})
                 setTimeout(() => {
-                    this.setState({searching: false, text, tempArray: newDataArray})
+                    this.setState({searching: false})
                 }, 500)
             } else {
                 this.setState({searching: false, text, tempArray: []})
@@ -83,6 +85,14 @@ class Search extends React.Component {
             
         } catch(e) {
             this.setState({searching: false})
+        }
+    }
+
+    handleGoToClub = async (club) => {
+        try {
+            this.props.navigation.push('SearchClub', {club})
+
+        } catch(e) {
         }
     }
 
@@ -97,16 +107,18 @@ class Search extends React.Component {
                 <View style={{flex: 1}}>
                     {
                         this.state.tempArray.map((club, index) => (
-                            <ListItem
-                                key={club.cid}
-                                leftAvatar={{
-                                    source: {uri: club.imgUrl ? club.imgUrl : 'https://image.freepik.com/free-icon/man-dark-avatar_318-9118.jpg'},
-                                    size: 'medium',
-                                }}
-                                title={club.schoolName + ' ' + club.clubName}
-                                subtitle={club.initDate}
-                                rightElement={<Button title='加入社團' onPress={() => this.handleJoinClub(club.cid)} />}
-                            />
+                            <TouchableOpacity onPress={() => this.handleGoToClub(club)}>
+                                <ListItem
+                                    key={club.cid}
+                                    leftAvatar={{
+                                        source: {uri: club.imgUrl ? club.imgUrl : 'https://image.freepik.com/free-icon/man-dark-avatar_318-9118.jpg'},
+                                        size: 'medium',
+                                    }}
+                                    title={club.schoolName + ' ' + club.clubName}
+                                    subtitle={club.initDate}
+                                    rightElement={<Button title='加入社團' onPress={() => this.handleJoinClub(club.cid)} />}
+                                />
+                            </TouchableOpacity>
                         ))
                     }
                     {this.state.searching ? <Overlayer /> : null}
