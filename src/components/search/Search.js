@@ -26,7 +26,7 @@ class Search extends React.Component {
 
     async componentDidMount() {
         const dataArray = await searchAllClubs()
-        this.setState({dataArray, tempArray: dataArray})
+        this.setState({dataArray})
     }
 
     search = async () => {
@@ -56,15 +56,12 @@ class Search extends React.Component {
     handleSearchFilter = async (text) => {
 
         try {
-            const clearText = text.replace(' ', '')
-            if(clearText != '') {
-                const newDataArray = this.state.dataArray.filter((item) => {
-                    const combindName = item.schoolName + item.clubName
-                    const isMatch = combindName.indexOf(clearText) > -1
-                    return isMatch
-                })
-                this.setState({ text, tempArray: newDataArray })
-            }
+            const newDataArray = this.state.dataArray.filter((item) => {
+                const combindName = item.schoolName + item.clubName
+                const isMatch = combindName.indexOf(text) > -1
+                return isMatch
+            })
+            this.setState({ text, tempArray: newDataArray })
             
             
         } catch(e) {
