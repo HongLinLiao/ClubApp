@@ -18,15 +18,14 @@ class Profile extends React.Component {
         const { user, signOut } = this.props
         return (
             <View style={styles.container}>
-                <StatusBarPaddingIOS style={{ backgroundColor: '#f6b456' }} />
-                <StatusBar hidden={false} height={50}
-                    backgroundColor={'#f6b456'} />
 
                 <View style={styles.one}>
+                <View style={styles.circle}>
                     {user.photoURL ?
                         <Image style={styles.person} source={{ uri: user.photoURL }} resizeMode='contain' /> :
                         <Image style={styles.person} source={require('../../images/man-user.png')} resizeMode='contain' />
                     }
+                </View>
                     <Text style={styles.name}>{user.displayName}</Text>
                     <View style={styles.rowx}>
                         <Image style={styles.hotPoint}

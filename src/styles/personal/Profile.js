@@ -8,31 +8,45 @@ export default StyleSheet.create({
         backgroundColor: 'rgba(246,180,86,0.2)'
     },
     person: {
+        //margin: 10,
+        width: 83,
+        height: 83,
+        borderColor:'red',
+        borderWidth:1
+    },
+    circle:{
+        width: 83, 
+        height: 83, 
+        borderRadius: 40, 
+        overflow: 'hidden', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
         margin: 10,
-        width: 95,
-        height: 95,
-        borderRadius: 50,
+        borderColor:'red',
+        borderWidth:1
     },
     name: {
         color: '#666666',
-        fontSize: 22,
-        marginBottom: 10
+        fontSize: 18,
+        marginBottom: 5
     },
     row: {
         flexDirection: 'row',
         flex: 1
     },
     rowx:{
-        flexDirection: 'row'
+        flexDirection: 'row',
+        justifyContent:'center',
+        alignItems:'center'
     },
     hotPoint: {
-        height: 22,
-        width: 22,
+        height: 20,
+        width: 20,
         marginRight: 3
     },
     number: {
         color: '#666666',
-        fontSize: 18
+        fontSize: 15
     },
     aboutMe: {
         marginLeft:50,
@@ -40,7 +54,8 @@ export default StyleSheet.create({
         backgroundColor: 'rgba(255,255,255,0.3)',
         borderRadius: 25,
         justifyContent: 'center',
-        flex: 2.4
+        flex: 2.3,
+        marginBottom:5
     },
     aboutMeText: {
         color: '#666666',
@@ -88,7 +103,8 @@ export default StyleSheet.create({
     },
     one: {
         flex: 3.8,
-        alignItems: 'center'
+        alignItems: 'center',
+        justifyContent:'flex-end'
     },
     three: {
         flex: 2.2,

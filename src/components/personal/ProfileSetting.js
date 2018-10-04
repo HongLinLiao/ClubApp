@@ -5,7 +5,6 @@ import {
     TextInput,
     Image,
     TouchableOpacity,
-    StatusBar,
     ImageBackground,
     Alert,
     KeyboardAvoidingView,
@@ -38,7 +37,7 @@ class ProfileSetting extends React.Component {
     }
 
     changeNameEditable = () => {
-        this.setState({ 
+        this.setState({
             nameEditable: !this.state.nameEditable, //編輯開關
             nameColor: this.state.nameEditable ? 'rgba(102,102,102,0.5)' : 'rgba(102,102,102,1)'
         })
@@ -77,80 +76,85 @@ class ProfileSetting extends React.Component {
         const { aboutMe } = this.props
         const { displayName, photoURL } = this.props.user
         return (
-            <View style={{flex: 1}}>
+            <View style={{ flex: 1 }}>
                 <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
                     <View style={styles.container}>
-                        <StatusBarPaddingIOS style={{ backgroundColor: '#f6b456' }} />
-                        <StatusBar hidden={false} height={50} backgroundColor={'#f6b456'} />
-                        {this.state.photoURL ?
-                            <ImageBackground
-                                style={styles.person}
-                                imageStyle={styles.personImage}
-                                source={{ uri: this.state.photoURL }}
-                                resizeMode='cover'>
-                                <TouchableOpacity onPress={() => this.handleSelectPhoto()}>
-                                    <Image source={require('../../images/camera.png')}
-                                        style={styles.cameraIcon} />
+
+                        <View style={styles.one}>
+                            {this.state.photoURL ?
+                                <ImageBackground
+                                    style={styles.person}
+                                    imageStyle={styles.personImage}
+                                    source={{ uri: this.state.photoURL }}
+                                    resizeMode='cover'>
+                                    <TouchableOpacity onPress={() => this.handleSelectPhoto()}>
+                                        <Image source={require('../../images/camera.png')}
+                                            style={styles.cameraIcon} />
+                                    </TouchableOpacity>
+                                </ImageBackground> :
+                                <ImageBackground
+                                    style={styles.person}
+                                    imageStyle={styles.personImage}
+                                    source={require('../../images/man-user.png')}
+                                    resizeMode='contain'>
+                                    <TouchableOpacity onPress={() => this.handleSelectPhoto()}>
+                                        <Image source={require('../../images/camera.png')}
+                                            style={styles.cameraIcon} />
+                                    </TouchableOpacity>
+                                </ImageBackground>
+                            }
+                        </View>
+
+                        <View style={styles.two}>
+                            <View style={styles.nameView}>
+                            <View style={styles.empty}></View>
+                                <TextInput style={[styles.nameInput, { color: this.state.nameColor }]}  //state變數代姓名顏色
+                                    placeholder='EJ boyfriend'
+                                    placeholderTextColor={this.state.nameColor}
+                                    underlineColorAndroid='rgba(246,180,86,0)'
+                                    multiline={true}
+                                    editable={this.state.nameEditable}
+                                    onChangeText={(nickName) => this.setState({ nickName })}
+                                    defaultValue={displayName}
+                                    value={this.state.nickName} />
+                                <TouchableOpacity onPress={() => { this.changeNameEditable() }}>
+                                    <Image style={styles.hotPoint}
+                                        source={require('../../images/pencil.png')} />
                                 </TouchableOpacity>
-                            </ImageBackground> :
-                            <ImageBackground
-                                style={styles.person}
-                                imageStyle={styles.personImage}
-                                source={require('../../images/man-user.png')}
-                                resizeMode='contain'>
-                                <TouchableOpacity onPress={() => this.handleSelectPhoto()}>
-                                    <Image source={require('../../images/camera.png')}
-                                        style={styles.cameraIcon} />
-                                </TouchableOpacity>
-                            </ImageBackground>
-                        }
-                    <View style={styles.nameView}>
+                            </View>
+                            <View style={styles.row}>
+                                <Image style={styles.hotPoint}
+                                    source={require('../../images/star.png')} />
+                                <Text style={styles.number}>社團數量</Text>
+                            </View>
+                        </View>
+
+                        <View style={styles.aboutMeView}>
                         <View style={styles.empty}></View>
-                        <TextInput style={[styles.nameInput, { color: this.state.nameColor }]}  //state變數代姓名顏色
-                            placeholder='EJ boyfriend'
-                            placeholderTextColor='rgba(102,102,102,0.5)'
-                            underlineColorAndroid='rgba(246,180,86,0)'
-                            multiline={true}
-                            editable={this.state.nameEditable}
-                            onChangeText={(nickName) => this.setState({ nickName })}
-                            defaultValue={displayName}
-                            value={this.state.nickName} />
-                        <TouchableOpacity onPress={() => { this.changeNameEditable() }}>
-                            <Image style={styles.hotPoint}
-                                source={require('../../images/pencil.png')} />
-                        </TouchableOpacity>
+                            <TextInput style={[styles.aboutMeInput, { color: this.state.aboutColor }]}  //state變數代表自介顏色
+                                placeholder='EJ boyfriend'
+                                multiline={true}
+                                defaultValue={aboutMe || ''}
+                                placeholderTextColor={this.state.aboutColor}
+                                underlineColorAndroid='rgba(246,180,86,0)'
+                                editable={this.state.aboutEditable}
+                                onChangeText={(aboutMe) => this.setState({ aboutMe })}
+                                value={this.state.aboutMe} />
+                            <TouchableOpacity onPress={() => { this.changeAboutEditable() }}>
+                                <Image style={styles.hotPoint}
+                                    source={require('../../images/pencil.png')} />
+                            </TouchableOpacity>
+                        </View>
 
+                        <View style={styles.four}>
+                            <TouchableOpacity style={styles.save} onPress={() => this.saveProfile()}>
+                                <Text style={styles.saveText}>儲存</Text>
+                            </TouchableOpacity>
+                        </View>
+
+                        <KeyboardAvoidingView behavior='padding'></KeyboardAvoidingView>
+                        {this.state.loading ? <Overlayer /> : null}
                     </View>
-
-                    <View style={styles.row}>
-                        <Image style={styles.hotPoint}
-                            source={require('../../images/star.png')} />
-                        <Text style={styles.number}>社團數量</Text>
-                    </View>
-
-                    <View style={styles.aboutMeView}>
-                        <View style={styles.empty}></View>
-                        <TextInput style={[styles.aboutMeInput, { color: this.state.aboutColor }]}  //state變數代表自介顏色
-                            placeholder='EJ boyfriend'
-                            multiline={true}
-                            defaultValue={aboutMe || ''}
-                            placeholderTextColor='rgba(102,102,102,0.5)'
-                            underlineColorAndroid={'rgba(246,180,86,0)'}
-                            editable={this.state.aboutEditable}
-                            onChangeText={(aboutMe) => this.setState({ aboutMe })}
-                            value={this.state.aboutMe} />
-                        <TouchableOpacity onPress={() => { this.changeAboutEditable() }}>
-                            <Image style={styles.hotPoint}
-                                source={require('../../images/pencil.png')} />
-                        </TouchableOpacity>
-                    </View>
-
-                    <TouchableOpacity style={styles.save} onPress={() => this.saveProfile()}>
-                        <Text style={styles.saveText}>儲存</Text>
-                    </TouchableOpacity>
-                    <KeyboardAvoidingView behavior='padding'></KeyboardAvoidingView>
-                    {this.state.loading ? <Overlayer /> : null}
-                </View>
                 </TouchableWithoutFeedback>
             </View>
         );

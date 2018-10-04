@@ -2,24 +2,19 @@ import { StyleSheet } from 'react-native'
 export default StyleSheet.create({
     container: {
         flex: 1,
-        alignItems: 'center',
+        //alignItems: 'center',
         justifyContent: 'space-between',
         flexDirection: 'column',
         backgroundColor: 'white'
     },
-    empty: {
-        width: 40
-    },
     person: {
-        marginTop: 35,
-        marginBottom: 35,
-        width: 130,
-        height: 130,
+        width: 100,
+        height: 100,
         justifyContent: 'flex-end',
         alignItems: 'center'
     },
     personImage: {
-        borderRadius: 65
+        borderRadius: 50
     },
     cameraIcon: {
         height: 30,
@@ -31,25 +26,29 @@ export default StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: 'rgba(246,180,86,0)',
-        width: 295,
-        height: 50,
         borderBottomWidth: 2,
-        borderWidth: 0,
         borderColor: 'rgba(246,180,86,0.4)',
-        marginBottom: 10
+        flex: 1,
+        paddingRight: 8,
+        paddingLeft: 8,
+        paddingBottom: 3
+    },
+    empty: {
+        height: 28,
+        width: 28,
     },
     nameInput: {
-        width: 225,
-        height: 50,
-        // color: '#666666',
         backgroundColor: 'rgba(246,180,86,0)',
         textAlign: 'center',
-        fontSize: 30
+        fontSize: 20,
+        flex: 1
     },
     row: {
         flexDirection: 'row',
         justifyContent: 'center',
-        alignItems: 'center'
+        alignItems:'center',
+        flex: 1,
+        margin:5
     },
     hotPoint: {
         height: 28,
@@ -58,41 +57,59 @@ export default StyleSheet.create({
     },
     number: {
         color: '#666666',
-        fontSize: 25
+        fontSize: 20
     },
     aboutMeView: {
         flexDirection: 'row',
-        marginBottom: 20,
         padding: 10,
-        width: 295,
         justifyContent: 'center',
-        height: 170,
-        backgroundColor: 'rgba(246,180,86,0)',
         borderWidth: 2,
         borderRadius: 20,
         borderColor: 'rgba(246,180,86,0.4)',
-        marginTop: 10
+        flex: 4.5,
+        marginLeft: 50,
+        marginRight: 50
     },
     aboutMeInput: {
-        width: 225,
-        height: 150,
+        margin: 5,
         color: '#666666',
         backgroundColor: 'rgba(246,180,86,0)',
-        textAlign: 'center'
+        alignSelf: 'center',
+        textAlign:'center',
+        flex: 1
     },
     save: {
-        marginBottom: 35,
-        width: 80,
-        height: 30,
         borderRadius: 12,
         backgroundColor: 'rgba(246,180,86,0)',
         borderWidth: 2,
         borderColor: 'rgba(246,180,86,0.6)',
-        justifyContent: 'center'
+        justifyContent: 'center',
+        width:95,
+        height:35
+        //flex: 1,
+        //marginTop:22,
+        //marginBottom:22
     },
     saveText: {
         color: '#666666',
-        fontSize: 16,
+        fontSize: 15,
         alignSelf: 'center'
-    }
+    },
+    one: {
+        flex: 6.3,
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    two: {
+        flex: 2.5,
+        marginLeft: 50,
+        marginRight: 50,
+    },
+    four: {
+        flex: 2.3,
+        //marginLeft: 160,
+        //marginRight: 160
+        justifyContent:'center',
+        alignItems:'center'
+    },
 })
