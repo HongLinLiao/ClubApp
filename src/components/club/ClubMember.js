@@ -62,7 +62,7 @@ class ClubMember extends React.Component {
                             <ListItem
                                 key={uid}
                                 leftAvatar={{
-                                    source: {uri: photoUrl},
+                                    source: {uri: photoUrl ? photoUrl : 'https://image.freepik.com/free-icon/man-dark-avatar_318-9118.jpg' } ,
                                     size: 'medium',
                                 }}
                                 title={nickName}
