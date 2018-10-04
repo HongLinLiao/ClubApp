@@ -64,7 +64,7 @@ class Notification extends React.Component {
               <ListItem
                 title={ clubs[cid].clubName + '  ' + clubs[cid].schoolName }
                 key={cid}
-                switch={{value: item.on, onValueChange: () => this.setClub(cid, !item.on), disabled: globalNotification}}
+                switch={{value: item.on, onValueChange: () => this.setClub(cid, !item.on), disabled: !globalNotification}}
               />
             )
           })

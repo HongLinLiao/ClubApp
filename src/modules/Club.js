@@ -11,7 +11,7 @@ import { listenToClub } from './Listener'
 */
 
 //依據傳入club物件去產生一個完整clubList(含selectStatus)
-export const getClubListForSelecting  = async (allClub) => {
+export const getClubListForSelecting = async (allClub) => {
   try {
     const clubList = {};
 
@@ -44,7 +44,7 @@ export const getAllClubData = async () => {
     const userRef = firebase.database().ref('users').child(user.uid)
     const userShot = await userRef.once('value')
     const { joinClub, likeClub } = userShot.val()
-    
+
     let allClubCid = []
     let allClubData = {}
 
@@ -147,41 +147,41 @@ export const quitTheClub = (cid) => async (dispatch, getState) => {
     const { clubNotificationList } = await getUserSetting(uid)
 
     //redux資料
-    let newJoinClub = JSON.parse(JSON.stringify(getState().userReducer.joinClub)) 
-    let newClubNotificationList = JSON.parse(JSON.stringify(getState().settingReducer.clubNotificationList))
-    let newClubs = JSON.parse(JSON.stringify(getState().clubReducer.clubs))
+    // let newJoinClub = JSON.parse(JSON.stringify(getState().userReducer.joinClub)) 
+    // let newClubNotificationList = JSON.parse(JSON.stringify(getState().settingReducer.clubNotificationList))
+    // let newClubs = JSON.parse(JSON.stringify(getState().clubReducer.clubs))
 
     //資料庫
-    if(Object.keys(joinClub).length > 1) { //社員大於1
+    if (Object.keys(joinClub).length > 1) { //社員大於1
       await joinClubRef.child(cid).remove()
     } else {
       await joinClubRef.set(false)
     }
 
-    if(Object.keys(clubNotificationList).length > 1) { //加入社團大於1
+    if (Object.keys(clubNotificationList).length > 1) { //加入社團大於1
       await clubNotificationRef.child(cid).remove()
     } else {
       await clubNotificationRef.set(false)
     }
 
-    if(Object.keys(member).length > 1) { //加入社團於1
+    if (Object.keys(member).length > 1) { //加入社團於1
       await memberRef.child(uid).remove()
     } else {
       await memberRef.set(false)
     }
-    
+
 
     // //redux
     // delete newJoinClub[cid]
     // delete newClubNotificationList[cid]
-    delete newClubs[cid]
+    // delete newClubs[cid]
 
-    
+
     // const rCid = randomCid(newClubs)
     // dispatch(ClubAction.setCurrentClub(rCid))
     // dispatch(ClubAction.removeTheClub(newClubs, newJoinClub, newClubNotificationList, rCid))
-    
-    
+
+
 
   } catch (e) {
     console.log(e.toString())
@@ -197,7 +197,7 @@ export const changeClubPhoto = (cid) => async (dispatch, getState) => {
     const clubRef = firebase.database().ref('clubs').child(cid)
     const url = await selectPhoto()
 
-    if(url) {
+    if (url) {
       let { clubs } = getState().clubReducer
       let newClubs = JSON.parse(JSON.stringify(clubs))
       newClubs[cid].imgUrl = url
@@ -205,10 +205,10 @@ export const changeClubPhoto = (cid) => async (dispatch, getState) => {
       await clubRef.update(newClubs[cid])
 
       //更新firestore
-      
+
       //更新redux
       dispatch(ClubAction.setClubPhoto(newClubs))
-      
+
     } else {
       throw new Error('取消選擇照片')
     }
@@ -225,7 +225,7 @@ export const setClubOpen = (cid) => async (dispatch, getState) => {
     const clubRef = firebase.database().ref('clubs').child(cid)
     const { clubs } = getState().clubReducer
 
-    
+
     let newClubs = JSON.parse(JSON.stringify(clubs))
     newClubs[cid].open = !newClubs[cid].open
 
@@ -234,7 +234,7 @@ export const setClubOpen = (cid) => async (dispatch, getState) => {
     //更新redux
     dispatch(ClubAction.setClubOpen(newClubs))
 
-  } catch(e) {
+  } catch (e) {
     console.log(e)
     throw e
   }
@@ -255,19 +255,19 @@ export const kickClubMember = (cid, uid) => async (dispatch, getState) => {
     delete newClubs[cid].member[uid]
 
     //資料庫
-    if(Object.keys(joinClub).length > 1) { //社員大於1
+    if (Object.keys(joinClub).length > 1) { //社員大於1
       await joinClubRef.child(cid).remove()
     } else {
       await joinClubRef.set(false)
     }
 
-    if(Object.keys(clubNotificationList).length > 1) { //加入社團大於1
+    if (Object.keys(clubNotificationList).length > 1) { //加入社團大於1
       await clubNotificationRef.child(cid).remove()
     } else {
       await clubNotificationRef.set(false)
     }
 
-    if(Object.keys(member).length > 1) { //加入社團於1
+    if (Object.keys(member).length > 1) { //加入社團於1
       await memberRef.child(uid).remove()
     } else {
       await memberRef.set(false)
@@ -276,12 +276,11 @@ export const kickClubMember = (cid, uid) => async (dispatch, getState) => {
     //redux
     // dispatch(ClubAction.deleteClubMember(newClubs))
 
-  } catch(e) {
+  } catch (e) {
     console.log(e)
     throw e
   }
 }
-
 
 
 
@@ -293,20 +292,20 @@ export const searchAllClub = async () => {
 
     return allClubData
 
-  } catch(e) {
+  } catch (e) {
     console.log(e)
     throw e
   }
 }
 
-export const joinTheClub = (cid) => async ( dispatch, getState ) => {
+export const joinTheClub = (cid) => async (dispatch, getState) => {
   try {
     const { uid } = firebase.auth().currentUser
     const { clubs } = getState().clubReducer
     const { joinClub } = getState().userReducer
     const { clubNotificationList } = getState().settingReducer
     const clubRef = firebase.database().ref('clubs').child(cid)
-    
+
     //資料庫變數
     const newClub = await getClubData(cid)
 
@@ -318,7 +317,7 @@ export const joinTheClub = (cid) => async ( dispatch, getState ) => {
     //資料庫修改
     newClub.member = newClub.member ? newClub.member : {}
     newClub.member[uid] = { status: 'member' }
-    
+
 
     //redux修改
     newClubs[cid] = newClub
@@ -328,14 +327,14 @@ export const joinTheClub = (cid) => async ( dispatch, getState ) => {
     //資料庫更新
     await updateUser(uid, { joinClub: newJoinClub })
     await updateUserSetting(uid, { clubNotificationList: newClubNotificationList })
-    await updateClub(cid, newClub)  
+    await updateClub(cid, newClub)
 
     //redux更新
     // dispatch(listenToClub(clubRef))
-    dispatch(ClubAction.addTheClub(newClubs, newJoinClub, newClubNotificationList))
+    // dispatch(ClubAction.addTheClub(newClubs, newJoinClub, newClubNotificationList))
     // dispatch(ClubAction.setCurrentClub(cid))
 
-    
+
   } catch (e) {
     console.log(e)
     throw e
@@ -349,7 +348,7 @@ export const randomCid = (clubs) => {
 
   const cids = Object.keys(clubs)
 
-  if(cids.length != 0) {
+  if (cids.length != 0) {
     const number = Math.floor(Math.random() * cids.length)
     return cids[number]
 
@@ -371,7 +370,7 @@ export const getClubMemberData = async (member) => {
 
     return memberData
 
-  } catch(e) {
+  } catch (e) {
     console.log(e)
     throw e
   }

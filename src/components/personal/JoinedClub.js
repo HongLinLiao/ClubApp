@@ -33,8 +33,6 @@ class JoinedClub extends React.Component {
     try {
       this.props.quitTheClub(cid)
 
-      Alert.alert('成功退出社團')
-
     } catch(e) {
       console.log(e)
       Alert.alert(e.toString())
