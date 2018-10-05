@@ -49,11 +49,7 @@ class SearchClub extends React.Component {
 
 	}
 
-	handleGoToMember = async () => {
-		const { club } = this.props.navigation.state.params
-		const memberData = await getClubMemberData(club.member)
-		navigation.push('ClubMember', { memberData })
-	}
+
 
 	render() {
 		const { user, navigation } = this.props
@@ -73,7 +69,6 @@ class SearchClub extends React.Component {
 							<Text>{clubName}</Text>
 							<Text>{open ? '公開' : '非公開'}</Text>
 							<Text>{numberOfMember}</Text>
-							<Text>{numberOfMember != 0 ? member[user.uid].status : '沒有成員'}</Text>					
 							<Button title='加入社團' onPress={() => {}}/>
 							<Button title='收藏社團' onPress={() => {}}/>
 						</View>

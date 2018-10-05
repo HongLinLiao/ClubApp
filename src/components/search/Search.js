@@ -34,7 +34,8 @@ class Search extends React.Component {
     search = async () => {
 
         this.setState({loading: true})
-        const dataArray = await searchAllClubs()
+        const { joinClub, likeClub } = this.props
+        const dataArray = await searchAllClubs(joinClub, likeClub)
         this.setState({dataArray})
         console.log(dataArray)
 
@@ -90,7 +91,15 @@ class Search extends React.Component {
 
     handleGoToClub = async (club) => {
         try {
-            this.props.navigation.push('SearchClub', {club})
+            const { setCurrentClub } = this.props
+
+            if(club.hasJoin) {
+                setCurrentClub(club.cid)
+                this.props.navigation.navigate('ClubRouter')
+            } else {
+                this.props.navigation.push('SearchClub', {club})
+            }
+            
 
         } catch(e) {
         }
@@ -107,7 +116,7 @@ class Search extends React.Component {
                 <View style={{flex: 1}}>
                     {
                         this.state.tempArray.map((club, index) => (
-                            <TouchableOpacity onPress={() => this.handleGoToClub(club)}>
+                            <TouchableOpacity key={club.cid} onPress={() => this.handleGoToClub(club)}>
                                 <ListItem
                                     key={club.cid}
                                     leftAvatar={{
@@ -116,7 +125,11 @@ class Search extends React.Component {
                                     }}
                                     title={club.schoolName + ' ' + club.clubName}
                                     subtitle={club.initDate}
-                                    rightElement={<Button title='加入社團' onPress={() => this.handleJoinClub(club.cid)} />}
+                                    rightElement={
+                                        club.hasJoin ? <Text>已加入社團</Text> :
+                                            club.hasLike ? <Text>以收藏社團</Text> :
+                                                <Button title='加入社團' onPress={() => this.handleJoinClub(club.cid)} />
+                                    }
                                 />
                             </TouchableOpacity>
                         ))

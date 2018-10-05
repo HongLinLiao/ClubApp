@@ -157,14 +157,34 @@ export const editComment = async (clubKey, postKey, commentKey, content) => {
 |-----------------------------------------------
 */
 
-export const searchAllClubs = async () => {
+export const searchAllClubs = async (joinClub, likeClub) => {
 
     try {
         const clubsRef = firebase.database().ref('clubs')
         const allClubs = await clubsRef.orderByChild('schoolName').once('value')
+        const joinClubCids = Object.keys(joinClub)
+        const likeClubCids = Object.keys(likeClub)
+
         let dataArray = []
+        
+
         allClubs.forEach((club) => {
-            dataArray.push({cid: club.key, ...club.val()})
+
+            let hasJoin = false
+            let hasLike = false
+            joinClubCids.map((cid) => {
+                if(club.key == cid) hasJoin = true
+            })
+            likeClubCids.map((cid) => {
+                if(club.key == cid) hasLike = true
+            })
+
+            dataArray.push({
+                cid: club.key,
+                ...club.val(),
+                hasJoin,
+                hasLike,
+            })
         })
 
         return dataArray
