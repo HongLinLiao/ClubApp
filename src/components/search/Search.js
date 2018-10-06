@@ -10,7 +10,6 @@ import {
 
 import { ListItem } from 'react-native-elements'
 
-import { searchAllClub } from '../../modules/Club'
 import { searchAllClubs } from '../../modules/Data'
 import Overlayer from '../common/Overlayer'
 
@@ -34,8 +33,7 @@ class Search extends React.Component {
     search = async () => {
 
         this.setState({loading: true})
-        const { joinClub, likeClub } = this.props
-        const dataArray = await searchAllClubs(joinClub, likeClub)
+        const dataArray = await searchAllClubs()
         this.setState({dataArray})
         console.log(dataArray)
 
@@ -89,11 +87,11 @@ class Search extends React.Component {
         }
     }
 
-    handleGoToClub = async (club) => {
+    handleGoToClub = async (club, status) => {
         try {
             const { setCurrentClub } = this.props
 
-            if(club.hasJoin) {
+            if(status.hasJoin) {
                 setCurrentClub(club.cid)
                 this.props.navigation.navigate('ClubRouter')
             } else {
@@ -105,34 +103,61 @@ class Search extends React.Component {
         }
     }
 
+    filterClubStatus = (club) => {
+        const { joinClub, likeClub } = this.props
+        const joinClubCids = Object.keys(joinClub)
+        const likeClubCids = Object.keys(likeClub)
+
+        let hasJoin = false
+        let hasLike = false
+        joinClubCids.map((cid) => {
+            if(club.cid == cid) hasJoin = true
+        })
+        likeClubCids.map((cid) => {
+            if(club.cid == cid) hasLike = true
+        })
+
+        return { hasJoin, hasLike }
+    }
+
+
     render() {
+
         return (
             <View style={{flex: 1}}>
                 <TextInput placeholder='輸入想搜尋的學校或社團' 
                     onChangeText={(text) => this.handleSearchFilter(text)}
                     onFocus={() => this.search()}
+                    onBlur={() => console.log('onblur')}
+                    onTouchCancel={() => console.log('onTouchCancel')}
+                    onTouchEnd={() => console.log('onTouchCancel')}
+                    onSubmitEditing={() => console.log('onTouchCancel')}
                 />
                 <Text>{this.state.dataArray.length}</Text>
                 <View style={{flex: 1}}>
                     {
-                        this.state.tempArray.map((club, index) => (
-                            <TouchableOpacity key={club.cid} onPress={() => this.handleGoToClub(club)}>
-                                <ListItem
-                                    key={club.cid}
-                                    leftAvatar={{
-                                        source: {uri: club.imgUrl ? club.imgUrl : 'https://image.freepik.com/free-icon/man-dark-avatar_318-9118.jpg'},
-                                        size: 'medium',
-                                    }}
-                                    title={club.schoolName + ' ' + club.clubName}
-                                    subtitle={club.initDate}
-                                    rightElement={
-                                        club.hasJoin ? <Text>已加入社團</Text> :
-                                            club.hasLike ? <Text>以收藏社團</Text> :
-                                                <Button title='加入社團' onPress={() => this.handleJoinClub(club.cid)} />
-                                    }
-                                />
-                            </TouchableOpacity>
-                        ))
+                        this.state.tempArray.map((club, index) => {
+                            const status = this.filterClubStatus(club)
+
+                            return (
+                                <TouchableOpacity key={club.cid} onPress={() => this.handleGoToClub(club, status)}>
+                                    <ListItem
+                                        key={club.cid}
+                                        leftAvatar={{
+                                            source: {uri: club.imgUrl ? club.imgUrl : 'https://image.freepik.com/free-icon/man-dark-avatar_318-9118.jpg'},
+                                            size: 'medium',
+                                        }}
+                                        title={club.schoolName + ' ' + club.clubName}
+                                        subtitle={club.initDate}
+                                        rightElement={
+                                            status.hasJoin ? <Text>已加入社團</Text> :
+                                            status.hasLike ? <Text>以收藏社團</Text> :
+                                                    <Button title='加入社團' onPress={() => this.handleJoinClub(club.cid)} />
+                                        }
+                                    />
+                                </TouchableOpacity>
+                            )
+                        })
                     }
                     {this.state.searching ? <Overlayer /> : null}
                 </View>

@@ -7,13 +7,16 @@ import {
 	Image,
 	ScrollView,
 	TouchableOpacity,
-	StatusBar
+	StatusBar,
+	Alert,
 } from 'react-native'
 
 import Expo from 'expo'
 
 import ModalDropdown from 'react-native-modal-dropdown';
 import { randomCid, getClubMemberData } from '../../modules/Club'
+import Overlayer from '../common/Overlayer'
+
 
 class SearchClub extends React.Component {
 
@@ -28,6 +31,7 @@ class SearchClub extends React.Component {
 			post2: {},
 			post3: {},
 		},
+		loading: false,
 	}
 
 	componentWillMount() {
@@ -49,6 +53,22 @@ class SearchClub extends React.Component {
 
 	}
 
+	handleJoinClub = async (cid) => {
+        try {
+            this.setState({ loading: true })
+
+			await this.props.joinTheClub(cid)
+			
+			this.props.navigation.popToTop()
+
+            this.setState({ loading: false })
+
+            Alert.alert('已成功加入!')
+        } catch(e) {
+            Alert.alert(e.toString())
+        }
+    }
+
 
 
 	render() {
@@ -69,15 +89,8 @@ class SearchClub extends React.Component {
 							<Text>{clubName}</Text>
 							<Text>{open ? '公開' : '非公開'}</Text>
 							<Text>{numberOfMember}</Text>
-							<Button title='加入社團' onPress={() => {}}/>
+							<Button title='加入社團' onPress={() => this.handleJoinClub(club.cid)}/>
 							<Button title='收藏社團' onPress={() => {}}/>
-						</View>
-				
-						<View style={{height: 100, flexDirection: 'row'}}>
-							<Button title='發布文章' onPress={() => this.props.navigation.push('AddPost', {})}/>
-							<Button title='舉辦活動' onPress={() => this.props.navigation.push('AddActivity', {})}/>
-							<Button title='管理者模式' onPress={() => this.props.navigation.push('ClubAdmin', {})}/>
-							<Button title='編輯成員' onPress={this.handleGoToMember}/>
 						</View>
 				
 						<View style={{height: 200, borderWidth: 1, borderColor: 'red'}}>
@@ -119,7 +132,7 @@ class SearchClub extends React.Component {
 						</View>
 					</ScrollView>
 				</View>
-			
+				{this.state.loading ? <Overlayer /> : null}
 			</View>
 
 		)
