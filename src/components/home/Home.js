@@ -6,10 +6,9 @@ import PostListElement from '../post/PostListElement'
 class Home extends React.Component {
 
     async componentDidMount() {
-        const { joinClub, likeClub, initHomeClubList, getHomePostReload, determinToSearch } = this.props;
+        const { joinClub, likeClub, initHomeClubList } = this.props;
         const homeClubList = await initHomeClubList(joinClub, likeClub);
-        const newPost = await this.homeReload(getHomePostReload, homeClubList);
-        await determinToSearch(homeClubList, newPost);
+        await this.homeReload(homeClubList);
     }
 
     state = {
@@ -17,9 +16,14 @@ class Home extends React.Component {
     }
 
     //頁面重整
-    homeReload = async (getHomePostReload, clubList) => {
-        const newPost = await getHomePostReload(clubList, (newPostList) => { this.setState({ post: newPostList }) });
-        return newPost;
+    homeReload = async (clubList) => {
+        const { getHomePostReload } = this.props;
+        await getHomePostReload(clubList, (newPostList) => { this.setState({ post: newPostList }) });
+    }
+
+    //更改postList
+    setPostList = (postList) => {
+        this.setState({post: postList});
     }
 
     //進入內頁onPress()事件，放入postList讓元件render
@@ -38,9 +42,7 @@ class Home extends React.Component {
                 <Button
                     title='reload!'
                     onPress={async () => {
-                        const newPost = await this.homeReload(this.props.getHomePostReload, this.props.clubList); 
-                        const { determinToSearch } = this.props;
-                        await determinToSearch(this.props.clubList, newPost);
+                        await this.homeReload(this.props.clubList);
                     }}
                 />
                 {
@@ -51,7 +53,10 @@ class Home extends React.Component {
                                 post={postElement}
                                 navigation={this.props.navigation}
                                 getInsidePost={this.props.getInsidePost}
+                                getPostComment={this.props.getPostComment}
                                 setPostFavorite={this.props.setPostFavorite}
+                                postList={this.state.post}
+                                setPostList={this.setPostList}
                             >
                             </PostListElement>
                         ))

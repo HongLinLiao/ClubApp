@@ -25,11 +25,20 @@ class PostPage extends Component {
         //     default:
         //         return null;
         // }
-        return(
+        return (
             <Post
-                post={this.props.navigation.state.params}
+                post={this.props.navigation.state.params.post}
+                comment={this.props.navigation.state.params.comment}
+                postList={this.props.navigation.state.params.postList}
+                setPostList={this.props.navigation.state.params.setPostList}
                 getInsidePost={this.props.getInsidePost}
                 navigation={this.props.navigation}
+                setPostFavorite={this.props.setPostFavorite}
+                creatingComment={this.props.creatingComment}
+                deletingComment={this.props.deletingComment}
+                editingComment={this.props.editingComment}
+                setCommentEditStatus={this.props.setCommentEditStatus}
+            
             />
         )
     }
@@ -41,7 +50,6 @@ const mapStateToProps = ({ homeReducer }) => ({
 
 const mapDispatchToProps = {
     getInsidePost,
-
     setPostFavorite,
     creatingComment,
     deletingComment,

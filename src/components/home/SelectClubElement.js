@@ -5,10 +5,9 @@ import styles from '../../styles/home/Selecting'
 const SelectClubElement = (element) => {
 
     reload = async (clubKey) => {
-        const { clubList, numSelectingStatusTrue, setHomeClubListStatus, homeReload, getHomePostReload, determinToSearch } = element;
+        const { clubList, numSelectingStatusTrue, setHomeClubListStatus, homeReload } = element;
         const newClubList = await setHomeClubListStatus(clubKey, clubList, numSelectingStatusTrue);
-        const newPost = await homeReload(getHomePostReload, newClubList);
-        await determinToSearch(newClubList, newPost);
+        await homeReload(newClubList);
     }
 
     return (

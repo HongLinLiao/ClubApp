@@ -85,7 +85,7 @@ export const getHomePostReload = (clubList, homeReload) => async (dispatch) => {
         const postKeyList = await dispatch(getHomePostKey(clubList));
         const newPostList = await dispatch(getPostDataComplete(postKeyList));
         homeReload(newPostList);
-        return newPostList;
+        determinToSearch(clubList,newPostList);
     }
     catch (error) {
         console.log(error.toStirng());
@@ -93,8 +93,7 @@ export const getHomePostReload = (clubList, homeReload) => async (dispatch) => {
 }
 
 //判斷是否使用者有收藏或加入社團與社團是否有存在文章
-export const determinToSearch = (clubList, postList) => async (dispatch) => {
-
+export const determinToSearch = (clubList, postList) => {
     try {
         if (Object.keys(clubList).length == 0) {
             alert('You haven\'t joined or liked clubs!');
@@ -109,6 +108,6 @@ export const determinToSearch = (clubList, postList) => async (dispatch) => {
         }
     }
     catch (error) {
-        console.log(error.toStirng());
+        console.log(error.toString());
     }
 }

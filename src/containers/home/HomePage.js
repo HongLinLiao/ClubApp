@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { initHomeClubList, getHomePostReload, determinToSearch } from '../../modules/Home'
-import { getInsidePost,setPostFavorite } from '../../modules/Post'
+import { initHomeClubList, getHomePostReload } from '../../modules/Home'
+import { getInsidePost, setPostFavorite, getPostComment } from '../../modules/Post'
 import Home from '../../components/home/Home'
 
 const mapStateToProps = ({ homeReducer, userReducer }) => ({
@@ -16,10 +16,11 @@ const mapDispatchToProps = {
     initHomeClubList,
     //homeReducer重抓資料
     getHomePostReload,
-    //判斷貼文與社團
-    determinToSearch,
-    //進入貼文內頁
+    //取得單一貼文資料
     getInsidePost,
+    //取得留言
+    getPostComment,
+    //按讚
     setPostFavorite,
 }
 
