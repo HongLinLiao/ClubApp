@@ -4,9 +4,9 @@ import * as UserAction from '../actions/UserAction'
 import * as ClubAction from '../actions/ClubAction'
 import * as SettingAction from '../actions/SettingAction'
 import * as firebase from "firebase"
-import Expo from 'expo' 
+import Expo from 'expo'
 import { Alert } from 'react-native'
-import { 
+import {
   getUserStateToRedux,
   createUserInDatabase,
   reloadUser,
@@ -20,9 +20,8 @@ import {
 } from './Club'
 
 import {
-  getHomeClubList , 
-  getHomePostList ,
-  determinToSearch
+  initHomeClubList,
+  getHomePostKey
 } from './Home'
 
 import { listenToAllClubs, listenToUser, listenToUserSetting } from './Listener'
@@ -43,19 +42,19 @@ const signInSuccess = (action, user, password, loginType) => async (dispatch) =>
     let allClubData = {}
 
     //使用者基本資料
-    if(userShot.val()) { //之前登入過 
+    if (userShot.val()) { //之前登入過 
       userData = await getUserStateToRedux()
     } else { //第一次登入
       userData = await createUserInDatabase(user, userInfo)
     }
 
     //使用者設定資料
-    if(settingShot.val()) { //是否有使用者設定資料
-      settingData = await getUserSettingToRedux() 
+    if (settingShot.val()) { //是否有使用者設定資料
+      settingData = await getUserSettingToRedux()
     } else {
       settingData = await createUserSettingInDB()
     }
-    
+
     //使用者相關社團資料
     allClubData = await getAllClubData()
 
@@ -68,30 +67,26 @@ const signInSuccess = (action, user, password, loginType) => async (dispatch) =>
     dispatch(listenToUserSetting())
     // dispatch(listenToAllClubs())
 
-
-    //直接在登入先抓首頁資料
-    const homeClubList = await dispatch(getHomeClubList(userData.joinClub,userData.likeClub));
-    const homePostList = await dispatch(getHomePostList(homeClubList));
-  } catch(e) {
+  } catch (e) {
 
     console.log(e.toString())
     throw e
   }
-  
+
 }
 
 export const signInWithEmail = (email, password, remember) => async (dispatch) => {
 
   dispatch(AuthAction.signInRequest(remember)) //登入要求
-  
+
   try {
-    
-    const {user} = await firebase.auth().signInWithEmailAndPassword(email, password);
-    
+
+    const { user } = await firebase.auth().signInWithEmailAndPassword(email, password);
+
     dispatch(signInSuccess(AuthAction.signInSuccess, user, password, 'normal')) //登入成功
 
-    
-  } catch(error) {
+
+  } catch (error) {
 
     dispatch(AuthAction.signInFail(error.toString())) //登入失敗
 
@@ -109,12 +104,12 @@ export const signUpUser = (newUser) => async (dispatch) => {
   try {
     const { email, password } = newUser
     //建立使用者完firebase會自動登入
-    const {user} = await firebase.auth().createUserWithEmailAndPassword(email, password)
+    const { user } = await firebase.auth().createUserWithEmailAndPassword(email, password)
 
     dispatch(signInSuccess(AuthAction.signUpSuccess, user, password, 'normal')) //註冊成功並更新UserState
 
 
-  } catch(error) {
+  } catch (error) {
     dispatch(AuthAction.signUpFail(error.toString()))
 
     console.log(error.toString())
@@ -129,12 +124,12 @@ export const signInWithFacebook = () => async (dispatch) => {
   dispatch(AuthAction.signWithFacebookRequest()) //facebook登入要求
 
   try {
-    const {type, token} = await Expo.Facebook.logInWithReadPermissionsAsync('221789121856824', { permissions: ['email'] })
+    const { type, token } = await Expo.Facebook.logInWithReadPermissionsAsync('221789121856824', { permissions: ['email'] })
 
-    if(type == 'success') {
+    if (type == 'success') {
 
       const credential = firebase.auth.FacebookAuthProvider.credential(token)
-      const {user} = await firebase.auth().signInAndRetrieveDataWithCredential(credential)
+      const { user } = await firebase.auth().signInAndRetrieveDataWithCredential(credential)
 
       dispatch(signInSuccess(AuthAction.signWithFacebookSuccess, user, null, 'Facebook')) //facebook登入並更新狀態
 
@@ -145,7 +140,7 @@ export const signInWithFacebook = () => async (dispatch) => {
     }
 
 
-  } catch(error) {
+  } catch (error) {
 
     dispatch(AuthAction.signWithFacebookFail(error.toString()))
 
@@ -161,7 +156,7 @@ export const signInWithFacebook = () => async (dispatch) => {
 export const signInWithGoogle = () => async (dispatch) => {
 
   // dispatch(CommonAction.setLoadingState(true)) //進入等待狀態
-  
+
   dispatch(AuthAction.signWithGoogleRequest()) //google登入要求
 
   try {
@@ -174,13 +169,13 @@ export const signInWithGoogle = () => async (dispatch) => {
     if (result.type === 'success') {
 
       const credential = firebase.auth.GoogleAuthProvider.credential(result.idToken, result.accessToken)
-      const {user} = await firebase.auth().signInAndRetrieveDataWithCredential(credential)
+      const { user } = await firebase.auth().signInAndRetrieveDataWithCredential(credential)
 
       dispatch(signInSuccess(AuthAction.signWithGoogleSuccess, user, null, 'Google')) //google登入並更新狀態
-    
+
     }
-    
-  } catch(error) {
+
+  } catch (error) {
 
     dispatch(AuthAction.signWithGoogleFail(error.toString()))
 
@@ -200,14 +195,14 @@ export const sendVerifiedMail = () => async (dispatch) => {
 
     Alert.alert("驗證信已發送！")
 
-  } catch(error) {
+  } catch (error) {
     dispatch(AuthAction.sendVerifiedEmailFail(error.toString()))
-    
+
     Alert.alert("驗證信已發送！")
 
     console.log(error.toString())
   }
-  
+
 }
 
 export const emailVerified = () => async (dispatch, getState) => {
@@ -215,19 +210,19 @@ export const emailVerified = () => async (dispatch, getState) => {
   // dispatch(CommonAction.setLoadingState(true)) //進入等待狀態
 
   try {
-    
+
     await dispatch(reloadUser()) //更新使用者
 
     const { user } = getState().userReducer
 
-    if(!user.emailVerified) {
+    if (!user.emailVerified) {
 
       dispatch(CommonAction.setLoadingState(false)) //取消登帶狀態
       throw new Error('驗證失敗')
 
     }
 
-  } catch(error) {
+  } catch (error) {
 
     console.log(error.toString())
     throw error
@@ -244,9 +239,9 @@ export const changeEmail = (newEmail, password) => async (dispatch) => {
 
     await user.updateEmail(newEmail)
 
-    dispatch(UserAction.updateUser({...user}))
+    dispatch(UserAction.updateUser({ ...user }))
 
-  } catch(e) {
+  } catch (e) {
     console.log(e)
     throw e
   }
@@ -266,7 +261,7 @@ export const updateUserPassword = (oldPassword, newPassword) => async (dispatch)
     // //更新redux user密碼
     dispatch(AuthAction.setUserPassword(newPassword))
 
-  } catch(e) {
+  } catch (e) {
     console.log(e.toString())
     throw e
   }
@@ -278,7 +273,7 @@ export const sendResetMail = (email) => async (dispatch) => {
     await firebase.auth().sendPasswordResetEmail(email) //firebase寄發重設信
     dispatch(AuthAction.sendResetEmailSuccess())
 
-  } catch(error) {
+  } catch (error) {
     dispatch(AuthAction.sendResetEmailFail(error.toString()))
 
     console.log(error.toString())
@@ -298,13 +293,13 @@ export const signOut = () => async (dispatch) => {
       () => dispatch(CommonAction.setLoadingState(false)), //進入等待狀態
       1000
     )
-    
 
-  } catch(error) {
+
+  } catch (error) {
     dispatch(AuthAction.signOutFail(error.toString()))
 
     console.log(error.toString())
   }
-  
+
 }
 

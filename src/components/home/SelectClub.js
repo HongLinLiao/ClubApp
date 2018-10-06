@@ -1,6 +1,7 @@
 import React from 'react'
 import { ScrollView, Text, View } from 'react-native'
 import SelectClubElement from './SelectClubElement'
+import styles from '../../styles/home/Selecting'
 
 class SelectClub extends React.Component {
 
@@ -9,6 +10,9 @@ class SelectClub extends React.Component {
         const newNumSelectingStatsTrue = this.props.numSelectingStatusTrue;
         return (
             <ScrollView>
+            <View>
+                <View style={styles.container}>
+                
                 {
                     Object.values(newClubList).map((element) => (
                         <SelectClubElement
@@ -20,11 +24,13 @@ class SelectClub extends React.Component {
                             clubList={newClubList}
                             setHomeClubListStatus={this.props.setHomeClubListStatus}
                             numSelectingStatusTrue={newNumSelectingStatsTrue}
-                            determinToSearch={this.props.determinToSearch}
+                            homeReload={this.props.homeReload}
                         >
                         </SelectClubElement>
                     ))
                 }
+                </View>
+            </View>
             </ScrollView>
         );
     }

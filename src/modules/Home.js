@@ -1,25 +1,10 @@
 import * as HomeAction from '../actions/HomeAction'
 import { getClubListForSelecting } from './Club';
-import { getPostListComplete } from './Post';
+import { getPostDataComplete, getPostKeyListFromClubKey } from './Post';
 import * as firebase from "firebase"
 
-//判斷是否使用者有收藏或加入社團與社團是否有存在文章
-export const determinToSearch = (clubList, postList) => async (dispatch) => {
-    if (Object.keys(clubList).length == 0) {
-        alert('You haven\'t joined or liked clubs!');
-    }
-    else {
-        if (Object.keys(postList).length == 0) {
-            alert('Your clubs haven\'t exist posts!');
-        }
-        else {
-            console.log('pass!');
-        }
-    }
-}
-
-//取得clubList放入homeReducer控制篩選（初始狀態）
-export const getHomeClubList = (joinClub, likeClub) => async (dispatch) => {
+//抓joinClub與likeClub，產生clubList放入homeReducer控制篩選 （初始狀態）
+export const initHomeClubList = (joinClub, likeClub) => async (dispatch) => {
     try {
         const allClub = { ...joinClub, ...likeClub };
         const clubList = await getClubListForSelecting(allClub);
@@ -34,11 +19,11 @@ export const getHomeClubList = (joinClub, likeClub) => async (dispatch) => {
     }
 }
 
-//取得首頁貼文列表
-export const getHomePostList = (clubList) => async (dispatch) => {
+//以clubList去取得postKey
+export const getHomePostKey = (clubList) => async (dispatch) => {
     try {
         var i;
-        const postList = {};
+        const postKeyList = {};
         //clubList裡有社團才搜尋貼文
         if (Object.keys(clubList).length > 0) {
             const clubKey = Object.keys(clubList);
@@ -49,42 +34,31 @@ export const getHomePostList = (clubList) => async (dispatch) => {
                     continue;
                 }
                 else {
-                    post = await getPostListComplete(clubKey[i]);
+                    let tempPostKeyList = await getPostKeyListFromClubKey(clubKey[i]);
+                    postKeyList = { ...postKeyList, ...tempPostKeyList };
                 }
-                postList = { ...postList, ...post };
             }
         }
-        dispatch(HomeAction.getHomePostListSuccess(postList));
-        return postList;
+        dispatch(HomeAction.getHomePostListSuccess(postKeyList));
+        return postKeyList;
     }
     catch (error) {
         dispatch(HomeAction.getHomePostListFailure(error.toString()))
-        console.log(error.toString())
+        console.log(error.toString());
     }
-}
-
-//重整
-export const getHomePostReload = () => async (dispatch, getState) => {
-    const clubList = getState().homeReducer.clubList;
-    const newPostList = await dispatch(getHomePostList(clubList));
-    await dispatch(determinToSearch(clubList, newPostList));
-    return newPostList;
 }
 
 //改變HomeClubList的selectStatus，並判斷是否有關閉全部selectStatus
 export const setHomeClubListStatus = (clubKey, clubList, numSelectingStatusTrue) => async (dispatch) => {
     try {
-        const postList = {};
         if (numSelectingStatusTrue == 1) {
             if (clubList[clubKey].selectStatus == true) {
                 alert('At least one club need openning！');
-                return null;
             }
             else {
                 clubList[clubKey].selectStatus = !(clubList[clubKey].selectStatus);
                 numSelectingStatusTrue = numSelectingStatusTrue + 1;
                 dispatch(HomeAction.setHomeClubListStatusSuccess(clubList, numSelectingStatusTrue));
-                postList = await dispatch(getHomePostList(clubList));
             }
         }
         else {
@@ -96,12 +70,44 @@ export const setHomeClubListStatus = (clubKey, clubList, numSelectingStatusTrue)
             }
             clubList[clubKey].selectStatus = !(clubList[clubKey].selectStatus);
             dispatch(HomeAction.setHomeClubListStatusSuccess(clubList, numSelectingStatusTrue));
-            postList = await dispatch(getHomePostList(clubList));
         }
-        return postList;
+        return clubList;
     }
     catch (error) {
         dispatch(HomeAction.setHomeClubListStatusFailure(error.toString()));
+        console.log(error.toString());
+    }
+}
+
+//重整
+export const getHomePostReload = (clubList, homeReload) => async (dispatch) => {
+    try {
+        const postKeyList = await dispatch(getHomePostKey(clubList));
+        const newPostList = await dispatch(getPostDataComplete(postKeyList));
+        homeReload(newPostList);
+        determinToSearch(clubList,newPostList);
+    }
+    catch (error) {
+        console.log(error.toStirng());
+    }
+}
+
+//判斷是否使用者有收藏或加入社團與社團是否有存在文章
+export const determinToSearch = (clubList, postList) => {
+    try {
+        if (Object.keys(clubList).length == 0) {
+            alert('You haven\'t joined or liked clubs!');
+        }
+        else {
+            if (Object.keys(postList).length == 0) {
+                alert('Your clubs haven\'t exist posts!');
+            }
+            else {
+                console.log('pass!');
+            }
+        }
+    }
+    catch (error) {
         console.log(error.toString());
     }
 }
