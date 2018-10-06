@@ -98,6 +98,17 @@ export const updateClub = async (cid, clubData) => {
 }
 
 
+/*
+|-----------------------------------------------
+|   database刪除資料
+|-----------------------------------------------
+*/
+
+//刪除貼文
+export const deletePost = async (clubKey, postKey) => {
+    const postRef = firebase.database().ref('posts/' + clubKey + '/' + postKey);
+    await postRef.remove();
+}
 
 /*
 |-----------------------------------------------
