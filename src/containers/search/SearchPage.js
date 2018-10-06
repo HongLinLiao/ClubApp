@@ -3,6 +3,12 @@ import { connect } from 'react-redux';
 import Search from '../../components/search/Search'
 import { joinTheClub } from '../../modules/Club'
 import { setCurrentClub } from '../../actions/ClubAction'
+import {
+    getInsidePost,
+    setPostFavorite,
+    getPostComment,
+    getPostDataComplete
+} from '../../modules/Post'
 
 
 const mapStateToProps = ({ userReducer, clubReducer }) => ({
@@ -16,6 +22,13 @@ const mapStateToProps = ({ userReducer, clubReducer }) => ({
 const mapDispatchToProps = {
     joinTheClub,
     setCurrentClub,
+    getPostDataComplete,
+    //取得單一貼文資料
+    getInsidePost,
+    //取得留言
+    getPostComment,
+    //按讚
+    setPostFavorite,
 }
 
 

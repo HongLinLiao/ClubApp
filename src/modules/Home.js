@@ -1,6 +1,6 @@
 import * as HomeAction from '../actions/HomeAction'
-import { getClubListForSelecting } from './Club';
 import { getPostDataComplete, getPostKeyListFromClubKey } from './Post';
+import { getClubData } from './Data';
 import * as firebase from "firebase"
 
 //抓joinClub與likeClub，產生clubList放入homeReducer控制篩選 （初始狀態）
@@ -16,6 +16,33 @@ export const initHomeClubList = (joinClub, likeClub) => async (dispatch) => {
     catch (error) {
         dispatch(HomeAction.getHomeClubListFailure(error.toString()));
         console.log(error.toString());
+    }
+}
+
+//依據傳入club物件去產生一個完整clubList(含selectStatus)
+export const getClubListForSelecting = async (allClub) => {
+    try {
+        const clubList = {};
+
+        const promises = Object.keys(allClub).map(async (element) => {
+
+            const club = await getClubData(element);
+
+            const tempObj = {};
+            tempObj[element] = {
+                clubKey: element,
+                selectStatus: true,
+                schoolName: club.schoolName,
+                clubName: club.clubName
+            };
+            clubList = { ...clubList, ...tempObj };
+        });
+        await Promise.all(promises);
+        return clubList;
+    }
+    catch (error) {
+        console.log(error.toString());
+        throw error;
     }
 }
 
@@ -85,7 +112,7 @@ export const getHomePostReload = (clubList, homeReload) => async (dispatch) => {
         const postKeyList = await dispatch(getHomePostKey(clubList));
         const newPostList = await dispatch(getPostDataComplete(postKeyList));
         homeReload(newPostList);
-        determinToSearch(clubList,newPostList);
+        determinToSearch(clubList, newPostList);
     }
     catch (error) {
         console.log(error.toStirng());

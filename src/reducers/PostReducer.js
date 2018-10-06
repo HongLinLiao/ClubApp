@@ -2,7 +2,6 @@ import { GET_POST_DATA } from '../actions/PostAction'
 
 const initialState = {
   allPost:{} , //所有貼文
-  comment:{} //所有留言
 }
 
 export const postReducer = (state = initialState, action) => {
