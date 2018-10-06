@@ -10,6 +10,7 @@ import {
     deleteComment,
     editComment,
     getUserData,
+    deletePost,
 } from "./Data"
 import { changeMemberStatusToChinese } from './Common';
 import * as PostAction from '../actions/PostAction'
@@ -170,6 +171,27 @@ export const createPost = (cid, postData) => async (dispatch) => {
         console.log(e)
 
         throw e
+    }
+}
+
+//刪除貼文
+export const deletePostData = (clubKey, postKey,postList) => async (dispatch, getState) => {
+
+    try {
+        await deletePost(clubKey, postKey);
+        //寫進postReducer
+        const prePostReducer = getState().postReducer.allPost;
+        const nextPostReducer = JSON.parse(JSON.stringify(prePostReducer));
+        //delete不可直接刪除物件中的物件，必須先轉型
+        nextPostReducer[clubKey][postKey] = null;
+        delete nextPostReducer[clubKey][postKey];
+        dispatch(PostAction.getPostData(nextPostReducer));
+        //更改回傳postList
+        const nextPostList = JSON.parse(JSON.stringify(postList));
+        delete nextPostList[clubKey][postKey];
+        return nextPostList
+    } catch (e) {
+        console.log(e)
     }
 }
 

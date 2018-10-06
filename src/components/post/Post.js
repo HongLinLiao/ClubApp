@@ -27,6 +27,7 @@ class Post extends React.Component {
         }
     }
 
+    //點讚
     pressFavorite = async (clubKey, postKey) => {
         const { setPostFavorite, postList, setPostList } = this.props;
         const postData = await setPostFavorite(clubKey, postKey);
@@ -39,8 +40,16 @@ class Post extends React.Component {
         }
     }
 
+    //設定本頁post
     setPost = (postData) => {
         this.setState({ post: postData });
+    }
+
+    deletePost = async (clubKey, postKey) => {
+        const { deletePostData, setPostList, postList, navigation } = this.props;
+        const newPostList = await deletePostData(clubKey, postKey, postList);
+        setPostList(newPostList);
+        navigation.goBack();
     }
 
     render() {
@@ -75,17 +84,21 @@ class Post extends React.Component {
                             <Text>按讚人數: {element.numFavorites}</Text>
                         </TouchableOpacity>
                     </View>
+                    <Button
+                        title='Delete Post'
+                        onPress={async () => { await this.deletePost(element.clubKey, element.postKey); }}
+                    />
                     <Comment
-                            comment={commentData}
-                            clubKey={element.clubKey}
-                            postKey={element.postKey}
-                            setPostList={this.props.setPostList}
-                            setPost={this.setPost}
-                            creatingComment={this.props.creatingComment}
-                            deletingComment={this.props.deletingComment}
-                            editingComment={this.props.editingComment}
-                            setCommentEditStatus={this.props.setCommentEditStatus}
-                        />
+                        comment={commentData}
+                        clubKey={element.clubKey}
+                        postKey={element.postKey}
+                        setPostList={this.props.setPostList}
+                        setPost={this.setPost}
+                        creatingComment={this.props.creatingComment}
+                        deletingComment={this.props.deletingComment}
+                        editingComment={this.props.editingComment}
+                        setCommentEditStatus={this.props.setCommentEditStatus}
+                    />
                 </KeyboardAvoidingView>
             </ScrollView>
         )
