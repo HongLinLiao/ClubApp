@@ -49,7 +49,7 @@ class Search extends React.Component {
 
             this.setState({ loading: false })
 
-            Alert.alert('已成功蒐藏!')
+            Alert.alert('已成功收藏!')
         } catch(e) {
             Alert.alert(e.toString())
         }
@@ -150,7 +150,7 @@ class Search extends React.Component {
                                         rightElement={
                                             status.hasJoin ? <Text>已加入社團</Text> :
                                             status.hasLike ? <Text>已收藏社團</Text> :
-                                                    <Button title='蒐藏社團' onPress={() => this.handleLikeTheClub(club.cid)} />
+                                                    <Button title='收藏社團' onPress={() => this.handleLikeTheClub(club.cid)} />
                                         }
                                     />
                                 </TouchableOpacity>

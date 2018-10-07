@@ -42,7 +42,7 @@ class SearchClub extends React.Component {
 			hasJoin,
 			hasLike,
 		})
-		await this.postReload(cid);
+		await this.postReload(navigation.state.params.club.cid);
 	}
 
 	//貼文重整
