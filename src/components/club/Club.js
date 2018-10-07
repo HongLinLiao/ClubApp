@@ -30,7 +30,7 @@ class Club extends React.Component {
 		post: {},
 	}
 
-	componentWillMount() {
+	async componentWillMount() {
 		const { joinClub, likeClub } = this.props
 		let allClubCids = Object.keys(joinClub).concat(Object.keys(likeClub))
 		const cid = randomCid(allClubCids)
@@ -53,7 +53,7 @@ class Club extends React.Component {
 	generateClubsArray = () => {
 		const { joinClubs, likeClubs } = this.props
 		let clubsArray = []
-		if(Object.keys(joinClubs).length != 0) {
+		if (Object.keys(joinClubs).length != 0) {
 			Object.keys(joinClubs).map((cid) => {
 				clubsArray.push({
 					cid: cid,
@@ -62,7 +62,7 @@ class Club extends React.Component {
 				})
 			})
 		}
-		if(Object.keys(likeClubs).length != 0) {
+		if (Object.keys(likeClubs).length != 0) {
 			Object.keys(likeClubs).map((cid) => {
 				clubsArray.push({
 					cid: cid,
@@ -95,12 +95,13 @@ class Club extends React.Component {
 	}
 
 	render() {
-		if(this.props.currentCid) {
+		if (this.props.currentCid) {
+			const newPostList = { ...this.state.post };
 			const { user, joinClubs, likeClubs, currentCid } = this.props
 			let type = joinOrLikeClub(currentCid)
 			let clubs = {}
 			let status = ''
-			if(type == 'JOIN') {
+			if (type == 'JOIN') {
 				clubs = joinClubs
 				status = clubs[currentCid].member[user.uid].status
 			}
@@ -112,8 +113,8 @@ class Club extends React.Component {
 			const { schoolName, clubName, open, member, introduction, imgUrl } = clubs[currentCid]
 			const numberOfMember = Object.keys(member).length
 			const clubsArray = this.generateClubsArray()
-			
-			
+
+
 			return (
 				<View style={{ flex: 1, marginTop: Expo.Constants.statusBarHeight }}>
 					<View style={{ flex: 1 }}>
@@ -126,19 +127,19 @@ class Club extends React.Component {
 								<Text>{clubName}</Text>
 								<Text>{open ? '公開' : '非公開'}</Text>
 								<Text>{numberOfMember}</Text>
-								<Text>{status}</Text>					
+								<Text>{status}</Text>
 							</View>
 							{
 								type == 'JOIN' ?
-									<View style={{height: 100, flexDirection: 'row'}}>
-										<Button title='發布文章' onPress={() => this.props.navigation.push('AddPost', {})}/>
-										<Button title='舉辦活動' onPress={() => this.props.navigation.push('AddActivity', {})}/>
-										<Button title='管理者模式' onPress={() => this.props.navigation.push('ClubAdmin', {})}/>
-										<Button title='編輯成員' onPress={this.handleGoToMember}/>
+									<View style={{ height: 100, flexDirection: 'row' }}>
+										<Button title='發布文章' onPress={() => this.props.navigation.push('AddPost', {})} />
+										<Button title='舉辦活動' onPress={() => this.props.navigation.push('AddActivity', {})} />
+										<Button title='管理者模式' onPress={() => this.props.navigation.push('ClubAdmin', {})} />
+										<Button title='編輯成員' onPress={this.handleGoToMember} />
 									</View> : null
 							}
-							
-							<View style={{height: 200, borderWidth: 1, borderColor: 'red'}}>
+
+							<View style={{ height: 200, borderWidth: 1, borderColor: 'red' }}>
 								<Text>{introduction}</Text>
 							</View>
 
@@ -186,7 +187,10 @@ class Club extends React.Component {
 							<ModalDropdown
 								defaultValue={schoolName + '  ' + clubName}
 								options={clubsArray}
-								onSelect={(index, rowData) => this.props.setCurrentClub(rowData.cid)}
+								onSelect={(index, rowData) => {
+									this.props.setCurrentClub(rowData.cid)
+									this.postReload(rowData.cid);
+								}}
 								renderButtonText={(rowData) => (rowData.schoolName + '  ' + rowData.clubName)}
 								renderRow={(rowData, rowId) => {
 									const { schoolName, clubName } = rowData
