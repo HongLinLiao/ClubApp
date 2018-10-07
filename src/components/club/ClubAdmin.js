@@ -11,11 +11,13 @@ import {
     Alert,
 } from 'react-native'
 import Expo from 'expo'
+import Overlayer from '../common/Overlayer'
 
 
 class ClubAdmin extends React.Component {
 
     state = {
+        loading: false
     }
 
 
@@ -46,11 +48,13 @@ class ClubAdmin extends React.Component {
 
     handleChangePhoto = async () => {
         try {
+            this.setState({loading: true})
             const { changeClubPhoto, currentCid } = this.props
             await changeClubPhoto(currentCid)
 
             Alert.alert('照片新增成功')
 
+            this.setState({loading: false})
         } catch(e) {
             Alert.alert(e.toString())
         }
@@ -101,6 +105,7 @@ class ClubAdmin extends React.Component {
                         
                     </ScrollView>
                 </View>
+                {this.state.loading ? <Overlayer /> : null}
             </KeyboardAvoidingView>
 
         )

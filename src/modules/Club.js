@@ -120,19 +120,25 @@ export const createClub = (schoolName, clubName, open) => async (dispatch, getSt
 export const changeClubPhoto = (cid) => async (dispatch, getState) => {
   try {
     const clubRef = firebase.database().ref('clubs').child(cid)
-    const url = await selectPhoto()
+    const clubStorageRef = firebase.storage().ref('clubs').child(cid).child('clubPhoto')
+    const uri = await selectPhoto()
 
-    if(url) {
-      let { joinClubs } = getState().clubReducer
-      let newClubs = JSON.parse(JSON.stringify(joinClubs))
-      newClubs[cid].imgUrl = url
-      //更新database
-      await clubRef.update(newClubs[cid])
+    if(uri) {
+      const { joinClubs } = getState().clubReducer
+      const newClubs = JSON.parse(JSON.stringify(joinClubs))
+      const response = await fetch(uri);
+      const blob = await response.blob(); //轉換照片格式為blob
 
       //更新firestore
-      
+      const snapshot = await clubStorageRef.put(blob)
+      const imgUrl = await snapshot.ref.getDownloadURL()
+
+      //更新database
+      newClubs[cid].imgUrl = imgUrl
+      await clubRef.update(newClubs[cid])
+
       //更新redux
-      dispatch(ClubAction.setClubPhoto(newClubs))
+      // dispatch(ClubAction.setClubPhoto(newClubs))
       
     } else {
       throw new Error('取消選擇照片')

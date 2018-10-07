@@ -40,7 +40,7 @@ class SearchClub extends React.Component {
 		const { hasJoin, hasLike } = navigation.state.params.status
 		this.setState({
 			hasJoin,
-			hasLike,
+			hasLike: hasJoin ? hasJoin : hasLike,
 		})
 		await this.postReload(navigation.state.params.club.cid);
 	}

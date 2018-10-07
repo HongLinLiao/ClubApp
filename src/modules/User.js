@@ -274,7 +274,7 @@ export const uploadImageAsync = async (uri, user) => {
 
   const snapshot = await ref.put(blob); //firebase規定使用blob格式上傳檔案
 
-  phtotUrl = snapshot.ref.getDownloadURL()
+  phtotUrl = await snapshot.ref.getDownloadURL()
 
   return phtotUrl
 }
