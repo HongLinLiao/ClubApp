@@ -1,7 +1,21 @@
-import React, { Component } from 'react'
+import React from 'react'
 import { connect } from 'react-redux'
-import { setHomeClubListStatus, determinToSearch } from '../../modules/Home'
+import { setHomeClubListStatus } from '../../modules/Home'
 import SelectClub from '../../components/home/SelectClub'
+
+class Selecting extends React.Component {
+    render() {
+        return (
+            <SelectClub
+                clubList={this.props.clubList}
+                numSelectingStatusTrue={this.props.numSelectingStatusTrue}
+                setHomeClubListStatus={this.props.setHomeClubListStatus}
+                homeReload={this.props.navigation.state.params}
+            >
+            </SelectClub>
+        );
+    }
+}
 
 const mapStateToProps = ({ homeReducer }) => ({
     clubList: homeReducer.clubList,
@@ -9,8 +23,8 @@ const mapStateToProps = ({ homeReducer }) => ({
 })
 
 const mapDispatchToProps = {
+    //更改首頁篩選
     setHomeClubListStatus,
-    determinToSearch
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(SelectClub);
+export default connect(mapStateToProps, mapDispatchToProps)(Selecting);

@@ -11,17 +11,19 @@ import {
     Alert,
 } from 'react-native'
 import Expo from 'expo'
+import Overlayer from '../common/Overlayer'
 
 
 class ClubAdmin extends React.Component {
 
     state = {
+        loading: false
     }
 
 
     askClubOpen = () => {
-        const { currentCid, clubs } = this.props
-        const { open, schoolName, clubName } = clubs[currentCid]
+        const { currentCid, joinClubs } = this.props
+        const { open, schoolName, clubName } = joinClubs[currentCid]
         Alert.alert('社團公開設定', schoolName + ' ' + clubName + ' 將被' + (open ? '關閉' : '公開'), 
         [
             {text: '取消', onPress: () => console.log('取消'), style: 'cancel'},
@@ -32,11 +34,11 @@ class ClubAdmin extends React.Component {
     }
     handleClubOpen = async () => {
         try {
-            const { setClubOpen, currentCid, clubs } = this.props
+            const { setClubOpen, currentCid, joinClubs } = this.props
 
             await setClubOpen(currentCid)
 
-            Alert.alert('社團已' + (clubs[currentCid].open ? '關閉' : '公開'))
+            Alert.alert('社團已' + (joinClubs[currentCid].open ? '關閉' : '公開'))
 
         } catch(e) {
             Alert.alert(e.toString())
@@ -46,19 +48,21 @@ class ClubAdmin extends React.Component {
 
     handleChangePhoto = async () => {
         try {
+            this.setState({loading: true})
             const { changeClubPhoto, currentCid } = this.props
             await changeClubPhoto(currentCid)
 
             Alert.alert('照片新增成功')
 
+            this.setState({loading: false})
         } catch(e) {
             Alert.alert(e.toString())
         }
     }
 
     render() {
-        const { user, clubs, currentCid } = this.props
-        const { imgUrl, schoolName, clubName, open, member, introduction} = clubs[currentCid]
+        const { user, joinClubs, currentCid } = this.props
+        const { imgUrl, schoolName, clubName, open, member, introduction} = joinClubs[currentCid]
         const numberOfMember = Object.keys(member).length
         const status = member[user.uid].status
 
@@ -78,12 +82,10 @@ class ClubAdmin extends React.Component {
                             <Button title={open ? '公開' : '非公開'} onPress={this.askClubOpen}/>
                             <Text>{numberOfMember}</Text>
                             <Text>{numberOfMember != 0 ? status : '沒有成員'}</Text>					
-                            <Button title='加入社團' disabled/>
-                            <Button title='收藏社團' disabled/>
                         </TouchableOpacity>
 
                         <View style={{height: 100, flexDirection: 'row'}}>
-                            <Button title='發布文章' disabled/>
+                            <Button title='發布文章' disabled />
                             <Button title='舉辦活動' disabled/>
                             <Button title='管理者模式' disabled/>
                             <Button title='編輯成員' disabled/>
@@ -92,17 +94,18 @@ class ClubAdmin extends React.Component {
                         <View style={{height: 200, borderWidth: 1, borderColor: 'red'}}>
                             <TextInput
                                 multiline
-                                value={introduction}
+                                value={introduction ? introduction : ''}
                             />
                         </View>
 
                         <View style={{alignItems: 'center', justifyContent: 'center',}}>
-                            <Button title='文章管理' />
-                            <Button title='活動管理' />
+                            <Button title='文章管理' onPress={() => {}}/>
+                            <Button title='活動管理' onPress={() => {}}/>
                         </View>
                         
                     </ScrollView>
                 </View>
+                {this.state.loading ? <Overlayer /> : null}
             </KeyboardAvoidingView>
 
         )

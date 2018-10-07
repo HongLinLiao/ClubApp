@@ -1,20 +1,17 @@
 import React from 'react'
 import { connect } from 'react-redux';
-import Search from '../../components/search/Search'
+import SearchClub from '../../components/search/SearchClub'
 import { joinTheClub, likeTheClub } from '../../modules/Club'
-import { setCurrentClub } from '../../actions/ClubAction'
 import {
+    getPostDataComplete,
     getInsidePost,
     setPostFavorite,
-    getPostComment,
-    getPostDataComplete
+    getPostComment
 } from '../../modules/Post'
 
 
 const mapStateToProps = ({ userReducer, clubReducer }) => ({
     user: userReducer.user,
-    joinClub: userReducer.joinClub,
-    likeClub: userReducer.likeClub,
     joinClubs: clubReducer.joinClubs,
     likeClubs: clubReducer.likeClubs,
     currentCid: clubReducer.currentCid,
@@ -23,7 +20,6 @@ const mapStateToProps = ({ userReducer, clubReducer }) => ({
 const mapDispatchToProps = {
     joinTheClub,
     likeTheClub,
-    setCurrentClub,
     getPostDataComplete,
     //取得單一貼文資料
     getInsidePost,
@@ -34,4 +30,4 @@ const mapDispatchToProps = {
 }
 
 
-export default connect(mapStateToProps, mapDispatchToProps)(Search);
+export default connect(mapStateToProps, mapDispatchToProps)(SearchClub);

@@ -1,6 +1,8 @@
 import { createStackNavigator } from 'react-navigation'
 import SearchPage from '../containers/search/SearchPage'
 import { TextInput, StyleSheet, Image } from 'react-native'
+import SearchClubPage from '../containers/search/SearchClubPage'
+import PostPage from '../containers/club/PostPage'
 import React from 'react'
 import { View } from 'native-base';
 
@@ -33,7 +35,13 @@ export default createStackNavigator({
                 </View>
             ,
         })
-    }
+    },
+    SearchClub: {
+        screen: SearchClubPage
+    },
+    Post: {
+        screen: PostPage
+    },
 })
 
 const styles = StyleSheet.create({
@@ -55,5 +63,4 @@ const styles = StyleSheet.create({
         marginBottom: 13,
         flex: 1,
     },
-
 })

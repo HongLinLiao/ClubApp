@@ -24,7 +24,7 @@ class SelectClub extends React.Component {
                             clubList={newClubList}
                             setHomeClubListStatus={this.props.setHomeClubListStatus}
                             numSelectingStatusTrue={newNumSelectingStatsTrue}
-                            determinToSearch={this.props.determinToSearch}
+                            homeReload={this.props.homeReload}
                         >
                         </SelectClubElement>
                     ))

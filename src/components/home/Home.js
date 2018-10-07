@@ -7,51 +7,62 @@ import { View } from 'native-base';
 
 class Home extends React.Component {
 
+    async componentDidMount() {
+        const { joinClub, likeClub, initHomeClubList } = this.props;
+        const homeClubList = await initHomeClubList(joinClub, likeClub);
+        await this.homeReload(homeClubList);
+    }
 
-    componentWillMount() {
-        const { determinToSearch, clubList, postList } = this.props;
-        // determinToSearch(clubList, postList);
+    state = {
+        post: {}
     }
 
     //頁面重整
-    reload = async () => {
+    homeReload = async (clubList) => {
         const { getHomePostReload } = this.props;
-        const newPostList = await getHomePostReload();
+        await getHomePostReload(clubList, (newPostList) => { this.setState({ post: newPostList }) });
+    }
+
+    //更改postList
+    setPostList = (postList) => {
+        this.setState({post: postList});
     }
 
     //進入內頁onPress()事件，放入postList讓元件render
     goSelectingPage = (navigation) => {
-        navigation.navigate('Selecting')
+        navigation.navigate('Selecting', this.homeReload)
     }
 
     render() {
-        const newPostList = { ...this.props.postList };
+        const newPostList = { ...this.state.post };
         return (
             <ScrollView>
-                <Button
-                    title='Stories'
-                    onPress={() => { }}
-                />
                 <Button
                     title='selecting!'
                     onPress={() => { this.goSelectingPage(this.props.navigation); }}
                 />
                 <Button
                     title='reload!'
-                    onPress={async () => { await this.reload(); }}
+                    onPress={async () => {
+                        await this.homeReload(this.props.clubList);
+                    }}
                 />
                 <View style={styles.containView}>
                 {
-                    Object.values(newPostList).map((element) => (
-                        <PostListElement
-                            key={element.postKey}
-                            post={element}
-                            navigation={this.props.navigation}
-                            setPostFavorite={this.props.setPostFavorite}
-                            getInsidePost={this.props.getInsidePost}
-                            router='Home'
-                        >
-                        </PostListElement>
+                    Object.values(newPostList).map((clubElement) => (
+                        Object.values(clubElement).map((postElement) => (
+                            <PostListElement
+                                key={postElement.postKey}
+                                post={postElement}
+                                navigation={this.props.navigation}
+                                getInsidePost={this.props.getInsidePost}
+                                getPostComment={this.props.getPostComment}
+                                setPostFavorite={this.props.setPostFavorite}
+                                postList={this.state.post}
+                                setPostList={this.setPostList}
+                            >
+                            </PostListElement>
+                        ))
                     ))
                 }
                 </View>
