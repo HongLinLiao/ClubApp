@@ -48,7 +48,7 @@ const MainRouter = createBottomTabNavigator({
     {
         initialRouteName: 'Home',
         order: ['Search', 'Home', 'Club', 'Personal'],
-        swipeEnabled: true,//滑動可換頁
+        swipeEnabled: true,//滑動可換頁，失敗
         tabBarOptions: {
             activeTintColor: '#f6b456',//字有按
             inactiveTintColor: '#0d4273',//字沒按
