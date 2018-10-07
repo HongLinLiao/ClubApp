@@ -5,7 +5,8 @@ import {
   Image,
   Button,
   StyleSheet,
-  ActivityIndicator
+  ActivityIndicator,
+  Alert,
 } from 'react-native'
 
 import Overlayer from '../../components/common/Overlayer'
@@ -18,10 +19,17 @@ class Photo extends React.Component {
   }
 
   handleChangePhoto = async () => {
-    this.setState({loading: true})
-    await this.props.changePhoto()
 
-    this.setState({loading: false})
+    try {
+      this.setState({loading: true})
+      await this.props.changePhoto()
+
+      this.setState({loading: false})
+      
+    } catch(e) {
+      Alert.alert(e.toString())
+    }
+    
   }
 
   render() {

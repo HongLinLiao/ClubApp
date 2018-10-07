@@ -49,7 +49,7 @@ export const setClubNotification = (cid, clubSetting) => async (dispatch, getSta
 
     await clubSettingRef.update({ on: clubSetting.on})
 
-    // dispatch(SettingAction.setClubNotification(newClubNotificationList))
+    dispatch(SettingAction.setClubNotification(newClubNotificationList))
 
   } catch(e) {
     console.log(e)

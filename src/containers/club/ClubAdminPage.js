@@ -6,7 +6,8 @@ import { setClubOpen, changeClubPhoto } from '../../modules/Club'
 
 const mapStateToProps = ({ userReducer, clubReducer }) => ({
     user: userReducer.user,
-    clubs: clubReducer.clubs,
+    joinClubs: clubReducer.joinClubs,
+    likeClubs: clubReducer.likeClubs,
     currentCid: clubReducer.currentCid,
 })
 

@@ -7,16 +7,13 @@ import {
   Alert
 } from 'react-native'
 import { ListItem } from 'react-native-elements'
+import Overlayer from '../common/Overlayer'
 
 
 class JoinedClub extends React.Component {
-  
-  componentDidMount() {
-    // console.log(this.props.navigation)
-  }
 
   state = {
-    
+    loading: false
   }
 
   quit = (cid) => {
@@ -31,20 +28,27 @@ class JoinedClub extends React.Component {
   handleQuit = async (cid) => {
 
     try {
-      this.props.quitTheClub(cid)
+      this.setState({ loading: true})
+      const { quitTheClub, joinClubs } = this.props
+      const { clubName, schoolName } = joinClubs[cid]
+      await quitTheClub(cid)
+      
+      Alert.alert('已退出 ' + clubName + ' ' + schoolName)
+      this.setState({ loading: false})
 
     } catch(e) {
       console.log(e)
       Alert.alert(e.toString())
+      this.setState({ loading: false})
     }
   }
 
   render() {
-    const { joinClub, clubs } = this.props
+    const { joinClubs } = this.props
     return (
       <View style={{flex: 1}}>
-        {Object.keys(joinClub).map((cid, index) => {
-          const { clubName, schoolName } = clubs[cid]
+        {Object.keys(joinClubs).map((cid, index) => {
+          const { clubName, schoolName } = joinClubs[cid]
           return(
             <ListItem
               key={cid}
@@ -53,6 +57,7 @@ class JoinedClub extends React.Component {
             />
           )
         })}
+        {this.state.loading ? <Overlayer /> : null}
       </View>
     )
   }

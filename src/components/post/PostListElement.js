@@ -3,29 +3,38 @@ import { View, Text, TouchableOpacity, Image } from 'react-native';
 import { Button } from 'react-native-elements';
 import styles from '../../styles/home/Home'
 
-const PostListElement = ({ post, navigation, router, setPostFavorite, getInsidePost }) => {
-    async function insidePage() {
-        const viewPost = {};
-        viewPost[post.postKey] = { ...post };
-        let newPost;
-        try {
-            newPost = await getInsidePost(post.clubKey, post.postKey, router);
-        }
-        catch (error) {
-            console.log(error.toString());
-        }
-        if (newPost != null || newPost != undefined) {
-            navigation.navigate('Post', router);
+const PostListElement = ({ post, navigation, getInsidePost, getPostComment, setPostFavorite, postList, setPostList }) => {
+
+    async function pressFavorite(post) {
+        const postData = await setPostFavorite(post.clubKey, post.postKey);
+        if (postData != null) {
+            //放進首頁
+            const newPostList = JSON.parse(JSON.stringify(postList));
+            newPostList[postData.clubKey][postData.postKey] = postData;
+            setPostList(newPostList);
         }
     }
 
-    async function pressFavorite(post) {
-        //bool參數為是否為貼文內頁按讚
-        await setPostFavorite(post.clubKey, post.postKey, false);
+    async function insidePost(post) {
+        const postData = await getInsidePost(post.clubKey, post.postKey);
+        const commentData = await getPostComment(post.clubKey, post.postKey);
+        if (postData != null) {
+            //放進首頁
+            const newPostList = JSON.parse(JSON.stringify(postList));
+            newPostList[postData.clubKey][postData.postKey] = postData;
+            setPostList(newPostList);
+
+            navigation.navigate('Post', {
+                post: postData,
+                setPostList: setPostList,
+                postList: postList,
+                comment: commentData
+            });
+        }
     }
 
     return (
-        <TouchableOpacity onPress={async () => await insidePage()}>
+        <TouchableOpacity onPress={async () => await insidePost(post)}>
             <View style={styles.newsView}>
                 <View style={styles.shadow}>
                     <Image source={{ uri: post.posterPhotoUrl }}
@@ -47,7 +56,6 @@ const PostListElement = ({ post, navigation, router, setPostFavorite, getInsideP
                         <Text numberOfLines={2} ellipsizeMode='tail' style={styles.newsContentText}>{post.content}
                         </Text>
                         <Text style={styles.moreText}>...more</Text>
-
                     </View>
                     <View style={styles.iconView}>
                         <View style={styles.aIcon}>
@@ -55,7 +63,7 @@ const PostListElement = ({ post, navigation, router, setPostFavorite, getInsideP
                                 style={styles.icon} />
                             <Text style={styles.iconNumber}>{post.numComments}</Text>
                         </View>
-                        <TouchableOpacity onPress={async () => await pressFavorite(post)}>
+                        <TouchableOpacity onPress={async () => { await pressFavorite(post); }}>
                             <View style={styles.aIcon}>
                                 <Image source={require('../../images/like-gray.png')}
                                     style={styles.icon} />
