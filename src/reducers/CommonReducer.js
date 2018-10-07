@@ -1,9 +1,11 @@
 import {
-  SET_LOADING_STATE
+  SET_LOADING_STATE,
+  SET_CLUB_LISTEN,
 } from '../actions/CommonAction'
 
 const initialState = {
-  loading: true
+  loading: true,
+  clubListen: false,
 }
 
 export const commonReducer = (state = initialState, action) => {
@@ -14,6 +16,12 @@ export const commonReducer = (state = initialState, action) => {
       return {
         ...state,
         loading: action.IsLoading
+      }
+
+    case SET_CLUB_LISTEN:
+      return {
+        ...state,
+        clubListen: action.IsListen
       }
 
     default:

@@ -154,8 +154,8 @@ class AddActivity extends React.Component {
 
     askCreate = async () => {
 
-        const { clubs, currentCid } = this.props
-		const { schoolName, clubName } = clubs[currentCid]
+        const { joinClubs, currentCid } = this.props
+		const { schoolName, clubName } = joinClubs[currentCid]
 
         if(this.checkFormAllDone()) {
             Alert.alert('建立活動', '您將建立 ' + this.state.title + ' 活動於 ' + schoolName + ' ' + clubName, 
@@ -195,9 +195,9 @@ class AddActivity extends React.Component {
 
     render() {
         const dateArray = this.getDateTime()
-        const { user, clubs, currentCid } = this.props
+        const { user, joinClubs, currentCid } = this.props
         const { open } = this.state
-        const { schoolName, clubName, member } = clubs[currentCid]
+        const { schoolName, clubName, member } = joinClubs[currentCid]
         const { status }= member[user.uid]
 
         return (

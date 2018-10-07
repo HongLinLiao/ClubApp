@@ -52,8 +52,8 @@ class AddPost extends React.Component {
 
 	askCreate = () => {
 
-		const { clubs, currentCid } = this.props
-		const { schoolName, clubName } = clubs[currentCid]
+		const { joinClubs, currentCid } = this.props
+		const { schoolName, clubName } = joinClubs[currentCid]
 			Alert.alert('新增貼文', '您將新增 ' + this.state.title + ' 於 ' + schoolName + ' ' + clubName, 
 			[
 				{text: '取消', onPress: () => console.log('取消'), style: 'cancel'},
@@ -150,8 +150,8 @@ class AddPost extends React.Component {
 
 	
 	render() {
-		const { user, clubs, currentCid } = this.props
-		const { schoolName, clubName, member } = clubs[currentCid]
+		const { user, joinClubs, currentCid } = this.props
+		const { schoolName, clubName, member } = joinClubs[currentCid]
 		const status = member[user.uid].status
 
 		return (

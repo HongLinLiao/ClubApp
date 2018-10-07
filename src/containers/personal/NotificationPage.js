@@ -8,7 +8,8 @@ const mapStateToProps = ({ userReducer, settingReducer, clubReducer }) => ({
   globalNotification: settingReducer.globalNotification,
   nightModeNotification: settingReducer.nightModeNotification,
   clubNotificationList: settingReducer.clubNotificationList,
-  clubs: clubReducer.clubs
+  joinClubs: clubReducer.joinClubs,
+  likeClubs: clubReducer.likeClubs,
 })
 
 const mapDispatchToProps = {

@@ -1,17 +1,19 @@
 import React from 'react'
 import { connect } from 'react-redux';
 import SearchClub from '../../components/search/SearchClub'
-import { joinTheClub } from '../../modules/Club'
+import { joinTheClub, likeTheClub } from '../../modules/Club'
 
 
 const mapStateToProps = ({ userReducer, clubReducer }) => ({
     user: userReducer.user,
-    clubs: clubReducer.clubs,
+    joinClubs: clubReducer.joinClubs,
+    likeClubs: clubReducer.likeClubs,
     currentCid: clubReducer.currentCid,
 })
 
 const mapDispatchToProps = {
-    joinTheClub
+    joinTheClub,
+    likeTheClub,
 }
 
 

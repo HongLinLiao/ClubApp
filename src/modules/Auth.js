@@ -16,7 +16,8 @@ import {
 } from './User'
 
 import {
-  getAllClubData
+  getAllClubData,
+  randomCid,
 } from './Club'
 
 import {
@@ -39,7 +40,7 @@ const signInSuccess = (action, user, password, loginType) => async (dispatch) =>
 
     let userData = {}
     let settingData = {}
-    let allClubData = {}
+    let clubsData = {}
 
     //使用者基本資料
     if (userShot.val()) { //之前登入過 
@@ -56,11 +57,11 @@ const signInSuccess = (action, user, password, loginType) => async (dispatch) =>
     }
 
     //使用者相關社團資料
-    allClubData = await getAllClubData()
+    clubsData = await getAllClubData()
 
     //更新reducer
     dispatch(SettingAction.setAllSetting(settingData))
-    dispatch(ClubAction.setAllClubData(allClubData))
+    dispatch(ClubAction.setAllClubData(clubsData))
     dispatch(action(userData)) //最後更新user才出發authFlow
     
     dispatch(listenToUser())

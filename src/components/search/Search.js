@@ -41,15 +41,15 @@ class Search extends React.Component {
 
     }
 
-    handleJoinClub = async (cid) => {
+    handleLikeTheClub = async (cid) => {
         try {
             this.setState({ loading: true })
 
-            await this.props.joinTheClub(cid)
+            await this.props.likeTheClub(cid)
 
             this.setState({ loading: false })
 
-            Alert.alert('已成功加入!')
+            Alert.alert('已成功蒐藏!')
         } catch(e) {
             Alert.alert(e.toString())
         }
@@ -95,7 +95,7 @@ class Search extends React.Component {
                 setCurrentClub(club.cid)
                 this.props.navigation.navigate('ClubRouter')
             } else {
-                this.props.navigation.push('SearchClub', {club})
+                this.props.navigation.push('SearchClub', {club, status})
             }
             
 
@@ -128,12 +128,10 @@ class Search extends React.Component {
                 <TextInput placeholder='輸入想搜尋的學校或社團' 
                     onChangeText={(text) => this.handleSearchFilter(text)}
                     onFocus={() => this.search()}
-                    onBlur={() => console.log('onblur')}
-                    onTouchCancel={() => console.log('onTouchCancel')}
-                    onTouchEnd={() => console.log('onTouchCancel')}
-                    onSubmitEditing={() => console.log('onTouchCancel')}
                 />
-                <Text>{this.state.dataArray.length}</Text>
+                {
+                    // <Text>{this.state.dataArray.length}</Text>
+                }
                 <View style={{flex: 1}}>
                     {
                         this.state.tempArray.map((club, index) => {
@@ -151,8 +149,8 @@ class Search extends React.Component {
                                         subtitle={club.initDate}
                                         rightElement={
                                             status.hasJoin ? <Text>已加入社團</Text> :
-                                            status.hasLike ? <Text>以收藏社團</Text> :
-                                                    <Button title='加入社團' onPress={() => this.handleJoinClub(club.cid)} />
+                                            status.hasLike ? <Text>已收藏社團</Text> :
+                                                    <Button title='蒐藏社團' onPress={() => this.handleLikeTheClub(club.cid)} />
                                         }
                                     />
                                 </TouchableOpacity>

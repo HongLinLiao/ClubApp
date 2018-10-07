@@ -31,9 +31,17 @@ class SearchClub extends React.Component {
 		post: {},
 		postKey: {},
 		loading: false,
+		hasJoin: false,
+		hasLike: false,
 	}
 
 	async componentWillMount() {
+		const { navigation } = this.props
+		const { hasJoin, hasLike } = navigation.state.params.status
+		this.setState({
+			hasJoin,
+			hasLike,
+		})
 		await this.postReload(cid);
 	}
 
@@ -79,10 +87,25 @@ class SearchClub extends React.Component {
 		}
 	}
 
+	handleLikeTheClub = async (cid) => {
+		try {
+			this.setState({ loading: true })
+
+			await this.props.likeTheClub(cid)
+
+			this.setState({ loading: false, hasLike: true })
+
+			Alert.alert('已成功蒐藏!')
+		} catch (e) {
+			Alert.alert(e.toString())
+		}
+	}
+
 
 
 	render() {
 		const { user, navigation } = this.props
+		const { hasJoin, hasLike } = this.state
 		const { club } = navigation.state.params
 		const { schoolName, clubName, open, member, introduction, imgUrl } = club
 		const numberOfMember = Object.keys(member).length
@@ -100,8 +123,8 @@ class SearchClub extends React.Component {
 							<Text>{clubName}</Text>
 							<Text>{open ? '公開' : '非公開'}</Text>
 							<Text>{numberOfMember}</Text>
-							<Button title='加入社團' onPress={() => this.handleJoinClub(club.cid)} />
-							<Button title='收藏社團' onPress={() => { }} />
+							<Button title={hasJoin ? '已加入' : '加入社團'} disabled={hasJoin} onPress={() => this.handleJoinClub(club.cid)} />
+							<Button title={hasLike ? '已蒐藏' : '蒐藏社團'} disabled={hasLike} onPress={() => this.handleLikeTheClub(club.cid)} />
 						</View>
 
 						<View style={{ height: 200, borderWidth: 1, borderColor: 'red' }}>
@@ -129,22 +152,22 @@ class SearchClub extends React.Component {
 						<View style={{ height: 500, borderWidth: 1, borderColor: 'red' }}>
 							<Text>最新文章</Text>
 							{
-									Object.values(newPostList).map((clubElement) => (
-										Object.values(clubElement).map((postElement) => (
-											<PostListElement
-												key={postElement.postKey}
-												post={postElement}
-												navigation={this.props.navigation}
-												getInsidePost={this.props.getInsidePost}
-												getPostComment={this.props.getPostComment}
-												setPostFavorite={this.props.setPostFavorite}
-												postList={this.state.post}
-												setPostList={this.setPostList}
-											>
-											</PostListElement>
-										))
+								Object.values(newPostList).map((clubElement) => (
+									Object.values(clubElement).map((postElement) => (
+										<PostListElement
+											key={postElement.postKey}
+											post={postElement}
+											navigation={this.props.navigation}
+											getInsidePost={this.props.getInsidePost}
+											getPostComment={this.props.getPostComment}
+											setPostFavorite={this.props.setPostFavorite}
+											postList={this.state.post}
+											setPostList={this.setPostList}
+										>
+										</PostListElement>
 									))
-								}
+								))
+							}
 							<Button title='查看更多' onPress={() => { }} />
 						</View>
 					</ScrollView>
