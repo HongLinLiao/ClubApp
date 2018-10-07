@@ -32,10 +32,17 @@ class SearchClub extends React.Component {
 			post3: {},
 		},
 		loading: false,
+		hasJoin: false,
+		hasLike: false,
 	}
 
 	componentWillMount() {
-		
+		const { navigation } = this.props
+		const { hasJoin, hasLike } = navigation.state.params.status
+		this.setState({
+			hasJoin,
+			hasLike,
+		})
 	}
 
 
@@ -67,12 +74,27 @@ class SearchClub extends React.Component {
         } catch(e) {
             Alert.alert(e.toString())
         }
+	}
+	
+	handleLikeTheClub = async (cid) => {
+        try {
+            this.setState({ loading: true })
+
+            await this.props.likeTheClub(cid)
+
+            this.setState({ loading: false, hasLike: true })
+
+            Alert.alert('已成功蒐藏!')
+        } catch(e) {
+            Alert.alert(e.toString())
+        }
     }
 
 
 
 	render() {
 		const { user, navigation } = this.props
+		const { hasJoin, hasLike } = this.state
 		const { club } = navigation.state.params
 		const { schoolName, clubName, open, member, introduction, imgUrl } = club
 		const numberOfMember = Object.keys(member).length
@@ -89,8 +111,8 @@ class SearchClub extends React.Component {
 							<Text>{clubName}</Text>
 							<Text>{open ? '公開' : '非公開'}</Text>
 							<Text>{numberOfMember}</Text>
-							<Button title='加入社團' onPress={() => this.handleJoinClub(club.cid)}/>
-							<Button title='收藏社團' onPress={() => {}}/>
+							<Button title={hasJoin ? '已加入' : '加入社團'} disabled={hasJoin} onPress={() => this.handleJoinClub(club.cid)}/>
+							<Button title={hasLike ? '已蒐藏' : '蒐藏社團'} disabled={hasLike} onPress={() => this.handleLikeTheClub(club.cid)}/>
 						</View>
 				
 						<View style={{height: 200, borderWidth: 1, borderColor: 'red'}}>

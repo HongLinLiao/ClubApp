@@ -4,7 +4,6 @@ import * as ClubAction from '../actions/ClubAction'
 import * as SettingAction from '../actions/SettingAction'
 import * as firebase from "firebase"
 import { selectPhoto } from './Common'
-import { Alert } from 'react-native'
 import { getAllClubData } from './Club'
 import { listenToAllClubs, listenToUser, listenToUserSetting } from './Listener'
 
@@ -34,7 +33,7 @@ export const getAllUserData = (user) => async (dispatch) => {
 
     let userData = {}
     let settingData = {}
-    let allClubData = {}
+    let clubsData = {}
 
     if (userShot.val()) { //不是第一次登入才進入
 
@@ -49,16 +48,17 @@ export const getAllUserData = (user) => async (dispatch) => {
       }
 
       //使用者相關社團資料
-      // allClubData = await getAllClubData()
+      clubsData = await getAllClubData()
       
       dispatch(SettingAction.setAllSetting(settingData)) 
-      // dispatch(ClubAction.setAllClubData(allClubData))
+      dispatch(ClubAction.setAllClubData(clubsData))
       dispatch(UserAction.updateUserState(userData)) //最後更新user才觸發authFlow
 
       dispatch(listenToUser())
       dispatch(listenToUserSetting())
-      dispatch(listenToAllClubs())
+      // dispatch(listenToAllClubs())
 
+      // dispatch(CommonAction.setClubListen(true))
     } else { //有使用者帳號但資料庫沒user資料
       dispatch(CommonAction.setLoadingState(false)) //沒有使用者停止等待畫面
     }
@@ -157,7 +157,7 @@ export const setUserStateToDB = async (userState) => {
 
   try {
     const user = firebase.auth().currentUser
-    const userRef = firebase.database().ref('/users').child(user.uid)
+    const userRef = firebase.database().ref('users').child(user.uid)
     const userShot = await userRef.once('value')
     const DB_userState = userShot.val()
 
@@ -170,7 +170,10 @@ export const setUserStateToDB = async (userState) => {
     if (userState.aboutMe)
       DB_userState = { ...DB_userState, aboutMe: userState.aboutMe }
 
-    await userRef.set(DB_userState)
+    if (userState.photoUrl)
+      DB_userState = { ...DB_userState, photoUrl: userState.photoUrl}
+
+    await userRef.update(DB_userState)
 
   } catch (e) {
 
@@ -298,15 +301,15 @@ export const changePhoto = () => async (dispatch) => {
         photoURL: uploadUrl
       })
 
+      //修改資料庫
       await userRef.update({ photoUrl: uploadUrl })
 
       dispatch(UserAction.updateUser({ ...user }))
     }
 
   } catch (error) {
-
-    Alert.alert(error.toString())
     console.log(error.toString())
+    throw e
   }
 
 }
@@ -323,6 +326,7 @@ export const updateUserProfile = (profile) => async (dispatch, getState) => {
     //更新photo
     const uploadUrl = await uploadImageAsync(profile.photoURL, user)
     await user.updateProfile({ photoURL: uploadUrl })
+    userState = { ...userState, photoUrl: uploadUrl }
 
     //更新nickName
     if (user.displayName != profile.nickName)

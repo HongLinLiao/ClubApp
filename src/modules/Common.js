@@ -3,6 +3,7 @@ import * as CommonAction from '../actions/CommonAction'
 import * as firebase from "firebase"
 import { ImagePicker } from 'expo'
 import { Alert } from 'react-native'
+import { store } from '../../App'
 
 
 //從圖庫裡取照片
@@ -61,4 +62,22 @@ export const changeMemberStatusToChinese = (status) => {
   else{
     return '社員';
   }
+}
+
+//判斷社團是蒐藏還是加入
+export const joinOrLikeClub = (cid) => {
+  const { joinClub, likeClub } = store.getState().userReducer
+  let result = null
+  
+  Object.keys(joinClub).map((joinCid) => {
+    if(joinCid == cid) result = 'JOIN'
+  })
+
+  if(result) return result
+
+  Object.keys(likeClub).map((likeCid) => {
+      if(likeCid == cid) result = 'LIKE'
+  })
+
+  return result
 }

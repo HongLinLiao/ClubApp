@@ -45,7 +45,8 @@ class Notification extends React.Component {
   }
 
   render() {
-    const { globalNotification, nightModeNotification, clubNotificationList, clubs } = this.props
+    const { globalNotification, nightModeNotification, clubNotificationList, joinClubs, likeClubs } = this.props
+    const clubs = {...joinClubs, ...likeClubs}
 
     return (
       <View>

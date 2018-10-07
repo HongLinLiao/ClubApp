@@ -23,7 +23,8 @@ const initialState = {
   message: '',
   currentCid: null,
   status: null, //執行狀態
-  clubs: {}, //所有使用者加入或收藏的社團資料
+  joinClubs: {}, //加入社團
+  likeClubs: {}, //收藏社團
   postList: {},
   post: {},
   comment: {}
@@ -34,7 +35,7 @@ export const clubReducer = (state = initialState, action) => {
     case CREATE_CLUB_SUCCESS:
       return {
         ...state,
-        clubs: action.clubData.newClubs
+        joinClubs: action.clubData.newClubs
       }
     case CREATE_CLUB_FAILURE:
       return {
@@ -44,12 +45,20 @@ export const clubReducer = (state = initialState, action) => {
     case SET_ALL_CLUB_DATA:
       return {
         ...state,
-        clubs: action.clubData
+        joinClubs: action.clubData.newJoinClubs,
+        likeClubs: action.clubData.newLikeClubs,
+      }
+    case ADD_THE_CLUB:
+      return {
+        ...state,
+        joinClubs: action.clubData.newJoinClubs,
+        likeClubs: action.clubData.newLikeClubs,
       }
     case REMOVE_THE_CLUB:
       return {
         ...state,
-        clubs: action.clubData,
+        joinClubs: action.clubData.newJoinClubs,
+        likeClubs: action.clubData.newLikeClubs,
         currentCid: action.cid,
       }
     case CREATE_POST_REQUEST:
@@ -60,32 +69,27 @@ export const clubReducer = (state = initialState, action) => {
     case CREATE_POST_SUCCESS:
       return {
         ...state,
-        clubs: action.newClubs
+        joinClubs: action.newClubs
       }
     case SET_CLUB_PHOTO:
       return {
         ...state,
-        clubs: action.clubData
+        joinClubs: action.clubData
       }
     case SET_CLUB_OPEN:
       return {
         ...state,
-        clubs: action.clubData
+        joinClubs: action.clubData
     }
     case SET_CURRENT_CLUB:
       return {
         ...state,
         currentCid: action.currentCid
       }
-    case ADD_THE_CLUB:
-      return {
-        ...state,
-        clubs: action.clubData
-      }
     case DELETE_CLUB_MEMBER:
       return {
         ...state,
-        clubs: action.clubData
+        joinClubs: action.clubData
       }
     case CLEAR_USER_STATE:
       return initialState

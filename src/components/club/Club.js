@@ -14,6 +14,7 @@ import Expo from 'expo'
 
 import ModalDropdown from 'react-native-modal-dropdown';
 import { randomCid, getClubMemberData } from '../../modules/Club'
+import { joinOrLikeClub } from '../../modules/Common'
 
 class Club extends React.Component {
 
@@ -31,27 +32,34 @@ class Club extends React.Component {
 	}
 
 	componentWillMount() {
-		const cid = randomCid(this.props.clubs)
+		const { joinClub, likeClub } = this.props
+		let allClubCids = Object.keys(joinClub).concat(Object.keys(likeClub))
+		const cid = randomCid(allClubCids)
 		this.props.setCurrentClub(cid)
 	}
 
 	generateClubsArray = () => {
-		const { clubs } = this.props
-		const cids = Object.keys(this.props.clubs)
-		if(cids.length != 0) {
-			const clubsArray = Object.keys(clubs).map(
-				(cid) => {
-					return {
-						cid: cid,
-						schoolName: clubs[cid].schoolName,
-						clubName: clubs[cid].clubName,
-					}
-				}
-			)
-			return clubsArray
-		} else {
-			return null
+		const { joinClubs, likeClubs } = this.props
+		let clubsArray = []
+		if(Object.keys(joinClubs).length != 0) {
+			Object.keys(joinClubs).map((cid) => {
+				clubsArray.push({
+					cid: cid,
+					schoolName: joinClubs[cid].schoolName,
+					clubName: joinClubs[cid].clubName,
+				})
+			})
 		}
+		if(Object.keys(likeClubs).length != 0) {
+			Object.keys(likeClubs).map((cid) => {
+				clubsArray.push({
+					cid: cid,
+					schoolName: likeClubs[cid].schoolName,
+					clubName: likeClubs[cid].clubName,
+				})
+			})
+		}
+		return clubsArray
 	}
 
 	askToAddLike = () => {
@@ -69,19 +77,30 @@ class Club extends React.Component {
 	}
 
 	handleGoToMember = async () => {
-		const { navigation, clubs, currentCid } = this.props
-		const memberData = await getClubMemberData(clubs[currentCid].member)
+		const { navigation, joinClubs, currentCid } = this.props
+		const memberData = await getClubMemberData(joinClubs[currentCid].member)
 		navigation.push('ClubMember', { memberData })
 	}
 
 	render() {
 		if(this.props.currentCid) {
-			const { user, clubs, currentCid } = this.props
+			const { user, joinClubs, likeClubs, currentCid } = this.props
+			let type = joinOrLikeClub(currentCid)
+			let clubs = {}
+			let status = ''
+			if(type == 'JOIN') {
+				clubs = joinClubs
+				status = clubs[currentCid].member[user.uid].status
+			}
+			else if (type == 'LIKE') {
+				clubs = likeClubs
+				status = '路人'
+			}
+
 			const { schoolName, clubName, open, member, introduction, imgUrl } = clubs[currentCid]
 			const numberOfMember = Object.keys(member).length
 			const clubsArray = this.generateClubsArray()
-
-			console.log('2')
+			
 			
 			return (
 				<View style={{flex: 1, marginTop: Expo.Constants.statusBarHeight}}>
@@ -95,18 +114,18 @@ class Club extends React.Component {
 								<Text>{clubName}</Text>
 								<Text>{open ? '公開' : '非公開'}</Text>
 								<Text>{numberOfMember}</Text>
-								<Text>{numberOfMember != 0 ? member[user.uid].status : '沒有成員'}</Text>					
-								<Button title='加入社團' onPress={() => {}}/>
-								<Button title='收藏社團' onPress={() => {}}/>
+								<Text>{status}</Text>					
 							</View>
-					
-							<View style={{height: 100, flexDirection: 'row'}}>
-								<Button title='發布文章' onPress={() => this.props.navigation.push('AddPost', {})}/>
-								<Button title='舉辦活動' onPress={() => this.props.navigation.push('AddActivity', {})}/>
-								<Button title='管理者模式' onPress={() => this.props.navigation.push('ClubAdmin', {})}/>
-								<Button title='編輯成員' onPress={this.handleGoToMember}/>
-							</View>
-					
+							{
+								type == 'JOIN' ?
+									<View style={{height: 100, flexDirection: 'row'}}>
+										<Button title='發布文章' onPress={() => this.props.navigation.push('AddPost', {})}/>
+										<Button title='舉辦活動' onPress={() => this.props.navigation.push('AddActivity', {})}/>
+										<Button title='管理者模式' onPress={() => this.props.navigation.push('ClubAdmin', {})}/>
+										<Button title='編輯成員' onPress={this.handleGoToMember}/>
+									</View> : null
+							}
+							
 							<View style={{height: 200, borderWidth: 1, borderColor: 'red'}}>
 								<Text>{introduction}</Text>
 							</View>
