@@ -8,11 +8,8 @@ export default StyleSheet.create({
         backgroundColor: 'rgba(246,180,86,0.2)'
     },
     person: {
-        //margin: 10,
         width: 83,
-        height: 83,
-        borderColor:'red',
-        borderWidth:1
+        height: 83
     },
     circle:{
         width: 83, 
@@ -21,9 +18,7 @@ export default StyleSheet.create({
         overflow: 'hidden', 
         justifyContent: 'center', 
         alignItems: 'center', 
-        margin: 10,
-        borderColor:'red',
-        borderWidth:1
+        margin: 10
     },
     name: {
         color: '#666666',
