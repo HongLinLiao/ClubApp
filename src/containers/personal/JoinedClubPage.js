@@ -5,8 +5,7 @@ import JoinedClub from '../../components/personal/JoinedClub'
 
 const mapStateToProps = ({ userReducer, clubReducer }) => ({
   user: userReducer.user,
-  clubs: clubReducer.clubs,
-  joinClub: userReducer.joinClub
+  joinClubs: clubReducer.joinClubs,
 })
 
 const mapDispatchToProps = {

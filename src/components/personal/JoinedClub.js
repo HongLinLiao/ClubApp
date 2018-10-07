@@ -1,75 +1,78 @@
-import React from 'react'
+import React from "react";
 import {
-    Text,
-    View,
-    TouchableOpacity,
-    StatusBar,
-    ScrollView,
-    Image,
-    Alert
-} from 'react-native';
-import StatusBarPaddingIOS from 'react-native-ios-status-bar-padding';
-import styles from '../../styles/personal/JoinedClub';
+  Text,
+  View,
+  TouchableOpacity,
+  ScrollView,
+  Image,
+  Alert
+} from "react-native";
+import Overlayer from "../common/Overlayer";
+import styles from "../../styles/personal/JoinedClub";
 
 class JoinedClub extends React.Component {
-    state = {
+  state = {
+    loading: false
+  };
+
+  quit = cid => {
+    Alert.alert(
+      "退出社團",
+      "確定要退出社團(一旦退出社團相關資料將被刪除))",
+      [
+        {
+          text: "再思考一下",
+          onPress: () => console.log("再思考一下"),
+          style: "cancel"
+        },
+        { text: "退出", onPress: () => this.handleQuit(cid) }
+      ],
+      { cancelable: false }
+    );
+  };
+  handleQuit = async cid => {
+    try {
+      this.setState({ loading: true });
+      const { quitTheClub, joinClubs } = this.props;
+      const { clubName, schoolName } = joinClubs[cid];
+      await quitTheClub(cid);
+
+      Alert.alert("已退出 " + clubName + " " + schoolName);
+      this.setState({ loading: false });
+    } catch (e) {
+      console.log(e);
+      Alert.alert(e.toString());
+      this.setState({ loading: false });
     }
-    componentDidMount() {
-        // console.log(this.props.navigation)
-    }
-    quit = (cid) => {
-        Alert.alert('退出社團', '確定要退出社團(一旦退出社團相關資料將被刪除))',
-            [
-                { text: '再思考一下', onPress: () => console.log('再思考一下'), style: 'cancel' },
-                { text: '退出', onPress: () => this.handleQuit(cid) },
-            ],
-            { cancelable: false }
-        )
-    }
-    handleQuit = async (cid) => {
+  };
 
-        try {
-            this.props.quitTheClub(cid)
-
-            Alert.alert('成功退出社團')
-
-        } catch (e) {
-            console.log(e)
-            Alert.alert(e.toString())
-        }
-    }
-
-    render() {
-        const { joinClub, clubs } = this.props
-        return (
-            <View style={styles.container}>
-                <StatusBarPaddingIOS style={{ backgroundColor: '#f6b456' }} />
-                <StatusBar
-                    backgroundColor="blue"
-                    barStyle="light-content"
-                />
-                <ScrollView>
-                    {Object.keys(joinClub).map((cid, index) => {
-                        const { clubName, schoolName } = clubs[cid]
-                        return (
-                            <View style={styles.listView}>
-                                <View style={styles.textArea}>
-                                    <Text style={styles.school}>{schoolName}</Text>
-                                    <Text style={styles.club}>{clubName}</Text>
-                                </View>
-                                <View>
-                                    <TouchableOpacity onPress={() => this.quit(cid)}>
-                                        <Image source={require('../../images/cancel.png')}
-                                            style={styles.cancelIcon} />
-                                    </TouchableOpacity>
-                                </View>
-                            </View>
-                        )
-                    })}
-
-                </ScrollView>
+  render() {
+    const { joinClubs } = this.props;
+    return (
+      <View style={styles.container}>
+        <ScrollView>
+          {Object.keys(joinClubs).map((cid, index) => {
+            const { clubName, schoolName } = joinClubs[cid];
+            return (
+                <View style={styles.listView} key={cid}>
+                <View style={styles.textArea}>
+                    <Text style={styles.school}>{schoolName}</Text>
+                    <Text style={styles.club}>{clubName}</Text>
+                </View>
+                <View>
+                    <TouchableOpacity onPress={() => this.quit(cid)}>
+                        <Image source={require('../../images/cancel.png')}
+                            style={styles.cancelIcon} />
+                    </TouchableOpacity>
+                </View>
             </View>
-        );
-    }
+            );
+          })}
+          {this.state.loading ? <Overlayer /> : null}
+        </ScrollView>
+      </View>
+    );
+  }
 }
-export default JoinedClub
+
+export default JoinedClub;

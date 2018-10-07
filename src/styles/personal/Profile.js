@@ -9,7 +9,9 @@ export default StyleSheet.create({
     },
     person: {
         width: 83,
-        height: 83
+        height: 83,
+        borderColor:'transparent',
+        borderWidth:1
     },
     circle:{
         width: 83, 

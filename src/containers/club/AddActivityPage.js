@@ -14,7 +14,8 @@ const mapStateToProps = ({
     clubReducer
 }) => ({
     user: userReducer.user,
-    clubs: clubReducer.clubs,
+    joinClubs: clubReducer.joinClubs,
+    likeClubs: clubReducer.likeClubs,
     currentCid: clubReducer.currentCid,
 })
 

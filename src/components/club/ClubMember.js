@@ -50,9 +50,9 @@ class ClubMember extends React.Component {
 
 
     render() {
-        const { user, clubs, currentCid, navigation } = this.props
+        const { user, joinClubs, currentCid, navigation } = this.props
         const { memberData } = navigation.state.params
-        const { member } = clubs[currentCid]
+        const { member } = joinClubs[currentCid]
         return (
             <View style={{flex: 1}}>
                 {
