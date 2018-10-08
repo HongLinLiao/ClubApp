@@ -138,7 +138,7 @@ class Search extends React.Component {
                             const status = this.filterClubStatus(club)
 
                             return (
-                                <TouchableOpacity key={club.cid} onPress={() => this.handleGoToClub(club, status)}>
+                                <TouchableOpacity key={club.cid} onPress={() => this.props.navigation.push('SearchClub', {club, status})}>
                                     <ListItem
                                         key={club.cid}
                                         leftAvatar={{
