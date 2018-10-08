@@ -16,10 +16,6 @@ class Comment extends React.Component {
         //新增
         newContent: '',
         height: 0,
-        display: {
-            enable: 'flex',
-            disable: 'none'
-        }
     }
 
     //新增留言
@@ -99,14 +95,14 @@ class Comment extends React.Component {
                                     onChangeText={(oldContent) => { this.setState({ oldContent }); }}
                                 />
                                 <Text>{element.date}</Text>
-                                <View style={{ display: element.statusEnable ? this.state.display.enable : this.state.display.disable }}>
+                                <View style={{ display: element.statusEnable ? 'flex' : 'none' }}>
                                     <Button
-                                        style={{ display: element.statusEdit ? this.state.display.enable : this.state.display.disable }}
+                                        style={{ display: element.statusEdit ? 'flex' : 'none' }}
                                         title='完成'
                                         onPress={async () => await this.editComment(element.commentKey)}
                                     />
                                     <Button
-                                        style={{ display: element.statusEdit ? this.state.display.enable : this.state.display.disable }}
+                                        style={{ display: element.statusEdit ? 'flex' : 'none' }}
                                         title='取消'
                                         onPress={() => this.statusEditChange(element)}
                                     />

@@ -36,6 +36,10 @@ class Home extends React.Component {
         return (
             <ScrollView>
                 <Button
+                    title='Stories!'
+                    onPress={() => { this.props.navigation.navigate('Stories'); }}
+                />
+                <Button
                     title='selecting!'
                     onPress={() => { this.goSelectingPage(this.props.navigation); }}
                 />

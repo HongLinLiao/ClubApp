@@ -150,6 +150,7 @@ class AddPost extends React.Component {
 
 	
 	render() {
+		console.log(this.props);
 		const { user, joinClubs, currentCid } = this.props
 		const { schoolName, clubName, member } = joinClubs[currentCid]
 		const status = member[user.uid].status
