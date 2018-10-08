@@ -22,7 +22,7 @@ export default StyleSheet.create({
     controlImage: {
         height: 30,
         width: 30,
-        marginRight: 10,
+        marginRight: 13,
     },
     containView: {
         flex: 1,
