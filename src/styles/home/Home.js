@@ -2,7 +2,7 @@ import { StyleSheet } from 'react-native'
 
 export default StyleSheet.create({
     container: {
-        flex: 1, 
+        flex: 1,
     },
     headView: {
         height: 45,
@@ -17,7 +17,7 @@ export default StyleSheet.create({
     },
     fake: {
         width: 50,
-        
+
     },
     controlImage: {
         height: 30,
@@ -26,7 +26,8 @@ export default StyleSheet.create({
     },
     containView: {
         flex: 1,
-        padding: 15
+        padding: 15,
+        backgroundColor: '#ffffff'
     },
     newsView: {
         alignItems: 'flex-start',
@@ -37,7 +38,7 @@ export default StyleSheet.create({
         marginLeft: 5,
         marginRight: 5,
         marginTop: 5,
-        
+
     },
     shadow: {
         shadowOffset: { width: 1, height: 1 },
@@ -53,25 +54,25 @@ export default StyleSheet.create({
         height: 50,
         width: 50,
         borderRadius: 25,
-        flex:1,
-        
+        flex: 1,
+
     },
-    
+
     newsTextView: {
         marginLeft: 8,
-        marginRight:8,
+        marginRight: 8,
         flexDirection: 'column',
-        flex:8,
+        flex: 8,
     },
     clubAndManagerNameView: {
-        flex:1,
+        flex: 1,
         flexDirection: 'row',
         alignItems: 'flex-end',
         marginBottom: 3,
         //borderWidth:1
     },
     schoolNameView: {
-        flex:1,
+        flex: 1,
         flexDirection: 'row',
         alignItems: 'flex-end',
         marginBottom: 3,
@@ -87,7 +88,7 @@ export default StyleSheet.create({
         fontSize: 10,
     },
     actNameAndDateView: {
-        flex:1.6,
+        flex: 1.6,
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'flex-end',
@@ -105,36 +106,36 @@ export default StyleSheet.create({
     },
 
     newsContentView: {
-        flex:1.5,
-       
+        flex: 1.5,
+
     },
     newsContentText: {
         color: '#666666',
         fontSize: 15,
         height: '100%',
-        lineHeight:25,
+        lineHeight: 25,
     },
-    moreText:{
+    moreText: {
         fontSize: 15,
-        color:'#123456',
+        color: '#123456',
     },
     iconView: {
-        flex:1,
+        flex: 1,
         flexDirection: 'row',
-        alignItems:'center',
+        alignItems: 'center',
         justifyContent: 'flex-end',
-       
+
     },
     aIcon: {
         flexDirection: 'row',
         alignItems: 'flex-end',
         justifyContent: 'center',
-        marginLeft:10,
+        marginLeft: 10,
     },
     icon: {
         height: 15,
         width: 15,
-        marginRight:3
+        marginRight: 3
     },
     iconNumber: {
         color: '#666666',

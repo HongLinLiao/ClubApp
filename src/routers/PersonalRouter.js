@@ -35,12 +35,15 @@ export default createStackNavigator({
   CreateClub: CreateClubPage,
   ClubManage: {
     screen: ClubManagePage,
-    navigationOptions: ({navigation}) => {
+    navigationOptions: ({ navigation }) => {
+
+
+
       console.log(navigation)
       // console.log(navigation.state.routes)
       return {
-        headerRight: <Button title='創建社團' onPress={() => navigation.push('CreateClub')}/>
-      }    
+        headerRight: <Button title='創建社團' onPress={() => navigation.push('CreateClub')} />
+      }
     }
   }
 })

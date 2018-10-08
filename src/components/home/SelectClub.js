@@ -10,7 +10,6 @@ class SelectClub extends React.Component {
         const newNumSelectingStatsTrue = this.props.numSelectingStatusTrue;
         return (
             <ScrollView>
-            <View>
                 <View style={styles.container}>
                 
                 {
@@ -30,7 +29,6 @@ class SelectClub extends React.Component {
                     ))
                 }
                 </View>
-            </View>
             </ScrollView>
         );
     }
