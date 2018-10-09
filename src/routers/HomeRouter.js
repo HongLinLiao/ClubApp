@@ -4,7 +4,7 @@ import HomePage from '../containers/home/HomePage'
 import PostPage from '../containers/club/PostPage'
 import SelectingPage from '../containers/home/HomeSelectingPage'
 import HomeActivitiesPage from '../containers/home/HomeActivitiesPage'
-// import ActivityPage from '../containers/club/ActivityPage'
+import ActivityPage from '../containers/club/ActivityPage'
 import requireAppFlow from '../containers/flowControll/requireAppFlow'
 import { Image, TouchableOpacity } from 'react-native'
 import { View } from 'native-base';
@@ -65,7 +65,7 @@ export default createStackNavigator({
 		screen: requireAppFlow(HomeActivitiesPage)
 	},
 	// 動態貼文內頁，從Club匯入
-	// Activity:{
-	//   screen: ActivityPage
-	// },
+	Activity:{
+	  screen: requireAppFlow(ActivityPage),
+	},
 })

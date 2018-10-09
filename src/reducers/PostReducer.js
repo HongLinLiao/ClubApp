@@ -1,11 +1,11 @@
 import { GET_POST_DATA } from '../actions/PostAction'
 
 const initialState = {
-  allPost:{} , //所有貼文
+  allPost: {}, //所有貼文
 }
 
 export const postReducer = (state = initialState, action) => {
-  switch(action.type) {
+  switch (action.type) {
 
     case GET_POST_DATA:
       return {
