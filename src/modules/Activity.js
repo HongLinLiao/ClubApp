@@ -1,5 +1,6 @@
 import * as firebase from "firebase"
 import * as ActivityAction from '../actions/ActivityAction'
+import { getActivityData } from './Data'
 
 
 //建立一個新活動
@@ -14,7 +15,7 @@ export const createActivity = (cid, activityData) => async (dispatch) => {
         const activityDB = {
             title: activityData.title,
             place: activityData.place,
-            price: parseInt(activityData.price) ,
+            price: parseInt(activityData.price),
             content: activityData.content,
             remarks: activityData.remarks,
             photo: activityData.photo,
@@ -32,7 +33,7 @@ export const createActivity = (cid, activityData) => async (dispatch) => {
 
         //更新reducer部分還沒做
 
-    } catch(e) {
+    } catch (e) {
 
         console.log(e)
 
