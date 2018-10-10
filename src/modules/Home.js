@@ -1,6 +1,6 @@
 import * as HomeAction from '../actions/HomeAction'
 import { getPostDataComplete, getPostKeyListFromClubKey } from './Post';
-import { getActivityKeyFromClubKey, getActivityDataComplete } from './Activity.js';
+import { getActivityDataComplete, getUserActivities } from './Activity.js';
 import { getClubData } from './Data';
 import * as firebase from "firebase"
 
@@ -22,13 +22,21 @@ export const getHomePostReload = (clubList, homeReload) => async (dispatch) => {
 }
 
 //活動列重整
-export const getHomeActivityReload = (clubList,activityReload) => async (dispatch) => {
+export const getHomeActivityReload = (activityReload) => async (dispatch) => {
     try {
-        const activityKeyList = await dispatch(getHomeActivityKey(clubList));
-        const newActivityList = await dispatch(getActivityDataComplete(activityKeyList));
-        activityReload(newActivityList);
+        const keepList = await getUserActivities();
+        if (keepList) {
+            dispatch(HomeAction.getHomeActivityListSuccess(keepList));
+            const newActivityList = await dispatch(getActivityDataComplete(keepList));
+            activityReload(newActivityList);
+        }
+        else {
+            alert('You have not keep activities!');
+            console.log('You have not keep activities!');
+        }
     }
     catch (error) {
+        dispatch(HomeAction.getHomeActivityListFailure(error.toString()))
         console.log(error.toStirng());
     }
 }
@@ -79,30 +87,6 @@ export const getHomePostKey = (clubList) => async (dispatch) => {
     }
     catch (error) {
         dispatch(HomeAction.getHomePostListFailure(error.toString()))
-        console.log(error.toString());
-    }
-}
-
-//以clubList去取得activityKey
-export const getHomeActivityKey = (clubList) => async (dispatch) => {
-    try {
-        var i;
-        const activityList = {};
-        //clubList裡有社團才搜尋貼文
-        if (Object.keys(clubList).length > 0) {
-            const clubKey = Object.keys(clubList);
-            //根據clubList去搜尋clubKey下的post
-            for (i = 0; i < clubKey.length; i++) {
-                //篩選關掉則跳過搜尋
-                let tempActivityKeyList = await getActivityKeyFromClubKey(clubKey[i]);
-                activityList = { ...activityList, ...tempActivityKeyList };
-            }
-        }
-        dispatch(HomeAction.getHomeActivityListSuccess(activityList));
-        return activityList;
-    }
-    catch (error) {
-        dispatch(HomeAction.getHomeActivityListFailure(error.toString()))
         console.log(error.toString());
     }
 }

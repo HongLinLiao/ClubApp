@@ -16,6 +16,7 @@ class Activity extends React.Component {
     render() {
         const activityData = this.state.activity;
         const element = JSON.parse(JSON.stringify(activityData));
+        console.log(element);
 
         return (
             <ScrollView>

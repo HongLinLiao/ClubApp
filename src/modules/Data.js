@@ -67,6 +67,13 @@ export const getInsideActivityData = async (cid, aid) => {
     return activityData;
 }
 
+export const getUserActivityKeeps = async (uid) => {
+    const activityRef = firebase.database().ref('activityKeeps').child(uid)
+    const snapShot = await activityRef.once('value');
+    const activityData = snapShot.val();
+    return activityData;
+}
+
 
 /*
 |-----------------------------------------------
@@ -205,7 +212,7 @@ export const searchAllClubs = async () => {
         const clubsRef = firebase.database().ref('clubs')
         const allClubs = await clubsRef.orderByChild('schoolName').once('value')
         let dataArray = []
-        
+
         allClubs.forEach((club) => {
 
             dataArray.push({
@@ -216,7 +223,7 @@ export const searchAllClubs = async () => {
 
         return dataArray
 
-    } catch(e) {
+    } catch (e) {
         console.log(e)
         throw e
     }

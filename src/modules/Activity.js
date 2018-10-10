@@ -1,30 +1,26 @@
 import * as firebase from "firebase"
 import * as ActivityAction from '../actions/ActivityAction'
-import { getActivityData, getInsideActivityData, getUserData, updateActivityFavorites } from './Data'
+import { getActivityData, getInsideActivityData, getUserData, updateActivityFavorites, getUserActivityKeeps, getClubData } from './Data'
 import { changeMemberStatusToChinese } from './Common';
 
 //********************************************************************************
 // Get Data
 //********************************************************************************
 
-//用clubKey取得社團下所有活動
-export const getActivityKeyFromClubKey = async (clubKey) => {
-    try {
-        const activityData = await getActivityData(clubKey);
-        let activityKeyList = {};
-        if (activityData != null) {
-            activityKeyList[clubKey] = Object.keys(activityData);
-        }
-        return activityKeyList;
+//取得user收藏的活動
+export const getUserActivities = async () => {
+    const uid = firebase.auth().currentUser.uid;
+    const keepList = await getUserActivityKeeps(uid);
+    if (keepList != null) {
+        return keepList;
     }
-    catch (error) {
-        console.log(error.toString());
-        throw error;
+    else {
+        return null;
     }
 }
 
 //用activityKeyArray進firebase抓新資料
-export const getActivityDataComplete = (activityKeyList) => async (dispatch, getState) => {
+export const getActivityDataComplete = (activityKeeps) => async (dispatch, getState) => {
     try {
         let activityData;
         const activityReducer = getState().activityReducer.allActivity;
@@ -34,8 +30,9 @@ export const getActivityDataComplete = (activityKeyList) => async (dispatch, get
         // 回傳物件
         const objPost = {};
         var i, j;
-        for (i = 0; i < Object.keys(activityKeyList).length; i++) {
-            const clubKey = Object.keys(activityKeyList)[i];
+        const clubList = Object.keys(activityKeeps);
+        for (i = 0; i < clubList.length; i++) {
+            const clubKey = clubList[i];
 
             //取得社團資料
             let club;
@@ -48,8 +45,9 @@ export const getActivityDataComplete = (activityKeyList) => async (dispatch, get
             else {
                 club = await getClubData(clubKey);
             }
-            for (j = 0; j < activityKeyList[clubKey].length; j++) {
-                const activityKey = activityKeyList[clubKey][j];
+            const activityList = Object.keys(activityKeeps[clubKey]);
+            for (j = 0; j < activityList.length; j++) {
+                const activityKey = activityList[j];
                 activityData = await getInsideActivityData(clubKey, activityKey);
                 if (activityData != null) {
                     //活動基本屬性
@@ -66,6 +64,51 @@ export const getActivityDataComplete = (activityKeyList) => async (dispatch, get
     }
     catch (error) {
         console.log(error.toString());
+    }
+}
+
+//用clubKey取得社團下所有活動
+export const getActivityDataFromClubKey = (clubKey) => async (dispatch, getState) => {
+    try {
+        // 回傳物件
+        const objPost = {};
+
+        const activityData = await getActivityData(clubKey);
+        let activityDataList = {};
+        const activityKey = Object.keys(activityData);
+
+        const activityReducer = getState().activityReducer.allActivity;
+        // 新物件: activityReducer
+        const newActivityReducer = JSON.parse(JSON.stringify(activityReducer));
+
+        //取得社團資料
+        let club;
+        const joinClubs = getState().clubReducer.joinClubs;
+        const likeClubs = getState().clubReducer.likeClubs;
+        const clubData = { ...joinClubs, ...likeClubs };
+        if (clubData[clubKey]) {
+            club = clubData[clubKey]
+        }
+        else {
+            club = await getClubData(clubKey);
+        }
+
+        if (activityKey.length > 0) {
+            let i;
+            for (i = 0; i < activityKey.length; i++) {
+                activityData[activityKey] = await setActivityFoundations(clubKey, activityKey[i], activityData[activityKey], club);
+                newActivityReducer = handleActivityDataToReducer(newActivityReducer, clubKey, activityKey[i], activityData[activityKey]);
+                if (activityData[activityKey].open) {
+                    objPost = handleActivityDataToObject(objPost, clubKey, activityKey[i], activityData[activityKey]);
+                }
+            }
+            dispatch(ActivityAction.getActivityData(newActivityReducer));
+        }
+        return objPost;
+    }
+    catch (error) {
+        console.log(error.toString());
+        throw error;
     }
 }
 
