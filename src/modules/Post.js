@@ -225,8 +225,14 @@ export const setPostFoundations = async (clubKey, postKey, post, club) => {
         post.clubName = club.clubName;
         post.schoolName = club.schoolName;
         //處理poster職位名稱
-        post.posterStatus = club.member[post.poster].status;
-        post.posterStatusChinese = changeMemberStatusToChinese(post.posterStatus);
+        if (club.member[post.poster]) {
+            post.posterStatus = club.member[post.poster].status;
+            post.posterStatusChinese = changeMemberStatusToChinese(post.posterStatus);
+        }
+        else{
+            post.posterStatus=''
+            post.posterStatusChinese=''
+        }
         //將clubKey放進attribute，否則找不到該貼文社團
         post.clubKey = clubKey;
         post.postKey = postKey;
