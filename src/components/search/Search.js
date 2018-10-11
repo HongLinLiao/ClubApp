@@ -24,6 +24,13 @@ class Search extends React.Component {
         tempArray: [],
     }
 
+    componentWillMount() {
+        this.props.navigation.setParams({
+            handleSearchFilter: this.handleSearchFilter.bind(this),
+            search: this.search.bind(this),
+		})
+    }
+
     async componentDidMount() {
         // const dataArray = await searchAllClubs()
         // this.setState({dataArray})
@@ -125,10 +132,6 @@ class Search extends React.Component {
 
         return (
             <View style={{flex: 1}}>
-                <TextInput placeholder='輸入想搜尋的學校或社團' 
-                    onChangeText={(text) => this.handleSearchFilter(text)}
-                    onFocus={() => this.search()}
-                />
                 {
                     // <Text>{this.state.dataArray.length}</Text>
                 }
