@@ -4,15 +4,17 @@ import {
     Text,
     Alert,
     Button,
+    ScrollView
 } from 'react-native'
 
-import { VictoryPie } from "victory-native";
+import { VictoryPie, VictoryChart, VictoryBar, VictoryTheme } from "victory-native";
 import * as firebase from 'firebase'
 
 class Analysis extends React.Component {
     state = {
         clubArray: [{x: '無社團', y: 1}],
-        colorArray: ['rgb(255, 190, 0)']
+        colorArray: ['rgb(255, 190, 0)'],
+        radius: 10,
     }
 
     async componentDidMount() {
@@ -28,17 +30,28 @@ class Analysis extends React.Component {
         return color
     }
 
-    randomColor = () => {
+    getColorArray = () => {
 
-        let r = 255
-        //g => 180 ~ 230
-        let g = Math.floor(Math.random() * 41 + 190 )
-        //b => 0 ~ 160
-        let b = Math.floor(Math.random() * 161 )
+        const colorArray = [
+            '#28004d',
+            '#3a006f',
+            '#4b0091',
+            '#5b00ae',
+            '#6f00d2',
+            '#8600ff',
+            '#921aff',
+            '#9f35ff',
+            '#b15bff',
+            '#be77ff',
+            '#ca8eff',
+            '#d3a4ff',
+            '#dcb5ff',
+            '#e6caff',
+            '#f1e1ff',
+            '#faf4ff',
+        ]
 
-        let color = `rgb(${r}, ${g}, ${b})`
-
-        return color
+        return colorArray
     }
 
 
@@ -47,16 +60,8 @@ class Analysis extends React.Component {
             const { joinClub, likeClub, joinClubs, likeClubs } = this.props
             const clubArray = []
             const clubsNum = Object.keys(joinClub).length + Object.keys(likeClub).length
-            const colorArray = []
-            let r = 255
-            let g = 210
-            let b = 0
-            let bInterval = Math.floor((130 - 0) / clubsNum)
-            for(let i = 0; i < clubsNum; i++) {
-                b = b + bInterval
-                colorArray.push(`rgb(${r}, ${g}, ${b})`)
-            }
-            let index = 0
+            const colorArray = this.getColorArray()
+            let index = 4
             Object.keys(joinClub).map((cid) => {     
                 const { clubName, member } = joinClubs[cid]
                 let num = Object.keys(member).length
@@ -65,7 +70,7 @@ class Analysis extends React.Component {
                     y: num,
                     fill: colorArray[index]
                 })
-                index++
+                index += 2
             })
             Object.keys(likeClub).map((cid) => {
                 const { clubName, member } = likeClubs[cid]
@@ -75,13 +80,8 @@ class Analysis extends React.Component {
                     y: num,
                     fill: colorArray[index]
                 })
-                index++
+                index += 2
             })
-
-            console.log(clubsNum)
-            console.log(colorArray)
-            console.log(clubArray)
-            
 
             this.setState({clubArray, colorArray})
 
@@ -93,17 +93,37 @@ class Analysis extends React.Component {
     render() {
         return (
             <View style={{flex: 1, alignItems: 'center', justifyContent:'center'}}>
-                <Button title='抓資料' onPress={() => this.searchData()} />
-                <VictoryPie
-                    data={this.state.clubArray}
-                    animate={{duration: 2000}}
-                    labelRadius={80}
-                    style={{
-                        data: {
-                            fill: (d) => d.fill,
-                        }
-                    }}
-                />
+                <ScrollView>
+                    <Button title='抓資料' onPress={() => this.searchData()} />
+                    <VictoryChart
+                        theme={VictoryTheme.material}
+                        domainPadding={10}
+                        animate={{
+                            duration: 2000,
+                            onLoad: { duration: 1000 }
+                        }}
+                    >
+                        <VictoryBar
+                            animate={{
+                                duration: 2000,
+                                onLoad: { duration: 1000 }
+                            }}
+                            style={{ data: { fill: "#c43a31" } }}
+                            data={this.state.clubArray}
+                        />
+                    </VictoryChart>
+                    <VictoryPie
+                        data={this.state.clubArray}
+                        animate={{duration: 2000}}
+                        labelRadius={0}
+                        radius={80}
+                        style={{
+                            data: {
+                                fill: (data) => data.fill,
+                            }
+                        }}
+                    />
+                </ScrollView>               
             </View>
         )
     }

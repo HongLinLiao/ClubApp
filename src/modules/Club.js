@@ -104,7 +104,7 @@ export const createClub = (schoolName, clubName, open) => async (dispatch, getSt
 
 
     await firebase.database().ref('clubs/' + cid).set(newClub)
-    await firebase.database().ref('settings/' + user.uid + '/clubNotificationList/' + cid).update({ on: true })
+    await firebase.database().ref('userSettings/' + user.uid + '/clubNotificationList/' + cid).update({ on: true })
     await firebase.database().ref('users/' + user.uid + '/joinClub').update(newJoinClub)
 
     // dispatch(ClubAction.createClubSuccess(clubData))

@@ -36,6 +36,9 @@ const MainRouter = createBottomTabNavigator({
             )
         }
     },
+    Analysis: {
+        screen: AnalysisRouter,
+    },
     Personal: {
         screen: PersonalRouter,
         navigationOptions: {
@@ -48,7 +51,7 @@ const MainRouter = createBottomTabNavigator({
 
     {
         initialRouteName: 'Home',
-        order: ['Search', 'Home', 'Club', 'Personal'],
+        order: ['Search', 'Home', 'Club', 'Analysis', 'Personal'],
         swipeEnabled: true,//滑動可換頁，失敗
         tabBarOptions: {
             activeTintColor: '#f6b456',//字有按
