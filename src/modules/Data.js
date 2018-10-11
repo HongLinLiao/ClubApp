@@ -27,7 +27,7 @@ export const getClubData = async (cid) => {
     return snapShot.val();
 };
 
-//取得所有文章資料
+//取得該社團下所有文章
 export const getPostData = async (cid) => {
     const postRef = firebase.database().ref('posts').child(cid)
     const snapShot = await postRef.once('value');
@@ -35,7 +35,7 @@ export const getPostData = async (cid) => {
     return postData;
 }
 
-//取得某一篇文章資料
+//取得該社團下某一篇文章
 export const getInsidePostData = async (cid, pid) => {
     const postRef = firebase.database().ref('posts').child(cid).child(pid)
     const snapShot = await postRef.once('value');
@@ -43,13 +43,30 @@ export const getInsidePostData = async (cid, pid) => {
     return postData;
 }
 
-//從firebase取得指定club下指定post之所有留言
+//取得指定club下指定post之所有留言
 export const getPostComments = async (clubKey, postKey) => {
     const commentRef = firebase.database().ref('comments/' + clubKey + '/' + postKey);
     const snapShot = await commentRef.once('value');
     const CommentData = snapShot.val();
     return CommentData;
 }
+
+//取得該社團下所有活動
+export const getActivityData = async (clubKey) => {
+    const activityRef = firebase.database().ref('activities').child(clubKey)
+    const snapShot = await activityRef.once('value');
+    const activityData = snapShot.val();
+    return activityData;
+}
+
+//取得該社團下某一個活動
+export const getInsideActivityData = async (cid, aid) => {
+    const activityRef = firebase.database().ref('activities').child(cid).child(aid)
+    const snapShot = await activityRef.once('value');
+    const activityData = snapShot.val();
+    return activityData;
+}
+
 
 /*
 |-----------------------------------------------
@@ -75,6 +92,20 @@ export const updatePostFavorites = async (clubKey, postKey, updateFavorites) => 
     }
     else {
         favoritesRef = firebase.database().ref('posts/' + clubKey + '/' + postKey + '/favorites/' + uid);
+    }
+    await favoritesRef.set(value);
+}
+
+//更新Activity.Favorites
+export const updateActivityFavorites = async (clubKey, activityKey, updateFavorites) => {
+    const uid = Object.keys(updateFavorites)[0];
+    const value = Object.values(updateFavorites)[0];
+    let favoritesRef;
+    if (value == false) {
+        favoritesRef = firebase.database().ref('activities/' + clubKey + '/' + activityKey + '/favorites');
+    }
+    else {
+        favoritesRef = firebase.database().ref('activities/' + clubKey + '/' + activityKey + '/favorites/' + uid);
     }
     await favoritesRef.set(value);
 }

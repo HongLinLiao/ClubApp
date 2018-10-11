@@ -49,8 +49,18 @@ export const getPostDataComplete = (postKeyList) => async (dispatch, getState) =
         var i, j;
         for (i = 0; i < Object.keys(postKeyList).length; i++) {
             const clubKey = Object.keys(postKeyList)[i];
-            //取得社團資料  
-            const club = await getClubData(clubKey);
+
+            //取得社團資料
+            let club;
+            const joinClubs = getState().clubReducer.joinClubs;
+            const likeClubs = getState().clubReducer.likeClubs;
+            const clubData = { ...joinClubs, ...likeClubs };
+            if (clubData[clubKey]) {
+                club = clubData[clubKey]
+            }
+            else {
+                club = await getClubData(clubKey);
+            }
             for (j = 0; j < postKeyList[clubKey].length; j++) {
                 const postKey = postKeyList[clubKey][j];
                 postData = await getInsidePostData(clubKey, postKey);
@@ -79,8 +89,17 @@ export const getInsidePost = (clubKey, postKey) => async (dispatch, getState) =>
             return null;
         }
         else {
-            //取得社團資料  
-            const club = await getClubData(clubKey);
+            //取得社團資料
+            let club;
+            const joinClubs = getState().clubReducer.joinClubs;
+            const likeClubs = getState().clubReducer.likeClubs;
+            const clubData = { ...joinClubs, ...likeClubs };
+            if (clubData[clubKey]) {
+                club = clubData[clubKey]
+            }
+            else {
+                club = await getClubData(clubKey);
+            }
             //先取得貼文基本屬性
             postData = await setPostFoundations(clubKey, postKey, postData, club);
             //觀看
@@ -175,7 +194,7 @@ export const createPost = (cid, postData) => async (dispatch) => {
 }
 
 //刪除貼文
-export const deletePostData = (clubKey, postKey,postList) => async (dispatch, getState) => {
+export const deletePostData = (clubKey, postKey, postList) => async (dispatch, getState) => {
 
     try {
         await deletePost(clubKey, postKey);
@@ -206,8 +225,14 @@ export const setPostFoundations = async (clubKey, postKey, post, club) => {
         post.clubName = club.clubName;
         post.schoolName = club.schoolName;
         //處理poster職位名稱
-        post.posterStatus = club.member[post.poster].status;
-        post.posterStatusChinese = changeMemberStatusToChinese(post.posterStatus);
+        if (club.member[post.poster]) {
+            post.posterStatus = club.member[post.poster].status;
+            post.posterStatusChinese = changeMemberStatusToChinese(post.posterStatus);
+        }
+        else{
+            post.posterStatus=''
+            post.posterStatusChinese=''
+        }
         //將clubKey放進attribute，否則找不到該貼文社團
         post.clubKey = clubKey;
         post.postKey = postKey;
@@ -297,8 +322,17 @@ export const setPostFavorite = (clubKey, postKey) => async (dispatch, getState) 
         if (post != null) {
             //取得使用者id
             const user = firebase.auth().currentUser;
-            //取得社團資料  
-            const club = await getClubData(clubKey);
+            //取得社團資料
+            let club;
+            const joinClubs = getState().clubReducer.joinClubs;
+            const likeClubs = getState().clubReducer.likeClubs;
+            const clubData = { ...joinClubs, ...likeClubs };
+            if (clubData[clubKey]) {
+                club = clubData[clubKey]
+            }
+            else {
+                club = await getClubData(clubKey);
+            }
             //先取得貼文基本屬性
             post = await setPostFoundations(clubKey, postKey, post, club);
 
@@ -407,8 +441,17 @@ export const creatingComment = (clubKey, postKey, content) => async (dispatch, g
 
             //貼文資料全部重抓更新
             const post = await getInsidePostData(clubKey, postKey);
-            //取得社團資料  
-            const club = await getClubData(clubKey);
+            //取得社團資料
+            let club;
+            const joinClubs = getState().clubReducer.joinClubs;
+            const likeClubs = getState().clubReducer.likeClubs;
+            const clubData = { ...joinClubs, ...likeClubs };
+            if (clubData[clubKey]) {
+                club = clubData[clubKey]
+            }
+            else {
+                club = await getClubData(clubKey);
+            }
             //先取得貼文基本屬性
             post = await setPostFoundations(clubKey, postKey, post, club);
             const prePostReducer = getState().postReducer.allPost;
@@ -445,8 +488,17 @@ export const deletingComment = (clubKey, postKey, commentKey) => async (dispatch
 
             //貼文資料全部重抓更新
             const post = await getInsidePostData(clubKey, postKey);
-            //取得社團資料  
-            const club = await getClubData(clubKey);
+            //取得社團資料
+            let club;
+            const joinClubs = getState().clubReducer.joinClubs;
+            const likeClubs = getState().clubReducer.likeClubs;
+            const clubData = { ...joinClubs, ...likeClubs };
+            if (clubData[clubKey]) {
+                club = clubData[clubKey]
+            }
+            else {
+                club = await getClubData(clubKey);
+            }
             //先取得貼文基本屬性
             post = await setPostFoundations(clubKey, postKey, post, club);
             const prePostReducer = getState().postReducer.allPost;

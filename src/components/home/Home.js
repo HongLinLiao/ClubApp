@@ -2,7 +2,8 @@ import React from 'react'
 import { ScrollView } from 'react-native'
 import { Button } from 'react-native-elements'
 import PostListElement from '../post/PostListElement'
-
+import styles from '../../styles/home/Home'
+import { View } from 'native-base';
 class Home extends React.Component {
 
     async componentDidMount() {
@@ -36,6 +37,10 @@ class Home extends React.Component {
         return (
             <ScrollView>
                 <Button
+                    title='Stories!'
+                    onPress={() => { this.props.navigation.navigate('Stories'); }}
+                />
+                <Button
                     title='selecting!'
                     onPress={() => { this.goSelectingPage(this.props.navigation); }}
                 />
@@ -45,6 +50,7 @@ class Home extends React.Component {
                         await this.homeReload(this.props.clubList);
                     }}
                 />
+                <View style={styles.containView}>
                 {
                     Object.values(newPostList).map((clubElement) => (
                         Object.values(clubElement).map((postElement) => (
@@ -61,7 +67,9 @@ class Home extends React.Component {
                             </PostListElement>
                         ))
                     ))
+                
                 }
+                </View>
             </ScrollView>
         );
     }

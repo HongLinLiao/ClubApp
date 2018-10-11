@@ -165,7 +165,7 @@ export const setClubOpen = (cid) => async (dispatch, getState) => {
     //更新redux
     dispatch(ClubAction.setClubOpen(newClubs))
 
-  } catch(e) {
+  } catch (e) {
     console.log(e)
     throw e
   }
@@ -192,7 +192,7 @@ export const kickClubMember = (cid, uid) => async (dispatch, getState) => {
       await clubNotificationRef.set(false)
     }
 
-    if(Object.keys(member).length > 1) { //加入社團於1
+    if (Object.keys(member).length > 1) { //加入社團於1
       await memberRef.child(uid).remove()
     } else {
       await memberRef.set(false)
@@ -207,7 +207,7 @@ export const kickClubMember = (cid, uid) => async (dispatch, getState) => {
     //redux
     // dispatch(ClubAction.deleteClubMember(newClubs))
 
-  } catch(e) {
+  } catch (e) {
     console.log(e)
     throw e
   }
@@ -221,7 +221,7 @@ export const searchAllClub = async () => {
 
     return allClubData
 
-  } catch(e) {
+  } catch (e) {
     console.log(e)
     throw e
   }
@@ -250,7 +250,7 @@ export const joinTheClub = (cid) => async ( dispatch, getState ) => {
     //資料庫修改
     newClub.member = newClub.member ? newClub.member : {}
     newClub.member[uid] = { status: 'member' }
-    
+
 
     //redux修改
     // newClubs[cid] = newClub
@@ -275,7 +275,7 @@ export const joinTheClub = (cid) => async ( dispatch, getState ) => {
     // dispatch(ClubAction.addTheClub(newClubs, newJoinClub, newClubNotificationList))
     // dispatch(ClubAction.setCurrentClub(cid))
 
-    
+
   } catch (e) {
     console.log(e)
     throw e
@@ -398,7 +398,7 @@ export const dislikeTheClub = async (cid) => {
 
 export const randomCid = (cids) => {
 
-  if(cids.length != 0) {
+  if (cids.length != 0) {
     const number = Math.floor(Math.random() * cids.length)
     return cids[number]
 
@@ -420,7 +420,7 @@ export const getClubMemberData = async (member) => {
 
     return memberData
 
-  } catch(e) {
+  } catch (e) {
     console.log(e)
     throw e
   }
