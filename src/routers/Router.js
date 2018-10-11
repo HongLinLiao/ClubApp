@@ -52,7 +52,7 @@ const MainRouter = createBottomTabNavigator(
   },
 
   {
-    initialRouteName: "Search",
+    initialRouteName: "Home",
     order: ["Search", "Home", "Club", "Personal"],
     swipeEnabled: true, //滑動可換頁，失敗
     tabBarOptions: {
