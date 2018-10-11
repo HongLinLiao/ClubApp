@@ -13,22 +13,26 @@ import JoinedClubPage from '../containers/personal/JoinedClubPage'
 import FavoriteClubPage from '../containers/personal/FavoriteClubPage'
 import requireAppFlow from '../containers/flowControll/requireAppFlow'
 
+
 import React from 'react'
-import { Button } from 'react-native'
+import { Button, TouchableOpacity } from 'react-native'
 
 
 const ClubManagePage = createMaterialTopTabNavigator({
-  JoinedClub: JoinedClubPage,
+  JoinedClub: {screen:JoinedClubPage},
   FavoriteClub: FavoriteClubPage,
 })
 
 
 export default createStackNavigator({
-  Profile:{
-    screen: requireAppFlow(ProfilePage),
+  Profile: {
+    screen: ProfilePage,
     navigationOptions: ({ navigation }) => ({
 			title: '個人管理',
-			headerBackTitle:'上一頁',
+      headerBackTitle:'個人管理',
+      headerBackImage:{
+        tintColor: '#0d4273',
+      },
 			headerTitleStyle: {
 				color: '#666666',
 				fontSize: 20,
@@ -40,31 +44,90 @@ export default createStackNavigator({
 		)
   },
   ProfileSetting: {
-    screen:requireAppFlow(ProfileSettingPage),
+    screen: ProfileSettingPage,
+    navigationOptions: ({ navigation }) => ({
+      title: '編輯個人',
+      headerBackTitle: '上一頁',
+      headerTitleStyle: {
+        color: '#666666',
+        fontSize: 20,
+  },
+      headerStyle: {
+        backgroundColor: '#f6b456'
+      },
+    }
+    )
   },
   AdvancedSetting: {
-    screen:requireAppFlow(AdvancedSettingPage),
+    screen: AdvancedSettingPage,
+    navigationOptions: ({ navigation }) => ({
+      title: '進階管理',
+      headerBackTitle: '上一頁',
+      headerTitleStyle: {
+        color: '#666666',
+        fontSize: 20,
+  },
+      headerStyle: {
+        backgroundColor: '#f6b456'
+      },
+    }
+    )
   },
   EmailReVerified: {
-    screen:requireAppFlow(EmailReVerifiedPage),
+    screen: EmailReVerifiedPage,
   },
   SendEmailSuccessful: {
-    screen:requireAppFlow(SendEmailSuccessfulPage),
+    screen: SendEmailSuccessfulPage,
   },
   ChangeEamil: {
-    screen:requireAppFlow(ChangeEamilPage),
+    screen: ChangeEamilPage,
   },
   ChangePassword: {
-    screen:requireAppFlow(ChangePasswordPage),
+    screen: ChangePasswordPage,
   },
   Notification: {
-    screen:requireAppFlow(NotificationPage),
+    screen: NotificationPage,
+    navigationOptions: ({ navigation }) => ({
+      title: '通知設定',
+      headerBackTitle: '上一頁',
+      headerTitleStyle: {
+        color: '#666666',
+        fontSize: 20,
+      },
+      headerStyle: {
+        backgroundColor: '#f6b456'
+      },
+    }
+    )
   },
   ClubPrivateSetting: {
-    screen:requireAppFlow(ClubPrivateSettingPage),
+    screen: ClubPrivateSettingPage,
+    navigationOptions: ({ navigation }) => ({
+      headerBackTitle: '上一頁',
+      headerTitleStyle: {
+        color: '#666666',
+        fontSize: 20,
+      },
+      headerStyle: {
+        backgroundColor: '#f6b456'
+      },
+    }
+    )
   },
   CreateClub: {
-    screen:requireAppFlow(CreateClubPage),
+    screen: CreateClubPage,
+    navigationOptions: ({ navigation }) => ({
+      title: '創建社團',
+      headerBackTitle: '上一頁',
+      headerTitleStyle: {
+        color: '#666666',
+        fontSize: 20,
+      },
+      headerStyle: {
+        backgroundColor: '#f6b456'
+      },
+    }
+    )
   },
   ClubManage: {
     screen: ClubManagePage,
@@ -72,8 +135,29 @@ export default createStackNavigator({
       console.log(navigation)
       // console.log(navigation.state.routes)
       return {
-        headerRight: <Button title='創建社團' onPress={() => navigation.push('CreateClub')} />
+        headerRight: <Button title='創建社團' onPress={() => navigation.push('CreateClub')} />,
+        title: '社團管理',
+        headerTitleStyle: {
+          color: '#666666',
+          fontSize: 20,
+        },
+        headerStyle: {
+          backgroundColor: '#f6b456'
+        },
       }
     }
+  }
+},
+{
+  navigationOptions: {
+    headerBackTitleStyle:{
+      color: '#0d4273',
+      fontSize: 15,
+    },
+    headerBackImage: (
+      <TouchableOpacity>
+        <Image source={require('../images/images2/arrowLeftBlue.png')} />
+      </TouchableOpacity>
+    )
   }
 })
