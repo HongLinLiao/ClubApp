@@ -14,28 +14,26 @@ import { searchAllClubs } from "../../modules/Data";
 import Overlayer from "../common/Overlayer";
 
 class Search extends React.Component {
-
-    state = {
-        loading: false,
-        searching: false,
-        text: '',
-        dataArray: [],
-        tempArray: [],
-    }
-
-    componentWillMount() {
-        this.props.navigation.setParams({
-            handleSearchFilter: this.handleSearchFilter.bind(this),
-            search: this.search.bind(this),
-		})
-    }
-
-    async componentDidMount() {
-        // const dataArray = await searchAllClubs()
-        // this.setState({dataArray})
-        // console.log(dataArray)
-    }
+  state = {
+    loading: false,
+    searching: false,
+    text: "",
+    dataArray: [],
+    tempArray: []
   };
+
+  componentWillMount() {
+    this.props.navigation.setParams({
+      handleSearchFilter: this.handleSearchFilter.bind(this),
+      search: this.search.bind(this)
+    });
+  }
+
+  async componentDidMount() {
+    // const dataArray = await searchAllClubs()
+    // this.setState({dataArray})
+    // console.log(dataArray)
+  }
 
   handleSearchFilter = async text => {
     try {
