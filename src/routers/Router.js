@@ -11,6 +11,7 @@ import PersonalRouter from "./PersonalRouter";
 import FirstLoginRouter from "./FirstLoginRouter";
 import UserRouter from "./UserRouter";
 import SearchRouter from "./SearchRouter";
+import AnalysisRouter from "./AnalysisRouter";
 
 import Icon from "react-native-vector-icons/Ionicons";
 import React from "react";
@@ -41,6 +42,7 @@ const MainRouter = createBottomTabNavigator(
         )
       }
     },
+    Analysis: AnalysisRouter,
     Personal: {
       screen: PersonalRouter,
       navigationOptions: {
@@ -52,8 +54,8 @@ const MainRouter = createBottomTabNavigator(
   },
 
   {
-    initialRouteName: "Home",
-    order: ["Search", "Home", "Club", "Personal"],
+    initialRouteName: "Search",
+    order: ["Search", "Home", "Club", "Analysis", "Personal"],
     swipeEnabled: true, //滑動可換頁，失敗
     tabBarOptions: {
       activeTintColor: "#f6b456", //字有按

@@ -9,32 +9,36 @@ import { View } from 'native-base';
 export default createStackNavigator({
     Search: {
         screen: SearchPage,
-        navigationOptions: ({ navigation }) => ({
-            headerTitleStyle: {
-                color: '#666666',
-                fontSize: 20,
-            },
-            headerStyle: {
-                backgroundColor: 'white',
-            },
-            headerTitle:
-
-                <View style={styles.searchView}>
-                    <TextInput
-                        placeholder="搜尋（ex:長庚大學）"
-                        placeholderTextColor='gray'
-                        style={{
-                            height: 30,
-                            padding:10,
-                            backgroundColor: 'white',
-                            flex: 1,
-                            fontSize:15,
-                        }} />
-                    <Image source={require('../images/images2/search.png')}
-                        style={styles.search} />
-                </View>
-            ,
-        })
+        navigationOptions: ({ navigation }) => {
+            return {
+                headerTitleStyle: {
+                    color: '#666666',
+                    fontSize: 20,
+                },
+                headerStyle: {
+                    backgroundColor: 'white',
+                },
+                headerTitle: (
+                    <View style={styles.searchView}>
+                        <TextInput
+                            placeholder='輸入想搜尋的學校或社團' 
+                            placeholderTextColor='gray'
+                            style={{
+                                height: 30,
+                                padding:10,
+                                backgroundColor: 'white',
+                                flex: 1,
+                                fontSize:15,
+                            }}
+                            onChangeText={(text) => navigation.state.params.handleSearchFilter(text)}
+                            onFocus={() => navigation.state.params.search()}
+                            />
+                        <Image source={require('../images/images2/search.png')}
+                            style={styles.search} />
+                    </View>
+                )
+            }
+        }
     },
     SearchClub: {
         screen: SearchClubPage

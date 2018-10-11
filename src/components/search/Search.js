@@ -14,40 +14,26 @@ import { searchAllClubs } from "../../modules/Data";
 import Overlayer from "../common/Overlayer";
 
 class Search extends React.Component {
-  state = {
-    loading: false,
-    searching: false,
-    text: "",
-    dataArray: [],
-    tempArray: []
-  };
 
-  async componentDidMount() {
-    // const dataArray = await searchAllClubs()
-    // this.setState({dataArray})
-    // console.log(dataArray)
-  }
+    state = {
+        loading: false,
+        searching: false,
+        text: '',
+        dataArray: [],
+        tempArray: [],
+    }
 
-  search = async () => {
-    this.setState({ loading: true });
-    const dataArray = await searchAllClubs();
-    this.setState({ dataArray });
-    console.log(dataArray);
+    componentWillMount() {
+        this.props.navigation.setParams({
+            handleSearchFilter: this.handleSearchFilter.bind(this),
+            search: this.search.bind(this),
+		})
+    }
 
-    this.setState({ loading: false });
-  };
-
-  handleLikeTheClub = async cid => {
-    try {
-      this.setState({ loading: true });
-
-      await this.props.likeTheClub(cid);
-
-      this.setState({ loading: false });
-
-      Alert.alert("已成功收藏!");
-    } catch (e) {
-      Alert.alert(e.toString());
+    async componentDidMount() {
+        // const dataArray = await searchAllClubs()
+        // this.setState({dataArray})
+        // console.log(dataArray)
     }
   };
 
