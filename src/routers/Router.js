@@ -42,7 +42,15 @@ const MainRouter = createBottomTabNavigator(
         )
       }
     },
-    Analysis: AnalysisRouter,
+
+    Analysis: {
+      screen: AnalysisRouter,
+      navigationOptions: {
+        tabBarIcon: ({ tintColor }) => (
+          <Icon name="ios-stats" color={tintColor} size={24} />
+        )
+      }
+    },
     Personal: {
       screen: PersonalRouter,
       navigationOptions: {
@@ -54,8 +62,8 @@ const MainRouter = createBottomTabNavigator(
   },
 
   {
-    initialRouteName: "Search",
-    order: ["Search", "Home", "Club", "Analysis", "Personal"],
+    initialRouteName: "Home",
+    order: ["Analysis", "Search", "Home", "Club", "Personal"],
     swipeEnabled: true, //滑動可換頁，失敗
     tabBarOptions: {
       activeTintColor: "#f6b456", //字有按

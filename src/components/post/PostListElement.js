@@ -41,14 +41,15 @@ const PostListElement = ({
   }
   state = {
     likeOr: false,
-    likeI: require("../../images/images2/message.png")
+    likeI: require("../../images/like-gray.png")
   };
   changeLikeI = () => {
+    //我還是不會
     this.setState({
       likeOr: !this.state.likeOr,
       likeI: this.state.likeOr
-        ? require("../../images/message.png")
-        : require("../../images/images2/message-orange.png")
+        ? require("../../images/like-gray.png")
+        : require("../../images/images2/like-orange.png")
     });
   };
   return (
@@ -85,27 +86,22 @@ const PostListElement = ({
             <Text style={styles.moreText}>...more</Text>
           </View>
           <View style={styles.iconView}>
+            <Image
+              source={require("../../images/message.png")}
+              style={styles.icon}
+            />
+            <Text style={styles.iconNumber}>{post.numComments}</Text>
+
             <TouchableOpacity
-              onPress={() => {
+              style={styles.aIcon}
+              onPress={async () => {
+                await pressFavorite(post);
                 this.changeLikeI();
               }}
               style={styles.aIcon}
             >
               <Image source={this.state.likeI} style={styles.icon} />
-              <Text style={styles.iconNumber}>{post.numComments}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={async () => {
-                await pressFavorite(post);
-              }}
-            >
-              <View style={styles.aIcon}>
-                <Image
-                  source={require("../../images/like-gray.png")}
-                  style={styles.icon}
-                />
-                <Text style={styles.iconNumber}>{post.numFavorites}</Text>
-              </View>
+              <Text style={styles.iconNumber}>{post.numFavorites}</Text>
             </TouchableOpacity>
             <View style={styles.aIcon}>
               <Image

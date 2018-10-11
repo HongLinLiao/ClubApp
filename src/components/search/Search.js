@@ -5,14 +5,16 @@ import {
   Alert,
   Text,
   TextInput,
-  TouchableOpacity
+  TouchableOpacity,
+  ImageBackground,
+  ScrollView
 } from "react-native";
 
 import { ListItem } from "react-native-elements";
 
 import { searchAllClubs } from "../../modules/Data";
 import Overlayer from "../common/Overlayer";
-
+import styles from "../../styles/search/Search";
 class Search extends React.Component {
   state = {
     loading: false,
@@ -34,6 +36,29 @@ class Search extends React.Component {
     // this.setState({dataArray})
     // console.log(dataArray)
   }
+
+  search = async () => {
+    this.setState({ loading: true });
+    const dataArray = await searchAllClubs();
+    this.setState({ dataArray });
+    console.log(dataArray);
+
+    this.setState({ loading: false });
+  };
+
+  handleLikeTheClub = async cid => {
+    try {
+      this.setState({ loading: true });
+
+      await this.props.likeTheClub(cid);
+
+      this.setState({ loading: false });
+
+      Alert.alert("已成功收藏!");
+    } catch (e) {
+      Alert.alert(e.toString());
+    }
+  };
 
   handleSearchFilter = async text => {
     try {
@@ -93,62 +118,47 @@ class Search extends React.Component {
 
     return { hasJoin, hasLike };
   };
-
+  //我把listitem都刪掉了
   render() {
     return (
-      <View style={{ flex: 1 }}>
-        <TextInput
-          placeholder="輸入想搜尋的學校或社團"
-          onChangeText={text => this.handleSearchFilter(text)}
-          onFocus={() => this.search()}
-        />
-        {
-          // <Text>{this.state.dataArray.length}</Text>
-        }
-        <View style={{ flex: 1 }}>
-          {this.state.tempArray.map((club, index) => {
-            const status = this.filterClubStatus(club);
+      <ScrollView>
+        <View style={{ flex: 1, backgroundColor: "#ffffff" }}>
+          {
+            // <Text>{this.state.dataArray.length}</Text>
+          }
+          <View style={{ flex: 1 }}>
+            {this.state.tempArray.map((club, index) => {
+              const status = this.filterClubStatus(club);
 
-            return (
-              <TouchableOpacity
-                key={club.cid}
-                onPress={() =>
-                  this.props.navigation.push("SearchClub", { club, status })
-                }
-              >
-                <ListItem
+              return (
+                <TouchableOpacity
                   key={club.cid}
-                  leftAvatar={{
-                    source: {
-                      uri: club.imgUrl
-                        ? club.imgUrl
-                        : "https://image.freepik.com/free-icon/man-dark-avatar_318-9118.jpg"
-                    },
-                    size: "medium"
-                  }}
-                  title={club.schoolName + " " + club.clubName}
-                  subtitle={club.initDate}
-                  rightElement={
-                    status.hasJoin ? (
-                      <Text>已加入社團</Text>
-                    ) : status.hasLike ? (
-                      <Text>已收藏社團</Text>
-                    ) : (
-                      <Button
-                        title="收藏社團"
-                        onPress={() => this.handleLikeTheClub(club.cid)}
-                      />
-                    )
+                  onPress={() =>
+                    this.props.navigation.push("SearchClub", { club, status })
                   }
-                />
-              </TouchableOpacity>
-            );
-          })}
-          {this.state.searching ? <Overlayer /> : null}
-        </View>
+                >
+                  <View style={styles.card}>
+                    <ImageBackground
+                      source={{ uri: club.imgUrl }}
+                      style={styles.clubBackground}
+                    />
+                    <View style={styles.clubNameView}>
+                      <Text style={styles.clubNameText}>{club.schoolName}</Text>
+                      <Text style={styles.clubNameText}>{club.clubName}</Text>
+                    </View>
+                    <View style={styles.clubIntroView}>
+                      <Text style={styles.clubIntroText}>{club.initDate}</Text>
+                    </View>
+                  </View>
+                </TouchableOpacity>
+              );
+            })}
+            {this.state.searching ? <Overlayer /> : null}
+          </View>
 
-        {this.state.loading ? <Overlayer /> : null}
-      </View>
+          {this.state.loading ? <Overlayer /> : null}
+        </View>
+      </ScrollView>
     );
   }
 }
