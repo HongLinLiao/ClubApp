@@ -4,10 +4,19 @@ import {
     Text,
     Alert,
     Button,
-    ScrollView
+    ScrollView,
+    RefreshControl,
+    TouchableOpacity,
+    Image
 } from 'react-native'
 
-import { VictoryPie, VictoryChart, VictoryBar, VictoryTheme } from "victory-native";
+import { ListItem } from 'react-native-elements'
+
+import Expo from 'expo'
+
+import { getPopularClubData } from '../../modules/Analysis'
+
+import { VictoryPie, VictoryChart, VictoryBar, VictoryTheme, VictoryLabel, VictoryAxis } from "victory-native";
 import * as firebase from 'firebase'
 
 class Analysis extends React.Component {
@@ -15,6 +24,8 @@ class Analysis extends React.Component {
         clubArray: [{x: '無社團', y: 1}],
         colorArray: ['rgb(255, 190, 0)'],
         radius: 10,
+        result: false,
+        refreshing: false,
     }
 
     async componentDidMount() {
@@ -58,32 +69,10 @@ class Analysis extends React.Component {
     searchData = async () => {
         try {
             const { joinClub, likeClub, joinClubs, likeClubs } = this.props
-            const clubArray = []
-            const clubsNum = Object.keys(joinClub).length + Object.keys(likeClub).length
-            const colorArray = this.getColorArray()
-            let index = 4
-            Object.keys(joinClub).map((cid) => {     
-                const { clubName, member } = joinClubs[cid]
-                let num = Object.keys(member).length
-                clubArray.push({
-                    x: clubName,
-                    y: num,
-                    fill: colorArray[index]
-                })
-                index += 2
-            })
-            Object.keys(likeClub).map((cid) => {
-                const { clubName, member } = likeClubs[cid]
-                let num = Object.keys(member).length
-                clubArray.push({
-                    x: clubName,
-                    y: num,
-                    fill: colorArray[index]
-                })
-                index += 2
-            })
+            const clubDataArray = {...joinClubs, ...likeClubs}
 
-            this.setState({clubArray, colorArray})
+            const clubArray = await getPopularClubData(clubDataArray)
+            this.setState({clubArray, result: true})
 
         } catch(e) {
             console.log(e)
@@ -92,41 +81,117 @@ class Analysis extends React.Component {
 
     render() {
         return (
-            <View style={{flex: 1, alignItems: 'center', justifyContent:'center'}}>
-                <ScrollView>
-                    <Button title='抓資料' onPress={() => this.searchData()} />
-                    <VictoryChart
-                        theme={VictoryTheme.material}
-                        domainPadding={10}
-                        animate={{
-                            duration: 2000,
-                            onLoad: { duration: 1000 }
-                        }}
-                    >
-                        <VictoryBar
-                            animate={{
-                                duration: 2000,
-                                onLoad: { duration: 1000 }
-                            }}
-                            style={{ data: { fill: "#c43a31" } }}
-                            data={this.state.clubArray}
-                        />
-                    </VictoryChart>
-                    <VictoryPie
-                        data={this.state.clubArray}
-                        animate={{duration: 2000}}
-                        labelRadius={0}
-                        radius={80}
-                        style={{
-                            data: {
-                                fill: (data) => data.fill,
+            <View style={{flex: 1, alignItems: 'center', justifyContent:'center', backgroundColor: '#0d4273', paddingBottom: 30}}>
+                <Button title='分析社團' onPress={() => this.searchData()} />
+                    {this.state.result ? (
+                        <ScrollView
+                            refreshControl={
+                                <RefreshControl
+                                    refreshing={this.state.refreshing}
+                                    onRefresh={() => {}}
+                                />
                             }
-                        }}
-                    />
-                </ScrollView>               
+                        >
+                            <VictoryChart
+                                theme={VictoryTheme.material}
+                                domainPadding={10}
+                                animate={{
+                                    duration: 3000,
+                                    onLoad: { duration: 1000 }
+                                }}
+                                domainPadding={{ x: 20 }}
+                            >
+                                <VictoryBar
+                                    animate={{
+                                        duration: 3000,
+                                        onLoad: { duration: 1000 }
+                                    }}
+                                    style={{
+                                        data: {
+                                            fill: d => d.fill,
+                                        },
+                                        labels: {
+                                            fontSize: 15,
+                                            fill: d => d.fill,
+                                        }
+                                    }}
+                                    barWidth={30}
+                                    cornerRadius={ (data) => data.y != 0 ? 15 : 0 }
+                                    data={this.state.clubArray}
+                                    labels={(data) => data.y}
+                                />
+                                <VictoryAxis                               
+                                    style={{
+                                        axis: {stroke: "#f6b456"},
+                                        axisLabel: {fontSize: 20, padding: 30},
+                                        grid: {stroke: null},
+                                        tickLabels: {fontSize: 10, padding: 5},
+                                        ticks: {stroke: "#f6b456", size: 5},
+                                        tickLabels: {fontSize: 15, padding: 5, fill: '#f6b456'}
+                                    }}
+                                    tickFormat={(t) => Math.round(t)}
+                                />
+                                <VictoryAxis
+                                    dependentAxis
+                                    style={{
+                                        grid: {stroke: null},
+                                        axis: {stroke: "#f6b456"},
+                                        ticks: {stroke: "#f6b456", size: 5},
+                                        tickLabels: {fontSize: 15, padding: 5, fill: '#f6b456'}
+                                    }}
+                                />
+                            </VictoryChart>
+                            <View style={{
+                                marginLeft: 30,
+                                marginRight: 30,
+                                borderRadius: 40,
+                                backgroundColor: 'rgba(18, 117, 209, 0.3)',
+                                paddingLeft: 20,
+                                paddingRight: 20,
+                                paddingTop: 10,
+                                paddingBottom: 10,
+                            }}
+                            >
+                                {this.state.clubArray.map((item, index) => {
+                                    const { club } = item
+                                    return (
+                                        <TouchableOpacity key={index} onPress={() => {} }>
+                                            <ListItem
+                                                key={index}
+                                                leftAvatar={{
+                                                    source: {uri: club.imgUrl ? club.imgUrl : 'https://image.freepik.com/free-icon/man-dark-avatar_318-9118.jpg'},
+                                                    size: 'medium',
+                                                }}
+                                                title={club.schoolName + ' ' + club.clubName}
+                                                subtitle={club.initDate}
+                                                titleStyle={{color: '#f6b456'}}
+                                                subtitleStyle={{color: '#f6b456'}}
+                                                containerStyle={{backgroundColor: null}}
+                                            />
+                                        </TouchableOpacity>
+                                    )
+                                })
+                                }
+                            </View>
+                        </ScrollView>
+                    ) : null  
+                    }            
             </View>
         )
     }
 }
 
 export default Analysis
+
+
+// <VictoryPie
+//                                 data={this.state.clubArray}
+//                                 animate={{duration: 2000}}
+//                                 labelRadius={0}
+//                                 radius={80}
+//                                 style={{
+//                                     data: {
+//                                         fill: (data) => data.fill,
+//                                     }
+//                                 }}
+//                             />
