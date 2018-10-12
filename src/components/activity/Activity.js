@@ -13,6 +13,24 @@ class Activity extends React.Component {
         activity: {},
     }
 
+    //設定本頁activity
+    setActivity = (activityData) => {
+        this.setState({ activity: activityData });
+    };
+
+    //點讚
+    pressFavorite = async (clubKey, activityKey) => {
+        const { setActivityFavorite, activityList, setActivityList } = this.props;
+        const activityData = await setActivityFavorite(clubKey, activityKey);
+        if (activityData != null) {
+            //放進activityList
+            const newActivityList = JSON.parse(JSON.stringify(activityList));
+            newActivityList[activityData.clubKey][activityData.activityKey] = activityData;
+            setActivityList(newActivityList);
+            this.setState({ activity: activityData });
+        }
+    };
+
     render() {
         const activityData = this.state.activity;
         const element = JSON.parse(JSON.stringify(activityData));
@@ -27,10 +45,18 @@ class Activity extends React.Component {
                 />
                 <Text>{element.schoolName}</Text>
                 <Text>{element.clubName}</Text>
-                <Text>{element.title}</Text>
-                <Text>{element.price}</Text>     
-                <Text>{element.place}</Text>
-                <Text>{element.numFavorites}</Text>
+                <Text>標題： {element.title}</Text>
+                <Text>活動開始時間： {element.startDateTime}</Text>
+                <Text>活動結束時間： {element.endDateTime}</Text>
+                <Text>費用： {element.price}</Text>
+                <Text>地點： {element.place}</Text>
+                <TouchableOpacity
+                    onPress={async () =>
+                        await this.pressFavorite(element.clubKey, element.activityKey)
+                    }
+                >
+                    <Text>按讚人數: {element.numFavorites}</Text>
+                </TouchableOpacity>
                 <Text>{element.content}</Text>
                 <Text>{element.remarks}</Text>
             </ScrollView>

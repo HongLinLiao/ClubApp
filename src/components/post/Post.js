@@ -46,7 +46,7 @@ class Post extends React.Component {
   };
 
   //設定本頁post
-  setPost = postData => {
+  setPost = (postData) => {
     this.setState({ post: postData });
   };
 
@@ -118,7 +118,7 @@ class Post extends React.Component {
                   onPress={async () =>
                     await this.pressFavorite(element.clubKey, element.postKey)
                   }
-                  //onPress={() =>  { this.changeLikeI() }}要怎麼插進去? 按愛心會換圖片
+                //onPress={() =>  { this.changeLikeI() }}要怎麼插進去? 按愛心會換圖片
                 >
                   <Image style={styles.icon} source={this.state.likeI} />
                   <Text style={styles.number}>

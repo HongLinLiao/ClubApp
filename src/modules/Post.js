@@ -11,6 +11,7 @@ import {
     editComment,
     getUserData,
     deletePost,
+    deleteCommentInPost,
 } from "./Data"
 import { changeMemberStatusToChinese } from './Common';
 import * as PostAction from '../actions/PostAction'
@@ -198,6 +199,7 @@ export const deletePostData = (clubKey, postKey, postList) => async (dispatch, g
 
     try {
         await deletePost(clubKey, postKey);
+        await deleteCommentInPost(clubKey, postKey);
         //寫進postReducer
         const prePostReducer = getState().postReducer.allPost;
         const nextPostReducer = JSON.parse(JSON.stringify(prePostReducer));
@@ -229,9 +231,9 @@ export const setPostFoundations = async (clubKey, postKey, post, club) => {
             post.posterStatus = club.member[post.poster].status;
             post.posterStatusChinese = changeMemberStatusToChinese(post.posterStatus);
         }
-        else{
-            post.posterStatus=''
-            post.posterStatusChinese=''
+        else {
+            post.posterStatus = ''
+            post.posterStatusChinese = ''
         }
         //將clubKey放進attribute，否則找不到該貼文社團
         post.clubKey = clubKey;

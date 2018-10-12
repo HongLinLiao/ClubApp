@@ -1,6 +1,14 @@
 import * as firebase from "firebase"
 import * as ActivityAction from '../actions/ActivityAction'
-import { getActivityData, getInsideActivityData, getUserData, updateActivityFavorites, getUserActivityKeeps, getClubData } from './Data'
+import {
+    getActivityData,
+    getInsideActivityData,
+    getUserData,
+    updateActivityFavorites,
+    getUserActivityKeeps,
+    getClubData,
+    updateActivityViews,
+} from './Data'
 import { changeMemberStatusToChinese } from './Common';
 
 //********************************************************************************
@@ -134,6 +142,7 @@ export const getInsideActivity = (clubKey, activityKey) => async (dispatch, getS
                 club = await getClubData(clubKey);
             }
             activityData = await setActivityFoundations(clubKey, activityKey, activityData, club);
+            activityData = await setActivityView(activityData);
 
             //寫進activityReducer
             const preActivityReducer = getState().activityReducer.allActivity;
@@ -273,13 +282,13 @@ export const setActivityFoundations = async (clubKey, activityKey, activity, clu
 export const setViewFavoriteData = (activity, userUid) => {
     try {
         //views與favorite數量
-        // activity.numViews = Object.keys(post.views).length;
+        activity.numViews = Object.keys(activity.views).length;
         activity.numFavorites = Object.keys(activity.favorites).length;
         //該使用者是否有按讚與觀看
-        // if (post.views[userUid] == true)
-        //     post.statusView = true;
-        // else
-        //     post.statusView = false;
+        if (activity.views[userUid] == true)
+            activity.statusView = true;
+        else
+            activity.statusView = false;
         if (activity.favorites[userUid] == true)
             activity.statusFavorite = true;
         else
@@ -374,5 +383,43 @@ export const setActivityFavorite = (clubKey, activityKey) => async (dispatch, ge
     }
     catch (error) {
         console.log(error.toString());
+    }
+}
+
+//觀看
+export const setActivityView = async (activity) => {
+    try {
+        const user = firebase.auth().currentUser;
+        //檢查使用者是否是第一次查看
+        //不是第一次看
+        if (activity.views[user.uid] == true) {
+            console.log('已看過');
+        }
+        //是第一次看
+        else {
+            let updateViews = {};
+            //沒有其他使用者看過
+            if (Object.keys(activity.views).length == 0) {
+                activity.numViews = activity.numViews + 1;
+                activity.views = {};
+                activity.views[user.uid] = true;
+                activity.statusView = true;
+                updateViews[user.uid] = true;
+            }
+            //有其他使用者看過
+            else {
+                activity.numViews = activity.numViews + 1;
+                activity.views[user.uid] = true;
+                activity.statusView = true;
+                updateViews[user.uid] = true;
+            }
+            //寫進資料庫
+            await updateActivityViews(activity.clubKey, activity.activityKey, updateViews);
+            console.log('已設定觀看');
+        }
+        return activity;
+    }
+    catch (error) {
+        throw error;
     }
 }
