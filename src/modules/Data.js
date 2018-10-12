@@ -181,7 +181,8 @@ export const createComment = async (clubKey, postKey, content) => {
     const commentData = {
         commenter: user.uid,
         date: new Date().toLocaleString(),
-        content: content
+        content: content,
+        favorites: false
     }
     await commentRef.set(commentData);
 }

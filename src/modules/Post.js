@@ -90,6 +90,7 @@ export const getInsidePost = (clubKey, postKey) => async (dispatch, getState) =>
             return null;
         }
         else {
+            const obj = {};
             //取得社團資料
             let club;
             const joinClubs = getState().clubReducer.joinClubs;
@@ -110,7 +111,10 @@ export const getInsidePost = (clubKey, postKey) => async (dispatch, getState) =>
             const newPrePostReducer = JSON.parse(JSON.stringify(prePostReducer));
             const nextPostReducer = handlePostDataToReducer(newPrePostReducer, clubKey, postKey, postData);
             dispatch(PostAction.getPostData(nextPostReducer));
-            return postData;
+            obj['post'] = postData;
+            const commentData = await dispatch(getPostComment(clubKey, postKey));
+            obj['comment'] = commentData;
+            return obj;
         }
     }
     catch (error) {
@@ -397,6 +401,7 @@ export const setPostFavorite = (clubKey, postKey) => async (dispatch, getState) 
     }
 }
 
+
 //********************************************************************************
 //留言
 //********************************************************************************
@@ -412,6 +417,11 @@ export const getPostComment = (clubKey, postKey) => async (dispatch) => {
             commentData[element].clubKey = clubKey;
             commentData[element].postKey = postKey;
             commentData[element].commentKey = element;
+            commentData[element].numFavorites = Object.keys(commentData[element].favorites).length;
+            if (commentData[element].favorites[user.uid] == true)
+                commentData[element].statusFavorite = true;
+            else
+                commentData[element].statusFavorite = false;
             //處理User
             userData = await getUserData(commentData[element].commenter);
             commentData[element].commenterNickName = userData.nickName;

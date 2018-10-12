@@ -3,13 +3,8 @@ import { View, Text, TextInput, Image, TouchableOpacity } from "react-native";
 import { Button } from "react-native-elements";
 import styles from "../../styles/club/Post";
 class Comment extends React.Component {
-  async componentWillMount() {
-    this.setState({ comment: this.props.comment });
-  }
 
   state = {
-    //留言列
-    comment: {},
     //更新
     oldContent: "",
     //新增
@@ -25,7 +20,8 @@ class Comment extends React.Component {
       postKey,
       creatingComment,
       setPostList,
-      setPost
+      setPost,
+      setComment
     } = this.props;
     const obj = await creatingComment(clubKey, postKey, content);
     if (obj != null) {
@@ -33,21 +29,22 @@ class Comment extends React.Component {
       setPostList(obj.postList);
       //放進post
       setPost(obj.postList[clubKey][postKey]);
-      //放進comment state
-      this.setState({ comment: obj.comment });
+      //放進comment
+      setComment(obj.comment);
       //清空輸入欄
       this.setState({ newContent: "" });
     }
   };
 
   //刪除留言
-  deleteComment = async commentKey => {
+  deleteComment = async (commentKey) => {
     const {
       deletingComment,
       clubKey,
       postKey,
       setPostList,
-      setPost
+      setPost,
+      setComment
     } = this.props;
     const obj = await deletingComment(clubKey, postKey, commentKey);
     if (obj != null) {
@@ -55,17 +52,15 @@ class Comment extends React.Component {
       setPostList(obj.postList);
       //放進post
       setPost(obj.postList[clubKey][postKey]);
-      //放進comment state
-      this.setState({ comment: obj.comment });
+      //放進comment
+      setComment(obj.comment);
     }
   };
 
   //編輯狀態改變
-  statusEditChange = async element => {
+  statusEditChange = async (element) => {
     const newComment = JSON.parse(JSON.stringify(this.state.comment));
-    newComment[element.commentKey]["statusEdit"] = !newComment[
-      element.commentKey
-    ]["statusEdit"];
+    newComment[element.commentKey]["statusEdit"] = !newComment[element.commentKey]["statusEdit"];
     this.setState({
       comment: newComment,
       oldContent: ""
@@ -73,14 +68,15 @@ class Comment extends React.Component {
   };
 
   //編輯留言完成
-  editComment = async commentKey => {
+  editComment = async (commentKey) => {
     const content = this.state.oldContent;
     const {
       editingComment,
       clubKey,
       postKey,
       setPostList,
-      setPost
+      setPost,
+      setComment
     } = this.props;
     const obj = await editingComment(clubKey, postKey, commentKey, content);
     if (obj != null) {
@@ -88,14 +84,14 @@ class Comment extends React.Component {
       setPostList(obj.postList);
       //放進post
       setPost(obj.postList[clubKey][postKey]);
-      //放進comment state
-      this.setState({ comment: obj.comment });
+      //放進comment
+      setComment(obj.comment);
       this.setState({ oldContent: "" });
     }
   };
 
   render() {
-    const comment = JSON.parse(JSON.stringify(this.state.comment));
+    const comment = JSON.parse(JSON.stringify(this.props.comment));
     return (
       <View>
         <View>
@@ -107,6 +103,7 @@ class Comment extends React.Component {
                 style={{ width: 50, height: 50 }}
               />
               <Text>{element.commenterNickName}</Text>
+              <Text>按讚人數：{element.numFavorites}</Text>
               <TextInput
                 value={element.content}
                 editable={element.statusEdit}

@@ -23,12 +23,18 @@ class Post extends React.Component {
 
   //頁面重整
   reload = async (clubKey, postKey) => {
-    const { getInsidePost, navigation } = this.props;
+    const { getInsidePost, navigation, postList, setPostList } = this.props;
     const newPost = await getInsidePost(clubKey, postKey);
+    const newPostList = JSON.parse(JSON.stringify(postList));
     if (newPost == null) {
+      newPostList[clubKey][postKey] = null;
+      delete newPostList[clubKey][postKey];
+      setPostList(newPostList);
       navigation.goBack();
     } else {
-      this.setState({ post: newPost });
+      newPostList[clubKey][postKey] = newPost.post;
+      setPostList(newPostList);
+      this.setState({ post: newPost.post, comment: newPost.comment });
     }
   };
 
@@ -49,6 +55,10 @@ class Post extends React.Component {
   setPost = (postData) => {
     this.setState({ post: postData });
   };
+  //設定本頁comment
+  setComment = (commentData) => {
+    this.setState({ comment: commentData });
+  };
 
   deletePost = async (clubKey, postKey) => {
     const { deletePostData, setPostList, postList, navigation } = this.props;
@@ -59,17 +69,8 @@ class Post extends React.Component {
 
   render() {
     const postData = this.state.post;
-    const commentData = this.props.comment;
+    const commentData = this.state.comment;
     const element = JSON.parse(JSON.stringify(postData));
-
-    changeLikeI = () => {
-      this.setState({
-        likeOr: !this.state.likeOr,
-        likeI: this.state.likeOr
-          ? require("../../images/like.png")
-          : require("../../images/like.png") //圖片要確認
-      });
-    };
 
     return (
       <ScrollView>
@@ -118,12 +119,9 @@ class Post extends React.Component {
                   onPress={async () =>
                     await this.pressFavorite(element.clubKey, element.postKey)
                   }
-                //onPress={() =>  { this.changeLikeI() }}要怎麼插進去? 按愛心會換圖片
                 >
-                  <Image style={styles.icon} source={this.state.likeI} />
-                  <Text style={styles.number}>
-                    按讚人數: {element.numFavorites}
-                  </Text>
+                  <Image style={styles.icon} source={element.statusFavorite ? require("../../images/images2/message.png") : require("../../images/eyes.png")} />
+                  <Text style={styles.number}>{element.numFavorites} </Text>
                 </TouchableOpacity>
               </View>
 
@@ -132,12 +130,12 @@ class Post extends React.Component {
                   style={styles.icon}
                   source={require("../../images/images2/message.png")}
                 />
-                <Text style={styles.number}>520</Text> //這個數字的功能沒有
+                <Text style={styles.number}>{element.numComments}</Text>
                 <Image
                   style={styles.icon}
-                  source={require("../../images/eyes.png")}
+                  source={element.statusView ? require("../../images/images2/message.png") : require("../../images/eyes.png")}
                 />
-                <Text style={styles.number}>觀看人數: {element.numViews}</Text>
+                <Text style={styles.number}>{element.numViews}</Text>
               </View>
             </View>
             <Button
@@ -153,6 +151,7 @@ class Post extends React.Component {
               postKey={element.postKey}
               setPostList={this.props.setPostList}
               setPost={this.setPost}
+              setComment={this.setComment}
               creatingComment={this.props.creatingComment}
               deletingComment={this.props.deletingComment}
               editingComment={this.props.editingComment}
