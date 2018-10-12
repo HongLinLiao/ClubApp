@@ -24,7 +24,7 @@ const PostListElement = ({ post, navigation, getInsidePost, getPostComment, setP
             setPostList(newPostList);
 
             navigation.navigate('Post', {
-                post: obj,post,
+                post: obj.post,
                 setPostList: setPostList,
                 postList: postList,
                 comment: obj.comment

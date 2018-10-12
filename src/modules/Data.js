@@ -67,6 +67,7 @@ export const getInsideActivityData = async (cid, aid) => {
     return activityData;
 }
 
+//取得使用者收藏的活動
 export const getUserActivityKeeps = async (uid) => {
     const activityRef = firebase.database().ref('activityKeeps').child(uid)
     const snapShot = await activityRef.once('value');
@@ -99,6 +100,20 @@ export const updatePostFavorites = async (clubKey, postKey, updateFavorites) => 
     }
     else {
         favoritesRef = firebase.database().ref('posts/' + clubKey + '/' + postKey + '/favorites/' + uid);
+    }
+    await favoritesRef.set(value);
+}
+
+//更新Comment.Favorites
+export const updateCommentFavorites = async (clubKey, postKey, commentKey, updateFavorites) => {
+    const uid = Object.keys(updateFavorites)[0];
+    const value = Object.values(updateFavorites)[0];
+    let favoritesRef;
+    if (value == false) {
+        favoritesRef = firebase.database().ref('comments/' + clubKey + '/' + postKey + '/' + commentKey + '/favorites');
+    }
+    else {
+        favoritesRef = firebase.database().ref('comments/' + clubKey + '/' + postKey + '/' + commentKey + '/favorites/' + uid);
     }
     await favoritesRef.set(value);
 }

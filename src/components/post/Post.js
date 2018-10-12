@@ -55,11 +55,13 @@ class Post extends React.Component {
   setPost = (postData) => {
     this.setState({ post: postData });
   };
+
   //設定本頁comment
   setComment = (commentData) => {
     this.setState({ comment: commentData });
   };
 
+  //刪除貼文
   deletePost = async (clubKey, postKey) => {
     const { deletePostData, setPostList, postList, navigation } = this.props;
     const newPostList = await deletePostData(clubKey, postKey, postList);
@@ -110,7 +112,6 @@ class Post extends React.Component {
                 <Text style={styles.postText}>{element.content}</Text>
               </View>
             </View>
-
             <View style={styles.postPictureView} />
 
             <View style={styles.sbRowLine}>
@@ -138,15 +139,22 @@ class Post extends React.Component {
                 <Text style={styles.number}>{element.numViews}</Text>
               </View>
             </View>
-            <Button
-              title="Delete Post"
-              onPress={async () => {
-                await this.deletePost(element.clubKey, element.postKey);
-              }}
-            />
-
+            <View style={{ display: element.statusEnable ? "flex" : "none" }}>
+              <Button
+                title="Edit Post"
+                onPress={async () => { }}
+              />
+              <Button
+                title="Delete Post"
+                onPress={async () => {
+                  await this.deletePost(element.clubKey, element.postKey);
+                }}
+              />
+            </View>
             <Comment
+              userPhotoUrl={this.props.userPhotoUrl}
               comment={commentData}
+              postList={this.props.postList}
               clubKey={element.clubKey}
               postKey={element.postKey}
               setPostList={this.props.setPostList}
@@ -156,6 +164,7 @@ class Post extends React.Component {
               deletingComment={this.props.deletingComment}
               editingComment={this.props.editingComment}
               setCommentEditStatus={this.props.setCommentEditStatus}
+              setCommentFavorite={this.props.setCommentFavorite}
             />
           </View>
         </KeyboardAvoidingView>

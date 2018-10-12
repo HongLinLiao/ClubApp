@@ -12,6 +12,7 @@ import {
     getUserData,
     deletePost,
     deleteCommentInPost,
+    updateCommentFavorites,
 } from "./Data"
 import { changeMemberStatusToChinese } from './Common';
 import * as PostAction from '../actions/PostAction'
@@ -227,6 +228,7 @@ export const deletePostData = (clubKey, postKey, postList) => async (dispatch, g
 //處理貼文基本屬性(學校與社團名稱、key值、nickName、職位、views、favorites)
 export const setPostFoundations = async (clubKey, postKey, post, club) => {
     try {
+        const user = firebase.auth().currentUser;
         //該貼文社團與學校名稱
         post.clubName = club.clubName;
         post.schoolName = club.schoolName;
@@ -239,6 +241,13 @@ export const setPostFoundations = async (clubKey, postKey, post, club) => {
             post.posterStatus = ''
             post.posterStatusChinese = ''
         }
+        //判斷是否可編輯或刪除貼文
+        if (post.poster === user.uid) {
+            post.statusEnable = true;
+        }
+        else {
+            post.statusEnable = false;
+        }
         //將clubKey放進attribute，否則找不到該貼文社團
         post.clubKey = clubKey;
         post.postKey = postKey;
@@ -247,7 +256,6 @@ export const setPostFoundations = async (clubKey, postKey, post, club) => {
         post.posterNickName = userData.nickName;
         post.posterPhotoUrl = userData.photoUrl;
         //處理view和favorite
-        const user = firebase.auth().currentUser;
         post = setViewFavoriteData(post, user.uid);
         return post;
     }
@@ -321,7 +329,7 @@ export const setPostView = async (post) => {
     }
 }
 
-//按讚
+//按貼文讚
 export const setPostFavorite = (clubKey, postKey) => async (dispatch, getState) => {
     try {
         const post = await getInsidePostData(clubKey, postKey);
@@ -389,6 +397,91 @@ export const setPostFavorite = (clubKey, postKey) => async (dispatch, getState) 
             const nextPostReducer = handlePostDataToReducer(newPrePostReducer, clubKey, postKey, post);
             dispatch(PostAction.getPostData(nextPostReducer));
             return post;
+        }
+        else {
+            console.log('貼文不存在');
+            alert('貼文不存在');
+            return null;
+        }
+    }
+    catch (error) {
+        console.log(error.toString());
+    }
+}
+
+//按留言讚
+export const setCommentFavorite = (clubKey, postKey, commentKey) => async (dispatch, getState) => {
+    try {
+        const post = await getInsidePostData(clubKey, postKey);
+        if (post != null) {
+            //取得使用者id
+            const user = firebase.auth().currentUser;
+            //取得社團資料
+            let club;
+            const joinClubs = getState().clubReducer.joinClubs;
+            const likeClubs = getState().clubReducer.likeClubs;
+            const clubData = { ...joinClubs, ...likeClubs };
+            if (clubData[clubKey]) {
+                club = clubData[clubKey]
+            }
+            else {
+                club = await getClubData(clubKey);
+            }
+            //先取得貼文基本屬性
+            post = await setPostFoundations(clubKey, postKey, post, club);
+
+            const comment = await dispatch(getPostComment(clubKey, postKey));
+            let updateFavorites = {};
+            //按讚處理
+            //按讚
+            if (comment[commentKey].statusFavorite == false) {
+                comment[commentKey].statusFavorite = !comment[commentKey].statusFavorite;
+                //牽扯到物件形狀
+                //沒其他使用者按過讚
+                if (comment[commentKey].numFavorites == 0) {
+                    comment[commentKey].numFavorites = comment[commentKey].numFavorites + 1;
+                    comment[commentKey].favorites = {};
+                    comment[commentKey].favorites[user.uid] = true;
+                    updateFavorites[user.uid] = true;
+                }
+                //有其他使用者按過讚
+                else {
+                    comment[commentKey].numFavorites = comment[commentKey].numFavorites + 1;
+                    comment[commentKey].favorites[user.uid] = true;
+                    updateFavorites[user.uid] = true;
+                }
+            }
+            //取消讚
+            else {
+                comment[commentKey].statusFavorite = !comment[commentKey].statusFavorite;
+                //牽扯到物件形狀
+                //沒其他使用者按過讚
+                if (comment[commentKey].numFavorites == 1) {
+                    comment[commentKey].numFavorites = comment[commentKey].numFavorites - 1;
+                    delete comment[commentKey].favorites[user.uid];
+                    updateFavorites[user.uid] = false;
+                }
+                //有其他使用者按過讚
+                //設為null寫進firebase會自動消失
+                else {
+                    comment[commentKey].numFavorites = comment[commentKey].numFavorites - 1;
+                    delete comment[commentKey].favorites[user.uid];
+                    updateFavorites[user.uid] = null;
+                }
+            }
+            //更改firebasePostFavorites
+            await updateCommentFavorites(clubKey, postKey, commentKey, updateFavorites);
+
+            //寫進Reducer
+            const prePostReducer = getState().postReducer.allPost;
+            const newPrePostReducer = JSON.parse(JSON.stringify(prePostReducer));
+            const nextPostReducer = handlePostDataToReducer(newPrePostReducer, clubKey, postKey, post);
+            dispatch(PostAction.getPostData(nextPostReducer));
+
+            const obj = {};
+            obj['post'] = post;
+            obj['comment'] = comment;
+            return obj;
         }
         else {
             console.log('貼文不存在');
@@ -470,7 +563,7 @@ export const creatingComment = (clubKey, postKey, content) => async (dispatch, g
             const newPrePostReducer = JSON.parse(JSON.stringify(prePostReducer));
             const nextPostReducer = handlePostDataToReducer(newPrePostReducer, clubKey, postKey, post);
             dispatch(PostAction.getPostData(nextPostReducer));
-            obj['postList'] = nextPostReducer;
+            obj['post'] = post;
             //留言資料全部重抓
             const comment = await dispatch(getPostComment(clubKey, postKey));
             obj['comment'] = comment;
@@ -517,7 +610,7 @@ export const deletingComment = (clubKey, postKey, commentKey) => async (dispatch
             const newPrePostReducer = JSON.parse(JSON.stringify(prePostReducer));
             const nextPostReducer = handlePostDataToReducer(newPrePostReducer, clubKey, postKey, post);
             dispatch(PostAction.getPostData(nextPostReducer));
-            obj['postList'] = nextPostReducer;
+            obj['post'] = post;
             //留言資料全部重抓
             const comment = await dispatch(getPostComment(clubKey, postKey));
             obj['comment'] = comment;
@@ -554,7 +647,7 @@ export const editingComment = (clubKey, postKey, commentKey, content) => async (
             const newPrePostReducer = JSON.parse(JSON.stringify(prePostReducer));
             const nextPostReducer = handlePostDataToReducer(newPrePostReducer, clubKey, postKey, post);
             dispatch(PostAction.getPostData(nextPostReducer));
-            obj['postList'] = nextPostReducer;
+            obj['post'] = post;
             //留言資料全部重抓
             const comment = await dispatch(getPostComment(clubKey, postKey));
             obj['comment'] = comment;
