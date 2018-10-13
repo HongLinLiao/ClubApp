@@ -12,7 +12,6 @@ import {
 } from 'react-native'
 
 import Expo from 'expo'
-
 import ModalDropdown from 'react-native-modal-dropdown';
 import { randomCid, getClubMemberData } from '../../modules/Club'
 import { getPostKeyListFromClubKey } from '../../modules/Post'
@@ -21,12 +20,13 @@ import { joinOrLikeClub } from '../../modules/Common'
 import { getUserData, getClubData } from '../../modules/Data'
 import Overlayer from '../common/Overlayer'
 import PopupDialog, { SlideAnimation, DialogTitle } from 'react-native-popup-dialog';
+import UserDialog from '../common/UserDialog'
+import styles from "../../styles/club/Club";
 
 const slideAnimation = new SlideAnimation({
     slideFrom: 'bottom',
 });
 
-import styles from "../../styles/club/Club";
 class Club extends React.Component {
   state = {
     activities: {
@@ -35,7 +35,9 @@ class Club extends React.Component {
       act3: {}
     },
     postKey: {},
-    post: {}
+    post: {},
+    userData: { _uid: null, _user: null, _clubs: null},
+    loading: false
   };
 
   async componentWillMount() {
@@ -100,12 +102,40 @@ class Club extends React.Component {
     const { navigation, joinClubs, currentCid } = this.props;
     const memberData = await getClubMemberData(joinClubs[currentCid].member);
     navigation.push("ClubMember", { memberData });
-  };
+  }
+
+  showUser = async (_uid) => {
+    try {
+        this.popupDialog.show(async () => {
+            this.setState({loading: true, userData: { _uid: null, _user: null, _clubs: null}})
+            const userData = { _uid, _user: {}, _clubs: {}}
+            const user = await getUserData(_uid)
+
+            if(user.joinClub) {
+                const promises = Object.keys(user.joinClub).map(async (cid) => {
+                    const club = await getClubData(cid)
+                    userData._clubs[cid] = club
+                })
+
+                await Promise.all(promises)
+            }
+
+            userData._user = user
+            console.log(userData)
+
+            this.setState({userData, loading: false})
+        });
+    } catch(e) {
+        Alert.alert(e.toString())
+    }
+    
+  }
 
   render() {
     if (this.props.currentCid) {
       const newPostList = { ...this.state.post };
       const { user, joinClubs, likeClubs, currentCid } = this.props;
+      const { _uid, _user, _clubs } = this.state.userData
       let type = joinOrLikeClub(currentCid);
       let clubs = {};
       let status = "";
@@ -117,14 +147,7 @@ class Club extends React.Component {
         status = "路人";
       }
 
-      const {
-        schoolName,
-        clubName,
-        open,
-        member,
-        introduction,
-        imgUrl
-      } = clubs[currentCid];
+      const { schoolName, clubName, open, member, introduction, imgUrl } = clubs[currentCid];
       const numberOfMember = Object.keys(member).length;
       const clubsArray = this.generateClubsArray();
 
@@ -296,6 +319,7 @@ class Club extends React.Component {
                       setPostFavorite={this.props.setPostFavorite}
                       postList={this.state.post}
                       setPostList={this.setPostList}
+                      showUser={this.showUser.bind(this)}
                     />
                   ))
                 )}
@@ -331,6 +355,20 @@ class Club extends React.Component {
               }}
             />
           </View>
+          <PopupDialog
+              ref={(popupDialog) => this.popupDialog = popupDialog}
+              dialogAnimation={slideAnimation}
+              width={0.7}
+              height={0.7}
+              dialogStyle={{borderRadius: 20}}
+          >
+              <UserDialog
+                  uid={_uid}
+                  user={_user}
+                  clubs={_clubs}
+              />
+              {this.state.loading ? <Overlayer /> : null}
+          </PopupDialog> 
         </View>
       );
     } else {
