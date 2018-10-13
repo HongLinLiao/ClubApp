@@ -261,12 +261,14 @@ export const userReducer = (state = initialState, action) => {
 		case REMOVE_THE_CLUB:
 			return {
 				...state,
-				joinClub: action.userData,
+				joinClub: action.userData.newJoinClub,
+				likeClub: action.userData.newLikeClub,
 			}
 		case ADD_THE_CLUB:
 			return {
 				...state,
-				joinClub: action.userData
+				joinClub: action.userData.newJoinClub,
+				likeClub: action.userData.newLikeClub,
 			}
 		default:
 			return state

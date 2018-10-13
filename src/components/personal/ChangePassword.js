@@ -83,11 +83,8 @@ class ChangePassword extends React.Component {
               <TextInput
                 onChangeText={(oldPassword) => { this.setState({ oldPassword }) }}
                 style={styles.passwordInput}
-                
                 underlineColorAndroid={'transparent'}
                 secureTextEntry={true}
-
-                
                 ></TextInput>
             </View>
 
@@ -110,12 +107,6 @@ class ChangePassword extends React.Component {
                 secureTextEntry={true}
                 ></TextInput>
             </View>
-
-            <TouchableOpacity
-              onPress={() => this.handleSavePassword()}
-              style={styles.buttonView}>
-              <Text style={styles.button}>確認</Text>
-            </TouchableOpacity>
           </View>
 
         </View>

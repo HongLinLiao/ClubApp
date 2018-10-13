@@ -98,6 +98,17 @@ export const updateClub = async (cid, clubData) => {
 }
 
 
+/*
+|-----------------------------------------------
+|   database刪除資料
+|-----------------------------------------------
+*/
+
+//刪除貼文
+export const deletePost = async (clubKey, postKey) => {
+    const postRef = firebase.database().ref('posts/' + clubKey + '/' + postKey);
+    await postRef.remove();
+}
 
 /*
 |-----------------------------------------------
@@ -163,11 +174,14 @@ export const searchAllClubs = async () => {
         const clubsRef = firebase.database().ref('clubs')
         const allClubs = await clubsRef.orderByChild('schoolName').once('value')
         let dataArray = []
+        
         allClubs.forEach((club) => {
-            const { schoolName, clubName } = club.val()
-            dataArray.push({cid: club.key, schoolName, clubName})
-        })
 
+            dataArray.push({
+                cid: club.key,
+                ...club.val(),
+            })
+        })
 
         return dataArray
 

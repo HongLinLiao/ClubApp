@@ -26,6 +26,7 @@ export default class App extends React.Component {
   }
 
   componentWillMount() {
+
     firebase.initializeApp(firebaseConfig)
     
     firebase.auth().onAuthStateChanged((user) => { //監聽起始點

@@ -51,9 +51,9 @@ class AddPost extends React.Component {
 
 	askCreate = () => {
 
-		const { clubs, currentCid } = this.props
-		const { schoolName, clubName } = clubs[currentCid]
-		Alert.alert('新增貼文', '您將新增 ' + this.state.title + ' 於 ' + schoolName + ' ' + clubName,
+		const { joinClubs, currentCid } = this.props
+		const { schoolName, clubName } = joinClubs[currentCid]
+			Alert.alert('新增貼文', '您將新增 ' + this.state.title + ' 於 ' + schoolName + ' ' + clubName, 
 			[
 				{ text: '取消', onPress: () => console.log('取消'), style: 'cancel' },
 				{ text: '新增', onPress: () => this.createPost() },
@@ -149,11 +149,12 @@ class AddPost extends React.Component {
 
 
 	render() {
-		const { user, clubs, currentCid } = this.props
-		const { schoolName, clubName, member } = clubs[currentCid]
+		const { user, joinClubs, currentCid } = this.props
+		const { schoolName, clubName, member } = joinClubs[currentCid]
 		const status = member[user.uid].status
 
 		return (
+			<KeyboardAvoidingView style={{ flex: 1 }} behavior='padding' >
 			<View style={styles.container}>
 				<StatusBarPaddingIOS style={{ backgroundColor: '#f6b456' }} />
 				<View style={styles.headView}>
@@ -175,7 +176,6 @@ class AddPost extends React.Component {
 					</View>
 				</View>
 			</View>
-			<KeyboardAvoidingView style={{ flex: 1 }} behavior='padding' >
 				{
 					// <View style={{ flex: 1 }}>
 					// <View style={{ flex: 1 }}>
@@ -272,7 +272,7 @@ class AddPost extends React.Component {
 
 				
 				</KeyboardAvoidingView>
-				)
+			)
 		
 	}
 }
