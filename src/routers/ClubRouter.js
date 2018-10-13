@@ -12,16 +12,15 @@ import { Button } from 'react-native'
 
 
 export default createStackNavigator({
-   Activities: {
-     screen: ActivitiesPage,
-
-   },
   Club: {
     screen: ClubPage,
     navigationOptions: {
       header: null,
       gesturesEnabled: false
     },
+  },
+  Activities: {
+    screen: ActivitiesPage,
   },
   Post: {
     screen: PostPage
