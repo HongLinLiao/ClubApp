@@ -121,7 +121,7 @@ class Search extends React.Component {
   //我把listitem都刪掉了
   render() {
     return (
-      <ScrollView>
+      <ScrollView style={{ backgroundColor: "#ffffff" }}>
         <View style={{ flex: 1, backgroundColor: "#ffffff" }}>
           {
             // <Text>{this.state.dataArray.length}</Text>
