@@ -15,37 +15,149 @@ import requireAppFlow from '../containers/flowControll/requireAppFlow'
 
 
 import React from 'react'
-import { Button } from 'react-native'
+import { Button, TouchableOpacity } from 'react-native'
 
 
 const ClubManagePage = createMaterialTopTabNavigator({
-  JoinedClub: JoinedClubPage,
+  JoinedClub: {screen:JoinedClubPage},
   FavoriteClub: FavoriteClubPage,
 })
 
 
 export default createStackNavigator({
-
-  Profile: ProfilePage,
-  ProfileSetting: ProfileSettingPage,
-  AdvancedSetting: AdvancedSettingPage,
-  EmailReVerified: EmailReVerifiedPage,
-  SendEmailSuccessful: SendEmailSuccessfulPage,
-  ChangeEamil: ChangeEamilPage,
-  ChangePassword: ChangePasswordPage,
-  Notification: NotificationPage,
-  ClubPrivateSetting: ClubPrivateSettingPage,
-  CreateClub: CreateClubPage,
+  Profile: {
+    screen: ProfilePage,
+    navigationOptions: ({ navigation }) => ({
+			title: '個人管理',
+      headerBackTitle:'個人管理',
+      headerBackImage:{
+        tintColor: '#0d4273',
+      },
+			headerTitleStyle: {
+				color: '#666666',
+				fontSize: 20,
+			},
+			headerStyle: {
+				backgroundColor: '#f6b456'
+			},
+		}
+		)
+  },
+  ProfileSetting: {
+    screen: ProfileSettingPage,
+    navigationOptions: ({ navigation }) => ({
+      title: '編輯個人',
+      headerBackTitle: '上一頁',
+      headerTitleStyle: {
+        color: '#666666',
+        fontSize: 20,
+  },
+      headerStyle: {
+        backgroundColor: '#f6b456'
+      },
+    }
+    )
+  },
+  AdvancedSetting: {
+    screen: AdvancedSettingPage,
+    navigationOptions: ({ navigation }) => ({
+      title: '進階管理',
+      headerBackTitle: '上一頁',
+      headerTitleStyle: {
+        color: '#666666',
+        fontSize: 20,
+  },
+      headerStyle: {
+        backgroundColor: '#f6b456'
+      },
+    }
+    )
+  },
+  EmailReVerified: {
+    screen: EmailReVerifiedPage,
+  },
+  SendEmailSuccessful: {
+    screen: SendEmailSuccessfulPage,
+  },
+  ChangeEamil: {
+    screen: ChangeEamilPage,
+  },
+  ChangePassword: {
+    screen: ChangePasswordPage,
+  },
+  Notification: {
+    screen: NotificationPage,
+    navigationOptions: ({ navigation }) => ({
+      title: '通知設定',
+      headerBackTitle: '上一頁',
+      headerTitleStyle: {
+        color: '#666666',
+        fontSize: 20,
+      },
+      headerStyle: {
+        backgroundColor: '#f6b456'
+      },
+    }
+    )
+  },
+  ClubPrivateSetting: {
+    screen: ClubPrivateSettingPage,
+    navigationOptions: ({ navigation }) => ({
+      headerBackTitle: '上一頁',
+      headerTitleStyle: {
+        color: '#666666',
+        fontSize: 20,
+      },
+      headerStyle: {
+        backgroundColor: '#f6b456'
+      },
+    }
+    )
+  },
+  CreateClub: {
+    screen: CreateClubPage,
+    navigationOptions: ({ navigation }) => ({
+      title: '創建社團',
+      headerBackTitle: '上一頁',
+      headerTitleStyle: {
+        color: '#666666',
+        fontSize: 20,
+      },
+      headerStyle: {
+        backgroundColor: '#f6b456'
+      },
+    }
+    )
+  },
   ClubManage: {
     screen: ClubManagePage,
     navigationOptions: ({ navigation }) => {
       console.log(navigation)
       // console.log(navigation.state.routes)
       return {
-        headerRight: <Button title='創建社團' onPress={() => navigation.push('CreateClub')} />
+        headerRight: <Button title='創建社團' onPress={() => navigation.push('CreateClub')} />,
+        title: '社團管理',
+        headerTitleStyle: {
+          color: '#666666',
+          fontSize: 20,
+        },
+        headerStyle: {
+          backgroundColor: '#f6b456'
+        },
       }
     }
-  },
-
-  
+  }
+},
+{
+  navigationOptions: {
+    headerBackTitleStyle:{
+      color: '#0d4273',
+      fontSize: 15,
+    },
+    //headerBackImage: (
+      //<TouchableOpacity>
+        //<Image source={require('../images/images2/arrowLeftBlue.png')} />
+      //</TouchableOpacity>
+    //)
+  }
 })
