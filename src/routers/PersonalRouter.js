@@ -154,10 +154,10 @@ export default createStackNavigator({
       color: '#0d4273',
       fontSize: 15,
     },
-    headerBackImage: (
-      <TouchableOpacity>
-        <Image source={require('../images/images2/arrowLeftBlue.png')} />
-      </TouchableOpacity>
-    )
+    //headerBackImage: (
+      //<TouchableOpacity>
+        //<Image source={require('../images/images2/arrowLeftBlue.png')} />
+      //</TouchableOpacity>
+    //)
   }
 })
