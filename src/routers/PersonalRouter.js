@@ -11,17 +11,46 @@ import CreateClubPage from '../containers/personal/CreateClubPage'
 import ClubPrivateSettingPage from '../containers/personal/ClubPrivateSettingPage'
 import JoinedClubPage from '../containers/personal/JoinedClubPage'
 import FavoriteClubPage from '../containers/personal/FavoriteClubPage'
+//import PersonalStyles from '../styles/home/Home'
 import requireAppFlow from '../containers/flowControll/requireAppFlow'
 
 
 import React from 'react'
-import { Button, TouchableOpacity } from 'react-native'
+import { Button, TouchableOpacity,Image } from 'react-native'
 
 
 const ClubManagePage = createMaterialTopTabNavigator({
-  JoinedClub: {screen:JoinedClubPage},
-  FavoriteClub: FavoriteClubPage,
+  JoinedClub: {
+    screen:JoinedClubPage,
+    navigationOptions: ({ navigation }) => ({
+      title: '已加入',
+      tabBarOptions: {
+        style: {
+          backgroundColor: '#0d4273'
+        },
+        indicatorStyle:{
+          backgroundColor: '#f6b456'
+        }
+      }
+    })
+  },
+  FavoriteClub: {
+    screen:JoinedClubPage,
+    navigationOptions: ({ navigation }) => ({
+      title: '已收藏',
+      tabBarOptions: {
+        style: {
+          backgroundColor: '#0d4273',
+        },
+        indicatorStyle:{
+          backgroundColor: '#f6b456'
+        }
+      }
+    })
+  },
 })
+    
+
 
 
 export default createStackNavigator({
@@ -55,6 +84,12 @@ export default createStackNavigator({
       headerStyle: {
         backgroundColor: '#f6b456'
       },
+      //headerLeft:(
+          //<TouchableOpacity>
+            //<Image source={require('../images/images2/arrowLeftBlue.png')} 
+            //style={PersonalStyles.arrowLeftBlueImage}/>
+          //</TouchableOpacity>
+      //)
     }
     )
   },
@@ -81,9 +116,33 @@ export default createStackNavigator({
   },
   ChangeEamil: {
     screen: ChangeEamilPage,
+    navigationOptions: ({ navigation }) => ({
+      title: '變更電子信箱',
+      headerBackTitle: '上一頁',
+      headerTitleStyle: {
+        color: '#666666',
+        fontSize: 20,
+      },
+      headerStyle: {
+        backgroundColor: '#f6b456'
+      },
+    }
+    )
   },
   ChangePassword: {
     screen: ChangePasswordPage,
+    navigationOptions: ({ navigation }) => ({
+      title: '變更密碼',
+      headerBackTitle: '上一頁',
+      headerTitleStyle: {
+        color: '#666666',
+        fontSize: 20,
+      },
+      headerStyle: {
+        backgroundColor: '#f6b456'
+      },
+    }
+    )
   },
   Notification: {
     screen: NotificationPage,
