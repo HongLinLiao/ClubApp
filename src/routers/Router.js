@@ -1,12 +1,17 @@
-import { createStackNavigator, createBottomTabNavigator, createSwitchNavigator, createDrawerNavigator } from 'react-navigation'
-import AuthRouter from './AuthRouter'
-import HomeRouter from './HomeRouter'
-import ClubRouter from './ClubRouter'
-import PersonalRouter from './PersonalRouter'
-import FirstLoginRouter from './FirstLoginRouter'
-import UserRouter from './UserRouter'
-import SearchRouter from './SearchRouter'
-import AnalysisRouter from './AnalysisRouter'
+import {
+  createStackNavigator,
+  createBottomTabNavigator,
+  createSwitchNavigator,
+  createDrawerNavigator
+} from "react-navigation";
+import AuthRouter from "./AuthRouter";
+import HomeRouter from "./HomeRouter";
+import ClubRouter from "./ClubRouter";
+import PersonalRouter from "./PersonalRouter";
+import FirstLoginRouter from "./FirstLoginRouter";
+import UserRouter from "./UserRouter";
+import SearchRouter from "./SearchRouter";
+import AnalysisRouter from "./AnalysisRouter";
 
 import Icon from "react-native-vector-icons/Ionicons";
 import React from "react";
@@ -37,7 +42,15 @@ const MainRouter = createBottomTabNavigator(
         )
       }
     },
-    Analysis: AnalysisRouter,
+
+    Analysis: {
+      screen: AnalysisRouter,
+      navigationOptions: {
+        tabBarIcon: ({ tintColor }) => (
+          <Icon name="ios-stats" color={tintColor} size={24} />
+        )
+      }
+    },
     Personal: {
       screen: PersonalRouter,
       navigationOptions: {
@@ -49,8 +62,8 @@ const MainRouter = createBottomTabNavigator(
   },
 
   {
-    initialRouteName: "Search",
-    order: ["Search", "Home", "Club", "Analysis", "Personal"],
+    initialRouteName: "Home",
+    order: ["Analysis", "Search", "Home", "Club", "Personal"],
     swipeEnabled: true, //滑動可換頁，失敗
     tabBarOptions: {
       activeTintColor: "#f6b456", //字有按

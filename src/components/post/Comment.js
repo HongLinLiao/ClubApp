@@ -3,7 +3,6 @@ import { View, Text, TextInput, Image, TouchableOpacity } from "react-native";
 import { Button } from "react-native-elements";
 import styles from "../../styles/club/Post";
 class Comment extends React.Component {
-
   state = {
     //更新
     oldContent: "",

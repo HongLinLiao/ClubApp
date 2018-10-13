@@ -27,7 +27,7 @@ export default StyleSheet.create({
     paddingLeft: 10
   },
   card: {
-    flex: 1,
+    //flex: 1,
     height: 300,
     borderWidth: 1,
     borderRadius: 10,
