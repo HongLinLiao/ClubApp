@@ -3,13 +3,7 @@ import { View, Text, TextInput, Image, TouchableOpacity } from "react-native";
 import { Button } from "react-native-elements";
 import styles from "../../styles/club/Post";
 class Comment extends React.Component {
-  async componentWillMount() {
-    this.setState({ comment: this.props.comment });
-  }
-
   state = {
-    //留言列
-    comment: {},
     //更新
     oldContent: "",
     //新增
@@ -25,16 +19,20 @@ class Comment extends React.Component {
       postKey,
       creatingComment,
       setPostList,
-      setPost
+      setPost,
+      setComment,
+      postList
     } = this.props;
     const obj = await creatingComment(clubKey, postKey, content);
     if (obj != null) {
       //放進postList
-      setPostList(obj.postList);
+      const newPostList = JSON.parse(JSON.stringify(postList));
+      newPostList[clubKey][postKey] = obj.post;
+      setPostList(newPostList);
       //放進post
-      setPost(obj.postList[clubKey][postKey]);
-      //放進comment state
-      this.setState({ comment: obj.comment });
+      setPost(obj.post);
+      //放進comment
+      setComment(obj.comment);
       //清空輸入欄
       this.setState({ newContent: "" });
     }
@@ -47,27 +45,33 @@ class Comment extends React.Component {
       clubKey,
       postKey,
       setPostList,
-      setPost
+      setPost,
+      setComment,
+      postList
     } = this.props;
     const obj = await deletingComment(clubKey, postKey, commentKey);
     if (obj != null) {
       //放進postList
-      setPostList(obj.postList);
+      const newPostList = JSON.parse(JSON.stringify(postList));
+      newPostList[clubKey][postKey] = obj.post;
+      setPostList(newPostList);
       //放進post
-      setPost(obj.postList[clubKey][postKey]);
-      //放進comment state
-      this.setState({ comment: obj.comment });
+      setPost(obj.post);
+      //放進comment
+      setComment(obj.comment);
     }
   };
 
   //編輯狀態改變
   statusEditChange = async element => {
-    const newComment = JSON.parse(JSON.stringify(this.state.comment));
+    const { setComment } = this.props;
+    const newComment = JSON.parse(JSON.stringify(this.props.comment));
     newComment[element.commentKey]["statusEdit"] = !newComment[
       element.commentKey
     ]["statusEdit"];
+    //放進comment
+    setComment(newComment);
     this.setState({
-      comment: newComment,
       oldContent: ""
     });
   };
@@ -80,22 +84,48 @@ class Comment extends React.Component {
       clubKey,
       postKey,
       setPostList,
-      setPost
+      setPost,
+      setComment,
+      postList
     } = this.props;
     const obj = await editingComment(clubKey, postKey, commentKey, content);
     if (obj != null) {
       //放進postList
-      setPostList(obj.postList);
+      const newPostList = JSON.parse(JSON.stringify(postList));
+      newPostList[clubKey][postKey] = obj.post;
+      setPostList(newPostList);
       //放進post
-      setPost(obj.postList[clubKey][postKey]);
-      //放進comment state
-      this.setState({ comment: obj.comment });
+      setPost(obj.post);
+      //放進comment
+      setComment(obj.comment);
       this.setState({ oldContent: "" });
     }
   };
 
+  //留言按讚
+  pressFavorite = async (clubKey, postKey, commentKey) => {
+    const {
+      setCommentFavorite,
+      setPostList,
+      setPost,
+      setComment,
+      postList
+    } = this.props;
+    const obj = await setCommentFavorite(clubKey, postKey, commentKey);
+    if (obj != null) {
+      //放進postList
+      const newPostList = JSON.parse(JSON.stringify(postList));
+      newPostList[clubKey][postKey] = obj.post;
+      setPostList(newPostList);
+      //放進post
+      setPost(obj.post);
+      //放進comment
+      setComment(obj.comment);
+    }
+  };
+
   render() {
-    const comment = JSON.parse(JSON.stringify(this.state.comment));
+    const comment = JSON.parse(JSON.stringify(this.props.comment));
     return (
       <View>
         <View>
@@ -107,6 +137,20 @@ class Comment extends React.Component {
                 style={{ width: 50, height: 50 }}
               />
               <Text>{element.commenterNickName}</Text>
+              <TouchableOpacity
+                onPress={async () =>
+                  await this.pressFavorite(
+                    element.clubKey,
+                    element.postKey,
+                    element.commentKey
+                  )
+                }
+              >
+                <Text>
+                  按讚人數：
+                  {element.numFavorites}
+                </Text>
+              </TouchableOpacity>
               <TextInput
                 value={element.content}
                 editable={element.statusEdit}
@@ -157,6 +201,11 @@ class Comment extends React.Component {
           ))}
         </View>
         <View>
+          <Image
+            source={{ uri: this.props.userPhotoUrl }}
+            resizeMode="cover"
+            style={{ width: 50, height: 50 }}
+          />
           <TextInput
             style={{
               borderColor: "black",

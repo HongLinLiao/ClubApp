@@ -60,7 +60,13 @@ const PostListElement = ({
             <Text style={styles.newsManagerText}>{post.posterNickName}</Text>
           </View>
           <View style={styles.actNameAndDateView}>
-            <Text style={styles.newsNameText}>{post.title}</Text>
+            <Text
+              numberOfLines={1}
+              ellipsizeMode="tail"
+              style={styles.newsNameText}
+            >
+              {post.title}
+            </Text>
             <Text style={styles.newsDateText}>{post.date}</Text>
           </View>
           <View style={styles.newsContentView}>
