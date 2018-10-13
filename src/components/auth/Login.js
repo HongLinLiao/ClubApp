@@ -8,7 +8,7 @@ import {  Text,
   Image,
   Alert
 } from 'react-native';
-import { CheckBox }  from 'react-native-elements';
+import { CheckBox }  from 'react-native-elements'
 import styles from '../../styles/auth/Login'
 import Overlayer from '../common/Overlayer'
 
@@ -23,7 +23,12 @@ class Login extends React.Component{
     email: '',
     password: '',
     remember: false,
-    loading: false
+    loading: false,
+    emailBgColor: 'rgba(255,255,255,0.4)',
+    pswBgColor:'rgba(255,255,255,0.4)',
+    // goBgColor:'rgba(255,255,255,0)',
+    // fbBgColor:'rgba(255,255,255,0.4)',
+    // gmailBgColor:'rgba(255,255,255,0.4)',
   }
 
   handleLogin = async () => {
@@ -78,22 +83,26 @@ class Login extends React.Component{
       >
         <View style={{flex:1}}>
           <View style={styles.container}>
+          
             <View style={styles.logo}></View>
             
-            <View style={styles.mail}>
+            <View style={[styles.mail,{ backgroundColor: this.state.emailBgColor} ]}>
+              
               <Image style={styles.mailIcon}
                 source={require('../../images/envelope.png')}/>
               <TextInput
                 autoCapitalize='none'
                 placeholder='abc123@iclub.com'
                 placeholderTextColor='rgba(255,255,255,0.8)'
-                style={styles.textInput}
+                style={ styles.textInput }
                 underlineColorAndroid={'transparent'}
                 onChangeText={(email) => this.setState({email})}
+                onFocus={()=> this.setState(  {emailBgColor: 'rgba(170,170,170,0.3)'} )}
+                onBlur={()=> this.setState(  {emailBgColor: 'rgba(255,255,255,0.4)'} )}
               />      
             </View>
 
-            <View style={styles.psw}>
+            <View style={[styles.psw,{ backgroundColor: this.state.pswBgColor}]}>
               <Image style={styles.pswIcon}
                 source={require('../../images/padlock.png')}/> 
               <TextInput
@@ -103,13 +112,15 @@ class Login extends React.Component{
                 style={styles.textInput}
                 underlineColorAndroid={'transparent'}
                 onChangeText={(password) => this.setState({password})}
+                onFocus={()=> this.setState(  {pswBgColor: 'rgba(170,170,170,0.3)'} )}
+                onBlur={()=> this.setState(  {pswBgColor: 'rgba(255,255,255,0.4)'} )}
               />         
             </View>
 
             <CheckBox
               center
               title='記住我'
-              containerStyle={styles.checkContainer}
+              containerStyle={[styles.checkContainer]}
               textStyle={styles.checkText}
               checkedIcon={<Image style={styles.checkIcon}
                             source={require('../../images/check.png')}
@@ -119,6 +130,8 @@ class Login extends React.Component{
                             />}
               checked={this.state.remember}
               onPress={() => this.setState({remember: !this.state.remember})}
+            
+
             />
             <TouchableOpacity 
               style={styles.gobotton}
@@ -133,6 +146,8 @@ class Login extends React.Component{
               <TouchableOpacity 
                 style={styles.fbBotton}
                 onPress={() => this.handleFacebook()}
+               
+                
               >
                 <Image style={styles.fbIcon}
                   source={require('../../images/facebook.png')}/>
@@ -141,6 +156,8 @@ class Login extends React.Component{
               <TouchableOpacity 
                style={styles.gmailBotton}
                onPress={() => this.handleGoogle()}
+              
+              
               >
                 <Image style={styles.gmailIcon}
                   source={require('../../images/search.png')}/>

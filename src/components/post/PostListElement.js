@@ -17,19 +17,18 @@ const PostListElement = ({ post, navigation, getInsidePost, getPostComment, setP
     }
 
     async function insidePost(post) {
-        const postData = await getInsidePost(post.clubKey, post.postKey);
-        const commentData = await getPostComment(post.clubKey, post.postKey);
-        if (postData != null) {
+        const obj = await getInsidePost(post.clubKey, post.postKey);
+        if (obj != null) {
             //放進首頁
             const newPostList = JSON.parse(JSON.stringify(postList));
-            newPostList[postData.clubKey][postData.postKey] = postData;
+            newPostList[obj['post'].clubKey][obj['post'].postKey] = obj.post;
             setPostList(newPostList);
 
             navigation.navigate('Post', {
-                post: postData,
+                post: obj.post,
                 setPostList: setPostList,
                 postList: postList,
-                comment: commentData
+                comment: obj.comment
             });
         }
     }
@@ -66,13 +65,13 @@ const PostListElement = ({ post, navigation, getInsidePost, getPostComment, setP
                         </View>
                         <TouchableOpacity onPress={async () => { await pressFavorite(post); }}>
                             <View style={styles.aIcon}>
-                                <Image source={require('../../images/like-gray.png')}
+                                <Image source={post.statusFavorite ? require("../../images/images2/message.png") : require("../../images/eyes.png")}
                                     style={styles.icon} />
                                 <Text style={styles.iconNumber}>{post.numFavorites}</Text>
                             </View>
                         </TouchableOpacity>
                         <View style={styles.aIcon}>
-                            <Image source={require('../../images/eyes.png')}
+                            <Image source={post.statusView ? require("../../images/images2/message.png") : require("../../images/eyes.png")}
                                 style={styles.icon} />
                             <Text style={styles.iconNumber}>{post.numViews}</Text>
                         </View>

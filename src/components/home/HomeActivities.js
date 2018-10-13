@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import { ScrollView, Text, View } from 'react-native'
+import { Button } from 'react-native-elements'
 import ActivityListElement from '../activity/ActivityListElement';
 
 class HomeActivities extends React.Component {
@@ -14,8 +15,8 @@ class HomeActivities extends React.Component {
 
     //頁面重整
     activityReload = async () => {
-        const { clubList, getHomeActivityReload } = this.props;
-        await getHomeActivityReload(clubList, (newActivityList) => { this.setState({ activity: newActivityList }) });
+        const { getHomeActivityReload } = this.props;
+        await getHomeActivityReload((newActivityList) => { this.setState({ activity: newActivityList }) });
     }
 
     setActivityList = (activityList) => {
@@ -26,6 +27,12 @@ class HomeActivities extends React.Component {
         const newActivityList = { ...this.state.activity };
         return (
             <ScrollView>
+                <Button
+                    title='reload!'
+                    onPress={async () => {
+                        await this.activityReload();
+                    }}
+                />
                 {
                     Object.values(newActivityList).map((clubElement) => (
                         Object.values(clubElement).map((activityElement) => (

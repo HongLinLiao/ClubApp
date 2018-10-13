@@ -9,7 +9,6 @@ class HomeActivitiesPage extends Component {
         return (
             <HomeActivities
                 navigation={this.props.navigation}
-                clubList={this.props.clubList}
                 getHomeActivityReload={this.props.getHomeActivityReload}
                 getInsideActivity={this.props.getInsideActivity}
                 setActivityFavorite={this.props.setActivityFavorite}
@@ -19,7 +18,7 @@ class HomeActivitiesPage extends Component {
 }
 
 const mapStateToProps = ({ homeReducer }) => ({
-    clubList: homeReducer.clubList
+   
 })
 
 const mapDispatchToProps = {
