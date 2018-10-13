@@ -20,7 +20,7 @@ export default StyleSheet.create({
     color: "#092D4E"
   },
   modalDown: {
-    width: 210,
+    width: 230,
     borderRadius: 10,
     backgroundColor: "rgba(255,255,255,0.95)"
   },
@@ -31,7 +31,7 @@ export default StyleSheet.create({
     margin: 4
   },
   clubBackground: {
-    height: 380,
+    height: 400,
     justifyContent: "flex-end"
   },
   clubInfoView: {

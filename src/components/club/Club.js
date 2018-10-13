@@ -132,13 +132,13 @@ class Club extends React.Component {
             <ScrollView>
               <View
                 style={{
-                  height: 380,
+                  height: 400,
                   alignItems: "center",
                   justifyContent: "center"
                 }}
               >
                 <View
-                  style={{ position: "absolute", height: 380, width: "100%" }}
+                  style={{ position: "absolute", height: 400, width: "100%" }}
                 >
                   {imgUrl ? (
                     <ImageBackground
@@ -311,7 +311,7 @@ class Club extends React.Component {
                 this.postReload(rowData.cid);
               }}
               renderButtonText={rowData =>
-                rowData.schoolName + "  " + rowData.clubName
+                rowData.schoolName + "  " + rowData.clubName + " ▼"
               }
               renderRow={(rowData, rowId) => {
                 const { schoolName, clubName } = rowData;

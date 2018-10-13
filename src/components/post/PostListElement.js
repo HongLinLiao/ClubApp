@@ -39,19 +39,7 @@ const PostListElement = ({
       });
     }
   }
-  state = {
-    likeOr: false,
-    likeI: require("../../images/like-gray.png")
-  };
-  changeLikeI = () => {
-    //我還是不會
-    this.setState({
-      likeOr: !this.state.likeOr,
-      likeI: this.state.likeOr
-        ? require("../../images/like-gray.png")
-        : require("../../images/images2/like-orange.png")
-    });
-  };
+
   return (
     <TouchableOpacity onPress={async () => await insidePost(post)}>
       <View style={styles.newsView}>
@@ -77,38 +65,63 @@ const PostListElement = ({
           </View>
           <View style={styles.newsContentView}>
             <Text
-              numberOfLines={2}
+              numberOfLines={3}
               ellipsizeMode="tail"
+              //ellipsizeText="...more"好像無法顯示除了...的字
               style={styles.newsContentText}
             >
               {post.content}
             </Text>
-            <Text style={styles.moreText}>...more</Text>
           </View>
           <View style={styles.iconView}>
-            <Image
-              source={require("../../images/message.png")}
-              style={styles.icon}
-            />
-            <Text style={styles.iconNumber}>{post.numComments}</Text>
-
-            <TouchableOpacity
+            <View style={styles.aIcon}>
+              <Image //留言icon 不會留過言變色 字也不會變色
+                source={require("../../images/message.png")}
+                style={styles.icon}
+              />
+              <Text style={styles.iconNumber}>{post.numComments}</Text>
+            </View>
+            <TouchableOpacity //按讚icon
               style={styles.aIcon}
               onPress={async () => {
                 await pressFavorite(post);
                 this.changeLikeI();
               }}
-              style={styles.aIcon}
             >
-              <Image source={this.state.likeI} style={styles.icon} />
-              <Text style={styles.iconNumber}>{post.numFavorites}</Text>
-            </TouchableOpacity>
-            <View style={styles.aIcon}>
               <Image
-                source={require("../../images/eyes.png")}
+                source={
+                  post.statusFavorite
+                    ? require("../../images/images2/like-orange.png")
+                    : require("../../images/images2/like-gray.png")
+                }
                 style={styles.icon}
               />
-              <Text style={styles.iconNumber}>{post.numViews}</Text>
+              <Text
+                style={[
+                  styles.iconNumber,
+                  { color: post.statusFavorite ? "#f6b456" : "#666666" }
+                ]}
+              >
+                {post.numFavorites}
+              </Text>
+            </TouchableOpacity>
+            <View style={styles.aIcon}>
+              <Image //看過icon
+                source={
+                  post.statusView
+                    ? require("../../images/images2/eyes-orange.png")
+                    : require("../../images/eyes.png")
+                }
+                style={styles.icon}
+              />
+              <Text
+                style={[
+                  styles.iconNumber,
+                  { color: post.statusView ? "#f6b456" : "#666666" }
+                ]}
+              >
+                {post.numViews}
+              </Text>
             </View>
           </View>
         </View>
