@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import { Button } from "react-native-elements";
 import Comment from "./Comment";
-import styles from "../../styles/club/Post";
+import styles from "../../styles/post/Post";
 class Post extends React.Component {
   //寫入本地State
   async componentWillMount() {
@@ -87,11 +87,13 @@ class Post extends React.Component {
           <View style={styles.container}>
             <View style={styles.rowLeft}>
               <TouchableOpacity>
-                <Image
-                  source={{ uri: element.posterPhotoUrl }}
-                  resizeMode="cover"
-                  style={styles.bigHead}
-                />
+                <View style={styles.circle}>
+                  <Image
+                    source={{ uri: element.posterPhotoUrl }}
+                    resizeMode="cover"
+                    style={styles.bigHead}
+                  />
+                </View>
               </TouchableOpacity>
               <View style={styles.column}>
                 <View style={styles.row}>
@@ -121,7 +123,8 @@ class Post extends React.Component {
                     await this.pressFavorite(element.clubKey, element.postKey)
                   }
                 >
-                  <Image style={styles.icon} source={element.statusFavorite ? require("../../images/images2/message.png") : require("../../images/eyes.png")} />
+                  <Image style={styles.icon} source={element.statusFavorite ? 
+                    require("../../images/graylike.png") : require("../../images/like.png")} />
                   <Text style={styles.number}>{element.numFavorites} </Text>
                 </TouchableOpacity>
               </View>
@@ -129,16 +132,18 @@ class Post extends React.Component {
               <View style={styles.row}>
                 <Image
                   style={styles.icon}
-                  source={require("../../images/images2/message.png")}
+                  source={require("../../images/message.png")}
                 />
                 <Text style={styles.number}>{element.numComments}</Text>
                 <Image
                   style={styles.icon}
-                  source={element.statusView ? require("../../images/images2/message.png") : require("../../images/eyes.png")}
+                  source={require("../../images/eyes.png")}
                 />
                 <Text style={styles.number}>{element.numViews}</Text>
               </View>
             </View>
+
+
             <View style={{ display: element.statusEnable ? "flex" : "none" }}>
               <Button
                 title="Edit Post"
