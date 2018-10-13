@@ -17,6 +17,13 @@ import { randomCid, getClubMemberData } from '../../modules/Club'
 import { getPostKeyListFromClubKey } from '../../modules/Post'
 import PostListElement from '../post/PostListElement'
 import { joinOrLikeClub } from '../../modules/Common'
+import { getUserData, getClubData } from '../../modules/Data'
+import Overlayer from '../common/Overlayer'
+import PopupDialog, { SlideAnimation, DialogTitle } from 'react-native-popup-dialog';
+
+const slideAnimation = new SlideAnimation({
+    slideFrom: 'bottom',
+});
 
 class Club extends React.Component {
 
@@ -28,6 +35,8 @@ class Club extends React.Component {
 		},
 		postKey: {},
 		post: {},
+		userData: { uid: null, user: null, clubs: null},
+        loading: false,
 	}
 
 	async componentWillMount() {
@@ -94,9 +103,38 @@ class Club extends React.Component {
 		navigation.push('ClubMember', { memberData })
 	}
 
+	showUser = async (uid) => {
+        try {
+            this.popupDialog.show(async () => {
+                this.setState({loading: true, userData: { uid: null, user: null, clubs: null}})
+                const userData = { uid, user: {}, clubs: {}}
+                const user = await getUserData(uid)
+
+                if(user.joinClub) {
+                    const promises = Object.keys(user.joinClub).map(async (cid) => {
+                        const club = await getClubData(cid)
+                        userData.clubs[cid] = club
+                    })
+
+                    await Promise.all(promises)
+                }
+
+				userData.user = user
+				
+				console.log(userData)
+
+                this.setState({userData, loading: false})
+            });
+        } catch(e) {
+            Alert.alert(e.toString())
+        }
+        
+    }
+
 	render() {
 		if (this.props.currentCid) {
 			const newPostList = { ...this.state.post };
+			const { userData } = this.state
 			const { user, joinClubs, likeClubs, currentCid } = this.props
 			let type = joinOrLikeClub(currentCid)
 			let clubs = {}
@@ -175,6 +213,7 @@ class Club extends React.Component {
 												setPostFavorite={this.props.setPostFavorite}
 												postList={this.state.post}
 												setPostList={this.setPostList}
+												showUser={this.showUser.bind(this)}
 											>
 											</PostListElement>
 										))
@@ -199,7 +238,68 @@ class Club extends React.Component {
 							/>
 						</View>
 					</View>
-
+					<PopupDialog
+						ref={(popupDialog) => this.popupDialog = popupDialog}
+						dialogAnimation={slideAnimation}
+						width={0.7}
+						height={0.7}
+						dialogStyle={{borderRadius: 20}}
+					>
+						{
+							userData.user ? (
+								<View style={{flex: 1, borderRadius: 20, overflow: 'hidden'}}>
+									<View style={{
+										flex: 1,
+										justifyContent: 'center',
+										alignItems: 'center',
+										backgroundColor: '#f6b456',
+									}}>
+										<View style={{  width: 100, height: 100, borderRadius: 50, overflow: 'hidden', justifyContent: 'center', alignItems: 'center', margin: 10}}>
+											{ userData.user.photoUrl ? 
+												<Image source={{uri: userData.user.photoUrl}} resizeMode='cover' style={{ width: 100, height: 100, }}/> : 
+												<Image source={require('../../images/man-user.png')} resizeMode='contain' style={{width: 100, height: 100, borderRadius: 50}}/>
+											}
+										</View>
+										<View>
+											<Text style={{fontSize: 25, fontWeight: 'bold', color: '#0d4273'}}>{userData.user.nickName}</Text>
+										</View>
+									</View>
+									<View style={{
+										flex: 1.5,
+										backgroundColor: '#0d4273',
+									}}>
+										<View style={{flex: 1, justifyContent: 'center',}}>
+											<Text style={{color: '#f6b456', lineHeight: 20, marginLeft: 20, marginRight: 20,}}>{userData.user.aboutMe}</Text>
+										</View>
+										<View style={{flex: 1.5, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(18, 117, 209, 0.3)'}}>
+											<ScrollView contentContainerStyle={{paddingBottom: 20}}>
+											{
+												Object.keys(userData.clubs).map((cid) => {
+													const { schoolName, clubName, member } = userData.clubs[cid]
+													const { status } = member[userData.uid]
+													let _status = ''
+													switch(status) {
+														case 'master': _status = '社長'; break
+														case 'member': _status = '社員'; break
+													}
+													return (
+														<View
+															key={cid}
+															style={{marginTop: 20}}
+														>
+															<Text style={{color: '#f6b456'}}>{`${schoolName} ${clubName} [${_status}]`}</Text>
+														</View>
+													)
+												})
+											}
+											</ScrollView>
+										</View>
+									</View>
+								</View>
+							) : null
+						}                 
+						{this.state.loading ? <Overlayer /> : null}
+					</PopupDialog>
 				</View>
 
 			)

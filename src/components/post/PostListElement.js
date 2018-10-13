@@ -1,9 +1,10 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, Image } from 'react-native';
 import { Button } from 'react-native-elements';
+
 import styles from '../../styles/home/Home'
 
-const PostListElement = ({ post, navigation, getInsidePost, getPostComment, setPostFavorite, postList, setPostList }) => {
+const PostListElement = ({ post, navigation, getInsidePost, getPostComment, setPostFavorite, postList, setPostList, showUser }) => {
 
     async function pressFavorite(post) {
         const postData = await setPostFavorite(post.clubKey, post.postKey);
@@ -36,11 +37,11 @@ const PostListElement = ({ post, navigation, getInsidePost, getPostComment, setP
     return (
         <TouchableOpacity onPress={async () => await insidePost(post)}>
             <View style={styles.newsView}>
-                <View style={styles.shadow}>
+                <TouchableOpacity style={styles.shadow} onPress={() => showUser(post.poster)}>
                     <Image source={{ uri: post.posterPhotoUrl }}
                         style={styles.managerImageView}
                         imageStyle={styles.managerImageView} />
-                </View>
+                </TouchableOpacity>
                 <View style={styles.newsTextView}>
                     <View style={styles.clubAndManagerNameView}>
                         <Text style={styles.newsClubText}>{post.schoolName}</Text>
@@ -79,7 +80,6 @@ const PostListElement = ({ post, navigation, getInsidePost, getPostComment, setP
 
                 </View>
             </View>
-
         </TouchableOpacity >
     );
 };

@@ -20,7 +20,7 @@ import * as firebase from 'firebase'
 
 class Analysis extends React.Component {
     state = {
-        dataArray: [{x: '載入中', y: 1}],
+        dataArray: [{x: 0, y: 1, fill: '#005aaf'}],
         colorArray: ['rgb(255, 190, 0)'],
         result: false,
         refreshing: false,
@@ -34,33 +34,34 @@ class Analysis extends React.Component {
         const { cid, club, clubData } = item
         const { avgPostViews, avgPostFavorites, avgPostComments, avgActivityViews, avgActivityFavorites } = clubData
         const dataArray = []
-        const labelArray = ['A', 'B', 'C', 'D', 'E']
+        const labelArray = ['1', '2', '3', '4', '5']
+        const colorScale = [ "orange", "tomato", "gold", "cyan", "navy" ]
         let index = 0
         
         if(avgPostViews != 0) {
-            dataArray.push({x: labelArray[index], y: avgPostViews})
+            dataArray.push({x: labelArray[index], y: avgPostViews, fill: "orange",})
             index++
         }
         if(avgPostFavorites != 0) {
-            dataArray.push({x: labelArray[index], y: avgPostFavorites})
+            dataArray.push({x: labelArray[index], y: avgPostFavorites, fill: "tomato", })
             index++
         }
         if(avgPostComments != 0) {
-            dataArray.push({x: labelArray[index], y: avgPostComments})
+            dataArray.push({x: labelArray[index], y: avgPostComments, fill: "gold",})
             index++
         }
         if(avgActivityViews != 0) {
-            dataArray.push({x: labelArray[index], y: avgActivityViews})
+            dataArray.push({x: labelArray[index], y: avgActivityViews, fill: "green",})
             index++
         }
         if(avgActivityFavorites != 0) {
-            dataArray.push({x: labelArray[index], y: avgActivityFavorites})
+            dataArray.push({x: labelArray[index], y: avgActivityFavorites, fill: "cyan",})
             index++
         }
 
-        if(dataArray.length == 0) dataArray.push({x: '無資料', y: 1})
+        if(dataArray.length == 0) dataArray.push({x: 0, y: 1, fill: '#003363'})
         
-        await setTimeout(() => {
+        setTimeout(() => {
             this.setState({dataArray})
         }, 1000);
         
@@ -144,23 +145,23 @@ class Analysis extends React.Component {
         } = clubData 
         return (
             <View style={{flex: 1, justifyContent:'center', backgroundColor: '#0d4273'}}>
-                <View style={{flex: 1.5}}>
+                <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
                     <VictoryPie
-                        colorScale={[ "orange", "tomato", "gold", "cyan", "navy" ]}
                         data={this.state.dataArray}
-                        animate={{duration: 2000}}
-                        labelRadius={0}
-                        radius={100}
+                        animate={{duration: 1000}}
+                        labelRadius={60}
                         innerRadius={0}
                         padAngle={0}
-                        containerComponent={<VictoryContainer height={300}/>}
+                        width={330}
+                        height={330}
                         style={{
                             data: {
-                                fillOpacity: 0.7,
+                                fillOpacity: 0.8,
+                                fill: (data) => data.fill
                             },
                             labels: {
-                                fontSize: 25,
-                                fill: "#f6b456"
+                                fontSize: 30,
+                                fill: "#0d4273"
                             }
                         }}
                     />
@@ -178,7 +179,7 @@ class Analysis extends React.Component {
                     flex: 1,
                 }}
                 >
-                    <View style={{flex:1 ,borderWidth: 1, borderColor: 'red', flexDirection: 'row', alignItems: 'center'}}>
+                    <View style={{flex:1 , flexDirection: 'row', alignItems: 'center'}}>
                         <View style={{width: 20, height: 20, backgroundColor: 'orange', opacity: 0.8}}></View>
                         <View style={{margin: 10}}>
                             <Text style={{fontSize: 15, color: 'rgb(255, 199, 81)'}}>貼文觀看</Text>
@@ -189,14 +190,47 @@ class Analysis extends React.Component {
                         </View>
                     </View>
 
-                    <View style={{flex:1 ,borderWidth: 1, borderColor: 'red', flexDirection: 'row', alignItems: 'center'}}>
+                    <View style={{flex:1 , flexDirection: 'row', alignItems: 'center'}}>
                         <View style={{width: 20, height: 20, backgroundColor: 'tomato', opacity: 0.8}}></View>
                         <View style={{margin: 10}}>
                             <Text style={{fontSize: 15, color: 'rgb(255, 199, 81)'}}>貼文喜愛</Text>
                         </View>
                         <View>
-                            <Text style={{fontSize: 10, color: 'rgb(255, 199, 81)'}}>{`總觀看次數:${totalPostFavorites}`}</Text>
-                            <Text style={{fontSize: 10, color: 'rgb(255, 199, 81)'}}>{`平均觀看次數:${avgPostFavorites}`}</Text>
+                            <Text style={{fontSize: 10, color: 'rgb(255, 199, 81)'}}>{`總喜愛次數:${totalPostFavorites}`}</Text>
+                            <Text style={{fontSize: 10, color: 'rgb(255, 199, 81)'}}>{`平均喜歡次數:${avgPostFavorites}`}</Text>
+                        </View>
+                    </View>
+
+                    <View style={{flex:1 , flexDirection: 'row', alignItems: 'center'}}>
+                        <View style={{width: 20, height: 20, backgroundColor: 'gold', opacity: 0.8}}></View>
+                        <View style={{margin: 10}}>
+                            <Text style={{fontSize: 15, color: 'rgb(255, 199, 81)'}}>貼文留言</Text>
+                        </View>
+                        <View>
+                            <Text style={{fontSize: 10, color: 'rgb(255, 199, 81)'}}>{`總留言次數:${totalPostComments}`}</Text>
+                            <Text style={{fontSize: 10, color: 'rgb(255, 199, 81)'}}>{`平均留言次數:${avgPostComments}`}</Text>
+                        </View>
+                    </View>
+
+                    <View style={{flex:1 , flexDirection: 'row', alignItems: 'center'}}>
+                        <View style={{width: 20, height: 20, backgroundColor: 'green', opacity: 0.8}}></View>
+                        <View style={{margin: 10}}>
+                            <Text style={{fontSize: 15, color: 'rgb(255, 199, 81)'}}>活動觀看</Text>
+                        </View>
+                        <View>
+                            <Text style={{fontSize: 10, color: 'rgb(255, 199, 81)'}}>{`總觀看次數:${totalActivityViews}`}</Text>
+                            <Text style={{fontSize: 10, color: 'rgb(255, 199, 81)'}}>{`平均觀看次數:${avgActivityViews}`}</Text>
+                        </View>
+                    </View>
+
+                    <View style={{flex:1 , flexDirection: 'row', alignItems: 'center'}}>
+                        <View style={{width: 20, height: 20, backgroundColor: 'cyan', opacity: 0.8}}></View>
+                        <View style={{margin: 10}}>
+                            <Text style={{fontSize: 15, color: 'rgb(255, 199, 81)'}}>活動喜愛</Text>
+                        </View>
+                        <View>
+                            <Text style={{fontSize: 10, color: 'rgb(255, 199, 81)'}}>{`總喜愛次數:${totalActivityFavorites}`}</Text>
+                            <Text style={{fontSize: 10, color: 'rgb(255, 199, 81)'}}>{`平均喜愛次數:${avgActivityFavorites}`}</Text>
                         </View>
                     </View>
                     
