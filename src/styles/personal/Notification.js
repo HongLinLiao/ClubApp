@@ -1,12 +1,34 @@
 import { StyleSheet } from 'react-native'
 
+
 export default StyleSheet.create({
     container: {
         flex: 1,
-        alignItems: 'center',
+    },
+    arrow: {
+        height: 30,
+        width: 30,
+    },
+    headView: {
+        height: 45,
+        backgroundColor: '#f6b456',
         justifyContent: 'space-between',
-        flexDirection: 'column',
-        backgroundColor: 'white'
+        alignItems: 'center',
+        flexDirection: 'row'
+    },
+    headText: {
+        color: '#666666',
+        fontSize: 20,
+    },
+    fake: {
+        width: 50,
+    },
+
+
+    leftIcon: {
+        height: 30,
+        width: 30,
+
     },
     empty: {
         width: 40
@@ -25,12 +47,14 @@ export default StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'flex-start',
+
+
     },
     alarm: {
         width: 22,
         height: 22,
-        marginRight:12,
-        marginLeft:15
+        marginRight: 12,
+        marginLeft: 15
     },
     alarmText: {
         fontSize: 20,
@@ -51,8 +75,8 @@ export default StyleSheet.create({
         fontSize: 20,
         color: 'rgba(102,102,102,1)'
     },
-    switchSize:{
-        marginRight:15
+    switchSize: {
+        marginRight: 15
     },
     school: {
         fontSize: 15,
@@ -61,7 +85,32 @@ export default StyleSheet.create({
         color: 'rgba(102,102,102,1)'
     },
     club: {
-        fontSize: 20,
+        fontSize: 18,
         color: 'rgba(102,102,102,1)'
-    }
-})
+    },
+    subtitleView: {
+        flexDirection: 'row',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        borderBottomWidth: 1,
+        borderBottomColor: 'rgba(102,102,102,0.15)',
+    },
+
+    boxView: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        borderBottomWidth: 1,
+        borderBottomColor: 'rgba(102,102,102,0.15)',
+    
+    },
+    boxBottomBorderView: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        borderBottomWidth: 1,
+        borderBottomColor: 'rgba(102,102,102,0.5)',
+        
+
+    },
+}
+)

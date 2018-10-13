@@ -13,6 +13,7 @@ import JoinedClubPage from '../containers/personal/JoinedClubPage'
 import FavoriteClubPage from '../containers/personal/FavoriteClubPage'
 import requireAppFlow from '../containers/flowControll/requireAppFlow'
 
+
 import React from 'react'
 import { Button } from 'react-native'
 
@@ -24,48 +25,17 @@ const ClubManagePage = createMaterialTopTabNavigator({
 
 
 export default createStackNavigator({
-  Profile:{
-    screen: requireAppFlow(ProfilePage),
-    navigationOptions: ({ navigation }) => ({
-			title: '個人管理',
-			headerBackTitle:'上一頁',
-			headerTitleStyle: {
-				color: '#666666',
-				fontSize: 20,
-			},
-			headerStyle: {
-				backgroundColor: '#f6b456'
-			},
-		}
-		)
-  },
-  ProfileSetting: {
-    screen:requireAppFlow(ProfileSettingPage),
-  },
-  AdvancedSetting: {
-    screen:requireAppFlow(AdvancedSettingPage),
-  },
-  EmailReVerified: {
-    screen:requireAppFlow(EmailReVerifiedPage),
-  },
-  SendEmailSuccessful: {
-    screen:requireAppFlow(SendEmailSuccessfulPage),
-  },
-  ChangeEamil: {
-    screen:requireAppFlow(ChangeEamilPage),
-  },
-  ChangePassword: {
-    screen:requireAppFlow(ChangePasswordPage),
-  },
-  Notification: {
-    screen:requireAppFlow(NotificationPage),
-  },
-  ClubPrivateSetting: {
-    screen:requireAppFlow(ClubPrivateSettingPage),
-  },
-  CreateClub: {
-    screen:requireAppFlow(CreateClubPage),
-  },
+
+  Profile: ProfilePage,
+  ProfileSetting: ProfileSettingPage,
+  AdvancedSetting: AdvancedSettingPage,
+  EmailReVerified: EmailReVerifiedPage,
+  SendEmailSuccessful: SendEmailSuccessfulPage,
+  ChangeEamil: ChangeEamilPage,
+  ChangePassword: ChangePasswordPage,
+  Notification: NotificationPage,
+  ClubPrivateSetting: ClubPrivateSettingPage,
+  CreateClub: CreateClubPage,
   ClubManage: {
     screen: ClubManagePage,
     navigationOptions: ({ navigation }) => {
@@ -75,5 +45,7 @@ export default createStackNavigator({
         headerRight: <Button title='創建社團' onPress={() => navigation.push('CreateClub')} />
       }
     }
-  }
+  },
+
+  
 })

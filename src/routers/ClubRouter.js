@@ -2,6 +2,7 @@ import { createStackNavigator } from 'react-navigation'
 import ClubPage from '../containers/club/ClubPage'
 import PostPage from '../containers/club/PostPage'
 import AddPostPage from '../containers/club/AddPostPage'
+import ActivitiesPage from '../containers/club/ActivitiesPage'
 import AddActivityPage from '../containers/club/AddActivityPage'
 import ClubAdminPage from '../containers/club/ClubAdminPage'
 import ClubMemberPage from '../containers/club/ClubMemberPage'
@@ -11,6 +12,10 @@ import { Button } from 'react-native'
 
 
 export default createStackNavigator({
+   Activities: {
+     screen: ActivitiesPage,
+
+   },
   Club: {
     screen: ClubPage,
     navigationOptions: {
@@ -40,6 +45,7 @@ export default createStackNavigator({
       }
     }
   },
+  
   ClubAdmin: {
     screen: ClubAdminPage,
   },
