@@ -49,14 +49,14 @@ class Club extends React.Component {
   }
 
   //貼文重整
-  postReload = async clubKey => {
+  postReload = async (clubKey) => {
     const { getPostDataComplete } = this.props;
     const postKey = await getPostKeyListFromClubKey(clubKey);
     const postData = await getPostDataComplete(postKey);
     this.setState({ postKey: postKey, post: postData });
   };
   //更改postList
-  setPostList = postList => {
+  setPostList = (postList) => {
     this.setState({ post: postList });
   };
 

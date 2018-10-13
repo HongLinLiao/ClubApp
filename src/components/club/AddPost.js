@@ -10,6 +10,7 @@ import {
 	KeyboardAvoidingView,
 	Keyboard,
 	StyleSheet,
+	Button,
 } from 'react-native';
 
 import { takePhoto, selectPhoto } from '../../modules/Common'

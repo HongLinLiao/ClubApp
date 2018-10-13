@@ -9,9 +9,38 @@ import * as firebase from "firebase"
 //********************************************************************************
 
 //貼文列重整
-export const getHomePostReload = (clubList, homeReload) => async (dispatch) => {
+export const getHomePostReload = (clubList, homeReload) => async (dispatch, getState) => {
     try {
-        const postKeyList = await dispatch(getHomePostKey(clubList));
+        const newClubList = {};
+        let numSelect = 0;
+
+        const joinClub = getState().userReducer.joinClub;
+        const likeClub = getState().userReducer.likeClub;
+        const nextClub = { ...joinClub, ...likeClub };
+
+        let i;
+        const clubKey = Object.keys(nextClub);
+        for (i = 0; i < clubKey.length; i++) {
+            if (clubList[clubKey[i]]) {
+                newClubList[clubKey[i]] = clubList[clubKey[i]];
+                if (clubList[clubKey[i]].selectStatus) {
+                    numSelect = numSelect + 1;
+                }
+            }
+            else {
+                const club = await getClubData(clubKey[i]);
+                newClubList[clubKey[i]] = {
+                    clubKey: clubKey[i],
+                    selectStatus: true,
+                    schoolName: club.schoolName,
+                    clubName: club.clubName,
+                };
+                numSelect = numSelect + 1;
+            }
+        }
+
+        dispatch(HomeAction.getHomeClubListSuccess(newClubList, numSelect));
+        const postKeyList = await dispatch(getHomePostKey(newClubList));
         const newPostList = await dispatch(getPostDataComplete(postKeyList));
         homeReload(newPostList);
         determinToSearch(clubList, newPostList);
@@ -77,6 +106,13 @@ export const getHomePostKey = (clubList) => async (dispatch) => {
                     continue;
                 }
                 else {
+                    const club = await getClubData(clubKey[i]);
+                    if (!club.open) {
+                        const { uid } = firebase.auth().currentUser;
+                        if (!club.member[uid]) {
+                            continue;
+                        }
+                    }
                     let tempPostKeyList = await getPostKeyListFromClubKey(clubKey[i]);
                     postKeyList = { ...postKeyList, ...tempPostKeyList };
                 }
@@ -140,7 +176,7 @@ export const getClubListForSelecting = async (allClub) => {
                 clubKey: element,
                 selectStatus: true,
                 schoolName: club.schoolName,
-                clubName: club.clubName
+                clubName: club.clubName,
             };
             clubList = { ...clubList, ...tempObj };
         });
@@ -172,8 +208,3 @@ export const determinToSearch = (clubList, postList) => {
         console.log(error.toString());
     }
 }
-
-
-
-
-

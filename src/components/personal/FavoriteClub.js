@@ -8,7 +8,6 @@ import {
   Alert
 } from "react-native";
 import Overlayer from "../common/Overlayer";
-import { dislikeTheClub } from "../../modules/Club";
 import styles from "../../styles/personal/FavoriteClub";
 
 class FavoriteClub extends React.Component {
@@ -34,7 +33,7 @@ class FavoriteClub extends React.Component {
   handleDislike = async cid => {
     try {
       this.setState({ loading: true });
-      const { likeClubs } = this.props;
+      const { likeClubs, homeClubList, dislikeTheClub, homeClubSelect } = this.props;
       const { clubName, schoolName } = likeClubs[cid];
       await dislikeTheClub(cid);
 
