@@ -1,6 +1,8 @@
 import { StyleSheet } from 'react-native'
 
 export default StyleSheet.create({
+
+
     container: {
       flex: 1,
   
@@ -12,16 +14,22 @@ export default StyleSheet.create({
       alignItems: 'center',
       flexDirection: 'row'
     },
-    headText:{
-      fontSize:20,
-      color:'#666666'
+    headText: {
+      fontSize: 20,
+      color: '#666666'
     },
     arrow: {
       height: 30,
       width: 30,
+      marginLeft: 10,
+    },
+    fake: {
+      width: 30,
+      marginRight: 10,
     },
     clubBackground: {
       height: 250,
+      // justifyContent: 'flex-end',
     },
     clubTextView: {
       flexDirection: 'row'
@@ -80,7 +88,7 @@ export default StyleSheet.create({
       marginRight: 30,
     },
     map: {
-      flex:1,
+      flex: 1,
     },
     titleContentText: {
       fontSize: 17,
