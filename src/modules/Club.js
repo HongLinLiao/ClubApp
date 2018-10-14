@@ -3,6 +3,7 @@ import * as ClubAction from '../actions/ClubAction'
 import { getClubData, getUserSetting, updateClub, updateUser, updateUserSetting, getUserData } from './Data'
 import { selectPhoto, joinOrLikeClub } from './Common'
 import { listenToClub } from './Listener'
+import { getHomeClubListSuccess } from '../actions/HomeAction'
 
 /*
 |-----------------------------------------------
@@ -17,13 +18,13 @@ export const getAllClubData = async () => {
     const userRef = firebase.database().ref('users').child(user.uid)
     const userShot = await userRef.once('value')
     const { joinClub, likeClub } = userShot.val()
-    
+
     let clubsData = {
       newJoinClubs: {},
       newLikeClubs: {},
     }
 
-    if(joinClub) {
+    if (joinClub) {
       const promises = Object.keys(joinClub).map(async (cid) => {
         const clubShot = await firebase.database().ref('clubs/' + cid).once('value')
         clubsData.newJoinClubs[cid] = clubShot.val()
@@ -31,8 +32,8 @@ export const getAllClubData = async () => {
 
       await Promise.all(promises)
     }
-      
-    if(likeClub) {
+
+    if (likeClub) {
       const promises = Object.keys(likeClub).map(async (cid) => {
         const clubShot = await firebase.database().ref('clubs/' + cid).once('value')
         clubsData.newLikeClubs[cid] = clubShot.val()
@@ -72,7 +73,7 @@ export const createClub = (schoolName, clubName, open) => async (dispatch, getSt
     const newJoinClubs = JSON.parse(JSON.stringify(joinClubs))
 
 
-    
+
 
     newJoinClub[cid] = true
     newClubNotificationList[cid] = {
@@ -104,8 +105,21 @@ export const createClub = (schoolName, clubName, open) => async (dispatch, getSt
 
 
     await firebase.database().ref('clubs/' + cid).set(newClub)
-    await firebase.database().ref('settings/' + user.uid + '/clubNotificationList/' + cid).update({ on: true })
+    await firebase.database().ref('userSettings/' + user.uid + '/clubNotificationList/' + cid).update({ on: true })
     await firebase.database().ref('users/' + user.uid + '/joinClub').update(newJoinClub)
+
+    //改首頁社團列
+    const homeClubList = getState().homeReducer.clubList;
+    const homeClubSelect = getState().homeReducer.numSelectingStatusTrue;
+    const nextHomeClubList = JSON.parse(JSON.stringify(homeClubList));
+    nextHomeClubList[cid] = {
+      clubKey: cid,
+      selectStatus: true,
+      schoolName: schoolName,
+      clubName: clubName,
+    };
+    homeClubSelect = homeClubSelect + 1
+    dispatch(getHomeClubListSuccess(nextHomeClubList, homeClubSelect));
 
     // dispatch(ClubAction.createClubSuccess(clubData))
 
@@ -123,7 +137,7 @@ export const changeClubPhoto = (cid) => async (dispatch, getState) => {
     const clubStorageRef = firebase.storage().ref('clubs').child(cid).child('clubPhoto')
     const uri = await selectPhoto()
 
-    if(uri) {
+    if (uri) {
       const { joinClubs } = getState().clubReducer
       const newClubs = JSON.parse(JSON.stringify(joinClubs))
       const response = await fetch(uri);
@@ -139,7 +153,7 @@ export const changeClubPhoto = (cid) => async (dispatch, getState) => {
 
       //更新redux
       // dispatch(ClubAction.setClubPhoto(newClubs))
-      
+
     } else {
       throw new Error('取消選擇照片')
     }
@@ -156,7 +170,7 @@ export const setClubOpen = (cid) => async (dispatch, getState) => {
     const clubRef = firebase.database().ref('clubs').child(cid)
     const { joinClubs } = getState().clubReducer
 
-    
+
     let newClubs = JSON.parse(JSON.stringify(joinClubs))
     newClubs[cid].open = !newClubs[cid].open
 
@@ -186,7 +200,7 @@ export const kickClubMember = (cid, uid) => async (dispatch, getState) => {
     delete newClubs[cid].member[uid]
 
     //資料庫
-    if(Object.keys(clubNotificationList).length > 1) { //加入社團大於1
+    if (Object.keys(clubNotificationList).length > 1) { //加入社團大於1
       await clubNotificationRef.child(cid).remove()
     } else {
       await clubNotificationRef.set(false)
@@ -198,7 +212,7 @@ export const kickClubMember = (cid, uid) => async (dispatch, getState) => {
       await memberRef.set(false)
     }
 
-    if(Object.keys(joinClub).length > 1) { //社團大於1
+    if (Object.keys(joinClub).length > 1) { //社團大於1
       await joinClubRef.child(cid).remove()
     } else {
       await joinClubRef.set(false)
@@ -228,7 +242,7 @@ export const searchAllClub = async () => {
 }
 
 //加入社團
-export const joinTheClub = (cid) => async ( dispatch, getState ) => {
+export const joinTheClub = (cid) => async (dispatch, getState) => {
   try {
     const { uid } = firebase.auth().currentUser
     const { clubs } = getState().clubReducer
@@ -237,7 +251,7 @@ export const joinTheClub = (cid) => async ( dispatch, getState ) => {
     const clubRef = firebase.database().ref('clubs').child(cid)
     const clubType = joinOrLikeClub(cid)
 
-    
+
     //資料庫變數
     const newClub = await getClubData(cid)
 
@@ -257,11 +271,16 @@ export const joinTheClub = (cid) => async ( dispatch, getState ) => {
     newJoinClub[cid] = true
     newClubNotificationList[cid] = { on: true }
 
+    //改首頁社團列
+    const homeClubList = getState().homeReducer.clubList;
+    const homeClubSelect = getState().homeReducer.numSelectingStatusTrue;
+    const nextHomeClubList = JSON.parse(JSON.stringify(homeClubList));
+
     //資料庫更新
     await updateUserSetting(uid, { clubNotificationList: newClubNotificationList })
     await updateClub(cid, newClub)
-    if(clubType == 'LIKE') { //加入已收藏的社團
-      if(Object.keys(newLikeClub).length > 1) { //社員大於1
+    if (clubType == 'LIKE') { //加入已收藏的社團
+      if (Object.keys(newLikeClub).length > 1) { //社員大於1
         delete newLikeClub[cid]
       } else {
         newLikeClub = false
@@ -269,6 +288,16 @@ export const joinTheClub = (cid) => async ( dispatch, getState ) => {
       await updateUser(uid, { joinClub: newJoinClub, likeClub: newLikeClub })
     } else {
       await updateUser(uid, { joinClub: newJoinClub })
+
+      nextHomeClubList[cid] = {
+        clubKey: cid,
+        selectStatus: true,
+        schoolName: newClub.schoolName,
+        clubName: newClub.clubName,
+      };
+
+      homeClubSelect = homeClubSelect + 1
+      dispatch(getHomeClubListSuccess(nextHomeClubList, homeClubSelect));
     }
 
     //redux更新
@@ -302,36 +331,47 @@ export const quitTheClub = (cid) => async (dispatch, getState) => {
     // let newClubs = JSON.parse(JSON.stringify(getState().clubReducer.clubs))
 
     //資料庫
-    if(Object.keys(clubNotificationList).length > 1) { //加入社團大於1
+    if (Object.keys(clubNotificationList).length > 1) { //加入社團大於1
       await clubNotificationRef.child(cid).remove()
     } else {
       await clubNotificationRef.set(false)
     }
 
-    if(Object.keys(member).length > 1) { //加入社團於1
+    if (Object.keys(member).length > 1) { //加入社團於1
       await memberRef.child(uid).remove()
     } else {
       await memberRef.set(false)
     }
 
-    if(Object.keys(joinClub).length > 1) { //社員大於1
+    if (Object.keys(joinClub).length > 1) { //社員大於1
       await joinClubRef.child(cid).remove()
     } else {
       await joinClubRef.set(false)
     }
-    
+
+    //改首頁社團列
+    const homeClubList = getState().homeReducer.clubList;
+    const homeClubSelect = getState().homeReducer.numSelectingStatusTrue;
+    const nextHomeClubList = JSON.parse(JSON.stringify(homeClubList));
+    nextHomeClubList[cid] = null;
+    delete nextHomeClubList[cid];
+    if (homeClubSelect != 0) {
+      homeClubSelect = homeClubSelect - 1
+    }
+    dispatch(getHomeClubListSuccess(nextHomeClubList, homeClubSelect));
+
 
     // //redux
     // delete newJoinClub[cid]
     // delete newClubNotificationList[cid]
     // delete newClubs[cid]
 
-    
+
     // const rCid = randomCid(newClubs)
     // dispatch(ClubAction.setCurrentClub(rCid))
     // dispatch(ClubAction.removeTheClub(newClubs, newJoinClub, newClubNotificationList, rCid))
-    
-    
+
+
 
   } catch (e) {
     console.log(e.toString())
@@ -341,7 +381,7 @@ export const quitTheClub = (cid) => async (dispatch, getState) => {
 }
 
 //蒐藏社團
-export const likeTheClub = (cid) => async ( dispatch, getState ) => {
+export const likeTheClub = (cid) => async (dispatch, getState) => {
   try {
     const { uid } = firebase.auth().currentUser
     const { likeClub } = getState().userReducer
@@ -350,7 +390,7 @@ export const likeTheClub = (cid) => async ( dispatch, getState ) => {
     //redux變數
     const newLikeClub = JSON.parse(JSON.stringify(likeClub))
     const newClubNotificationList = JSON.parse(JSON.stringify(clubNotificationList))
-    
+
     //redux修改
     newLikeClub[cid] = true
     newClubNotificationList[cid] = { on: true }
@@ -359,14 +399,28 @@ export const likeTheClub = (cid) => async ( dispatch, getState ) => {
     await updateUserSetting(uid, { clubNotificationList: newClubNotificationList })
     await updateUser(uid, { likeClub: newLikeClub })
 
-  } catch(e) {
+    //改首頁社團列
+    const homeClubList = getState().homeReducer.clubList;
+    const homeClubSelect = getState().homeReducer.numSelectingStatusTrue;
+    const nextHomeClubList = JSON.parse(JSON.stringify(homeClubList));
+    const club = await getClubData(cid);
+    nextHomeClubList[cid] = {
+      clubKey: cid,
+      selectStatus: true,
+      schoolName: club.schoolName,
+      clubName: club.clubName,
+    };
+    homeClubSelect = homeClubSelect + 1
+    dispatch(getHomeClubListSuccess(nextHomeClubList, homeClubSelect));
+
+  } catch (e) {
     console.log(e)
     throw e
   }
 }
 
 //取消收藏
-export const dislikeTheClub = async (cid) => {
+export const dislikeTheClub = (cid) => async (dispatch, getState) => {
   try {
     const { uid } = firebase.auth().currentUser
     const likeClubRef = firebase.database().ref('users').child(uid).child('likeClub')
@@ -377,24 +431,48 @@ export const dislikeTheClub = async (cid) => {
     const { clubNotificationList } = await getUserSetting(uid)
 
     //資料庫
-    if(Object.keys(clubNotificationList).length > 1) { //加入社團大於1
+    if (Object.keys(clubNotificationList).length > 1) { //加入社團大於1
       await clubNotificationRef.child(cid).remove()
     } else {
       await clubNotificationRef.set(false)
     }
 
-    if(Object.keys(joinClub).length > 1) { //社團大於1
+    if (Object.keys(joinClub).length > 1) { //社團大於1
       await likeClubRef.child(cid).remove()
     } else {
       await likeClubRef.set(false)
     }
 
-  } catch(e) {
+    //改首頁社團列
+    const homeClubList = getState().homeReducer.clubList;
+    const homeClubSelect = getState().homeReducer.numSelectingStatusTrue;
+    const nextHomeClubList = JSON.parse(JSON.stringify(homeClubList));
+    nextHomeClubList[cid] = null;
+    delete nextHomeClubList[cid];
+    if (homeClubSelect != 0) {
+      homeClubSelect = homeClubSelect - 1
+    }
+    dispatch(getHomeClubListSuccess(nextHomeClubList, homeClubSelect));
+
+  } catch (e) {
     console.log(e)
     throw e
   }
 }
 
+
+export const filterOpenClub = (allClubs) => {
+  const newAllClubs = {}
+  Object.keys(allClubs).map((cid) => {
+    if(allClubs[cid].open) {
+      newAllClubs[cid] = allClubs[cid]
+    }
+  })
+  console.log(newAllClubs)
+
+  return newAllClubs
+  
+}
 
 export const randomCid = (cids) => {
 

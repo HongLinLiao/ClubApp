@@ -1,6 +1,6 @@
 import * as HomeAction from '../actions/HomeAction'
 import { getPostDataComplete, getPostKeyListFromClubKey } from './Post';
-import { getActivityKeyFromClubKey, getActivityDataComplete } from './Activity.js';
+import { getActivityDataComplete, getUserActivities } from './Activity.js';
 import { getClubData } from './Data';
 import * as firebase from "firebase"
 
@@ -9,9 +9,38 @@ import * as firebase from "firebase"
 //********************************************************************************
 
 //貼文列重整
-export const getHomePostReload = (clubList, homeReload) => async (dispatch) => {
+export const getHomePostReload = (clubList, homeReload) => async (dispatch, getState) => {
     try {
-        const postKeyList = await dispatch(getHomePostKey(clubList));
+        const newClubList = {};
+        let numSelect = 0;
+
+        const joinClub = getState().userReducer.joinClub;
+        const likeClub = getState().userReducer.likeClub;
+        const nextClub = { ...joinClub, ...likeClub };
+
+        let i;
+        const clubKey = Object.keys(nextClub);
+        for (i = 0; i < clubKey.length; i++) {
+            if (clubList[clubKey[i]]) {
+                newClubList[clubKey[i]] = clubList[clubKey[i]];
+                if (clubList[clubKey[i]].selectStatus) {
+                    numSelect = numSelect + 1;
+                }
+            }
+            else {
+                const club = await getClubData(clubKey[i]);
+                newClubList[clubKey[i]] = {
+                    clubKey: clubKey[i],
+                    selectStatus: true,
+                    schoolName: club.schoolName,
+                    clubName: club.clubName,
+                };
+                numSelect = numSelect + 1;
+            }
+        }
+
+        dispatch(HomeAction.getHomeClubListSuccess(newClubList, numSelect));
+        const postKeyList = await dispatch(getHomePostKey(newClubList));
         const newPostList = await dispatch(getPostDataComplete(postKeyList));
         homeReload(newPostList);
         determinToSearch(clubList, newPostList);
@@ -22,13 +51,21 @@ export const getHomePostReload = (clubList, homeReload) => async (dispatch) => {
 }
 
 //活動列重整
-export const getHomeActivityReload = (clubList,activityReload) => async (dispatch) => {
+export const getHomeActivityReload = (activityReload) => async (dispatch) => {
     try {
-        const activityKeyList = await dispatch(getHomeActivityKey(clubList));
-        const newActivityList = await dispatch(getActivityDataComplete(activityKeyList));
-        activityReload(newActivityList);
+        const keepList = await getUserActivities();
+        if (keepList) {
+            dispatch(HomeAction.getHomeActivityListSuccess(keepList));
+            const newActivityList = await dispatch(getActivityDataComplete(keepList));
+            activityReload(newActivityList);
+        }
+        else {
+            alert('You have not keep activities!');
+            console.log('You have not keep activities!');
+        }
     }
     catch (error) {
+        dispatch(HomeAction.getHomeActivityListFailure(error.toString()))
         console.log(error.toStirng());
     }
 }
@@ -69,6 +106,13 @@ export const getHomePostKey = (clubList) => async (dispatch) => {
                     continue;
                 }
                 else {
+                    const club = await getClubData(clubKey[i]);
+                    if (!club.open) {
+                        const { uid } = firebase.auth().currentUser;
+                        if (!club.member[uid]) {
+                            continue;
+                        }
+                    }
                     let tempPostKeyList = await getPostKeyListFromClubKey(clubKey[i]);
                     postKeyList = { ...postKeyList, ...tempPostKeyList };
                 }
@@ -79,30 +123,6 @@ export const getHomePostKey = (clubList) => async (dispatch) => {
     }
     catch (error) {
         dispatch(HomeAction.getHomePostListFailure(error.toString()))
-        console.log(error.toString());
-    }
-}
-
-//以clubList去取得activityKey
-export const getHomeActivityKey = (clubList) => async (dispatch) => {
-    try {
-        var i;
-        const activityList = {};
-        //clubList裡有社團才搜尋貼文
-        if (Object.keys(clubList).length > 0) {
-            const clubKey = Object.keys(clubList);
-            //根據clubList去搜尋clubKey下的post
-            for (i = 0; i < clubKey.length; i++) {
-                //篩選關掉則跳過搜尋
-                let tempActivityKeyList = await getActivityKeyFromClubKey(clubKey[i]);
-                activityList = { ...activityList, ...tempActivityKeyList };
-            }
-        }
-        dispatch(HomeAction.getHomeActivityListSuccess(activityList));
-        return activityList;
-    }
-    catch (error) {
-        dispatch(HomeAction.getHomeActivityListFailure(error.toString()))
         console.log(error.toString());
     }
 }
@@ -156,7 +176,7 @@ export const getClubListForSelecting = async (allClub) => {
                 clubKey: element,
                 selectStatus: true,
                 schoolName: club.schoolName,
-                clubName: club.clubName
+                clubName: club.clubName,
             };
             clubList = { ...clubList, ...tempObj };
         });
@@ -188,8 +208,3 @@ export const determinToSearch = (clubList, postList) => {
         console.log(error.toString());
     }
 }
-
-
-
-
-

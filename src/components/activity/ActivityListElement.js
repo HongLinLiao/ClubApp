@@ -39,7 +39,7 @@ const ActivityListElement = ({ activity, activityList, navigation, setActivityLi
             <Text>{activity.schoolName}</Text>
             <Text>{activity.clubName}</Text>
             <TouchableOpacity onPress={async () => { await pressFavorite(activity); }}>
-                <Text>{activity.numFavorites}</Text>
+                <Text>按讚人數： {activity.numFavorites}</Text>
             </TouchableOpacity>
             <Image source={{ uri: activity.posterPhotoUrl }}
                 resizeMode='cover'

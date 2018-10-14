@@ -1,30 +1,34 @@
 import * as firebase from "firebase"
 import * as ActivityAction from '../actions/ActivityAction'
-import { getActivityData, getInsideActivityData, getUserData, updateActivityFavorites } from './Data'
+import {
+    getActivityData,
+    getInsideActivityData,
+    getUserData,
+    updateActivityFavorites,
+    getUserActivityKeeps,
+    getClubData,
+    updateActivityViews,
+} from './Data'
 import { changeMemberStatusToChinese } from './Common';
 
 //********************************************************************************
 // Get Data
 //********************************************************************************
 
-//用clubKey取得社團下所有活動
-export const getActivityKeyFromClubKey = async (clubKey) => {
-    try {
-        const activityData = await getActivityData(clubKey);
-        let activityKeyList = {};
-        if (activityData != null) {
-            activityKeyList[clubKey] = Object.keys(activityData);
-        }
-        return activityKeyList;
+//取得user收藏的活動
+export const getUserActivities = async () => {
+    const uid = firebase.auth().currentUser.uid;
+    const keepList = await getUserActivityKeeps(uid);
+    if (keepList != null) {
+        return keepList;
     }
-    catch (error) {
-        console.log(error.toString());
-        throw error;
+    else {
+        return null;
     }
 }
 
 //用activityKeyArray進firebase抓新資料
-export const getActivityDataComplete = (activityKeyList) => async (dispatch, getState) => {
+export const getActivityDataComplete = (activityKeeps) => async (dispatch, getState) => {
     try {
         let activityData;
         const activityReducer = getState().activityReducer.allActivity;
@@ -34,8 +38,9 @@ export const getActivityDataComplete = (activityKeyList) => async (dispatch, get
         // 回傳物件
         const objPost = {};
         var i, j;
-        for (i = 0; i < Object.keys(activityKeyList).length; i++) {
-            const clubKey = Object.keys(activityKeyList)[i];
+        const clubList = Object.keys(activityKeeps);
+        for (i = 0; i < clubList.length; i++) {
+            const clubKey = clubList[i];
 
             //取得社團資料
             let club;
@@ -48,8 +53,9 @@ export const getActivityDataComplete = (activityKeyList) => async (dispatch, get
             else {
                 club = await getClubData(clubKey);
             }
-            for (j = 0; j < activityKeyList[clubKey].length; j++) {
-                const activityKey = activityKeyList[clubKey][j];
+            const activityList = Object.keys(activityKeeps[clubKey]);
+            for (j = 0; j < activityList.length; j++) {
+                const activityKey = activityList[j];
                 activityData = await getInsideActivityData(clubKey, activityKey);
                 if (activityData != null) {
                     //活動基本屬性
@@ -66,6 +72,51 @@ export const getActivityDataComplete = (activityKeyList) => async (dispatch, get
     }
     catch (error) {
         console.log(error.toString());
+    }
+}
+
+//用clubKey取得社團下所有活動
+export const getActivityDataFromClubKey = (clubKey) => async (dispatch, getState) => {
+    try {
+        // 回傳物件
+        const objPost = {};
+
+        const activityData = await getActivityData(clubKey);
+        let activityDataList = {};
+        const activityKey = Object.keys(activityData);
+
+        const activityReducer = getState().activityReducer.allActivity;
+        // 新物件: activityReducer
+        const newActivityReducer = JSON.parse(JSON.stringify(activityReducer));
+
+        //取得社團資料
+        let club;
+        const joinClubs = getState().clubReducer.joinClubs;
+        const likeClubs = getState().clubReducer.likeClubs;
+        const clubData = { ...joinClubs, ...likeClubs };
+        if (clubData[clubKey]) {
+            club = clubData[clubKey]
+        }
+        else {
+            club = await getClubData(clubKey);
+        }
+
+        if (activityKey.length > 0) {
+            let i;
+            for (i = 0; i < activityKey.length; i++) {
+                activityData[activityKey] = await setActivityFoundations(clubKey, activityKey[i], activityData[activityKey], club);
+                newActivityReducer = handleActivityDataToReducer(newActivityReducer, clubKey, activityKey[i], activityData[activityKey]);
+                if (activityData[activityKey].open) {
+                    objPost = handleActivityDataToObject(objPost, clubKey, activityKey[i], activityData[activityKey]);
+                }
+            }
+            dispatch(ActivityAction.getActivityData(newActivityReducer));
+        }
+        return objPost;
+    }
+    catch (error) {
+        console.log(error.toString());
+        throw error;
     }
 }
 
@@ -91,6 +142,7 @@ export const getInsideActivity = (clubKey, activityKey) => async (dispatch, getS
                 club = await getClubData(clubKey);
             }
             activityData = await setActivityFoundations(clubKey, activityKey, activityData, club);
+            activityData = await setActivityView(activityData);
 
             //寫進activityReducer
             const preActivityReducer = getState().activityReducer.allActivity;
@@ -230,13 +282,13 @@ export const setActivityFoundations = async (clubKey, activityKey, activity, clu
 export const setViewFavoriteData = (activity, userUid) => {
     try {
         //views與favorite數量
-        // activity.numViews = Object.keys(post.views).length;
+        activity.numViews = Object.keys(activity.views).length;
         activity.numFavorites = Object.keys(activity.favorites).length;
         //該使用者是否有按讚與觀看
-        // if (post.views[userUid] == true)
-        //     post.statusView = true;
-        // else
-        //     post.statusView = false;
+        if (activity.views[userUid] == true)
+            activity.statusView = true;
+        else
+            activity.statusView = false;
         if (activity.favorites[userUid] == true)
             activity.statusFavorite = true;
         else
@@ -331,5 +383,43 @@ export const setActivityFavorite = (clubKey, activityKey) => async (dispatch, ge
     }
     catch (error) {
         console.log(error.toString());
+    }
+}
+
+//觀看
+export const setActivityView = async (activity) => {
+    try {
+        const user = firebase.auth().currentUser;
+        //檢查使用者是否是第一次查看
+        //不是第一次看
+        if (activity.views[user.uid] == true) {
+            console.log('已看過');
+        }
+        //是第一次看
+        else {
+            let updateViews = {};
+            //沒有其他使用者看過
+            if (Object.keys(activity.views).length == 0) {
+                activity.numViews = activity.numViews + 1;
+                activity.views = {};
+                activity.views[user.uid] = true;
+                activity.statusView = true;
+                updateViews[user.uid] = true;
+            }
+            //有其他使用者看過
+            else {
+                activity.numViews = activity.numViews + 1;
+                activity.views[user.uid] = true;
+                activity.statusView = true;
+                updateViews[user.uid] = true;
+            }
+            //寫進資料庫
+            await updateActivityViews(activity.clubKey, activity.activityKey, updateViews);
+            console.log('已設定觀看');
+        }
+        return activity;
+    }
+    catch (error) {
+        throw error;
     }
 }
