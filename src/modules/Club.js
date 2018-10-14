@@ -72,9 +72,6 @@ export const createClub = (schoolName, clubName, open) => async (dispatch, getSt
     const newClubNotificationList = JSON.parse(JSON.stringify(clubNotificationList))
     const newJoinClubs = JSON.parse(JSON.stringify(joinClubs))
 
-
-
-
     newJoinClub[cid] = true
     newClubNotificationList[cid] = {
       schoolName,

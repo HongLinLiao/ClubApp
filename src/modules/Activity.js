@@ -168,7 +168,13 @@ export const createActivity = (cid, activityData) => async (dispatch) => {
 
         const user = firebase.auth().currentUser
         const activityRef = firebase.database().ref('activities').child(cid).push()
+        const activityStorageRef = firebase.storage().ref('activities').child(cid).child(activityRef.key).child('photo')
 
+        //更新firestore
+        const response = await fetch(activityData.photo);
+        const blob = await response.blob(); //轉換照片格式為blob
+        const snapshot = await activityStorageRef.put(blob)
+        const photoUrl = await snapshot.ref.getDownloadURL()
 
         const activityDB = {
             title: activityData.title,
@@ -176,20 +182,17 @@ export const createActivity = (cid, activityData) => async (dispatch) => {
             price: parseInt(activityData.price),
             content: activityData.content,
             remarks: activityData.remarks,
-            photo: activityData.photo,
+            photo: photoUrl,
             poster: user.uid,
             open: activityData.open,
             startDateTime: new Date(activityData.startDateTime).toLocaleString(),
             endDateTime: new Date(activityData.endDateTime).toLocaleString(),
-
             editDate: new Date().toLocaleString(),
             views: false,
             favorites: false,
         }
 
         await activityRef.set(activityDB)
-
-        //更新reducer部分還沒做
 
     } catch (e) {
 

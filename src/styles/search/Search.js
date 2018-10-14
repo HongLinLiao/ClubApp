@@ -90,7 +90,8 @@ export default StyleSheet.create({
   },
   clubStatusText: {
     fontSize: 18,
-    color: "red"
+    color: "red",
+    marginRight: 5,
   },
   tabBar: {
     height: 50,
