@@ -15,7 +15,7 @@ class Profile extends React.Component {
     }
 
     render() {
-        const { user, signOut } = this.props
+        const { user, signOut, joinClub, aboutMe } = this.props
         return (
             <View style={styles.container}>
 
@@ -30,12 +30,12 @@ class Profile extends React.Component {
                     <View style={styles.rowx}>
                         <Image style={styles.hotPoint}
                             source={require('../../images/star.png')} />
-                        <Text style={styles.number}>社團數量</Text>
+                        <Text style={styles.number}>{Object.keys(joinClub).length}</Text>
                     </View>
                 </View>
 
                 <View style={styles.aboutMe}>
-                    <Text style={styles.aboutMeText}>我很帥，我是一潔的唷</Text>
+                    <Text style={styles.aboutMeText}>{aboutMe}</Text>
                 </View>
 
                 <View style={styles.three}>

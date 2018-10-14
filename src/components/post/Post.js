@@ -1,15 +1,24 @@
+//我這頁是失敗品
 import React from "react";
 import {
-  View,
-  Text,
-  ScrollView,
-  TouchableOpacity,
-  KeyboardAvoidingView,
-  Image
+	View,
+	Text,
+	ScrollView,
+	TouchableOpacity,
+	KeyboardAvoidingView,
+	Image
 } from "react-native";
 import { Button } from "react-native-elements";
 import Comment from "./Comment";
 import styles from "../../styles/post/Post";
+import { getUserData, getClubData } from '../../modules/Data'
+import Overlayer from '../common/Overlayer'
+import PopupDialog, { SlideAnimation, DialogTitle } from 'react-native-popup-dialog';
+import UserDialog from '../common/UserDialog'
+
+const slideAnimation = new SlideAnimation({
+	slideFrom: 'bottom',
+});
 class Post extends React.Component {
   //寫入本地State
   async componentWillMount() {
@@ -18,7 +27,9 @@ class Post extends React.Component {
 
   state = {
     post: {},
-    comment: {}
+		comment: {},
+		userData: { uid: null, user: null, clubs: null },
+		loading: false
   };
 
   //頁面重整
@@ -67,112 +78,155 @@ class Post extends React.Component {
     const newPostList = await deletePostData(clubKey, postKey, postList);
     setPostList(newPostList);
     navigation.goBack();
-  };
+	};
+	
+	showUser = async (uid) => {
+		try {
+			this.popupDialog.show(async () => {
+				this.setState({ loading: true, userData: { uid: null, user: null, clubs: null } })
+				const userData = { uid, user: {}, clubs: {} }
+				const user = await getUserData(uid)
+
+				if (user.joinClub) {
+					const promises = Object.keys(user.joinClub).map(async (cid) => {
+						const club = await getClubData(cid)
+						userData.clubs[cid] = club
+					})
+
+					await Promise.all(promises)
+				}
+
+				userData.user = user
+
+				this.setState({ userData, loading: false })
+			});
+		} catch (e) {
+			Alert.alert(e.toString())
+		}
+	}
 
   render() {
     const postData = this.state.post;
     const commentData = this.state.comment;
-    const element = JSON.parse(JSON.stringify(postData));
+		const element = JSON.parse(JSON.stringify(postData));
+		const { uid, user, clubs } = this.state.userData
+
 
     return (
-      <ScrollView>
-        <KeyboardAvoidingView behavior="padding">
-          <Button
-            title="reload"
-            onPress={async () => {
-              await this.reload(element.clubKey, element.postKey);
-            }}
-          />
-          <View style={styles.container}>
-            <View style={styles.rowLeft}>
-              <TouchableOpacity>
-                <View style={styles.circle}>
-                  <Image
-                    source={{ uri: element.posterPhotoUrl }}
-                    resizeMode="cover"
-                    style={styles.bigHead}
-                  />
-                </View>
-              </TouchableOpacity>
-              <View style={styles.column}>
-                <View style={styles.row}>
-                  <Text style={styles.school}>{element.schoolName}</Text>
-                  <Text style={styles.club}>{element.clubName}</Text>
-                </View>
-                <View style={styles.row}>
-                  <Text style={styles.name}>{element.posterNickName}</Text>
-                  <Text style={styles.job}>{element.posterStatusChinese}</Text>
-                </View>
-              </View>
-            </View>
+			<View style={{ flex: 1 }}>
+				<ScrollView>
+					<KeyboardAvoidingView behavior="padding">
+						<Button
+							title="reload"
+							onPress={async () => {
+								await this.reload(element.clubKey, element.postKey);
+							}}
+						/>
+						<View style={styles.container}>
+							<View style={styles.rowLeft}>
+							<TouchableOpacity onPress={() => this.showUser(postData.poster)}>
+									<View style={styles.circle}>
+										<Image
+											source={{ uri: element.posterPhotoUrl }}
+											resizeMode="cover"
+											style={styles.bigHead}
+										/>
+									</View>
+								</TouchableOpacity>
+								<View style={styles.column}>
+									<View style={styles.row}>
+										<Text style={styles.school}>{element.schoolName}</Text>
+										<Text style={styles.club}>{element.clubName}</Text>
+									</View>
+									<View style={styles.row}>
+										<Text style={styles.name}>{element.posterNickName}</Text>
+										<Text style={styles.job}>{element.posterStatusChinese}</Text>
+									</View>
+								</View>
+							</View>
 
-            <View style={styles.postView}>
-              <Text style={styles.postTitle}>{element.title}</Text>
-              <Text style={styles.postDate}>{element.date}</Text>
-              <View style={styles.postTextView}>
-                <Text style={styles.postText}>{element.content}</Text>
-              </View>
-            </View>
-            <View style={styles.postPictureView} />
+							<View style={styles.postView}>
+								<Text style={styles.postTitle}>{element.title}</Text>
+								<Text style={styles.postDate}>{element.date}</Text>
+								<View style={styles.postTextView}>
+									<Text style={styles.postText}>{element.content}</Text>
+								</View>
+							</View>
+							<View style={styles.postPictureView} />
 
-            <View style={styles.sbRowLine}>
-              <View style={styles.row}>
-                <TouchableOpacity
-                  onPress={async () =>
-                    await this.pressFavorite(element.clubKey, element.postKey)
-                  }
-                >
-                  <Image style={styles.icon} source={element.statusFavorite ? 
-                    require("../../images/graylike.png") : require("../../images/like.png")} />
-                  <Text style={styles.number}>{element.numFavorites} </Text>
-                </TouchableOpacity>
-              </View>
+							<View style={styles.sbRowLine}>
+								<View style={styles.row}>
+									<TouchableOpacity
+										onPress={async () =>
+											await this.pressFavorite(element.clubKey, element.postKey)
+										}
+									>
+										<Image style={styles.icon} source={element.statusFavorite ? 
+											require("../../images/graylike.png") : require("../../images/like.png")} />
+										<Text style={styles.number}>{element.numFavorites} </Text>
+									</TouchableOpacity>
+								</View>
 
-              <View style={styles.row}>
-                <Image
-                  style={styles.icon}
-                  source={require("../../images/message.png")}
-                />
-                <Text style={styles.number}>{element.numComments}</Text>
-                <Image
-                  style={styles.icon}
-                  source={require("../../images/eyes.png")}
-                />
-                <Text style={styles.number}>{element.numViews}</Text>
-              </View>
-            </View>
+								<View style={styles.row}>
+									<Image
+										style={styles.icon}
+										source={require("../../images/message.png")}
+									/>
+									<Text style={styles.number}>{element.numComments}</Text>
+									<Image
+										style={styles.icon}
+										source={require("../../images/eyes.png")}
+									/>
+									<Text style={styles.number}>{element.numViews}</Text>
+								</View>
+							</View>
 
 
-            <View style={{ display: element.statusEnable ? "flex" : "none" }}>
-              <Button
-                title="Edit Post"
-                onPress={async () => { }}
-              />
-              <Button
-                title="Delete Post"
-                onPress={async () => {
-                  await this.deletePost(element.clubKey, element.postKey);
-                }}
-              />
-            </View>
-            <Comment
-              userPhotoUrl={this.props.userPhotoUrl}
-              comment={commentData}
-              postList={this.props.postList}
-              clubKey={element.clubKey}
-              postKey={element.postKey}
-              setPostList={this.props.setPostList}
-              setPost={this.setPost}
-              setComment={this.setComment}
-              creatingComment={this.props.creatingComment}
-              deletingComment={this.props.deletingComment}
-              editingComment={this.props.editingComment}
-              setCommentEditStatus={this.props.setCommentEditStatus}
-              setCommentFavorite={this.props.setCommentFavorite}
-            />
-          </View>
-        </KeyboardAvoidingView>
-      </ScrollView>
+							<View style={{ display: element.statusEnable ? "flex" : "none" }}>
+								<Button
+									title="Edit Post"
+									onPress={async () => { }}
+								/>
+								<Button
+									title="Delete Post"
+									onPress={async () => {
+										await this.deletePost(element.clubKey, element.postKey);
+									}}
+								/>
+							</View>
+							<Comment
+								userPhotoUrl={this.props.userPhotoUrl}
+								comment={commentData}
+								postList={this.props.postList}
+								clubKey={element.clubKey}
+								postKey={element.postKey}
+								setPostList={this.props.setPostList}
+								setPost={this.setPost}
+								setComment={this.setComment}
+								creatingComment={this.props.creatingComment}
+								deletingComment={this.props.deletingComment}
+								editingComment={this.props.editingComment}
+								setCommentEditStatus={this.props.setCommentEditStatus}
+								setCommentFavorite={this.props.setCommentFavorite}
+							/>
+						</View>
+					</KeyboardAvoidingView>
+				</ScrollView>
+				<PopupDialog
+						ref={(popupDialog) => this.popupDialog = popupDialog}
+						dialogAnimation={slideAnimation}
+						width={0.7}
+						height={0.7}
+						dialogStyle={{ borderRadius: 20 }}
+					>
+						<UserDialog
+							uid={uid}
+							user={user}
+							clubs={clubs}
+						/>
+						{this.state.loading ? <Overlayer /> : null}
+					</PopupDialog>
+			</View>
     );
   }
 }

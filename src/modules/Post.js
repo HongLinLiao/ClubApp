@@ -84,6 +84,17 @@ export const getPostDataComplete = (postKeyList) => async (dispatch, getState) =
 //進入內頁
 export const getInsidePost = (clubKey, postKey) => async (dispatch, getState) => {
     try {
+        const club = await getClubData(clubKey);
+        console.log('open:'+club.open);
+        if (!club.open) {
+            const { uid } = firebase.auth().currentUser;
+            if (!club.member[uid]) {
+                alert('Post is not exist!');
+                console.log('不是成員');
+                return null;
+            }
+            console.log('是成員');
+        }
         const postData = await getInsidePostData(clubKey, postKey);
         if (postData == null) {
             alert('Post is not exist!');
@@ -92,17 +103,6 @@ export const getInsidePost = (clubKey, postKey) => async (dispatch, getState) =>
         }
         else {
             const obj = {};
-            //取得社團資料
-            let club;
-            const joinClubs = getState().clubReducer.joinClubs;
-            const likeClubs = getState().clubReducer.likeClubs;
-            const clubData = { ...joinClubs, ...likeClubs };
-            if (clubData[clubKey]) {
-                club = clubData[clubKey]
-            }
-            else {
-                club = await getClubData(clubKey);
-            }
             //先取得貼文基本屬性
             postData = await setPostFoundations(clubKey, postKey, postData, club);
             //觀看
@@ -332,21 +332,21 @@ export const setPostView = async (post) => {
 //按貼文讚
 export const setPostFavorite = (clubKey, postKey) => async (dispatch, getState) => {
     try {
+        const club = await getClubData(clubKey);
+        console.log('open:'+club.open);
+        if (!club.open) {
+            const { uid } = firebase.auth().currentUser;
+            if (!club.member[uid]) {
+                alert('Post is not exist!');
+                console.log('不是成員');
+                return null;
+            }
+            console.log('是成員');
+        }
         const post = await getInsidePostData(clubKey, postKey);
         if (post != null) {
             //取得使用者id
             const user = firebase.auth().currentUser;
-            //取得社團資料
-            let club;
-            const joinClubs = getState().clubReducer.joinClubs;
-            const likeClubs = getState().clubReducer.likeClubs;
-            const clubData = { ...joinClubs, ...likeClubs };
-            if (clubData[clubKey]) {
-                club = clubData[clubKey]
-            }
-            else {
-                club = await getClubData(clubKey);
-            }
             //先取得貼文基本屬性
             post = await setPostFoundations(clubKey, postKey, post, club);
 
@@ -377,7 +377,8 @@ export const setPostFavorite = (clubKey, postKey) => async (dispatch, getState) 
                 //沒其他使用者按過讚
                 if (post.numFavorites == 1) {
                     post.numFavorites = post.numFavorites - 1;
-                    delete post.favorites[user.uid];
+                    post.favorites=false;
+                    // delete post.favorites[user.uid];
                     updateFavorites[user.uid] = false;
                 }
                 //有其他使用者按過讚
@@ -399,8 +400,8 @@ export const setPostFavorite = (clubKey, postKey) => async (dispatch, getState) 
             return post;
         }
         else {
-            console.log('貼文不存在');
-            alert('貼文不存在');
+            console.log('Post is not exist!');
+            alert('Post is not exist!');
             return null;
         }
     }
@@ -412,24 +413,22 @@ export const setPostFavorite = (clubKey, postKey) => async (dispatch, getState) 
 //按留言讚
 export const setCommentFavorite = (clubKey, postKey, commentKey) => async (dispatch, getState) => {
     try {
+        const club = await getClubData(clubKey);
+        console.log('open:'+club.open);
+        if (!club.open) {
+            const {uid} = firebase.auth().currentUser;
+            if (!club.member[uid]) {
+                alert('Post is not exist!');
+                console.log('不是成員');
+                return null;
+            }
+            console.log('是成員');
+        }
         const post = await getInsidePostData(clubKey, postKey);
         if (post != null) {
-            //取得使用者id
-            const user = firebase.auth().currentUser;
-            //取得社團資料
-            let club;
-            const joinClubs = getState().clubReducer.joinClubs;
-            const likeClubs = getState().clubReducer.likeClubs;
-            const clubData = { ...joinClubs, ...likeClubs };
-            if (clubData[clubKey]) {
-                club = clubData[clubKey]
-            }
-            else {
-                club = await getClubData(clubKey);
-            }
             //先取得貼文基本屬性
             post = await setPostFoundations(clubKey, postKey, post, club);
-
+            const user = firebase.auth().currentUser;
             const comment = await dispatch(getPostComment(clubKey, postKey));
             let updateFavorites = {};
             //按讚處理
@@ -484,8 +483,8 @@ export const setCommentFavorite = (clubKey, postKey, commentKey) => async (dispa
             return obj;
         }
         else {
-            console.log('貼文不存在');
-            alert('貼文不存在');
+            console.log('Post is not exist!');
+            alert('Post is not exist!');
             return null;
         }
     }
@@ -537,6 +536,18 @@ export const getPostComment = (clubKey, postKey) => async (dispatch) => {
 export const creatingComment = (clubKey, postKey, content) => async (dispatch, getState) => {
 
     try {
+        const club = await getClubData(clubKey);
+        console.log('open:'+club.open);
+        if (!club.open) {
+            const {uid} = firebase.auth().currentUser;
+            if (!club.member[uid]) {
+                alert('Post is not exist!');
+                console.log('不是成員');
+                return null;
+            }
+            console.log('是成員');
+        }
+
         const postRef = firebase.database().ref('posts/' + clubKey + '/' + postKey);
         const snapshot = await postRef.once("value");
         if (snapshot.exists()) {
@@ -546,17 +557,6 @@ export const creatingComment = (clubKey, postKey, content) => async (dispatch, g
 
             //貼文資料全部重抓更新
             const post = await getInsidePostData(clubKey, postKey);
-            //取得社團資料
-            let club;
-            const joinClubs = getState().clubReducer.joinClubs;
-            const likeClubs = getState().clubReducer.likeClubs;
-            const clubData = { ...joinClubs, ...likeClubs };
-            if (clubData[clubKey]) {
-                club = clubData[clubKey]
-            }
-            else {
-                club = await getClubData(clubKey);
-            }
             //先取得貼文基本屬性
             post = await setPostFoundations(clubKey, postKey, post, club);
             const prePostReducer = getState().postReducer.allPost;
@@ -583,6 +583,18 @@ export const creatingComment = (clubKey, postKey, content) => async (dispatch, g
 //刪除留言
 export const deletingComment = (clubKey, postKey, commentKey) => async (dispatch, getState) => {
     try {
+        const club = await getClubData(clubKey);
+        console.log('open:'+club.open);
+        if (!club.open) {
+            const {uid} = firebase.auth().currentUser;
+            if (!club.member[uid]) {
+                alert('Post is not exist!');
+                console.log('不是成員');
+                return null;
+            }
+            console.log('是成員');
+        }
+
         const postRef = firebase.database().ref('posts/' + clubKey + '/' + postKey);
         const snapshot = await postRef.once("value");
         if (snapshot.exists()) {
@@ -593,17 +605,6 @@ export const deletingComment = (clubKey, postKey, commentKey) => async (dispatch
 
             //貼文資料全部重抓更新
             const post = await getInsidePostData(clubKey, postKey);
-            //取得社團資料
-            let club;
-            const joinClubs = getState().clubReducer.joinClubs;
-            const likeClubs = getState().clubReducer.likeClubs;
-            const clubData = { ...joinClubs, ...likeClubs };
-            if (clubData[clubKey]) {
-                club = clubData[clubKey]
-            }
-            else {
-                club = await getClubData(clubKey);
-            }
             //先取得貼文基本屬性
             post = await setPostFoundations(clubKey, postKey, post, club);
             const prePostReducer = getState().postReducer.allPost;
@@ -630,6 +631,18 @@ export const deletingComment = (clubKey, postKey, commentKey) => async (dispatch
 //編輯留言
 export const editingComment = (clubKey, postKey, commentKey, content) => async (dispatch, getState) => {
     try {
+        const club = await getClubData(clubKey);
+        console.log('open:'+club.open);
+        if (!club.open) {
+            const {uid} = firebase.auth().currentUser;
+            if (!club.member[uid]) {
+                alert('Post is not exist!');
+                console.log('不是成員');
+                return null;
+            }
+            console.log('是成員');
+        }
+
         const postRef = firebase.database().ref('posts/' + clubKey + '/' + postKey);
         const snapshot = await postRef.once("value");
         if (snapshot.exists()) {
@@ -639,8 +652,6 @@ export const editingComment = (clubKey, postKey, commentKey, content) => async (
 
             //貼文資料全部重抓更新
             const post = await getInsidePostData(clubKey, postKey);
-            //取得社團資料  
-            const club = await getClubData(clubKey);
             //先取得貼文基本屬性
             post = await setPostFoundations(clubKey, postKey, post, club);
             const prePostReducer = getState().postReducer.allPost;

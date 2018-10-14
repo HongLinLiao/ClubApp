@@ -27,7 +27,7 @@ export default StyleSheet.create({
     paddingLeft: 10
   },
   card: {
-    flex: 1,
+    //flex: 1,
     height: 300,
     borderWidth: 1,
     borderRadius: 10,
@@ -77,13 +77,20 @@ export default StyleSheet.create({
   },
   clubIntroView: {
     flex: 2,
+    flexDirection: 'row',
     paddingVertical: 10,
     paddingLeft: 150,
-    paddingRight: 10
+    paddingRight: 10,
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   clubIntroText: {
     fontSize: 18,
     color: "rgba(102,102,102,0.8)"
+  },
+  clubStatusText: {
+    fontSize: 18,
+    color: "red"
   },
   tabBar: {
     height: 50,

@@ -30,8 +30,7 @@ export default createStackNavigator({
 						style={homeStyles.controlImage} />
 				</TouchableOpacity>
 			)
-		}
-		)
+		})
 	},
 	// 貼文內頁，從Club匯入
 	Post: {
