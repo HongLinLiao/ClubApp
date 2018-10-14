@@ -5,7 +5,7 @@ import AdvancedSetting from '../../components/personal/AdvancedSetting'
 
 const mapStateToProps = ({ userReducer }) => ({
   user: userReducer.user,
-  aboutMe: userReducer.aboutMe
+  
 })
 
 const mapDispatchToProps = {

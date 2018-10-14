@@ -12,24 +12,13 @@ import styles from '../../styles/personal/AdvancedSetting'
 class AdvancedSetting extends React.Component {
 
   render() {
+    const { user } = this.props
     return (
       <View style={styles.container}>
-        <View style={styles.headView}>
-            <View>
-                <TouchableOpacity
-                onPress={() => this.props.navigation.navigate('Profile')}>
-                <Image source={require('../../images/arrowLeft.png')}
-                style={styles.arrow}/>
-                </TouchableOpacity>
-            </View>
-            <Text style={styles.headText}>進階管理</Text>
-            <View style={styles.fake}></View>
-            </View>
-
         <View style={styles.containView}>
         <View style={styles.boxView}>
             <Text style={styles.boxFirstText}>驗證</Text> 
-            <Text style={styles.redText}>(已驗證)</Text> 
+            <Text style={styles.redText}>{user.emailVerified ? '(已驗證)' : '(未驗證)'}</Text> 
             <View style={styles.fake}></View>
             <View style={styles.fake}></View>
             <Text style={styles.mailText}>{this.props.user.email}</Text>

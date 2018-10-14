@@ -36,18 +36,6 @@ class EmailReVerified extends React.Component {
   render() {
     return (
         <View style={styles.container}>
-            
-            <View style={styles.headView}>
-                <View >
-                    <TouchableOpacity
-                    onPress={() => this.props.navigation.navigate('Profile')}>>
-                        <Image source={require('../../images/arrowLeft.png')}
-                            style={styles.arrow} />
-                    </TouchableOpacity>
-                </View>
-                <Text style={styles.headText}>驗證電子信箱</Text>
-                <View style={styles.fake}></View>
-            </View>
             <View style={styles.containView}>
 
                 <View style={styles.mailView}>

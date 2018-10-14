@@ -68,8 +68,8 @@ class JoinedClub extends React.Component {
             </View>
             );
           })}
-          {this.state.loading ? <Overlayer /> : null}
         </ScrollView>
+        {this.state.loading ? <Overlayer /> : null}
       </View>
     );
   }

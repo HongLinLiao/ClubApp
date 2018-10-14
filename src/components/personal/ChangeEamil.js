@@ -41,17 +41,6 @@ class ChangeEamil extends React.Component {
     return (
         <View style={styles.container}>
             <StatusBar hidden={false} height={50} backgroundColor={'#f6b456'} />
-            <View style={styles.headView}>
-                <View >
-                    <TouchableOpacity>
-                        <Image source={require('../../images/arrowLeft.png')}
-                            style={styles.arrow} />
-                    </TouchableOpacity>
-                </View>
-                <Text style={styles.headText}>變更電子信箱</Text>
-                <View style={styles.fake}></View>
-                </View>
-
             <View style={styles.containView}>
             <View style={styles.upView}>
             <View style={styles.passwordView}>

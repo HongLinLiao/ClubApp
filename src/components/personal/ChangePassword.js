@@ -47,35 +47,8 @@ class ChangePassword extends React.Component {
 
   render() {
     return (
-      <View style={styles.container}>
-        {
-          <View style={styles.headView}>
-          <View>
-            <TouchableOpacity>
-              <Image source={require('../../images/arrowLeft.png')}
-                style={styles.arrow} />
-            </TouchableOpacity>
-
-          </View>
-          <Text style={styles.headText}>變更密碼</Text>
-          <View style={styles.fake}></View>
-          </View>
-        }
-        
+      <View style={styles.container}>    
         <View style={styles.main}>
-          {
-            //<View style={styles.headView}>
-            //<View>
-            //<TouchableOpacity>
-            //<Image source={require('../../images/arrowLeft.png')}
-            // style={styles.arrow} />
-            //</TouchableOpacity>
-
-            //</View>
-            //<Text style={styles.headText}>變更密碼</Text>
-            //<View style={styles.fake}></View>
-            //</View>
-          }
           <View style={styles.containView}>
 
             <View style={styles.passwordView}>

@@ -396,6 +396,19 @@ export const dislikeTheClub = async (cid) => {
 }
 
 
+export const filterOpenClub = (allClubs) => {
+  const newAllClubs = {}
+  Object.keys(allClubs).map((cid) => {
+    if(allClubs[cid].open) {
+      newAllClubs[cid] = allClubs[cid]
+    }
+  })
+  console.log(newAllClubs)
+
+  return newAllClubs
+  
+}
+
 export const randomCid = (cids) => {
 
   if (cids.length != 0) {

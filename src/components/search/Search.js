@@ -65,15 +65,15 @@ class Search extends React.Component {
       this.setState({ searching: true });
 
       const newText = text.replace(/\s+/g, "").split(""); //去除空白並把每個字分割
-      console.log(newText);
+      const { dataArray } = this.state
 
       if (newText.length != 0) {
-        const newDataArray = this.state.dataArray.filter(item => {
+        const newDataArray = dataArray.filter(item => {
           const combindName = item.schoolName + item.clubName;
           let isMatch = true;
           newText.filter(char => {
             let charMatch = combindName.indexOf(char) > -1;
-            if (!charMatch) isMatch = false; //只要有一個字不對就不列入
+            if (!charMatch || !item.open) isMatch = false; //只要有一個字不對或是不公開就不列入
           });
           return isMatch;
         });
@@ -84,6 +84,7 @@ class Search extends React.Component {
       } else {
         this.setState({ searching: false, text, tempArray: [] });
       }
+
     } catch (e) {
       this.setState({ searching: false });
     }
@@ -147,7 +148,7 @@ class Search extends React.Component {
                       <Text style={styles.clubNameText}>{club.clubName}</Text>
                     </View>
                     <View style={styles.clubIntroView}>
-                      <Text style={styles.clubIntroText}>{club.initDate}</Text>
+                      <Text style={styles.clubIntroText}>{club.introduction}</Text>                     
                     </View>
                   </View>
                 </TouchableOpacity>
