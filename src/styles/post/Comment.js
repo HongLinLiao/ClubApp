@@ -12,14 +12,13 @@ export default StyleSheet.create({
         margin: 5
     },
     littleHead: {
-<<<<<<< HEAD
         height: 50,
         width: 50,
         justifyContent: 'flex-start',
         alignItems: 'flex-start',
         margin: 10,
         borderRadius: 25,
-        borderWidth:1
+        
     },
     littleCircle:{
         width: 50, 
@@ -29,14 +28,6 @@ export default StyleSheet.create({
         justifyContent: 'center', 
         alignItems: 'center', 
         margin: 10,
-=======
-        height: 40,
-        width: 40,
-        justifyContent: 'flex-start',
-        alignItems: 'flex-start',
-        margin: 10,
-        borderRadius: 50
->>>>>>> e5646d54bf0df9aa68ff72f644eced63e734c7e8
     },
     columnLine: {
         flexDirection: 'column',
@@ -94,12 +85,8 @@ export default StyleSheet.create({
         flexDirection: 'row',
         alignSelf: 'stretch',
         backgroundColor: 'rgba(246,180,86,1)',
-<<<<<<< HEAD
         justifyContent: 'space-between',
         alignItems:'center'
-=======
-        justifyContent: 'space-between'
->>>>>>> e5646d54bf0df9aa68ff72f644eced63e734c7e8
     },
     columnTabBar: {
         flexDirection: 'column',
@@ -114,7 +101,6 @@ export default StyleSheet.create({
         marginTop: 7,
         marginBottom: 7,
         paddingLeft: 10,
-<<<<<<< HEAD
         paddingRight: 10,
         flex:1
     },
@@ -122,13 +108,6 @@ export default StyleSheet.create({
         alignSelf: 'stretch',
         color: '#666666',
         flex:1
-=======
-        paddingRight: 10
-    },
-    textInputTabBar: {
-        alignSelf: 'stretch',
-        color: '#666666'
->>>>>>> e5646d54bf0df9aa68ff72f644eced63e734c7e8
     },
     sbColumn: {
         flexDirection: 'column',

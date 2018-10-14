@@ -111,6 +111,7 @@ class Post extends React.Component {
     const postData = this.state.post;
     const commentData = this.state.comment;
     const element = JSON.parse(JSON.stringify(postData));
+    const { uid, user, clubs } = this.state.userData
 
     return (
       <View style={{flex:1,backgroundColor:'#ffffff'}}>

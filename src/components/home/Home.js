@@ -1,11 +1,3 @@
-<<<<<<< HEAD
-import React from "react";
-import { ScrollView } from "react-native";
-import { Button } from "react-native-elements";
-import PostListElement from "../post/PostListElement";
-import styles from "../../styles/home/Home";
-import { View } from "native-base";
-=======
 import React from 'react'
 import { ScrollView, Text, Alert, Image } from 'react-native'
 import { Button } from 'react-native-elements'
@@ -22,93 +14,37 @@ const slideAnimation = new SlideAnimation({
     slideFrom: 'bottom',
 });
 
->>>>>>> e5646d54bf0df9aa68ff72f644eced63e734c7e8
 class Home extends React.Component {
-  async componentDidMount() {
-    const { joinClub, likeClub, initHomeClubList } = this.props;
-    const homeClubList = await initHomeClubList(joinClub, likeClub);
-    await this.homeReload(homeClubList);
-  }
+    async componentDidMount() {
+        const { joinClub, likeClub, initHomeClubList } = this.props;
+        const homeClubList = await initHomeClubList(joinClub, likeClub);
+        await this.homeReload(homeClubList);
+    }
 
-  state = {
-    post: {}
-  };
-
-<<<<<<< HEAD
-  //頁面重整
-  homeReload = async clubList => {
-    const { getHomePostReload } = this.props;
-    await getHomePostReload(clubList, newPostList => {
-      this.setState({ post: newPostList });
-    });
-  };
-=======
     state = {
         post: {},
         userData: { uid: null, user: null, clubs: null},
         loading: false
     }
->>>>>>> e5646d54bf0df9aa68ff72f644eced63e734c7e8
 
-  //更改postList
-  setPostList = postList => {
-    this.setState({ post: postList });
-  };
+    //頁面重整
+    homeReload = async clubList => {
+        const { getHomePostReload } = this.props;
+        await getHomePostReload(clubList, newPostList => {
+        this.setState({ post: newPostList });
+        });
+    };
+        
 
-  //進入內頁onPress()事件，放入postList讓元件render
-  goSelectingPage = navigation => {
-    navigation.navigate("Selecting", this.homeReload);
-  };
+    //更改postList
+    setPostList = postList => {
+        this.setState({ post: postList });
+    };
 
-<<<<<<< HEAD
-  render() {
-    const newPostList = { ...this.state.post };
-    return (
-      <View style={{ backgroundColor: "#ffffff", flex: 1 }}>
-        <ScrollView>
-          <Button
-            title="Stories!"
-            onPress={() => {
-              this.props.navigation.navigate("Stories");
-            }}
-          />
-          <Button
-            title="selecting!"
-            onPress={() => {
-              this.goSelectingPage(this.props.navigation);
-            }}
-          />
-          <Button
-            title="reload!"
-            onPress={async () => {
-              await this.homeReload(this.props.clubList);
-            }}
-          />
-          <View style={styles.containView}>
-            {Object.values(newPostList).map(clubElement =>
-              Object.values(clubElement).map(postElement => (
-                <PostListElement
-                  key={postElement.postKey}
-                  post={postElement}
-                  navigation={this.props.navigation}
-                  getInsidePost={this.props.getInsidePost}
-                  getPostComment={this.props.getPostComment}
-                  setPostFavorite={this.props.setPostFavorite}
-                  postList={this.state.post}
-                  setPostList={this.setPostList}
-                />
-              ))
-            )}
-          </View>
-        </ScrollView>
-      </View>
-    );
-  }
-=======
     //進入內頁onPress()事件，放入postList讓元件render
-    goSelectingPage = (navigation) => {
-        navigation.navigate('Selecting', this.homeReload)
-    }
+    goSelectingPage = navigation => {
+        navigation.navigate("Selecting", this.homeReload);
+    };
 
     showUser = async (uid) => {
         try {
@@ -140,7 +76,7 @@ class Home extends React.Component {
         const newPostList = { ...this.state.post };
         const { uid, user, clubs } = this.state.userData
         return (
-            <View style={{flex: 1}}>
+            <View style={{ backgroundColor: "#ffffff", flex: 1 }}>
                 <ScrollView>
                     <Button
                         title='Stories!'
@@ -195,7 +131,6 @@ class Home extends React.Component {
             </View> 
         );
     }
->>>>>>> e5646d54bf0df9aa68ff72f644eced63e734c7e8
 }
 
 export default Home;
