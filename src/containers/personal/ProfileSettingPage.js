@@ -5,7 +5,8 @@ import ProfileSetting from '../../components/personal/ProfileSetting'
 
 const mapStateToProps = ({ userReducer }) => ({
   user: userReducer.user,
-  aboutMe: userReducer.aboutMe
+  aboutMe: userReducer.aboutMe,
+  joinClub: userReducer.joinClub
 })
 
 const mapDispatchToProps = {

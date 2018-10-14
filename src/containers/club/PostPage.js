@@ -9,12 +9,14 @@ import {
     setCommentEditStatus,
     getInsidePost,
     deletePostData,
+    setCommentFavorite,
 } from '../../modules/Post'
 
 class PostPage extends Component {
     render() {
         return (
             <Post
+                userPhotoUrl={this.props.userPhotoUrl}
                 post={this.props.navigation.state.params.post}
                 comment={this.props.navigation.state.params.comment}
                 postList={this.props.navigation.state.params.postList}
@@ -27,13 +29,14 @@ class PostPage extends Component {
                 editingComment={this.props.editingComment}
                 setCommentEditStatus={this.props.setCommentEditStatus}
                 deletePostData={this.props.deletePostData}
+                setCommentFavorite={this.props.setCommentFavorite}
             />
         )
     }
 }
 
-const mapStateToProps = ({ homeReducer }) => ({
-
+const mapStateToProps = ({ userReducer }) => ({
+    userPhotoUrl: userReducer.user.photoURL
 })
 
 const mapDispatchToProps = {
@@ -44,6 +47,7 @@ const mapDispatchToProps = {
     editingComment,
     setCommentEditStatus,
     deletePostData,
+    setCommentFavorite,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(PostPage);

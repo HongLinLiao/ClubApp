@@ -1,17 +1,16 @@
-
+import { GET_ACTIVITY_DATA } from '../actions/ActivityAction'
 
 const initialState = {
-    allActivity: {}, //所有活動
-    reloader: {
-        home: false,
-        club: false,
-        search: true,
-    }, //首頁活動開關
+    allActivity: {}, //所有貼文
 }
-
-export const ActivityReducer = (state = initialState, action) => {
+export const activityReducer = (state = initialState, action) => {
     switch (action.type) {
 
+        case GET_ACTIVITY_DATA:
+            return {
+                ...state,
+                allActivity: action.activityData
+            }
         default:
             return state
     }

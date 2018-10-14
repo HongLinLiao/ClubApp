@@ -59,6 +59,22 @@ export const getActivityData = async (clubKey) => {
     return activityData;
 }
 
+//取得該社團下某一個活動
+export const getInsideActivityData = async (cid, aid) => {
+    const activityRef = firebase.database().ref('activities').child(cid).child(aid)
+    const snapShot = await activityRef.once('value');
+    const activityData = snapShot.val();
+    return activityData;
+}
+
+//取得使用者收藏的活動
+export const getUserActivityKeeps = async (uid) => {
+    const activityRef = firebase.database().ref('activityKeeps').child(uid)
+    const snapShot = await activityRef.once('value');
+    const activityData = snapShot.val();
+    return activityData;
+}
+
 
 /*
 |-----------------------------------------------
@@ -84,6 +100,42 @@ export const updatePostFavorites = async (clubKey, postKey, updateFavorites) => 
     }
     else {
         favoritesRef = firebase.database().ref('posts/' + clubKey + '/' + postKey + '/favorites/' + uid);
+    }
+    await favoritesRef.set(value);
+}
+
+//更新Comment.Favorites
+export const updateCommentFavorites = async (clubKey, postKey, commentKey, updateFavorites) => {
+    const uid = Object.keys(updateFavorites)[0];
+    const value = Object.values(updateFavorites)[0];
+    let favoritesRef;
+    if (value == false) {
+        favoritesRef = firebase.database().ref('comments/' + clubKey + '/' + postKey + '/' + commentKey + '/favorites');
+    }
+    else {
+        favoritesRef = firebase.database().ref('comments/' + clubKey + '/' + postKey + '/' + commentKey + '/favorites/' + uid);
+    }
+    await favoritesRef.set(value);
+}
+
+//更新Activity.Views
+export const updateActivityViews = async (clubKey, activityKey, updateViews) => {
+    const uid = Object.keys(updateViews)[0];
+    const value = Object.values(updateViews)[0];
+    const viewsRef = firebase.database().ref('activities/' + clubKey + '/' + activityKey + '/views/' + uid);
+    await viewsRef.set(value)
+}
+
+//更新Activity.Favorites
+export const updateActivityFavorites = async (clubKey, activityKey, updateFavorites) => {
+    const uid = Object.keys(updateFavorites)[0];
+    const value = Object.values(updateFavorites)[0];
+    let favoritesRef;
+    if (value == false) {
+        favoritesRef = firebase.database().ref('activities/' + clubKey + '/' + activityKey + '/favorites');
+    }
+    else {
+        favoritesRef = firebase.database().ref('activities/' + clubKey + '/' + activityKey + '/favorites/' + uid);
     }
     await favoritesRef.set(value);
 }
@@ -119,6 +171,12 @@ export const deletePost = async (clubKey, postKey) => {
     await postRef.remove();
 }
 
+//刪除該貼文下的全部留言
+export const deleteCommentInPost = async (clubKey, postKey) => {
+    const commentRef = firebase.database().ref('comments/' + clubKey + '/' + postKey);
+    await commentRef.remove();
+}
+
 /*
 |-----------------------------------------------
 |   database建立資料
@@ -138,7 +196,8 @@ export const createComment = async (clubKey, postKey, content) => {
     const commentData = {
         commenter: user.uid,
         date: new Date().toLocaleString(),
-        content: content
+        content: content,
+        favorites: false
     }
     await commentRef.set(commentData);
 }
@@ -183,7 +242,7 @@ export const searchAllClubs = async () => {
         const clubsRef = firebase.database().ref('clubs')
         const allClubs = await clubsRef.orderByChild('schoolName').once('value')
         let dataArray = []
-        
+
         allClubs.forEach((club) => {
 
             dataArray.push({
@@ -194,7 +253,7 @@ export const searchAllClubs = async () => {
 
         return dataArray
 
-    } catch(e) {
+    } catch (e) {
         console.log(e)
         throw e
     }
