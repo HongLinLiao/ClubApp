@@ -1,4 +1,4 @@
-//我這頁是失敗品
+//這頁應該是沒啥問題了
 import React from "react";
 import {
   View,
@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { Button } from "react-native-elements";
 import Comment from "./Comment";
-import styles from "../../styles/club/Post";
+import styles from "../../styles/post/Post";
 class Post extends React.Component {
   //寫入本地State
   async componentWillMount() {
@@ -24,12 +24,18 @@ class Post extends React.Component {
 
   //頁面重整
   reload = async (clubKey, postKey) => {
-    const { getInsidePost, navigation } = this.props;
+    const { getInsidePost, navigation, postList, setPostList } = this.props;
     const newPost = await getInsidePost(clubKey, postKey);
+    const newPostList = JSON.parse(JSON.stringify(postList));
     if (newPost == null) {
+      newPostList[clubKey][postKey] = null;
+      delete newPostList[clubKey][postKey];
+      setPostList(newPostList);
       navigation.goBack();
     } else {
-      this.setState({ post: newPost });
+      newPostList[clubKey][postKey] = newPost.post;
+      setPostList(newPostList);
+      this.setState({ post: newPost.post, comment: newPost.comment });
     }
   };
 
@@ -51,6 +57,12 @@ class Post extends React.Component {
     this.setState({ post: postData });
   };
 
+  //設定本頁comment
+  setComment = commentData => {
+    this.setState({ comment: commentData });
+  };
+
+  //刪除貼文
   deletePost = async (clubKey, postKey) => {
     const { deletePostData, setPostList, postList, navigation } = this.props;
     const newPostList = await deletePostData(clubKey, postKey, postList);
@@ -60,21 +72,13 @@ class Post extends React.Component {
 
   render() {
     const postData = this.state.post;
-    const commentData = this.props.comment;
+    const commentData = this.state.comment;
     const element = JSON.parse(JSON.stringify(postData));
 
-    changeLikeI = () => {
-      this.setState({
-        likeOr: !this.state.likeOr,
-        likeI: this.state.likeOr
-          ? require("../../images/like.png")
-          : require("../../images/like.png") //圖片要確認
-      });
-    };
-
     return (
+      <View style={{flex:1,backgroundColor:'#ffffff'}}>
       <ScrollView>
-        //背景底色還沒改成白色
+        
         <KeyboardAvoidingView behavior="padding">
           <Button
             title="reload"
@@ -85,11 +89,13 @@ class Post extends React.Component {
           <View style={styles.container}>
             <View style={styles.rowLeft}>
               <TouchableOpacity>
-                <Image
-                  source={{ uri: element.posterPhotoUrl }}
-                  resizeMode="cover"
-                  style={styles.bigHead}
-                />
+                <View style={styles.circle}>
+                  <Image
+                    source={{ uri: element.posterPhotoUrl }}
+                    //resizeMode="cover"
+                    style={styles.bigHead}
+                  />
+                </View>
               </TouchableOpacity>
               <View style={styles.column}>
                 <View style={styles.row}>
@@ -110,58 +116,84 @@ class Post extends React.Component {
                 <Text style={styles.postText}>{element.content}</Text>
               </View>
             </View>
-
             <View style={styles.postPictureView} />
 
             <View style={styles.sbRowLine}>
               <View style={styles.row}>
-                <TouchableOpacity
+                <TouchableOpacity style={{flexDirection:'row'}}
+                
                   onPress={async () =>
                     await this.pressFavorite(element.clubKey, element.postKey)
                   }
-                  //onPress={() =>  { this.changeLikeI() }}要怎麼插進去? 按愛心會換圖片
                 >
-                  <Image style={styles.icon} source={this.state.likeI} />
-                  <Text style={styles.number}>
-                    按讚人數: {element.numFavorites}
-                  </Text>
+                  <Image
+                    style={styles.icon}
+                    source={element.statusFavorite
+                    ? require("../../images/images2/like-orange.png")
+                    : require("../../images/images2/like-gray.png")
+                }
+                  />
+                  <Text style={[
+                    styles.number,
+                    { color: element.statusFavorite ? "#f6b456" : "#666666" }
+                  ]}>{element.numFavorites} </Text>
+
+                  
+
                 </TouchableOpacity>
               </View>
 
               <View style={styles.row}>
                 <Image
                   style={styles.icon}
-                  source={require("../../images/images2/message.png")}
+                  source={require("../../images/message.png")}
                 />
-                <Text style={styles.number}>520</Text> //這個數字的功能沒有
+                <Text style={styles.number}>{element.numComments}</Text>
                 <Image
                   style={styles.icon}
-                  source={require("../../images/eyes.png")}
+                  source={
+                    element.statusView
+                      ? require("../../images/images2/eyes-orange.png")
+                      : require("../../images/eyes.png")
+                  }
                 />
-                <Text style={styles.number}>觀看人數: {element.numViews}</Text>
+                <Text style={[
+                  styles.number,
+                  { color: element.statusView ? "#f6b456" : "#666666" }
+                ]}>{element.numViews}</Text>
               </View>
             </View>
-            <Button
-              title="Delete Post"
-              onPress={async () => {
-                await this.deletePost(element.clubKey, element.postKey);
-              }}
-            />
 
-            <Comment
+            <View style={{ display: element.statusEnable ? "flex" : "none" }}>
+              <Button title="Edit Post" onPress={async () => {}} />
+              <Button
+                title="Delete Post"
+                onPress={async () => {
+                  await this.deletePost(element.clubKey, element.postKey);
+                }}
+              />
+            </View>
+            
+          </View>
+          <Comment//已留的言應該要在scrollview裡面，要留言的框框應該要在scrollview外面，不知如何切割
+              userPhotoUrl={this.props.userPhotoUrl}
               comment={commentData}
+              postList={this.props.postList}
               clubKey={element.clubKey}
               postKey={element.postKey}
               setPostList={this.props.setPostList}
               setPost={this.setPost}
+              setComment={this.setComment}
               creatingComment={this.props.creatingComment}
               deletingComment={this.props.deletingComment}
               editingComment={this.props.editingComment}
               setCommentEditStatus={this.props.setCommentEditStatus}
+              setCommentFavorite={this.props.setCommentFavorite}
             />
-          </View>
         </KeyboardAvoidingView>
       </ScrollView>
+      
+      </View>
     );
   }
 }
