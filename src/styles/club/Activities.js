@@ -7,6 +7,9 @@ export default StyleSheet.create({
     flex: 1,
 
   },
+  main: {
+    flex: 1,
+  },
   headView: {
     height: 45,
     backgroundColor: '#f6b456',
@@ -40,6 +43,12 @@ export default StyleSheet.create({
     width: 18,
     marginTop: 20,
     marginLeft: 150
+  },
+  titleLikesView: {
+    height: 18,
+    width: 18,
+    marginLeft: 222,
+    
   },
   clubText: {
     fontSize: 15,
@@ -83,7 +92,7 @@ export default StyleSheet.create({
   toText: {
     fontSize: 14,
     color: '#666666',
-    
+
   },
 
   mapView: {
@@ -134,8 +143,16 @@ export default StyleSheet.create({
     borderRadius: 30,
     margin: 10,
   },
-  tabBar: {
-    height: 50,
-    backgroundColor: '#f6b456',
+  number: {
+    color: "#666666",
+    fontSize: 15,
+    marginLeft: 5,
+
+  },
+  like: {
+    flexDirection: 'row',
+    marginTop:12,
+    
+  
   },
 });

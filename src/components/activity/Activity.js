@@ -4,6 +4,7 @@ import { Button } from 'react-native-elements';
 import styles from '../../styles/club/Activities'
 import MapView, { Marker } from 'react-native-maps'
 import { showLocation } from 'react-native-map-link'
+import { Location, DangerZone } from 'expo'
 class Activity extends React.Component {
 
     //寫入本地State
@@ -20,7 +21,18 @@ class Activity extends React.Component {
             longitudeDelta: 0.0421,
         },
     }
+    getUserLocation = async () => {
+        let location = await Location.getCurrentPositionAsync();
 
+        this.setState({
+            region: {
+                latitude: location.coords.latitude, //緯度
+                longitude: location.coords.longitude, //經度
+                latitudeDelta: 0.003, //經度縮放比例
+                longitudeDelta: 0.003, //緯度縮放比例
+            }
+        })
+    }
     //設定本頁activity
     setActivity = (activityData) => {
         this.setState({ activity: activityData });
@@ -59,87 +71,90 @@ class Activity extends React.Component {
         console.log(element);
 
         return (
-            <View style={styles.container}>
-                <View style={styles.headView}>
-                    <View style={styles.arrowView}>
-                        <TouchableOpacity>
-                            <Image source={require('../../images/arrowLeft.png')}
-                                style={styles.arrow} />
-                        </TouchableOpacity>
-                    </View>
-                    <Text style={styles.headText}>{element.title}</Text>
-                    <View style={styles.fake} />
-
-
-                </View>
-
+            <View style={[styles.container, { flex: 1 }]}>
                 <ScrollView>
-                    <View style={styles.clubBackground} >
-                        <Image
-                            source={{ uri: element.photo }}
-                            resizeMode='cover'
-                            style={styles.clubBackground} />
+                    <View style={styles.main}>
+                        <View style={styles.clubBackground} >
+                            <Image
+                                source={{ uri: element.photo }}
+                                resizeMode='cover'
+                                style={styles.clubBackground} />
+                        </View>
                     </View>
+                    <View style={styles.main}>
+                        <View style={styles.main}>
+                            <View style={[styles.clubTextView, { flex: 1 }]}>
+                                <Text style={styles.clubText}>{element.schoolName}</Text>
+                                <Text style={styles.clubText}>{element.clubName}</Text>
+                                <TouchableOpacity>
+                                    <Image source={require('../../images/bookmark.png')}
+                                        style={styles.collect} />
+                                </TouchableOpacity>
+                            </View>
+                            <View style={[styles.clubTextView]}>
+                                <Text style={styles.actText}>{element.title}</Text>
 
-                    <View style={styles.clubTextView}>
-                        <Text style={styles.clubText}>{element.schoolName}</Text>
-                        <Text style={styles.clubText}>{element.clubName}</Text>
-                        <TouchableOpacity>
+                                <View style={styles.like}>
+                                    <TouchableOpacity>
+                                        onPress={async () =>
+                                            await this.pressFavorite(element.clubKey, element.activityKey)}>
+                                    <Image
+                                            style={styles.titleLikesView}
+                                            source={element.numFavorites ? require("../../images/like-orange.png") : require("../../images/like-gray.png")}
+                                        />
+                                    </TouchableOpacity>
+                                    <Text style={styles.number}>{element.numFavorites}</Text>
+                                </View>
+                            </View>
+                        </View>
 
-                            <Image source={require('../../images/bookmark.png')}
-                                style={styles.collect} />
-                        </TouchableOpacity>
+                        <View style={styles.main}>
+                            <View style={styles.summaryTextView}>
+                                <Image source={require('../../images/calendar.png')}
+                                    style={styles.icon} />
+                                <Text style={[styles.summaryText, style = { marginRight: 1 }]}>{element.startDateTime}</Text>
+                                <Text style={styles.toText}>~</Text>
+                                <Text style={[styles.summaryText, style = { marginLeft: 1 }]}>{element.endDateTime}</Text>
+                            </View>
+                            <View style={styles.summaryTextView}>
+                                <Image source={require('../../images/coin.png')}
+                                    style={styles.icon} />
+                                <Text style={styles.summaryText}>自行負擔</Text>
+                            </View>
+                            <View style={styles.summaryTextView}>
+                                <Image source={require('../../images/place.png')}
+                                    style={styles.icon} />
+                                <Text style={styles.summaryText}>淡水捷運站一號出口</Text>
+                            </View>
+                        </View>
                     </View>
-                    <Text style={styles.actText}>{element.title}</Text>
-                    <TouchableOpacity onPress={async () =>
-                        await this.pressFavorite(element.clubKey, element.activityKey)}>
-                        <Image source={require('../../images/like-gray.png')}
-                            style={styles.collect} />
-                            <Text style={styles.summaryText}>{element.numFavorites}</Text>
-                    </TouchableOpacity>
-
-                    <View style={styles.summaryTextView}>
-                        <Image source={require('../../images/calendar.png')}
-                            style={styles.icon} />
-                        <Text style={styles.summaryText}>{element.startDateTime}</Text>
-                        <Text style={styles.toText}>~</Text>
-                        <Text style={styles.summaryText}>{element.endDateTime}</Text>
+                    <View style={styles.main}>
+                        <MapView
+                            style={{ height: 250, marginLeft: 20, marginTop: 10, marginRight: 20 }}
+                            region={this.state.region}>
+                            <Marker
+                                coordinate={{
+                                    latitude: this.state.region.latitude,
+                                    longitude: this.state.region.longitude,
+                                }}
+                                title='你現在的位置'
+                                description='在此位置辦活動'
+                            />
+                        </MapView>
                     </View>
-                    <View style={styles.summaryTextView}>
-                        <Image source={require('../../images/coin.png')}
-                            style={styles.icon} />
-                        <Text style={styles.summaryText}>自行負擔</Text>
-                    </View>
-                    <View style={styles.summaryTextView}>
-                        <Image source={require('../../images/place.png')}
-                            style={styles.icon} />
-                        <Text style={styles.summaryText}>淡水捷運站一號出口</Text>
-                    </View>
+                    <View style={styles.main}>
+                        <View style={styles.divide}>
+                            <Text style={styles.titleText}>活動內容</Text>
+                            <Text numberOfLines={2} ellipsizeMode='tail' style={styles.titleContentText}>{element.content}
+                            </Text>
 
-                    <MapView
-                    style={{ height: 250, marginLeft: 20, marginTop: 10, marginRight: 20 }}
-                    region={this.state.region}>
-                    <Marker
-                        coordinate={{
-                            latitude: this.state.region.latitude,
-                            longitude: this.state.region.longitude,
-                        }}
-                        title='你現在的位置'
-                        description='在此位置辦活動'
-                    />
-                </MapView>
+                        </View>
+                        <View style={styles.divide}>
+                            <Text style={styles.titleText}>備註</Text>
+                            <Text numberOfLines={2} ellipsizeMode='tail' style={styles.titleContentText}>{element.content}
+                            </Text>
 
-                    <View style={styles.divide}>
-                        <Text style={styles.titleText}>活動內容</Text>
-                        <Text numberOfLines={2} ellipsizeMode='tail' style={styles.titleContentText}>{element.content}
-                        </Text>
-
-                    </View>
-                    <View style={styles.divide}>
-                        <Text style={styles.titleText}>備註</Text>
-                        <Text numberOfLines={2} ellipsizeMode='tail' style={styles.titleContentText}>{element.content}
-                        </Text>
-
+                        </View>
                     </View>
                     {
                         // <View style={styles.divideN}>
