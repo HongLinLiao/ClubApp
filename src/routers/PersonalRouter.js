@@ -21,7 +21,7 @@ import { Button, TouchableOpacity,Image } from 'react-native'
 
 const ClubManagePage = createMaterialTopTabNavigator({
   JoinedClub: {
-    screen:JoinedClubPage,
+    screen: JoinedClubPage,
     navigationOptions: ({ navigation }) => ({
       title: '已加入',
       tabBarOptions: {
@@ -35,7 +35,7 @@ const ClubManagePage = createMaterialTopTabNavigator({
     })
   },
   FavoriteClub: {
-    screen:JoinedClubPage,
+    screen: FavoriteClubPage,
     navigationOptions: ({ navigation }) => ({
       title: '已收藏',
       tabBarOptions: {
