@@ -8,7 +8,8 @@ import {
     KeyboardAvoidingView,
 	ScrollView,
 	StyleSheet,
-	Keyboard
+    Keyboard,
+    Alert
 } from 'react-native';
 import { takePhoto, selectPhoto } from '../../modules/Common'
 import Overlayer from '../common/Overlayer'
