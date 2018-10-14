@@ -64,7 +64,7 @@ export default createStackNavigator({
       },
 			headerTitleStyle: {
 				color: '#666666',
-				fontSize: 20,
+        fontSize: 20,
 			},
 			headerStyle: {
 				backgroundColor: '#f6b456'
@@ -82,7 +82,7 @@ export default createStackNavigator({
         fontSize: 20,
   },
       headerStyle: {
-        backgroundColor: '#f6b456'
+        backgroundColor: '#f6b456',
       },
       //headerLeft:(
           //<TouchableOpacity>
