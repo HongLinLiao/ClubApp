@@ -76,7 +76,6 @@ class Post extends React.Component {
 
     return (
       <ScrollView>
-        //背景底色還沒改成白色
         <KeyboardAvoidingView behavior="padding">
           <Button
             title="reload"
