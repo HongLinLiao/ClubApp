@@ -62,7 +62,6 @@ class Notification extends React.Component {
           switch={{
             value: globalNotification,
             onValueChange: () => this.setGlobal(!globalNotification),
-            style:{ transform: [{ scaleX: 1.3 }, { scaleY: 1.3 }] },
             onTintColor:'rgba(246,180,86,1)',
             tintColor:'rgba(246,180,86,0.1)',
             thumbTintColor:'white'
@@ -80,7 +79,6 @@ class Notification extends React.Component {
           switch={{
             value: nightModeNotification,
             onValueChange: () => this.setNight(!nightModeNotification),
-            style:{ transform: [{ scaleX: 1.3 }, { scaleY: 1.3 }] },
             onTintColor:'rgba(246,180,86,1)',
             tintColor:'rgba(246,180,86,0.1)',
             thumbTintColor:'white'
@@ -111,7 +109,6 @@ class Notification extends React.Component {
                     value: item.on,
                     onValueChange: () => this.setClub(cid, !item.on),
                     disabled: globalNotification,
-                    style:{ transform: [{ scaleX: 1.3 }, { scaleY: 1.3 }] },
                     onTintColor:'rgba(246,180,86,1)',
                     tintColor:'rgba(246,180,86,0.1)',
                     thumbTintColor:'white'
