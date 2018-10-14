@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { Button } from "react-native-elements";
 import Comment from "./Comment";
-import styles from "../../styles/club/Post";
+import styles from "../../styles/post/Post";
 import { getUserData, getClubData } from '../../modules/Data'
 import Overlayer from '../common/Overlayer'
 import PopupDialog, { SlideAnimation, DialogTitle } from 'react-native-popup-dialog';
@@ -19,68 +19,67 @@ import UserDialog from '../common/UserDialog'
 const slideAnimation = new SlideAnimation({
 	slideFrom: 'bottom',
 });
-
 class Post extends React.Component {
-	//寫入本地State
-	async componentWillMount() {
-		this.setState({ post: this.props.post, comment: this.props.comment });
-	}
+  //寫入本地State
+  async componentWillMount() {
+    this.setState({ post: this.props.post, comment: this.props.comment });
+  }
 
-	state = {
-		post: {},
+  state = {
+    post: {},
 		comment: {},
 		userData: { uid: null, user: null, clubs: null },
 		loading: false
-	};
+  };
 
-	//頁面重整
-	reload = async (clubKey, postKey) => {
-		const { getInsidePost, navigation, postList, setPostList } = this.props;
-		const newPost = await getInsidePost(clubKey, postKey);
-		const newPostList = JSON.parse(JSON.stringify(postList));
-		if (newPost == null) {
-			newPostList[clubKey][postKey] = null;
-			delete newPostList[clubKey][postKey];
-			setPostList(newPostList);
-			navigation.goBack();
-		} else {
-			newPostList[clubKey][postKey] = newPost.post;
-			setPostList(newPostList);
-			this.setState({ post: newPost.post, comment: newPost.comment });
-		}
-	};
+  //頁面重整
+  reload = async (clubKey, postKey) => {
+    const { getInsidePost, navigation, postList, setPostList } = this.props;
+    const newPost = await getInsidePost(clubKey, postKey);
+    const newPostList = JSON.parse(JSON.stringify(postList));
+    if (newPost == null) {
+      newPostList[clubKey][postKey] = null;
+      delete newPostList[clubKey][postKey];
+      setPostList(newPostList);
+      navigation.goBack();
+    } else {
+      newPostList[clubKey][postKey] = newPost.post;
+      setPostList(newPostList);
+      this.setState({ post: newPost.post, comment: newPost.comment });
+    }
+  };
 
-	//點讚
-	pressFavorite = async (clubKey, postKey) => {
-		const { setPostFavorite, postList, setPostList } = this.props;
-		const postData = await setPostFavorite(clubKey, postKey);
-		if (postData != null) {
-			//放進postList
-			const newPostList = JSON.parse(JSON.stringify(postList));
-			newPostList[postData.clubKey][postData.postKey] = postData;
-			setPostList(newPostList);
-			this.setState({ post: postData });
-		}
-	};
+  //點讚
+  pressFavorite = async (clubKey, postKey) => {
+    const { setPostFavorite, postList, setPostList } = this.props;
+    const postData = await setPostFavorite(clubKey, postKey);
+    if (postData != null) {
+      //放進postList
+      const newPostList = JSON.parse(JSON.stringify(postList));
+      newPostList[postData.clubKey][postData.postKey] = postData;
+      setPostList(newPostList);
+      this.setState({ post: postData });
+    }
+  };
 
-	//設定本頁post
-	setPost = (postData) => {
-		this.setState({ post: postData });
-	};
+  //設定本頁post
+  setPost = (postData) => {
+    this.setState({ post: postData });
+  };
 
-	//設定本頁comment
-	setComment = (commentData) => {
-		this.setState({ comment: commentData });
-	};
+  //設定本頁comment
+  setComment = (commentData) => {
+    this.setState({ comment: commentData });
+  };
 
-	//刪除貼文
-	deletePost = async (clubKey, postKey) => {
-		const { deletePostData, setPostList, postList, navigation } = this.props;
-		const newPostList = await deletePostData(clubKey, postKey, postList);
-		setPostList(newPostList);
-		navigation.goBack();
+  //刪除貼文
+  deletePost = async (clubKey, postKey) => {
+    const { deletePostData, setPostList, postList, navigation } = this.props;
+    const newPostList = await deletePostData(clubKey, postKey, postList);
+    setPostList(newPostList);
+    navigation.goBack();
 	};
-
+	
 	showUser = async (uid) => {
 		try {
 			this.popupDialog.show(async () => {
@@ -106,13 +105,14 @@ class Post extends React.Component {
 		}
 	}
 
-	render() {
-		const postData = this.state.post;
-		const commentData = this.state.comment;
-		const { uid, user, clubs } = this.state.userData
+  render() {
+    const postData = this.state.post;
+    const commentData = this.state.comment;
 		const element = JSON.parse(JSON.stringify(postData));
+		const { uid, user, clubs } = this.state.userData
 
-		return (
+
+    return (
 			<View style={{ flex: 1 }}>
 				<ScrollView>
 					<KeyboardAvoidingView behavior="padding">
@@ -124,12 +124,14 @@ class Post extends React.Component {
 						/>
 						<View style={styles.container}>
 							<View style={styles.rowLeft}>
-								<TouchableOpacity onPress={() => this.showUser(postData.poster)}>
-									<Image
-										source={{ uri: element.posterPhotoUrl }}
-										resizeMode="cover"
-										style={styles.bigHead}
-									/>
+							<TouchableOpacity onPress={() => this.showUser(postData.poster)}>
+									<View style={styles.circle}>
+										<Image
+											source={{ uri: element.posterPhotoUrl }}
+											resizeMode="cover"
+											style={styles.bigHead}
+										/>
+									</View>
 								</TouchableOpacity>
 								<View style={styles.column}>
 									<View style={styles.row}>
@@ -159,7 +161,8 @@ class Post extends React.Component {
 											await this.pressFavorite(element.clubKey, element.postKey)
 										}
 									>
-										<Image style={styles.icon} source={element.statusFavorite ? require("../../images/images2/message.png") : require("../../images/eyes.png")} />
+										<Image style={styles.icon} source={element.statusFavorite ? 
+											require("../../images/graylike.png") : require("../../images/like.png")} />
 										<Text style={styles.number}>{element.numFavorites} </Text>
 									</TouchableOpacity>
 								</View>
@@ -167,16 +170,18 @@ class Post extends React.Component {
 								<View style={styles.row}>
 									<Image
 										style={styles.icon}
-										source={require("../../images/images2/message.png")}
+										source={require("../../images/message.png")}
 									/>
 									<Text style={styles.number}>{element.numComments}</Text>
 									<Image
 										style={styles.icon}
-										source={element.statusView ? require("../../images/images2/message.png") : require("../../images/eyes.png")}
+										source={require("../../images/eyes.png")}
 									/>
 									<Text style={styles.number}>{element.numViews}</Text>
 								</View>
 							</View>
+
+
 							<View style={{ display: element.statusEnable ? "flex" : "none" }}>
 								<Button
 									title="Edit Post"
@@ -208,22 +213,22 @@ class Post extends React.Component {
 					</KeyboardAvoidingView>
 				</ScrollView>
 				<PopupDialog
-					ref={(popupDialog) => this.popupDialog = popupDialog}
-					dialogAnimation={slideAnimation}
-					width={0.7}
-					height={0.7}
-					dialogStyle={{ borderRadius: 20 }}
-				>
-					<UserDialog
-						uid={uid}
-						user={user}
-						clubs={clubs}
-					/>
-					{this.state.loading ? <Overlayer /> : null}
-				</PopupDialog>
+						ref={(popupDialog) => this.popupDialog = popupDialog}
+						dialogAnimation={slideAnimation}
+						width={0.7}
+						height={0.7}
+						dialogStyle={{ borderRadius: 20 }}
+					>
+						<UserDialog
+							uid={uid}
+							user={user}
+							clubs={clubs}
+						/>
+						{this.state.loading ? <Overlayer /> : null}
+					</PopupDialog>
 			</View>
-		);
-	}
+    );
+  }
 }
 
 export default Post;

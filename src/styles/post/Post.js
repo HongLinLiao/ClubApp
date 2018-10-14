@@ -3,7 +3,7 @@ import { StyleSheet } from 'react-native'
 export default StyleSheet.create({
     container: {
         flex: 1,
-        alignItems: 'center',
+        //alignItems: 'center',
         justifyContent: 'space-between',
         flexDirection: 'column',
         backgroundColor: 'white'
@@ -15,19 +15,28 @@ export default StyleSheet.create({
     rowLeft: {
         flexDirection: 'row',
         justifyContent: 'flex-start',
-        alignItems: 'center',
+        //alignItems: 'center',
         paddingLeft: 20,
         paddingTop: 20
     },
     bigHead: {
         height: 60,
         width: 60,
-        borderRadius: 50,
+        borderRadius: 80,
+        marginRight: 15
+    },
+    circle:{
+        width: 60, 
+        height: 60, 
+        borderRadius: 80, 
+        overflow: 'hidden', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
         marginRight: 15
     },
     column: {
         flexDirection: 'column',
-        justifyContent: 'center',
+        //justifyContent: 'center',
         alignItems: 'flex-start'
     },
     school: {
