@@ -13,7 +13,7 @@ import {
 
 import Expo from 'expo'
 import ModalDropdown from 'react-native-modal-dropdown';
-import { randomCid, getClubMemberData } from '../../modules/Club'
+import { randomCid, getClubMemberData, filterOpenClub } from '../../modules/Club'
 import { getPostKeyListFromClubKey } from '../../modules/Post'
 import PostListElement from '../post/PostListElement'
 import { joinOrLikeClub } from '../../modules/Common'
@@ -37,26 +37,52 @@ class Club extends React.Component {
     postKey: {},
     post: {},
     userData: { _uid: null, _user: null, _clubs: null},
-    loading: false
+    loading: false,
+    currentCid: null
   };
 
   async componentWillMount() {
-    const { joinClub, likeClub } = this.props;
-    let allClubCids = Object.keys(joinClub).concat(Object.keys(likeClub));
-    const cid = randomCid(allClubCids);
-    this.props.setCurrentClub(cid);
-    await this.postReload(cid);
+    const { joinClubs, likeClubs, currentCid } = this.props;
+    // const _likeClubs = filterOpenClub(likeClubs)
+    // let allClubCids = Object.keys(joinClubs).concat(Object.keys(_likeClubs));
+
+    // const cid = randomCid(allClubCids);
+    // this.props.setCurrentClub(cid);
+    await this.postReload(currentCid);
+  }
+
+
+  //檢查社團是否公開(蒐藏)
+  checkTheClubOpen = (currentCid, joinClubs, likeClubs, setCurrentClub) => {
+    let cid = currentCid
+    if(cid) {
+      const type = joinOrLikeClub(cid);
+      if(type == 'LIKE') {
+        if(likeClubs[currentCid].open == false) { //蒐藏社團被設為不公開
+          let joinClubCids = Object.keys(joinClubs)
+          cid = randomCid(joinClubCids)
+          // this.setState({currentCid: cid})
+          setCurrentClub(cid)
+        }
+      }
+    } else {
+      let joinClubCids = Object.keys(joinClubs)
+      cid = randomCid(joinClubCids)
+      setCurrentClub(cid)
+    }
+    
+    return cid
   }
 
   //貼文重整
-  postReload = async clubKey => {
+  postReload = async (clubKey) => {
     const { getPostDataComplete } = this.props;
     const postKey = await getPostKeyListFromClubKey(clubKey);
     const postData = await getPostDataComplete(postKey);
     this.setState({ postKey: postKey, post: postData });
   };
   //更改postList
-  setPostList = postList => {
+  setPostList = (postList) => {
     this.setState({ post: postList });
   };
 
@@ -74,11 +100,13 @@ class Club extends React.Component {
     }
     if (Object.keys(likeClubs).length != 0) {
       Object.keys(likeClubs).map(cid => {
-        clubsArray.push({
-          cid: cid,
-          schoolName: likeClubs[cid].schoolName,
-          clubName: likeClubs[cid].clubName
-        });
+        if(likeClubs[cid].open) {
+          clubsArray.push({
+            cid: cid,
+            schoolName: likeClubs[cid].schoolName,
+            clubName: likeClubs[cid].clubName
+          });
+        }
       });
     }
     return clubsArray;
@@ -97,12 +125,6 @@ class Club extends React.Component {
   };
 
   addLike = () => {};
-
-  handleGoToMember = async () => {
-    const { navigation, joinClubs, currentCid } = this.props;
-    const memberData = await getClubMemberData(joinClubs[currentCid].member);
-    navigation.push("ClubMember", { memberData });
-  }
 
   showUser = async (_uid) => {
     try {
@@ -130,6 +152,7 @@ class Club extends React.Component {
     }
     
   }
+
 
   render() {
     if (this.props.currentCid) {
@@ -171,35 +194,33 @@ class Club extends React.Component {
                 <View
                   style={{ position: "absolute", height: 400, width: "100%" }}
                 >
-                  {imgUrl ? (
-                    <ImageBackground
-                      source={{ uri: imgUrl }}
-                      resizeMode="cover"
-                      style={styles.clubBackground}
-                    >
-                      <View style={styles.clubInfoView}>
-                        <View style={styles.clubLeftTextView}>
-                          <Text style={styles.schoolText}>{schoolName}</Text>
-                          <Text style={styles.clubTopNameText}>{clubName}</Text>
-                        </View>
-                        <View style={styles.clubRightTextView}>
-                          <View style={{ flexDirection: "row" }}>
-                            <Text style={styles.numberext}>
-                              {numberOfMember}
-                              位成員
-                            </Text>
-                            <Text style={styles.numberext}>
-                              {open ? "公開" : "非公開"}
-                            </Text>
-                          </View>
+                  <ImageBackground
+                    source={{ uri: imgUrl ? imgUrl : 'https://steamuserimages-a.akamaihd.net/ugc/87100177918375746/EDFEECCE614D4A17D884A5E5B7E9D5810C4C1312/' }}
+                    resizeMode="cover"
+                    style={styles.clubBackground}
+                  >
+                    <View style={styles.clubInfoView}>
+                      <View style={styles.clubLeftTextView}>
+                        <Text style={styles.schoolText}>{schoolName}</Text>
+                        <Text style={styles.clubTopNameText}>{clubName}</Text>
+                      </View>
+                      <View style={styles.clubRightTextView}>
+                        <View style={{ flexDirection: "row" }}>
                           <Text style={styles.numberext}>
-                            你的身分：
-                            {status}
+                            {numberOfMember}
+                            位成員
+                          </Text>
+                          <Text style={styles.numberext}>
+                            {open ? "公開" : "非公開"}
                           </Text>
                         </View>
+                        <Text style={styles.numberext}>
+                          你的身分：
+                          {status}
+                        </Text>
                       </View>
-                    </ImageBackground>
-                  ) : null}
+                    </View>
+                  </ImageBackground>
                 </View>
               </View>
 
@@ -244,7 +265,7 @@ class Club extends React.Component {
                     </View>
                   </TouchableOpacity>
 
-                  <TouchableOpacity onPress={this.handleGoToMember}>
+                  <TouchableOpacity onPress={() => this.props.navigation.push("ClubMember")}>
                     <View style={styles.adminButton}>
                       <View style={styles.adminIcon}>
                         <Image
@@ -382,7 +403,7 @@ class Club extends React.Component {
               color: "#666666"
             }}
           >
-            您尚未擁有任何社團
+            沒有可以顯示的社團
           </Text>
         </View>
       );

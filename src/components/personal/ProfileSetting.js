@@ -73,8 +73,8 @@ class ProfileSetting extends React.Component {
     }
 
     render() {
-        const { aboutMe } = this.props
-        const { displayName, photoURL } = this.props.user
+        const { user, aboutMe, joinClub } = this.props
+        const { displayName, photoURL } = user
         return (
             <View style={{ flex: 1 }}>
                 <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
@@ -125,7 +125,7 @@ class ProfileSetting extends React.Component {
                             <View style={styles.row}>
                                 <Image style={styles.hotPoint}
                                     source={require('../../images/star.png')} />
-                                <Text style={styles.number}>社團數量</Text>
+                                <Text style={styles.number}>{Object.keys(joinClub).length}</Text>
                             </View>
                         </View>
 

@@ -5,6 +5,7 @@ import { Text, View, StyleSheet, TouchableOpacity, StatusBar, ScrollView, Image,
 import { Constants } from 'expo';
 import StatusBarPaddingIOS from 'react-native-ios-status-bar-padding';
 import styles from '../../styles/personal/Notification'
+
 class Notification extends React.Component {
   state = {
     loading: false,
@@ -54,34 +55,6 @@ class Notification extends React.Component {
 
     return (
       <View style={styles.container}>
-        {
-          <View style={styles.headView}>
-            <View>
-              <TouchableOpacity>
-                <Image source={require('../../images/arrowLeft.png')}
-                  style={styles.arrow} />
-              </TouchableOpacity>
-            </View>
-            <Text style={styles.headText}>通知設定</Text>
-            <View style={styles.fake}></View>
-          </View>
-        }
-
-        {
-          // </View>
-          //   <StatusBar
-          //       backgroundColor='#f6b456'
-          //       barStyle="light-content"
-          //   />
-          //   <View style={styles.headView}>
-          //       <TouchableOpacity>
-          //           <Image source={require('../../images/left.png')}
-          //               style={styles.leftIcon} />
-          //       </TouchableOpacity>
-          //       <Text style={styles.headText}>通知設定</Text>
-          //       <View style={styles.empty}></View>
-          //   </View>
-        }
         <ListItem
           title='提醒'
           titleStyle={{ fontSize: 18, color: '#666666' }}
@@ -109,7 +82,7 @@ class Notification extends React.Component {
           Object.keys(clubNotificationList).map((cid) => {
             const item = clubNotificationList[cid]
             return (
-                <View>
+                <View key={cid}>
                   <ListItem
                     title={
                       <View style={styles.textArea}>

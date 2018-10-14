@@ -7,7 +7,8 @@ import {
   TextInput,
   TouchableOpacity,
   ImageBackground,
-  ScrollView
+  ScrollView,
+  StyleSheet,
 } from "react-native";
 
 import { ListItem } from "react-native-elements";
@@ -65,15 +66,15 @@ class Search extends React.Component {
       this.setState({ searching: true });
 
       const newText = text.replace(/\s+/g, "").split(""); //去除空白並把每個字分割
-      console.log(newText);
+      const { dataArray } = this.state
 
       if (newText.length != 0) {
-        const newDataArray = this.state.dataArray.filter(item => {
+        const newDataArray = dataArray.filter(item => {
           const combindName = item.schoolName + item.clubName;
           let isMatch = true;
           newText.filter(char => {
             let charMatch = combindName.indexOf(char) > -1;
-            if (!charMatch) isMatch = false; //只要有一個字不對就不列入
+            if (!charMatch) isMatch = false; //只要有一個字不對或是不公開就不列入
           });
           return isMatch;
         });
@@ -84,6 +85,7 @@ class Search extends React.Component {
       } else {
         this.setState({ searching: false, text, tempArray: [] });
       }
+
     } catch (e) {
       this.setState({ searching: false });
     }
@@ -133,13 +135,14 @@ class Search extends React.Component {
               return (
                 <TouchableOpacity
                   key={club.cid}
+                  disabled={status.hasJoin ? false : !club.open}
                   onPress={() =>
                     this.props.navigation.push("SearchClub", { club, status })
                   }
                 >
                   <View style={styles.card}>
                     <ImageBackground
-                      source={{ uri: club.imgUrl }}
+                      source={{ uri: club.imgUrl ? club.imgUrl : 'https://steamuserimages-a.akamaihd.net/ugc/87100177918375746/EDFEECCE614D4A17D884A5E5B7E9D5810C4C1312/' }}
                       style={styles.clubBackground}
                     />
                     <View style={styles.clubNameView}>
@@ -147,9 +150,27 @@ class Search extends React.Component {
                       <Text style={styles.clubNameText}>{club.clubName}</Text>
                     </View>
                     <View style={styles.clubIntroView}>
-                      <Text style={styles.clubIntroText}>{club.initDate}</Text>
+                      <Text style={styles.clubIntroText}>{club.introduction}</Text>
+                      <Text style={styles.clubStatusText}>
+                        {status.hasJoin ? '已加入' : !club.open ? '不公開' : status.hasLike ? '已收藏\n未加入' : '新的社團'}
+                      </Text>
                     </View>
-                  </View>
+                    {!club.open ? (
+                      <View
+                        style={[
+                          StyleSheet.absoluteFill,
+                          {
+                            borderRadius: 10,
+                            backgroundColor: 'rgba(0,0,0,0.4)',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            
+                          },
+                        ]}
+                      >
+                      </View>
+                    ) : null }
+                  </View>   
                 </TouchableOpacity>
               );
             })}
