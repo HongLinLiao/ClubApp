@@ -202,33 +202,32 @@ class AddActivity extends React.Component {
 
         return (
             <View style={styles.container}>
-                <View style={styles.headView}>
-                    <TouchableOpacity>
-                        <Image source={require('../../images/left.png')}
-                            style={styles.leftIcon} />
-                    </TouchableOpacity>
-                    <Text style={styles.headText}>編輯活動</Text>
-                    <View style={styles.empty}></View>
-                </View>
-
-
+                
                 <ScrollView>
-                    <View style={{ height: 280, alignItems: 'center', justifyContent: 'center' }}>
-                        <Text style={styles.title}>新增活動照片</Text>
-                        <TouchableOpacity onPress={this.pickPicture}>
-                            <Image source={require('../../images/graycamera.png')}
-                                style={styles.graycamera}
-                            />
-                            
+                        
+                        <TouchableOpacity style={styles.image} onPress={this.pickPicture}>
+                        
+                            {
+                                this.state.photo ?
+                                    <Image source={{ uri: this.state.photo }} 
+                                        resizeMode='cover' style={{ height: 300, width: '100%' }}
+                                    />
+                                    : (
+                                        <View>
+                                            <Text style={[styles.title,style={}]}>新增活動照片</Text>
+                                            <Image source={require('../../images/graycamera.png')}
+                                                style={[styles.graycamera,style={marginLeft:32,marginRight:20,marginTop:20,marginBottom:20}]}
+                                            />
+                                            <Text style={[styles.bigText,style={marginLeft:15}]}>由本機上傳</Text>
+                                        </View>
+                                    )
+    
+                            } 
                         </TouchableOpacity>
-                        {
-                            this.state.photo ?
-                                <Image source={{ uri: this.state.photo }} resizeMode='cover' style={{ height: 300, width: '100%' }} />
-                                :
-                                <Text style={styles.bigText}>由本機上傳</Text>
-                        }
+                        
+                        
 
-                    </View>
+                
 
                     <View style={styles.line}></View>
 
