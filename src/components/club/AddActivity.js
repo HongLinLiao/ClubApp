@@ -219,13 +219,14 @@ class AddActivity extends React.Component {
                             <Image source={require('../../images/graycamera.png')}
                                 style={styles.graycamera}
                             />
-                            {
-                                this.state.photo ?
-                                    <Image source={{ uri: this.state.photo }} resizeMode='cover' style={{ height: 300, width: '100%' }} />
-                                    :
-                                    <Text style={styles.bigText}>由本機上傳</Text>
-                            }
+                            
                         </TouchableOpacity>
+                        {
+                            this.state.photo ?
+                                <Image source={{ uri: this.state.photo }} resizeMode='cover' style={{ height: 300, width: '100%' }} />
+                                :
+                                <Text style={styles.bigText}>由本機上傳</Text>
+                        }
 
                     </View>
 
