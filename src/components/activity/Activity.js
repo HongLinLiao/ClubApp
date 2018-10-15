@@ -95,7 +95,7 @@ class Activity extends React.Component {
                                 <Text style={styles.actText}>{element.title}</Text>
 
 
-                                <TouchableOpacity style={styles.like}>
+                                <TouchableOpacity style={styles.like}
                                     onPress={async () =>
                                         await this.pressFavorite(element.clubKey, element.activityKey)}>
                                     <Image
