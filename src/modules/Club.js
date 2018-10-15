@@ -182,6 +182,19 @@ export const setClubOpen = (cid) => async (dispatch, getState) => {
   }
 }
 
+export const updateIntroduction = (cid, introduction) => async (dispatch, getState) => {
+  try {
+    const clubRef = firebase.database().ref('clubs').child(cid)
+    
+    //更新社團介紹
+    await clubRef.update({introduction})
+
+  } catch(e) {
+    console.log(e)
+    throw e
+  }
+}
+
 export const kickClubMember = (cid, uid) => async (dispatch, getState) => {
   try {
     const memberRef = firebase.database().ref('clubs').child(cid).child('member')

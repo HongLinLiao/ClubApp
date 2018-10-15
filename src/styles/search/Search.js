@@ -77,11 +77,10 @@ export default StyleSheet.create({
   },
   clubIntroView: {
     flex: 2,
-    flexDirection: 'row',
-    paddingVertical: 10,
-    paddingLeft: 150,
-    paddingRight: 10,
-    justifyContent: 'space-between',
+    // paddingVertical: 10,
+    // paddingLeft: 150,
+    // paddingRight: 10,
+    justifyContent: 'center',
     alignItems: 'center',
   },
   clubIntroText: {

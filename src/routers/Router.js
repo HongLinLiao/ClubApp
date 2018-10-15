@@ -70,15 +70,12 @@ const MainRouter = createBottomTabNavigator(
       inactiveTintColor: "#0d4273", //字沒按
       activeBackgroundColor: "#0d4273", //背景有按
       inactiveBackgroundColor: "#f6b456" //背景沒按
-    }
-  },
-
-  {
+    },
     navigationOptions: ({ navigation }) => {
-      console.log(navigation)
-      const { index, routes } = navigation.state;
+      const { index, routes } = navigation.state
+      const { routeName } = routes[index]
       return {
-        tabBarVisible: !(routes[index].routeName == "AddPost"),
+        tabBarVisible: !((routeName == "AddPost") || (routeName == "AddActivity") || (routeName == "ClubAdmin")),
         animationEnabled: true,
         swipeEnabled: true
       };
