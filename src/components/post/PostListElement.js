@@ -1,10 +1,9 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, Image } from 'react-native';
-import { Button } from 'react-native-elements';
 
 import styles from '../../styles/home/Home'
 
-const PostListElement = ({ post, navigation, getInsidePost, getPostComment, setPostFavorite, postList, setPostList, showUser }) => {
+const PostListElement = ({ post, navigation, getInsidePost, setPostFavorite, postList, setPostList, showUser }) => {
 
     async function pressFavorite(post) {
         const postData = await setPostFavorite(post.clubKey, post.postKey);

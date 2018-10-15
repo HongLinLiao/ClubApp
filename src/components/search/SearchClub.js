@@ -1,20 +1,14 @@
 import React from 'react'
 import {
 	View,
-	TextInput,
 	Button,
 	Text,
 	Image,
 	ScrollView,
 	TouchableOpacity,
-	StatusBar,
 	Alert,
 } from 'react-native'
 
-import Expo from 'expo'
-
-import ModalDropdown from 'react-native-modal-dropdown';
-import { randomCid, getClubMemberData } from '../../modules/Club'
 import Overlayer from '../common/Overlayer'
 import PostListElement from '../post/PostListElement'
 import { getPostKeyListFromClubKey } from '../../modules/Post'

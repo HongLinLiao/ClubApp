@@ -1,12 +1,12 @@
 import React from 'react'
-import { ScrollView, Text, Alert, Image } from 'react-native'
+import { ScrollView,  Alert} from 'react-native'
 import { Button } from 'react-native-elements'
 import PostListElement from '../post/PostListElement'
 import styles from '../../styles/home/Home'
 import { View } from 'native-base';
 import { getUserData, getClubData } from '../../modules/Data'
 import Overlayer from '../common/Overlayer'
-import PopupDialog, { SlideAnimation, DialogTitle } from 'react-native-popup-dialog';
+import PopupDialog, { SlideAnimation } from 'react-native-popup-dialog';
 import UserDialog from '../common/UserDialog' 
 
 

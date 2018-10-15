@@ -1,18 +1,13 @@
 import React from "react";
 import {
   View,
-  Button,
   Alert,
   Text,
-  TextInput,
   TouchableOpacity,
   ImageBackground,
   ScrollView,
   StyleSheet,
 } from "react-native";
-
-import { ListItem } from "react-native-elements";
-
 import { searchAllClubs } from "../../modules/Data";
 import Overlayer from "../common/Overlayer";
 import styles from "../../styles/search/Search";
@@ -33,9 +28,7 @@ class Search extends React.Component {
   }
 
   async componentDidMount() {
-    // const dataArray = await searchAllClubs()
-    // this.setState({dataArray})
-    // console.log(dataArray)
+
   }
 
   search = async () => {
@@ -101,7 +94,7 @@ class Search extends React.Component {
       } else {
         this.props.navigation.push("SearchClub", { club, status });
       }
-    } catch (e) {}
+    } catch (e) { }
   };
 
   filterClubStatus = club => {
@@ -126,7 +119,7 @@ class Search extends React.Component {
       <ScrollView>
         <View style={{ flex: 1, backgroundColor: "#ffffff" }}>
           {
-            // <Text>{this.state.dataArray.length}</Text>
+
           }
           <View style={{ flex: 1 }}>
             {this.state.tempArray.map((club, index) => {
@@ -146,11 +139,11 @@ class Search extends React.Component {
                       style={styles.clubBackground}
                     />
                     <View style={styles.clubNameView}>
-                      <View style={{flex: 1, flexDirection: 'row'}}>
+                      <View style={{ flex: 1, flexDirection: 'row' }}>
                         <Text style={styles.clubNameText}>{club.schoolName}</Text>
                         <Text style={styles.clubNameText}>{club.clubName}</Text>
                       </View>
-                      <View style={{justifyContent: 'flex-end'}}>
+                      <View style={{ justifyContent: 'flex-end' }}>
                         <Text style={styles.clubStatusText}>
                           {status.hasJoin ? '已加入' : !club.open ? '不公開' : status.hasLike ? '已收藏' : '新的社團'}
                         </Text>
@@ -168,13 +161,13 @@ class Search extends React.Component {
                             backgroundColor: 'rgba(0,0,0,0.4)',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            
+
                           },
                         ]}
                       >
                       </View>
-                    ) : null }
-                  </View>   
+                    ) : null}
+                  </View>
                 </TouchableOpacity>
               );
             })}

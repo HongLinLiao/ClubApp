@@ -1,5 +1,5 @@
 import React from 'react'
-import { View, Text, Button, TextInput, Alert, Image,TouchableOpacity } from 'react-native'
+import { View, Text, TextInput, Alert, Image,TouchableOpacity } from 'react-native'
 import Overlayer from '../common/Overlayer'
 import styles from '../../styles/personal/EmailReVerified'
 

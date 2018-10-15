@@ -1,14 +1,12 @@
-import React, { Component } from 'react';
+import React from 'react';
 import {
   Text,
   View,
-  StyleSheet,
   ScrollView,
   TouchableOpacity,
   Image,
   ImageBackground,
 } from 'react-native';
-import { Constants } from 'expo';
 import StatusBarPaddingIOS from 'react-native-ios-status-bar-padding';
 
 import styles from '../../styles/club/Activities'

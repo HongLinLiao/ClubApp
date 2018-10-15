@@ -1,10 +1,10 @@
 import React from 'react';
-import { View, Text, ScrollView, TouchableOpacity, KeyboardAvoidingView, Image } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Image } from 'react-native';
 import { Button } from 'react-native-elements';
 import styles from '../../styles/club/Activities'
 import MapView, { Marker } from 'react-native-maps'
 import { showLocation } from 'react-native-map-link'
-import { Location, DangerZone } from 'expo'
+import { Location } from 'expo'
 class Activity extends React.Component {
 
     //寫入本地State
@@ -190,20 +190,7 @@ class Activity extends React.Component {
 
                         </View>
                     </View>
-                    {
-                        // <View style={styles.divideN}>
-                        //     <Text style={styles.titleText}>你有興趣</Text>
-                        //     <View style={styles.intrestView}>
-                        //         <View style={styles.recommendView} />
-                        //         <View style={styles.recommendView} />
-                        //     </View>
-                        //     <View style={styles.intrestView}>
-                        //         <View style={styles.recommendView} />
-                        //         <View style={styles.recommendView} />
-                        //     </View>
-
-                        // </View>
-                    }
+                
                 </ScrollView>
 
             </View>
@@ -212,31 +199,3 @@ class Activity extends React.Component {
 }
 
 export default Activity;
-
-{
-    //     <ScrollView>
-    //     <Image
-    //         source={{ uri: element.photo }}
-    //         resizeMode='cover'
-    //         style={{ width: 50, height: 50 }}
-    //     />
-    //     <Text>{element.schoolName}</Text>
-    //     <Text>{element.clubName}</Text>
-    //     <Text>標題： {element.title}</Text>
-    //     <Text>活動開始時間： {element.startDateTime}</Text>
-    //     <Text>活動結束時間： {element.endDateTime}</Text>
-    //     <Text>費用： {element.price}</Text>
-    //     <Text>地點： {element.place}</Text>
-    //     <TouchableOpacity
-    //         onPress={async () =>
-    //             await this.pressFavorite(element.clubKey, element.activityKey)
-    //         }
-    //     >
-    //         <Text>按讚人數: {element.numFavorites}</Text>
-    //     </TouchableOpacity>
-    //     <Text>{element.content}</Text>
-    //     <Text>{element.remarks}</Text>
-    // </ScrollView>
-
-
-}
