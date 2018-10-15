@@ -39,17 +39,13 @@ export default StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         borderBottomWidth: 0.5,
-        borderBottomColor: 'rgba(102,102,102,0.5)',
-        marginLeft:10,
-        marginRight:10
+        borderBottomColor: 'rgba(102,102,102,0.2)'
     },
     boxBottomBorderView: {
         flexDirection: 'row',
         alignItems: 'center',
         borderBottomWidth: 1,
-        borderBottomColor: 'rgba(102,102,102,0.5)',
-        marginLeft:10,
-        marginRight:10
+        borderBottomColor: 'rgba(102,102,102,0.5)'
     },
 }
 )
