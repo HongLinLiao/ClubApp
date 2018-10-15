@@ -3,6 +3,7 @@ import SearchPage from "../containers/search/SearchPage";
 import { TextInput, StyleSheet, Image } from "react-native";
 import SearchClubPage from "../containers/search/SearchClubPage";
 import PostPage from "../containers/club/PostPage";
+import ActivityPage from '../containers/club/ActivityPage'
 import React from "react";
 import { View } from "native-base";
 
@@ -46,6 +47,9 @@ export default createStackNavigator({
   },
   SearchClub: {
     screen: SearchClubPage
+  },
+  Activity: {
+    screen: ActivityPage,
   },
   Post: {
     screen: PostPage

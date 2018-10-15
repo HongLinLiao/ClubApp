@@ -29,11 +29,6 @@ const slideAnimation = new SlideAnimation({
 
 class Club extends React.Component {
   state = {
-    activities: {
-      act1: {},
-      act2: {},
-      act3: {}
-    },
     activity: {},
     post: {},
     userData: { _uid: null, _user: null, _clubs: null },
@@ -48,7 +43,10 @@ class Club extends React.Component {
 
     // const cid = randomCid(allClubCids);
     // this.props.setCurrentClub(cid);
-    await this.postReload(currentCid);
+    if (currentCid) {
+      await this.activityReload(currentCid);
+      await this.postReload(currentCid);
+    }
   }
 
 
@@ -75,11 +73,37 @@ class Club extends React.Component {
   }
 
   //活動重整
-  postReload = async (clubKey) => {
-    // const { getPostDataComplete } = this.props;
-    // const postKey = await getPostKeyListFromClubKey(clubKey);
-    // const postData = await getPostDataComplete(postKey);
-    // this.setState({ post: postData });
+  activityReload = async (clubKey) => {
+    const { getActivityDataFromClubKey } = this.props;
+    const activityData = await getActivityDataFromClubKey(clubKey);
+    if (activityData != null) {
+      this.setState({ activity: activityData });
+    }
+    else {
+      //不公開社團，只收藏，處理
+      //navigation back?
+    }
+  };
+  //進入活動內頁
+  insideActivity = async (activity) => {
+    const { getInsideActivity, navigation } = this.props;
+    const activityData = await getInsideActivity(activity.clubKey, activity.activityKey);
+    if (activityData != null) {
+      //放進List
+      const newActivityList = JSON.parse(JSON.stringify(this.state.activity));
+      newActivityList[activityData.clubKey][activityData.activityKey] = activityData;
+      this.setState({ activity: newActivityList });
+
+      navigation.navigate('Activity', {
+        activity: activityData,
+        setActivityList: this.setActivityList,
+        activityList: newActivityList,
+      });
+    }
+  };
+  //更改activityList
+  setActivityList = (activityList) => {
+    this.setState({ activity: activityList });
   };
   //貼文重整
   postReload = async (clubKey) => {
@@ -164,6 +188,7 @@ class Club extends React.Component {
   render() {
     if (this.props.currentCid) {
       const newPostList = { ...this.state.post };
+      const newActivityList = { ...this.state.activity };
       const { user, joinClubs, likeClubs, currentCid } = this.props;
       const { _uid, _user, _clubs } = this.state.userData
       let type = joinOrLikeClub(currentCid);
@@ -298,16 +323,19 @@ class Club extends React.Component {
                 </View>
                 <ScrollView horizontal>
                   <View style={{ flexDirection: "row" }}>
-                    {Object.keys(this.state.activities).map((actId, index) => {
-                      return (
-                        <TouchableOpacity key={actId}>
+                    {Object.values(newActivityList).map((clubElement) => (
+                      Object.values(clubElement).map((activityElement) => (
+                        <TouchableOpacity
+                          key={activityElement.activityKey}
+                          onPress={async () => { await this.insideActivity(activityElement) }}
+                        >
                           <ImageBackground
-                            source={require("../../images/poster1.jpg")}
+                            source={{uri:activityElement.photo}}
                             style={styles.clubActivity}
                             imageStyle={styles.borderRadius30}
                           >
                             <View style={styles.heartView}>
-                              <Text style={styles.heartText}>220</Text>
+                              <Text style={styles.heartText}>{activityElement.numFavorites}</Text>
                               <Image
                                 source={require("../../images/images2/like.png")}
                                 style={styles.likeIcon}
@@ -315,9 +343,8 @@ class Club extends React.Component {
                             </View>
                           </ImageBackground>
                         </TouchableOpacity>
-                      );
-                    })}
-
+                      ))
+                    ))}
                     <TouchableOpacity
                       style={styles.moreView}
                       onPress={() => { }}
@@ -330,17 +357,14 @@ class Club extends React.Component {
                     </TouchableOpacity>
                   </View>
                 </ScrollView>
-                <ScrollView horizontal>
-                  <Text>haha</Text>
-                </ScrollView>
               </View>
 
               <View>
                 <View style={styles.titleTextView}>
                   <Text style={styles.titleText}>最新文章</Text>
                 </View>
-                {Object.values(newPostList).map(clubElement =>
-                  Object.values(clubElement).map(postElement => (
+                {Object.values(newPostList).map((clubElement) => (
+                  Object.values(clubElement).map((postElement) => (
                     <PostListElement
                       key={postElement.postKey}
                       post={postElement}
@@ -353,6 +377,7 @@ class Club extends React.Component {
                       showUser={this.showUser.bind(this)}
                     />
                   ))
+                )
                 )}
                 <View style={styles.moreView}>
                   <TouchableOpacity onPress={() => { }}>
@@ -371,6 +396,7 @@ class Club extends React.Component {
               options={clubsArray}
               onSelect={(index, rowData) => {
                 this.props.setCurrentClub(rowData.cid);
+                this.activityReload(rowData.cid);
                 this.postReload(rowData.cid);
               }}
               renderButtonText={rowData =>

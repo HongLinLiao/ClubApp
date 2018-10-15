@@ -2,7 +2,7 @@ import { createStackNavigator } from 'react-navigation'
 import ClubPage from '../containers/club/ClubPage'
 import PostPage from '../containers/club/PostPage'
 import AddPostPage from '../containers/club/AddPostPage'
-import ActivitiesPage from '../containers/club/ActivitiesPage'
+import ActivityPage from '../containers/club/ActivityPage'
 import AddActivityPage from '../containers/club/AddActivityPage'
 import ClubAdminPage from '../containers/club/ClubAdminPage'
 import ClubMemberPage from '../containers/club/ClubMemberPage'
@@ -19,8 +19,8 @@ export default createStackNavigator({
       gesturesEnabled: false
     },
   },
-  Activities: {
-    screen: ActivitiesPage,
+  Activity: {
+    screen: ActivityPage,
   },
   Post: {
     screen: PostPage

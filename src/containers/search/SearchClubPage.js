@@ -8,6 +8,10 @@ import {
     setPostFavorite,
     getPostComment
 } from '../../modules/Post'
+import {
+    getActivityDataFromClubKey,
+    getInsideActivity,
+} from '../../modules/Activity'
 
 
 const mapStateToProps = ({ userReducer, clubReducer }) => ({
@@ -27,6 +31,8 @@ const mapDispatchToProps = {
     getPostComment,
     //按讚
     setPostFavorite,
+    getActivityDataFromClubKey,
+    getInsideActivity,
 }
 
 

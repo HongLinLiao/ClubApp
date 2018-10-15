@@ -23,11 +23,7 @@ import styles from "../../styles/club/Club";
 
 class SearchClub extends React.Component {
   state = {
-    activities: {
-      act1: {},
-      act2: {},
-      act3: {}
-    },
+    activity: {},
     post: {},
     postKey: {},
     loading: false,
@@ -42,9 +38,43 @@ class SearchClub extends React.Component {
       hasJoin,
       hasLike: hasJoin ? hasJoin : hasLike
     });
+    await this.activityReload(navigation.state.params.club.cid);
     await this.postReload(navigation.state.params.club.cid);
   }
 
+  //活動重整
+  activityReload = async (clubKey) => {
+    const { getActivityDataFromClubKey } = this.props;
+    const activityData = await getActivityDataFromClubKey(clubKey);
+    if (activityData != null) {
+      this.setState({ activity: activityData });
+    }
+    else {
+      //不公開社團，只收藏，處理
+      //navigation back?
+    }
+  };
+  //進入活動內頁
+  insideActivity = async (activity) => {
+    const { getInsideActivity, navigation } = this.props;
+    const activityData = await getInsideActivity(activity.clubKey, activity.activityKey);
+    if (activityData != null) {
+      //放進List
+      const newActivityList = JSON.parse(JSON.stringify(this.state.activity));
+      newActivityList[activityData.clubKey][activityData.activityKey] = activityData;
+      this.setState({ activity: newActivityList });
+
+      navigation.navigate('Activity', {
+        activity: activityData,
+        setActivityList: this.setActivityList,
+        activityList: newActivityList,
+      });
+    }
+  };
+  //更改activityList
+  setActivityList = (activityList) => {
+    this.setState({ activity: activityList });
+  };
   //貼文重整
   postReload = async clubKey => {
     const { getPostDataComplete } = this.props;
@@ -108,6 +138,7 @@ class SearchClub extends React.Component {
     const { schoolName, clubName, open, member, introduction, imgUrl } = club;
     const numberOfMember = Object.keys(member).length;
     const newPostList = { ...this.state.post };
+    const newActivityList = { ...this.state.activity };
 
     return (
       <View style={{ flex: 1, backgroundColor: "#ffffff" }}>
@@ -194,26 +225,28 @@ class SearchClub extends React.Component {
               </View>
               <ScrollView horizontal>
                 <View style={{ flexDirection: "row" }}>
-                  {Object.keys(this.state.activities).map((actId, index) => {
-                    return (
-                      <TouchableOpacity key={actId}>
-                        <ImageBackground
-                          source={require("../../images/poster1.jpg")}
-                          style={styles.clubActivity}
-                          imageStyle={styles.borderRadius30}
+                {Object.values(newActivityList).map((clubElement) => (
+                      Object.values(clubElement).map((activityElement) => (
+                        <TouchableOpacity
+                          key={activityElement.activityKey}
+                          onPress={async () => { await this.insideActivity(activityElement) }}
                         >
-                          <View style={styles.heartView}>
-                            <Text style={styles.heartText}>220</Text>
-                            <Image
-                              source={require("../../images/images2/like.png")}
-                              style={styles.likeIcon}
-                            />
-                          </View>
-                        </ImageBackground>
-                      </TouchableOpacity>
-                    );
-                  })}
-
+                          <ImageBackground
+                            source={{uri:activityElement.photo}}
+                            style={styles.clubActivity}
+                            imageStyle={styles.borderRadius30}
+                          >
+                            <View style={styles.heartView}>
+                              <Text style={styles.heartText}>{activityElement.numFavorites}</Text>
+                              <Image
+                                source={require("../../images/images2/like.png")}
+                                style={styles.likeIcon}
+                              />
+                            </View>
+                          </ImageBackground>
+                        </TouchableOpacity>
+                      ))
+                    ))}
                   <TouchableOpacity style={styles.moreView} onPress={() => {}}>
                     <Text style={styles.moreText}>更多</Text>
                     <Image
