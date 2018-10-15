@@ -11,7 +11,7 @@ import CreateClubPage from '../containers/personal/CreateClubPage'
 import ClubPrivateSettingPage from '../containers/personal/ClubPrivateSettingPage'
 import JoinedClubPage from '../containers/personal/JoinedClubPage'
 import FavoriteClubPage from '../containers/personal/FavoriteClubPage'
-//import PersonalStyles from '../styles/home/Home'
+import personalStyles from '../styles/personal/AdvancedSetting'
 import requireAppFlow from '../containers/flowControll/requireAppFlow'
 
 
@@ -213,10 +213,11 @@ export default createStackNavigator({
       color: '#0d4273',
       fontSize: 15,
     },
-    //headerBackImage: (
-      //<TouchableOpacity>
-        //<Image source={require('../images/images2/arrowLeftBlue.png')} />
-      //</TouchableOpacity>
-    //)
+    headerBackImageLeft: (
+      <TouchableOpacity>
+        <Image source={require('../images/images2/arrowLeftBlue.png')} 
+            style={personalStyles.arrowLeftBlueImage}/>
+      </TouchableOpacity>
+    )
   }
 })

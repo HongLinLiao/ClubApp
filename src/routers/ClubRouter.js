@@ -30,8 +30,20 @@ export default createStackNavigator({
     navigationOptions: ({ navigation }) => {
       const { askCreate } = navigation.state.params
       return {
-        headerRight: <Button title='新增貼文' onPress={() => askCreate()} />
+        headerRight: <Button title='新增貼文' onPress={() => askCreate()} />,
+      title: '社員管理',
+      headerBackTitle:'社團',
+      headerBackImage:{
+        tintColor: '#0d4273',
+      },
+			headerTitleStyle: {
+				color: '#666666',
+        fontSize: 20,
+			},
+			headerStyle: {
+				backgroundColor: '#f6b456'
       }
+			}
     }
   },
   AddActivity: {
@@ -51,5 +63,20 @@ export default createStackNavigator({
 
   ClubMember: {
     screen: ClubMemberPage,
+    navigationOptions: ({ navigation }) => ({
+			title: '社員管理',
+      headerBackTitle:'社團',
+      headerBackImage:{
+        tintColor: '#0d4273',
+      },
+			headerTitleStyle: {
+				color: '#666666',
+        fontSize: 20,
+			},
+			headerStyle: {
+				backgroundColor: '#f6b456'
+			},
+		}
+		)
   }
 })
