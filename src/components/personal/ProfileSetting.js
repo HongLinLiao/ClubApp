@@ -109,14 +109,14 @@ class ProfileSetting extends React.Component {
                             <View style={styles.nameView}>
                             <View style={styles.empty}></View>
                                 <TextInput style={[styles.nameInput, { color: this.state.nameColor }]}  //state變數代姓名顏色
-                                    placeholder='EJ boyfriend'
+                                    placeholder='請輸入名字'
                                     placeholderTextColor={this.state.nameColor}
                                     underlineColorAndroid='rgba(246,180,86,0)'
                                     multiline={true}
                                     editable={this.state.nameEditable}
                                     onChangeText={(nickName) => this.setState({ nickName })}
                                     defaultValue={displayName}
-                                    value={this.state.nickName} />
+                                />
                                 <TouchableOpacity onPress={() => { this.changeNameEditable() }}>
                                     <Image style={styles.hotPoint}
                                         source={require('../../images/pencil.png')} />
@@ -132,14 +132,14 @@ class ProfileSetting extends React.Component {
                         <View style={styles.aboutMeView}>
                         <View style={styles.empty}></View>
                             <TextInput style={[styles.aboutMeInput, { color: this.state.aboutColor }]}  //state變數代表自介顏色
-                                placeholder='EJ boyfriend'
+                                placeholder='請輸入自我介紹'
                                 multiline={true}
                                 defaultValue={aboutMe || ''}
                                 placeholderTextColor={this.state.aboutColor}
                                 underlineColorAndroid='rgba(246,180,86,0)'
                                 editable={this.state.aboutEditable}
                                 onChangeText={(aboutMe) => this.setState({ aboutMe })}
-                                value={this.state.aboutMe} />
+                            />
                             <TouchableOpacity onPress={() => { this.changeAboutEditable() }}>
                                 <Image style={styles.hotPoint}
                                     source={require('../../images/pencil.png')} />

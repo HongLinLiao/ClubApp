@@ -140,6 +140,12 @@ export const updateActivityFavorites = async (clubKey, activityKey, updateFavori
     await favoritesRef.set(value);
 }
 
+//更新ActivityKeeps
+export const updateActivityKeeps = async (uid, clubKey, activityKey, statusKeep) => {
+    const KeepRef= firebase.database().ref('activityKeeps/' + uid + '/' + clubKey + '/' + activityKey);
+    await KeepRef.set(statusKeep);
+}
+
 //更新使用者基本資料
 export const updateUser = async (uid, userData) => {
     const userRef = firebase.database().ref('users').child(uid)

@@ -20,6 +20,7 @@ export default createStackNavigator({
 			headerTitleStyle: {
 				color: '#666666',
 				fontSize: 30,
+				fontFamily:'Courier',
 			},
 			headerStyle: {
 				backgroundColor: '#f6b456'
@@ -39,7 +40,8 @@ export default createStackNavigator({
 			title: 'Posttitle',
 			headerTitleStyle: {
 				color: '#666666',
-				fontSize: 20,
+				fontSize: 25,
+				fontFamily:'Courier',
 			},
 			headerStyle: {
 				backgroundColor: '#f6b456'
@@ -50,9 +52,11 @@ export default createStackNavigator({
 	Selecting: {
 		screen: requireAppFlow(SelectingPage),
 		navigationOptions: ({ navigation }) => ({
+			title: 'Selecting',
 			headerTitleStyle: {
 				color: '#666666',
-				fontSize: 20,
+				fontSize: 25,
+				fontFamily:'Courier',
 			},
 			headerStyle: {
 				backgroundColor: '#f6b456'

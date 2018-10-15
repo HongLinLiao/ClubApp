@@ -72,9 +72,6 @@ export const createClub = (schoolName, clubName, open) => async (dispatch, getSt
     const newClubNotificationList = JSON.parse(JSON.stringify(clubNotificationList))
     const newJoinClubs = JSON.parse(JSON.stringify(joinClubs))
 
-
-
-
     newJoinClub[cid] = true
     newClubNotificationList[cid] = {
       schoolName,
@@ -180,6 +177,19 @@ export const setClubOpen = (cid) => async (dispatch, getState) => {
     dispatch(ClubAction.setClubOpen(newClubs))
 
   } catch (e) {
+    console.log(e)
+    throw e
+  }
+}
+
+export const updateIntroduction = (cid, introduction) => async (dispatch, getState) => {
+  try {
+    const clubRef = firebase.database().ref('clubs').child(cid)
+    
+    //更新社團介紹
+    await clubRef.update({introduction})
+
+  } catch(e) {
     console.log(e)
     throw e
   }
