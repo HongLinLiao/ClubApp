@@ -77,11 +77,10 @@ export default StyleSheet.create({
   },
   clubIntroView: {
     flex: 2,
-    flexDirection: 'row',
-    paddingVertical: 10,
-    paddingLeft: 150,
-    paddingRight: 10,
-    justifyContent: 'space-between',
+    // paddingVertical: 10,
+    // paddingLeft: 150,
+    // paddingRight: 10,
+    justifyContent: 'center',
     alignItems: 'center',
   },
   clubIntroText: {
@@ -90,7 +89,8 @@ export default StyleSheet.create({
   },
   clubStatusText: {
     fontSize: 18,
-    color: "red"
+    color: "red",
+    marginRight: 5,
   },
   tabBar: {
     height: 50,

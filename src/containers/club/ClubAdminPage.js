@@ -1,7 +1,7 @@
 import React from 'react'
 import { connect } from 'react-redux';
 import ClubAdmin from '../../components/club/ClubAdmin'
-import { setClubOpen, changeClubPhoto } from '../../modules/Club'
+import { setClubOpen, changeClubPhoto, updateIntroduction } from '../../modules/Club'
 
 
 const mapStateToProps = ({ userReducer, clubReducer }) => ({
@@ -14,6 +14,7 @@ const mapStateToProps = ({ userReducer, clubReducer }) => ({
 const mapDispatchToProps = {
     setClubOpen,
     changeClubPhoto,
+    updateIntroduction,
 }
 
 

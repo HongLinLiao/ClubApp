@@ -19,7 +19,6 @@ import UserDialog from '../common/UserDialog'
 const slideAnimation = new SlideAnimation({
 	slideFrom: 'bottom',
 });
-
 class Post extends React.Component {
   //寫入本地State
   async componentWillMount() {
@@ -28,8 +27,8 @@ class Post extends React.Component {
 
   state = {
     post: {},
-    comment: {},
-    userData: { uid: null, user: null, clubs: null },
+		comment: {},
+		userData: { uid: null, user: null, clubs: null },
 		loading: false
   };
 
@@ -76,13 +75,12 @@ class Post extends React.Component {
   //刪除貼文
   deletePost = async (clubKey, postKey) => {
     const { deletePostData, setPostList, postList, navigation } = this.props;
-		const { uid, user, clubs } = this.state.userData
     const newPostList = await deletePostData(clubKey, postKey, postList);
     setPostList(newPostList);
     navigation.goBack();
-  };
-
-  showUser = async (uid) => {
+	};
+	
+	showUser = async (uid) => {
 		try {
 			this.popupDialog.show(async () => {
 				this.setState({ loading: true, userData: { uid: null, user: null, clubs: null } })

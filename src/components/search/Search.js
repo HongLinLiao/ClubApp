@@ -146,14 +146,18 @@ class Search extends React.Component {
                       style={styles.clubBackground}
                     />
                     <View style={styles.clubNameView}>
-                      <Text style={styles.clubNameText}>{club.schoolName}</Text>
-                      <Text style={styles.clubNameText}>{club.clubName}</Text>
+                      <View style={{flex: 1, flexDirection: 'row'}}>
+                        <Text style={styles.clubNameText}>{club.schoolName}</Text>
+                        <Text style={styles.clubNameText}>{club.clubName}</Text>
+                      </View>
+                      <View style={{justifyContent: 'flex-end'}}>
+                        <Text style={styles.clubStatusText}>
+                          {status.hasJoin ? '已加入' : !club.open ? '不公開' : status.hasLike ? '已收藏' : '新的社團'}
+                        </Text>
+                      </View>
                     </View>
                     <View style={styles.clubIntroView}>
                       <Text style={styles.clubIntroText}>{club.introduction}</Text>
-                      <Text style={styles.clubStatusText}>
-                        {status.hasJoin ? '已加入' : !club.open ? '不公開' : status.hasLike ? '已收藏\n未加入' : '新的社團'}
-                      </Text>
                     </View>
                     {!club.open ? (
                       <View
