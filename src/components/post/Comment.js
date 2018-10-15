@@ -159,7 +159,7 @@ class Comment extends React.Component {
                                         </View>
                                     </View>
                                     <Text>{element.date}</Text>
-                                    <TextInput
+                                    <TextInput//這是啥
                                         style={styles.comment}
                                         value={element.content}
                                         editable={element.statusEdit}

@@ -17,12 +17,13 @@ export default StyleSheet.create({
         justifyContent: 'flex-start',
         alignItems: 'flex-start',
         margin: 10,
-        borderRadius: 80
+        borderRadius: 25,
+        
     },
     littleCircle:{
         width: 50, 
         height: 50, 
-        borderRadius: 80, 
+        //borderRadius: 80, 
         overflow: 'hidden', 
         justifyContent: 'center', 
         alignItems: 'center', 

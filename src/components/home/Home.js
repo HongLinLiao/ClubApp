@@ -15,7 +15,6 @@ const slideAnimation = new SlideAnimation({
 });
 
 class Home extends React.Component {
-
     async componentDidMount() {
         const { joinClub, likeClub, initHomeClubList } = this.props;
         const homeClubList = await initHomeClubList(joinClub, likeClub);
@@ -29,20 +28,23 @@ class Home extends React.Component {
     }
 
     //頁面重整
-    homeReload = async (clubList) => {
+    homeReload = async clubList => {
         const { getHomePostReload } = this.props;
-        await getHomePostReload(clubList, (newPostList) => { this.setState({ post: newPostList }) });
-    }
+        await getHomePostReload(clubList, newPostList => {
+        this.setState({ post: newPostList });
+        });
+    };
+        
 
     //更改postList
-    setPostList = (postList) => {
-        this.setState({post: postList});
-    }
+    setPostList = postList => {
+        this.setState({ post: postList });
+    };
 
     //進入內頁onPress()事件，放入postList讓元件render
-    goSelectingPage = (navigation) => {
-        navigation.navigate('Selecting', this.homeReload)
-    }
+    goSelectingPage = navigation => {
+        navigation.navigate("Selecting", this.homeReload);
+    };
 
     showUser = async (uid) => {
         try {
@@ -74,7 +76,7 @@ class Home extends React.Component {
         const newPostList = { ...this.state.post };
         const { uid, user, clubs } = this.state.userData
         return (
-            <View style={{flex: 1}}>
+            <View style={{ backgroundColor: "#ffffff", flex: 1 }}>
                 <ScrollView>
                     <Button
                         title='Stories!'
@@ -131,4 +133,4 @@ class Home extends React.Component {
     }
 }
 
-export default Home
+export default Home;

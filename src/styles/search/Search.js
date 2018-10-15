@@ -33,7 +33,7 @@ export default StyleSheet.create({
     borderRadius: 10,
     marginTop: 10,
     marginHorizontal: 10,
-    borderColor: "rgba(102,102,102,0.1)"
+    borderColor: "rgba(102,102,102,0.4)"
   },
   clubBackground: {
     flex: 5,
