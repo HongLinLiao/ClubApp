@@ -143,7 +143,10 @@ export const getInsideActivity = (clubKey, activityKey) => async (dispatch, getS
             return null;
         }
         else {
-            const keepList = await getUserActivities();
+            let keepList = await getUserActivities();
+            if (keepList == null) {
+                keepList = {};
+            }
             activityData = await setActivityFoundations(clubKey, activityKey, activityData, club, keepList);
             activityData = await setActivityView(activityData);
 
@@ -254,9 +257,13 @@ export const handleActivityDataToObject = (objPost, clubKey, activityKey, activi
 //處理活動基本屬性(學校與社團名稱、key值、nickName、職位、views、favorites)
 export const setActivityFoundations = async (clubKey, activityKey, activity, club, userKeeps) => {
     try {
-        //收藏狀態
-        if (userKeeps[clubKey][activityKey]) {
-            activity.statusKeep = true;
+        if (userKeeps[clubKey]) {
+            if (userKeeps[clubKey][activityKey]) {
+                activity.statusKeep = true;
+            }
+            else {
+                activity.statusKeep = false;
+            }
         }
         else {
             activity.statusKeep = false;
@@ -340,9 +347,11 @@ export const setActivityFavorite = (clubKey, activityKey) => async (dispatch, ge
         }
         else {
             const keepList = await getUserActivities();
+            if (keepList == null) {
+                keepList = {};
+            }
             //先取得貼文基本屬性
             activity = await setActivityFoundations(clubKey, activityKey, activity, club, keepList);
-
             let updateFavorites = {};
             //按讚處理
             //按讚
@@ -420,20 +429,33 @@ export const setActivityKeep = (clubKey, activityKey) => async (dispatch, getSta
         }
         else {
             const keepList = await getUserActivities();
+            if (keepList == null) {
+                keepList = {};
+            }
             const newKeepList = JSON.parse(JSON.stringify(keepList));
-            let statusKeep;
-            if (newKeepList[clubKey][activityKey]) {
-                console.log('取消收藏');
-                newKeepList[clubKey][activityKey] = null;
-                delete newKeepList[clubKey][activityKey];
-                //寫進firebase為null消失
-                statusKeep = null;
+
+            if (newKeepList[clubKey]) {
+                if (newKeepList[clubKey][activityKey]) {
+                    console.log('取消收藏');
+                    newKeepList[clubKey][activityKey] = null;
+                    delete newKeepList[clubKey][activityKey];
+                    //寫進firebase為null消失
+                    statusKeep = null;
+                }
+                else {
+                    console.log('收藏');
+                    newKeepList[clubKey] = {};
+                    newKeepList[clubKey][activityKey] = true;
+                    statusKeep = true;
+                }
             }
             else {
                 console.log('收藏');
+                newKeepList[clubKey] = {};
                 newKeepList[clubKey][activityKey] = true;
                 statusKeep = true;
             }
+
             //改firebase
             await updateActivityKeeps(user.uid, clubKey, activityKey, statusKeep);
 

@@ -120,7 +120,8 @@ class Activity extends React.Component {
                         <View style={styles.main}>
                             <View style={[styles.clubTextView, { flex: 1 }]}>
                                 <Text style={styles.schoolText}>{element.schoolName}    {element.clubName}</Text>
-                                <TouchableOpacity>
+                                <TouchableOpacity onPress={async () =>
+                                        await this.pressKeep(element)}>
                                     <Image source={require('../../images/bookmark.png')}
                                         style={styles.collect} />
                                 </TouchableOpacity>
