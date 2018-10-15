@@ -31,18 +31,58 @@ class Activity extends React.Component {
         }
     };
 
+    //點擊收藏
+    pressKeep = async (activity) => {
+        const { setActivityKeep, activityList, setActivityList } = this.props;
+        const activityData = await setActivityKeep(activity.clubKey, activity.activityKey);
+        if (activityData != null) {
+            //放進activityList
+            const newActivityList = JSON.parse(JSON.stringify(activityList));
+            newActivityList[activityData.clubKey][activityData.activityKey] = activityData;
+            setActivityList(newActivityList);
+            this.setState({ activity: activityData });
+        }
+    }
+
+    //頁面重整
+    reload = async (clubKey, activityKey) => {
+        const { getInsideActivity, navigation, activityList, setActivityList } = this.props;
+        const newActivity = await getInsideActivity(clubKey, activityKey);
+        const newActivityList = JSON.parse(JSON.stringify(activityList));
+        if (newActivity == null) {
+            newActivityList[clubKey][activityKey] = null;
+            delete newActivityList[clubKey][activityKey];
+            setActivityList(newActivityList);
+            navigation.goBack();
+        } else {
+            newActivityList[clubKey][activityKey] = newActivity;
+            setActivityList(newActivityList);
+            this.setState({ activity: newActivity  });
+        }
+    };
+
     render() {
         const activityData = this.state.activity;
         const element = JSON.parse(JSON.stringify(activityData));
-        console.log(element);
 
         return (
             <ScrollView>
+                <Button
+                    title="reload"
+                    onPress={async () => {
+                        await this.reload(element.clubKey, element.activityKey);
+                    }}
+                />
                 <Image
                     source={{ uri: element.photo }}
                     resizeMode='cover'
                     style={{ width: 50, height: 50 }}
                 />
+                <TouchableOpacity
+                    onPress={async () => { await this.pressKeep(element); }}
+                >
+                    <Text>收藏狀態: {element.statusKeep.toString()}</Text>
+                </TouchableOpacity>
                 <Text>{element.schoolName}</Text>
                 <Text>{element.clubName}</Text>
                 <Text>標題： {element.title}</Text>
