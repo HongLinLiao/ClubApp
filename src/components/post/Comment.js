@@ -159,10 +159,11 @@ class Comment extends React.Component {
                                         </View>
                                     </View>
                                     <Text>{element.date}</Text>
-                                    <TextInput//這是啥
+                                    <TextInput
                                         style={styles.comment}
                                         value={element.content}
                                         editable={element.statusEdit}
+                                        multiline={true}
                                         onChangeText={oldContent => { this.setState({ oldContent }); }}
                                     />
                                 </View>

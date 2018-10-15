@@ -92,7 +92,6 @@ const PostListElement = ({
               style={styles.aIcon}
               onPress={async () => {
                 await pressFavorite(post);
-                this.changeLikeI();
               }}
             >
               <Image
