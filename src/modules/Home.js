@@ -60,8 +60,8 @@ export const getHomeActivityReload = (activityReload) => async (dispatch) => {
             activityReload(newActivityList);
         }
         else {
-            alert('You have not keep activities!');
-            console.log('You have not keep activities!');
+            alert('You have not keep any activity!');
+            console.log('You have not keep any activity!');
         }
     }
     catch (error) {

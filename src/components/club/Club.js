@@ -1,12 +1,12 @@
 import React from "react";
 import {
-	View,
-	TextInput,
-	Button,
-	Text,
-	Image,
-	ScrollView,
-	TouchableOpacity,
+  View,
+  TextInput,
+  Button,
+  Text,
+  Image,
+  ScrollView,
+  TouchableOpacity,
   StatusBar,
   ImageBackground
 } from 'react-native'
@@ -24,7 +24,7 @@ import UserDialog from '../common/UserDialog'
 import styles from "../../styles/club/Club";
 
 const slideAnimation = new SlideAnimation({
-    slideFrom: 'bottom',
+  slideFrom: 'bottom',
 });
 
 class Club extends React.Component {
@@ -34,9 +34,9 @@ class Club extends React.Component {
       act2: {},
       act3: {}
     },
-    postKey: {},
+    activity: {},
     post: {},
-    userData: { _uid: null, _user: null, _clubs: null},
+    userData: { _uid: null, _user: null, _clubs: null },
     loading: false,
     currentCid: null
   };
@@ -55,10 +55,10 @@ class Club extends React.Component {
   //檢查社團是否公開(蒐藏)
   checkTheClubOpen = (currentCid, joinClubs, likeClubs, setCurrentClub) => {
     let cid = currentCid
-    if(cid) {
+    if (cid) {
       const type = joinOrLikeClub(cid);
-      if(type == 'LIKE') {
-        if(likeClubs[currentCid].open == false) { //蒐藏社團被設為不公開
+      if (type == 'LIKE') {
+        if (likeClubs[currentCid].open == false) { //蒐藏社團被設為不公開
           let joinClubCids = Object.keys(joinClubs)
           cid = randomCid(joinClubCids)
           // this.setState({currentCid: cid})
@@ -70,16 +70,23 @@ class Club extends React.Component {
       cid = randomCid(joinClubCids)
       setCurrentClub(cid)
     }
-    
+
     return cid
   }
 
+  //活動重整
+  postReload = async (clubKey) => {
+    // const { getPostDataComplete } = this.props;
+    // const postKey = await getPostKeyListFromClubKey(clubKey);
+    // const postData = await getPostDataComplete(postKey);
+    // this.setState({ post: postData });
+  };
   //貼文重整
   postReload = async (clubKey) => {
     const { getPostDataComplete } = this.props;
     const postKey = await getPostKeyListFromClubKey(clubKey);
     const postData = await getPostDataComplete(postKey);
-    this.setState({ postKey: postKey, post: postData });
+    this.setState({ post: postData });
   };
   //更改postList
   setPostList = (postList) => {
@@ -100,7 +107,7 @@ class Club extends React.Component {
     }
     if (Object.keys(likeClubs).length != 0) {
       Object.keys(likeClubs).map(cid => {
-        if(likeClubs[cid].open) {
+        if (likeClubs[cid].open) {
           clubsArray.push({
             cid: cid,
             schoolName: likeClubs[cid].schoolName,
@@ -124,33 +131,33 @@ class Club extends React.Component {
     );
   };
 
-  addLike = () => {};
+  addLike = () => { };
 
   showUser = async (_uid) => {
     try {
-        this.popupDialog.show(async () => {
-            this.setState({loading: true, userData: { _uid: null, _user: null, _clubs: null}})
-            const userData = { _uid, _user: {}, _clubs: {}}
-            const user = await getUserData(_uid)
+      this.popupDialog.show(async () => {
+        this.setState({ loading: true, userData: { _uid: null, _user: null, _clubs: null } })
+        const userData = { _uid, _user: {}, _clubs: {} }
+        const user = await getUserData(_uid)
 
-            if(user.joinClub) {
-                const promises = Object.keys(user.joinClub).map(async (cid) => {
-                    const club = await getClubData(cid)
-                    userData._clubs[cid] = club
-                })
+        if (user.joinClub) {
+          const promises = Object.keys(user.joinClub).map(async (cid) => {
+            const club = await getClubData(cid)
+            userData._clubs[cid] = club
+          })
 
-                await Promise.all(promises)
-            }
+          await Promise.all(promises)
+        }
 
-            userData._user = user
-            console.log(userData)
+        userData._user = user
+        console.log(userData)
 
-            this.setState({userData, loading: false})
-        });
-    } catch(e) {
-        Alert.alert(e.toString())
+        this.setState({ userData, loading: false })
+      });
+    } catch (e) {
+      Alert.alert(e.toString())
     }
-    
+
   }
 
 
@@ -313,7 +320,7 @@ class Club extends React.Component {
 
                     <TouchableOpacity
                       style={styles.moreView}
-                      onPress={() => {}}
+                      onPress={() => { }}
                     >
                       <Text style={styles.moreText}>更多</Text>
                       <Image
@@ -322,6 +329,9 @@ class Club extends React.Component {
                       />
                     </TouchableOpacity>
                   </View>
+                </ScrollView>
+                <ScrollView horizontal>
+                  <Text>haha</Text>
                 </ScrollView>
               </View>
 
@@ -345,7 +355,7 @@ class Club extends React.Component {
                   ))
                 )}
                 <View style={styles.moreView}>
-                  <TouchableOpacity onPress={() => {}}>
+                  <TouchableOpacity onPress={() => { }}>
                     <Text style={styles.moreText}>查看更多</Text>
                   </TouchableOpacity>
                 </View>
@@ -377,19 +387,19 @@ class Club extends React.Component {
             />
           </View>
           <PopupDialog
-              ref={(popupDialog) => this.popupDialog = popupDialog}
-              dialogAnimation={slideAnimation}
-              width={0.7}
-              height={0.7}
-              dialogStyle={{borderRadius: 20}}
+            ref={(popupDialog) => this.popupDialog = popupDialog}
+            dialogAnimation={slideAnimation}
+            width={0.7}
+            height={0.7}
+            dialogStyle={{ borderRadius: 20 }}
           >
-              <UserDialog
-                  uid={_uid}
-                  user={_user}
-                  clubs={_clubs}
-              />
-              {this.state.loading ? <Overlayer /> : null}
-          </PopupDialog> 
+            <UserDialog
+              uid={_uid}
+              user={_user}
+              clubs={_clubs}
+            />
+            {this.state.loading ? <Overlayer /> : null}
+          </PopupDialog>
         </View>
       );
     } else {

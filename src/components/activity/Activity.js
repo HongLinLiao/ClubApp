@@ -65,14 +65,49 @@ class Activity extends React.Component {
             app: 'google-maps'  // optionally specify specific app to use
         })
     }
+    //點擊收藏
+    pressKeep = async (activity) => {
+        const { setActivityKeep, activityList, setActivityList } = this.props;
+        const activityData = await setActivityKeep(activity.clubKey, activity.activityKey);
+        if (activityData != null) {
+            //放進activityList
+            const newActivityList = JSON.parse(JSON.stringify(activityList));
+            newActivityList[activityData.clubKey][activityData.activityKey] = activityData;
+            setActivityList(newActivityList);
+            this.setState({ activity: activityData });
+        }
+    }
+
+    //頁面重整
+    reload = async (clubKey, activityKey) => {
+        const { getInsideActivity, navigation, activityList, setActivityList } = this.props;
+        const newActivity = await getInsideActivity(clubKey, activityKey);
+        const newActivityList = JSON.parse(JSON.stringify(activityList));
+        if (newActivity == null) {
+            newActivityList[clubKey][activityKey] = null;
+            delete newActivityList[clubKey][activityKey];
+            setActivityList(newActivityList);
+            navigation.goBack();
+        } else {
+            newActivityList[clubKey][activityKey] = newActivity;
+            setActivityList(newActivityList);
+            this.setState({ activity: newActivity });
+        }
+    };
+
     render() {
         const activityData = this.state.activity;
         const element = JSON.parse(JSON.stringify(activityData));
-        console.log(element);
 
         return (
             <View style={[styles.container, { flex: 1 }]}>
                 <ScrollView>
+                    <Button
+                        title="reload"
+                        onPress={async () => {
+                            await this.reload(element.clubKey, element.activityKey);
+                        }}
+                    />
                     <View style={styles.main}>
                         <View style={styles.clubBackground} >
                             <Image
@@ -86,7 +121,7 @@ class Activity extends React.Component {
                             <View style={[styles.clubTextView, { flex: 1 }]}>
                                 <Text style={styles.clubText}>{element.schoolName}</Text>
                                 <Text style={styles.clubText}>{element.clubName}</Text>
-                                <TouchableOpacity>
+                                <TouchableOpacity onPress={async () => { await this.pressKeep(element); }}>
                                     <Image source={require('../../images/bookmark.png')}
                                         style={styles.collect} />
                                 </TouchableOpacity>
@@ -95,10 +130,8 @@ class Activity extends React.Component {
                                 <Text style={styles.actText}>{element.title}</Text>
 
                                 <View style={styles.like}>
-                                    <TouchableOpacity>
-                                        onPress={async () =>
-                                            await this.pressFavorite(element.clubKey, element.activityKey)}>
-                                    <Image
+                                    <TouchableOpacity onPress={async () => { await this.pressFavorite(element.clubKey, element.activityKey) }}>
+                                        <Image
                                             style={styles.titleLikesView}
                                             source={element.numFavorites ? require("../../images/like-orange.png") : require("../../images/like-gray.png")}
                                         />

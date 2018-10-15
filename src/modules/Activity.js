@@ -8,6 +8,7 @@ import {
     getUserActivityKeeps,
     getClubData,
     updateActivityViews,
+    updateActivityKeeps,
 } from './Data'
 import { changeMemberStatusToChinese } from './Common';
 
@@ -42,16 +43,15 @@ export const getActivityDataComplete = (activityKeeps) => async (dispatch, getSt
         for (i = 0; i < clubList.length; i++) {
             const clubKey = clubList[i];
 
-            //取得社團資料
-            let club;
-            const joinClubs = getState().clubReducer.joinClubs;
-            const likeClubs = getState().clubReducer.likeClubs;
-            const clubData = { ...joinClubs, ...likeClubs };
-            if (clubData[clubKey]) {
-                club = clubData[clubKey]
-            }
-            else {
-                club = await getClubData(clubKey);
+            const club = await getClubData(clubKey);
+            // console.log('open:' + club.open);
+            if (!club.open) {
+                const { uid } = firebase.auth().currentUser;
+                if (!club.member[uid]) {
+                    // console.log('不是成員');
+                    return null;
+                }
+                // console.log('是成員');
             }
             const activityList = Object.keys(activityKeeps[clubKey]);
             for (j = 0; j < activityList.length; j++) {
@@ -59,7 +59,7 @@ export const getActivityDataComplete = (activityKeeps) => async (dispatch, getSt
                 activityData = await getInsideActivityData(clubKey, activityKey);
                 if (activityData != null) {
                     //活動基本屬性
-                    activityData = await setActivityFoundations(clubKey, activityKey, activityData, club);
+                    activityData = await setActivityFoundations(clubKey, activityKey, activityData, club, activityKeeps);
                     newActivityReducer = handleActivityDataToReducer(newActivityReducer, clubKey, activityKey, activityData);
                     if (activityData.open) {
                         objPost = handleActivityDataToObject(objPost, clubKey, activityKey, activityData);
@@ -78,6 +78,8 @@ export const getActivityDataComplete = (activityKeeps) => async (dispatch, getSt
 //用clubKey取得社團下所有活動
 export const getActivityDataFromClubKey = (clubKey) => async (dispatch, getState) => {
     try {
+
+        const keepList = await getUserActivities();
         // 回傳物件
         const objPost = {};
 
@@ -104,7 +106,7 @@ export const getActivityDataFromClubKey = (clubKey) => async (dispatch, getState
         if (activityKey.length > 0) {
             let i;
             for (i = 0; i < activityKey.length; i++) {
-                activityData[activityKey] = await setActivityFoundations(clubKey, activityKey[i], activityData[activityKey], club);
+                activityData[activityKey] = await setActivityFoundations(clubKey, activityKey[i], activityData[activityKey], club, keepList);
                 newActivityReducer = handleActivityDataToReducer(newActivityReducer, clubKey, activityKey[i], activityData[activityKey]);
                 if (activityData[activityKey].open) {
                     objPost = handleActivityDataToObject(objPost, clubKey, activityKey[i], activityData[activityKey]);
@@ -123,6 +125,17 @@ export const getActivityDataFromClubKey = (clubKey) => async (dispatch, getState
 //進入內頁
 export const getInsideActivity = (clubKey, activityKey) => async (dispatch, getState) => {
     try {
+        const club = await getClubData(clubKey);
+        const user = firebase.auth().currentUser;
+        console.log('open:' + club.open);
+        if (!club.open) {
+            if (!club.member[user.uid]) {
+                alert('Post is not exist!');
+                console.log('不是成員');
+                return null;
+            }
+            console.log('是成員');
+        }
         const activityData = await getInsideActivityData(clubKey, activityKey);
         if (activityData == null || !activityData.open) {
             alert('Activity is not exist!');
@@ -130,18 +143,8 @@ export const getInsideActivity = (clubKey, activityKey) => async (dispatch, getS
             return null;
         }
         else {
-            //取得社團資料
-            let club;
-            const joinClubs = getState().clubReducer.joinClubs;
-            const likeClubs = getState().clubReducer.likeClubs;
-            const clubData = { ...joinClubs, ...likeClubs };
-            if (clubData[clubKey]) {
-                club = clubData[clubKey]
-            }
-            else {
-                club = await getClubData(clubKey);
-            }
-            activityData = await setActivityFoundations(clubKey, activityKey, activityData, club);
+            const keepList = await getUserActivities();
+            activityData = await setActivityFoundations(clubKey, activityKey, activityData, club, keepList);
             activityData = await setActivityView(activityData);
 
             //寫進activityReducer
@@ -245,12 +248,20 @@ export const handleActivityDataToObject = (objPost, clubKey, activityKey, activi
 }
 
 //********************************************************************************
-//處理貼文屬性
+//處理活動屬性
 //********************************************************************************
 
 //處理活動基本屬性(學校與社團名稱、key值、nickName、職位、views、favorites)
-export const setActivityFoundations = async (clubKey, activityKey, activity, club) => {
+export const setActivityFoundations = async (clubKey, activityKey, activity, club, userKeeps) => {
     try {
+        //收藏狀態
+        if (userKeeps[clubKey][activityKey]) {
+            activity.statusKeep = true;
+        }
+        else {
+            activity.statusKeep = false;
+        }
+
         //該貼文社團與學校名稱
         activity.clubName = club.clubName;
         activity.schoolName = club.schoolName;
@@ -304,35 +315,33 @@ export const setViewFavoriteData = (activity, userUid) => {
 }
 
 //********************************************************************************
-//按讚與觀看
+//按讚、收藏、觀看
 //********************************************************************************
 
 //按讚
 export const setActivityFavorite = (clubKey, activityKey) => async (dispatch, getState) => {
     try {
+        const club = await getClubData(clubKey);
+        const user = firebase.auth().currentUser;
+        console.log('open:' + club.open);
+        if (!club.open) {
+            if (!club.member[user.uid]) {
+                alert('Post is not exist!');
+                console.log('不是成員');
+                return null;
+            }
+            console.log('是成員');
+        }
         const activity = await getInsideActivityData(clubKey, activityKey);
-
         if (activity == null || activity.open == false) {
             console.log('活動不存在');
             alert('活動不存在');
             return null;
         }
         else {
-            //取得使用者id
-            const user = firebase.auth().currentUser;
-            //取得社團資料
-            let club;
-            const joinClubs = getState().clubReducer.joinClubs;
-            const likeClubs = getState().clubReducer.likeClubs;
-            const clubData = { ...joinClubs, ...likeClubs };
-            if (clubData[clubKey]) {
-                club = clubData[clubKey]
-            }
-            else {
-                club = await getClubData(clubKey);
-            }
+            const keepList = await getUserActivities();
             //先取得貼文基本屬性
-            activity = await setActivityFoundations(clubKey, activityKey, activity, club);
+            activity = await setActivityFoundations(clubKey, activityKey, activity, club, keepList);
 
             let updateFavorites = {};
             //按讚處理
@@ -374,6 +383,62 @@ export const setActivityFavorite = (clubKey, activityKey) => async (dispatch, ge
             }
             //更改firebasePostFavorites
             await updateActivityFavorites(activity.clubKey, activity.activityKey, updateFavorites);
+
+            //寫進activityReducer
+            const preActivityReducer = getState().activityReducer.allActivity;
+            const newPreActivityReducer = JSON.parse(JSON.stringify(preActivityReducer));
+            const nextActivityReducer = handleActivityDataToReducer(newPreActivityReducer, clubKey, activityKey, activity);
+            dispatch(ActivityAction.getActivityData(nextActivityReducer));
+            return activity;
+        }
+
+    }
+    catch (error) {
+        console.log(error.toString());
+    }
+}
+
+//收藏
+export const setActivityKeep = (clubKey, activityKey) => async (dispatch, getState) => {
+    try {
+        const club = await getClubData(clubKey);
+        const user = firebase.auth().currentUser;
+        console.log('open:' + club.open);
+        if (!club.open) {
+            if (!club.member[user.uid]) {
+                alert('Post is not exist!');
+                console.log('不是成員');
+                return null;
+            }
+            console.log('是成員');
+        }
+        const activity = await getInsideActivityData(clubKey, activityKey);
+        if (activity == null || activity.open == false) {
+            console.log('活動不存在');
+            alert('活動不存在');
+            return null;
+        }
+        else {
+            const keepList = await getUserActivities();
+            const newKeepList = JSON.parse(JSON.stringify(keepList));
+            let statusKeep;
+            if (newKeepList[clubKey][activityKey]) {
+                console.log('取消收藏');
+                newKeepList[clubKey][activityKey] = null;
+                delete newKeepList[clubKey][activityKey];
+                //寫進firebase為null消失
+                statusKeep = null;
+            }
+            else {
+                console.log('收藏');
+                newKeepList[clubKey][activityKey] = true;
+                statusKeep = true;
+            }
+            //改firebase
+            await updateActivityKeeps(user.uid, clubKey, activityKey, statusKeep);
+
+            //先取得活動基本屬性
+            activity = await setActivityFoundations(clubKey, activityKey, activity, club, newKeepList);
 
             //寫進activityReducer
             const preActivityReducer = getState().activityReducer.allActivity;
