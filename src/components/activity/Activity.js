@@ -119,25 +119,25 @@ class Activity extends React.Component {
                     <View style={styles.main}>
                         <View style={styles.main}>
                             <View style={[styles.clubTextView, { flex: 1 }]}>
-                                <Text style={styles.clubText}>{element.schoolName}</Text>
-                                <Text style={styles.clubText}>{element.clubName}</Text>
-                                <TouchableOpacity onPress={async () => { await this.pressKeep(element); }}>
+                                <Text style={styles.schoolText}>{element.schoolName}    {element.clubName}</Text>
+                                <TouchableOpacity>
                                     <Image source={require('../../images/bookmark.png')}
                                         style={styles.collect} />
                                 </TouchableOpacity>
                             </View>
                             <View style={[styles.clubTextView]}>
                                 <Text style={styles.actText}>{element.title}</Text>
-
-                                <View style={styles.like}>
-                                    <TouchableOpacity onPress={async () => { await this.pressFavorite(element.clubKey, element.activityKey) }}>
-                                        <Image
-                                            style={styles.titleLikesView}
-                                            source={element.numFavorites ? require("../../images/like-orange.png") : require("../../images/like-gray.png")}
-                                        />
-                                    </TouchableOpacity>
+                                <TouchableOpacity style={styles.like}
+                                    onPress={async () =>
+                                        await this.pressFavorite(element.clubKey, element.activityKey)}>
+                                    <Image
+                                        style={styles.titleLikesView}
+                                        source={element.numFavorites ? require("../../images/like-orange.png") : require("../../images/like-gray.png")}
+                                    />
                                     <Text style={styles.number}>{element.numFavorites}</Text>
-                                </View>
+                                </TouchableOpacity>
+
+
                             </View>
                         </View>
 

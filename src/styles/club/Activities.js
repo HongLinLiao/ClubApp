@@ -9,6 +9,7 @@ export default StyleSheet.create({
   },
   main: {
     flex: 1,
+   
   },
   headView: {
     height: 45,
@@ -31,26 +32,38 @@ export default StyleSheet.create({
     marginRight: 10,
   },
   clubBackground: {
-    height: 250,
+    height: 300,
+    width:'100%',
+    marginRight:10,
     // justifyContent: 'flex-end',
   },
   clubTextView: {
-    flexDirection: 'row'
+    flexDirection: 'row',
+    justifyContent:'space-between',
   },
   collect: {
     //backgroundColor:'#666666',
     height: 18,
     width: 18,
     marginTop: 20,
-    marginLeft: 150
+    marginRight:20,
+    
   },
   titleLikesView: {
     height: 18,
     width: 18,
-    marginLeft: 222,
+    marginRight:3,
+    
     
   },
   clubText: {
+    fontSize: 15,
+    //fontWeight:'bold',
+    color: '#666666',
+   marginLeft:2,
+    marginTop: 20,
+  },
+  schoolText: {
     fontSize: 15,
     color: '#666666',
     marginLeft: 20,
@@ -145,13 +158,18 @@ export default StyleSheet.create({
   },
   number: {
     color: "#666666",
-    fontSize: 15,
-    marginLeft: 5,
+    fontSize: 10,
+    marginRight:15,
+    marginTop:10,
+    
+    
 
   },
   like: {
     flexDirection: 'row',
     marginTop:12,
+    
+    
     
   
   },
