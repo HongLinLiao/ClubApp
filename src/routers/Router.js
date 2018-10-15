@@ -75,6 +75,7 @@ const MainRouter = createBottomTabNavigator(
 
   {
     navigationOptions: ({ navigation }) => {
+      console.log(navigation)
       const { index, routes } = navigation.state;
       return {
         tabBarVisible: !(routes[index].routeName == "AddPost"),
