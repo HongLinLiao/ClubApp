@@ -18,6 +18,7 @@ import { getClubMemberData } from '../../modules/Club'
 import Overlayer from '../common/Overlayer'
 import UserDialog from '../common/UserDialog'
 
+import styles from '../../styles/club/ClubMember'
 const slideAnimation = new SlideAnimation({
     slideFrom: 'bottom',
 });
@@ -28,7 +29,7 @@ class ClubMember extends React.Component {
         joinClubs: null,
         memberData: null,
         loading: false,
-        userData: { uid: null, user: null, clubs: null},
+        userData: { uid: null, user: null, clubs: null },
     }
 
     async componentWillMount() {
@@ -37,24 +38,24 @@ class ClubMember extends React.Component {
 
     async componentWillReceiveProps(nextProps) {
         try {
-            this.setState({loading: true})
+            this.setState({ loading: true })
             const { currentCid, joinClubs } = nextProps
             const memberData = await getClubMemberData(joinClubs[currentCid].member)
-            this.setState({memberData, currentCid, joinClubs, loading: false})
+            this.setState({ memberData, currentCid, joinClubs, loading: false })
 
-        } catch(e) {
+        } catch (e) {
             Alert.alert(e.toString())
         }
     }
 
     askToKick = (uid) => {
         const { nickName } = this.props.navigation.state.params.memberData[uid]
-        Alert.alert('踢出社員', '確定要踢除' + nickName, 
-        [
-            {text: '取消', onPress: () => console.log('取消'), style: 'cancel'},
-            {text: '踢除', onPress: () => this.handleKickMember(uid)},
-        ],
-        { cancelable: false }
+        Alert.alert('踢出社員', '確定要踢除' + nickName,
+            [
+                { text: '取消', onPress: () => console.log('取消'), style: 'cancel' },
+                { text: '踢除', onPress: () => this.handleKickMember(uid) },
+            ],
+            { cancelable: false }
         )
     }
 
@@ -66,23 +67,23 @@ class ClubMember extends React.Component {
             navigation.setParams({ memberData })
 
             await kickClubMember(currentCid, uid)
-            
+
             Alert.alert('已踢出' + memberData[uid].nickName)
 
 
-        } catch(e) {
+        } catch (e) {
             Alert.alert(e.toString())
         }
     }
 
     getAllUserData = async () => {
         try {
-            this.setState({loading: true})
+            this.setState({ loading: true })
             const { currentCid, joinClubs } = this.props
             const memberData = await getClubMemberData(joinClubs[currentCid].member)
-            this.setState({memberData, currentCid, joinClubs, loading: false})
+            this.setState({ memberData, currentCid, joinClubs, loading: false })
 
-        } catch(e) {
+        } catch (e) {
             Alert.alert(e.toString())
         }
     }
@@ -90,11 +91,11 @@ class ClubMember extends React.Component {
     showUser = async (uid) => {
         try {
             this.popupDialog.show(async () => {
-                this.setState({loading: true, userData: { uid: null, user: null, clubs: null}})
-                const userData = { uid, user: {}, clubs: {}}
+                this.setState({ loading: true, userData: { uid: null, user: null, clubs: null } })
+                const userData = { uid, user: {}, clubs: {} }
                 const user = await getUserData(uid)
 
-                if(user.joinClub) {
+                if (user.joinClub) {
                     const promises = Object.keys(user.joinClub).map(async (cid) => {
                         const club = await getClubData(cid)
                         userData.clubs[cid] = club
@@ -107,12 +108,12 @@ class ClubMember extends React.Component {
 
                 console.log(userData)
 
-                this.setState({userData, loading: false})
+                this.setState({ userData, loading: false })
             });
-        } catch(e) {
+        } catch (e) {
             Alert.alert(e.toString())
         }
-        
+
     }
 
 
@@ -121,32 +122,46 @@ class ClubMember extends React.Component {
     render() {
         const { currentCid, joinClubs } = this.state
         const memberData = this.state.memberData || {}
-        const  member  = joinClubs ? joinClubs[currentCid].member : {}
+        const member = joinClubs ? joinClubs[currentCid].member : {}
         const { uid, user, clubs } = this.state.userData
         return (
-            <View style={{flex: 1}}>
+            <View style={{ flex: 1 }}>
                 {
                     Object.keys(memberData).map((_uid, index) => {
                         const { photoUrl, nickName, } = memberData[_uid]
                         return (
                             <TouchableOpacity key={_uid} onPress={() => this.showUser(_uid)}>
+
                                 <ListItem
                                     key={_uid}
                                     leftAvatar={{
-                                        source: {uri: photoUrl ? photoUrl : 'https://image.freepik.com/free-icon/man-dark-avatar_318-9118.jpg' } ,
+                                        source: { uri: photoUrl ? photoUrl : 'https://image.freepik.com/free-icon/man-dark-avatar_318-9118.jpg' },
                                         size: 'medium',
                                     }}
-                                    title={nickName}
-                                    subtitle={member[_uid].status}
-                                    rightElement={ 
-                                        <Button
-                                            title='退出社團'
-                                            onPress={() => this.askToKick(_uid)} 
-                                            disabled={(member[_uid].status == 'master')}
-                                        />
+
+                                    title={
+
+                                        <Text style={styles.bigText}>{nickName}</Text>
                                     }
+                                    subtitle={
+
+                                        <Text style={styles.smallText}>{member[_uid].status}</Text>
+                                    }
+
+
+                                    rightElement={
+                                        <TouchableOpacity
+                                            style={styles.button}
+                                            onPress={() => this.askToKick(_uid)}
+                                            disabled={(member[_uid].status == 'master')}
+                                        >
+                                            <Text style={styles.bigText}>確定退出</Text>
+                                        </TouchableOpacity>
+                                    }
+
                                 />
-                            </TouchableOpacity>                      
+                            </TouchableOpacity>
+
                         )
                     })
                 }
@@ -155,7 +170,7 @@ class ClubMember extends React.Component {
                     dialogAnimation={slideAnimation}
                     width={0.7}
                     height={0.7}
-                    dialogStyle={{borderRadius: 20}}
+                    dialogStyle={{ borderRadius: 20 }}
                 >
                     <UserDialog
                         uid={uid}
@@ -163,7 +178,7 @@ class ClubMember extends React.Component {
                         clubs={clubs}
                     />
                     {this.state.loading ? <Overlayer /> : null}
-                </PopupDialog> 
+                </PopupDialog>
                 {this.state.loading ? <Overlayer /> : null}
             </View>
         )
