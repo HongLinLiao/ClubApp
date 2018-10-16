@@ -4,7 +4,8 @@ import {
     Text,
     TextInput,
     Image,
-    TouchableOpacity
+    TouchableOpacity,
+    KeyboardAvoidingView
 } from "react-native";
 import { Button } from "react-native-elements";
 import styles from "../../styles/post/Comment";
@@ -127,9 +128,11 @@ class Comment extends React.Component {
         const comment = JSON.parse(JSON.stringify(this.props.comment));
         return (
             <View>
+            
                 <View>
                     {Object.values(comment).map(element => (
                         <View key={element.commentKey}>
+                        
                             <View style={styles.rowPadding}>
                                 <TouchableOpacity>
                                     <View style={styles.littleCircle}>
@@ -149,22 +152,30 @@ class Comment extends React.Component {
                                                 await this.pressFavorite(element.clubKey, element.postKey, element.commentKey)
                                             }>
                                                 <Image style={styles.icon}
-                                                    source={require('../../images/like.png')} />
+                                                source={
+                                                    this.pressFavorite//不知道這個要用什麼來判斷
+                                                    ? require("../../images/images2/like-orange.png")
+                                                    : require("../../images/images2/like-gray.png")
+                                                        } />
                                             </TouchableOpacity>
-                                            <Text style={styles.numberLittle}>{element.numFavorites}</Text>
+                                            <Text style={[styles.numberLittle, 
+                                                { color: this.pressFavorite //這個也是
+                                                    ? "#f6b456" : "#666666" }]}>{element.numFavorites}</Text>
                                             <TouchableOpacity >
                                                 <Image source={require('../../images/pencil.png')}
                                                     style={styles.icon} />
                                             </TouchableOpacity>
                                         </View>
                                     </View>
-                                    <Text>{element.date}</Text>
+                                    <Text style={styles.littleName}>{element.date}</Text>
+                                    
                                     <TextInput//這是啥
                                         style={styles.comment}
                                         value={element.content}
                                         editable={element.statusEdit}
                                         onChangeText={oldContent => { this.setState({ oldContent }); }}
                                     />
+                                  
                                 </View>
                             </View>
 
@@ -206,7 +217,10 @@ class Comment extends React.Component {
                                     }}
                                 />
                             </View>
-                        </View>
+                        
+                            
+                            </View>
+
                     ))}
                 </View>
                 <View style={styles.rowPaddingInput}>
@@ -234,6 +248,7 @@ class Comment extends React.Component {
                             style={styles.sendIcon} />
                     </TouchableOpacity>
                 </View>
+                <KeyboardAvoidingView behavior='padding' enabled></KeyboardAvoidingView>//不理我
             </View>
         );
     }

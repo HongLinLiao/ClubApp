@@ -1,5 +1,5 @@
 import React from 'react'
-import { ScrollView, Text, Alert, Image } from 'react-native'
+import { ScrollView, Text, Alert, Image, TouchableOpacity } from 'react-native'
 import { Button } from 'react-native-elements'
 import PostListElement from '../post/PostListElement'
 import styles from '../../styles/home/Home'
@@ -128,6 +128,14 @@ class Home extends React.Component {
                     />
                     {this.state.loading ? <Overlayer /> : null}
                 </PopupDialog> 
+
+                <TouchableOpacity style={styles.star}
+                onPress={() => { this.props.navigation.navigate('Stories'); }}>
+                    <View style={styles.starButtonView}>
+                        <Image source={require('../../images/images2/star.png')}
+                            style={styles.starImage} />
+                    </View>
+                </TouchableOpacity>
             </View> 
         );
     }
