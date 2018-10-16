@@ -1,12 +1,13 @@
 //這頁應該是沒啥問題了
 import React from "react";
 import {
-	View,
-	Text,
-	ScrollView,
-	TouchableOpacity,
-	KeyboardAvoidingView,
-	Image
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  KeyboardAvoidingView,
+  Image,
+  RefreshControl
 } from "react-native";
 import { Button } from "react-native-elements";
 import Comment from "./Comment";
@@ -17,7 +18,7 @@ import PopupDialog, { SlideAnimation, DialogTitle } from 'react-native-popup-dia
 import UserDialog from '../common/UserDialog'
 
 const slideAnimation = new SlideAnimation({
-	slideFrom: 'bottom',
+  slideFrom: 'bottom',
 });
 class Post extends React.Component {
   //寫入本地State
@@ -27,15 +28,28 @@ class Post extends React.Component {
 
   state = {
     post: {},
-		comment: {},
-		userData: { uid: null, user: null, clubs: null },
-		loading: false
+    comment: {},
+    userData: { uid: null, user: null, clubs: null },
+    loading: false,
+    refreshing: false,
   };
+
+  onRefresh = async () => {
+    try {
+      this.setState({ refreshing: true });
+      this.setState({ refreshing: false });
+      this.reload(this.state.post.clubKey, this.state.post.postKey);
+    } catch (error) {
+      console.log(error.toString());
+    }
+  }
 
   //頁面重整
   reload = async (clubKey, postKey) => {
     const { getInsidePost, navigation, postList, setPostList } = this.props;
+    this.postOverLayar();
     const newPost = await getInsidePost(clubKey, postKey);
+    this.postOverLayar();
     const newPostList = JSON.parse(JSON.stringify(postList));
     if (newPost == null) {
       newPostList[clubKey][postKey] = null;
@@ -52,7 +66,9 @@ class Post extends React.Component {
   //點讚
   pressFavorite = async (clubKey, postKey) => {
     const { setPostFavorite, postList, setPostList } = this.props;
+    this.postOverLayar()
     const postData = await setPostFavorite(clubKey, postKey);
+    this.postOverLayar()
     if (postData != null) {
       //放進postList
       const newPostList = JSON.parse(JSON.stringify(postList));
@@ -67,6 +83,11 @@ class Post extends React.Component {
     this.setState({ post: postData });
   };
 
+  //過門
+  postOverLayar = () => {
+    this.setState({ loading: !this.state.loading });
+  };
+
   //設定本頁comment
   setComment = (commentData) => {
     this.setState({ comment: commentData });
@@ -75,35 +96,37 @@ class Post extends React.Component {
   //刪除貼文
   deletePost = async (clubKey, postKey) => {
     const { deletePostData, setPostList, postList, navigation } = this.props;
+    this.postOverLayar();
     const newPostList = await deletePostData(clubKey, postKey, postList);
     setPostList(newPostList);
+    this.postOverLayar();
     navigation.goBack();
-	};
-	
-	showUser = async (uid) => {
-		try {
-			this.popupDialog.show(async () => {
-				this.setState({ loading: true, userData: { uid: null, user: null, clubs: null } })
-				const userData = { uid, user: {}, clubs: {} }
-				const user = await getUserData(uid)
+  };
 
-				if (user.joinClub) {
-					const promises = Object.keys(user.joinClub).map(async (cid) => {
-						const club = await getClubData(cid)
-						userData.clubs[cid] = club
-					})
+  showUser = async (uid) => {
+    try {
+      this.popupDialog.show(async () => {
+        this.setState({ loading: true, userData: { uid: null, user: null, clubs: null } })
+        const userData = { uid, user: {}, clubs: {} }
+        const user = await getUserData(uid)
 
-					await Promise.all(promises)
-				}
+        if (user.joinClub) {
+          const promises = Object.keys(user.joinClub).map(async (cid) => {
+            const club = await getClubData(cid)
+            userData.clubs[cid] = club
+          })
 
-				userData.user = user
+          await Promise.all(promises)
+        }
 
-				this.setState({ userData, loading: false })
-			});
-		} catch (e) {
-			Alert.alert(e.toString())
-		}
-	}
+        userData.user = user
+
+        this.setState({ userData, loading: false })
+      });
+    } catch (e) {
+      Alert.alert(e.toString())
+    }
+  }
 
   render() {
     const postData = this.state.post;
@@ -112,16 +135,17 @@ class Post extends React.Component {
     const { uid, user, clubs } = this.state.userData
 
     return (
-      <View style={{flex:1,backgroundColor:'#ffffff'}}>
-        <ScrollView>
-          
-          <KeyboardAvoidingView behavior="padding">
-            <Button
-              title="reload"
-              onPress={async () => {
-                await this.reload(element.clubKey, element.postKey);
-              }}
+      <View style={{ flex: 1, backgroundColor: '#ffffff' }}>
+        <ScrollView
+          refreshControl={
+            <RefreshControl
+              refreshing={this.state.refreshing}
+              onRefresh={() => this.onRefresh()}
+              tintColor='#f6b456'
             />
+          }
+        >
+          <KeyboardAvoidingView behavior="padding">
             <View style={styles.container}>
               <View style={styles.rowLeft}>
                 <TouchableOpacity onPress={() => this.showUser(postData.poster)}>
@@ -156,8 +180,8 @@ class Post extends React.Component {
 
               <View style={styles.sbRowLine}>
                 <View style={styles.row}>
-                  <TouchableOpacity style={{flexDirection:'row'}}
-                  
+                  <TouchableOpacity style={{ flexDirection: 'row' }}
+
                     onPress={async () =>
                       await this.pressFavorite(element.clubKey, element.postKey)
                     }
@@ -165,16 +189,16 @@ class Post extends React.Component {
                     <Image
                       style={styles.icon}
                       source={element.statusFavorite
-                      ? require("../../images/images2/like-orange.png")
-                      : require("../../images/images2/like-gray.png")
-                  }
+                        ? require("../../images/images2/like-orange.png")
+                        : require("../../images/images2/like-gray.png")
+                      }
                     />
                     <Text style={[
                       styles.number,
                       { color: element.statusFavorite ? "#f6b456" : "#666666" }
                     ]}>{element.numFavorites} </Text>
 
-                    
+
 
                   </TouchableOpacity>
                 </View>
@@ -201,7 +225,7 @@ class Post extends React.Component {
               </View>
 
               <View style={{ display: element.statusEnable ? "flex" : "none" }}>
-                <Button title="Edit Post" onPress={async () => {}} />
+                <Button title="Edit Post" onPress={async () => { }} />
                 <Button
                   title="Delete Post"
                   onPress={async () => {
@@ -209,7 +233,7 @@ class Post extends React.Component {
                   }}
                 />
               </View>
-              
+
             </View>
             <Comment//已留的言應該要在scrollview裡面，要留言的框框應該要在scrollview外面，不知如何切割
                 userPhotoUrl={this.props.userPhotoUrl}
@@ -226,6 +250,7 @@ class Post extends React.Component {
                 setCommentEditStatus={this.props.setCommentEditStatus}
                 setCommentFavorite={this.props.setCommentFavorite}
                 showUser={this.showUser.bind(this)}
+                postOverLayar={this.postOverLayar}
               />
           </KeyboardAvoidingView>
         </ScrollView>

@@ -8,7 +8,8 @@ import {
   ScrollView,
   TouchableOpacity,
   StatusBar,
-  ImageBackground
+  ImageBackground,
+  RefreshControl,
 } from 'react-native'
 
 import Expo from 'expo'
@@ -33,7 +34,9 @@ class Club extends React.Component {
     post: {},
     userData: { _uid: null, _user: null, _clubs: null },
     loading: false,
-    currentCid: null
+    currentCid: null,
+    //重整
+    refreshing: false,
   };
 
   async componentWillMount() {
@@ -44,11 +47,32 @@ class Club extends React.Component {
     // const cid = randomCid(allClubCids);
     // this.props.setCurrentClub(cid);
     if (currentCid) {
+      this.clubOverLayar()
       await this.activityReload(currentCid);
       await this.postReload(currentCid);
+      this.clubOverLayar()
     }
   }
 
+  //重整
+  onRefresh = async () => {
+    try {
+      const { currentCid } = this.props;
+      this.setState({ refreshing: true });
+      this.setState({ refreshing: false });
+      this.clubOverLayar();
+      await this.activityReload(currentCid);
+      await this.postReload(currentCid);
+      this.clubOverLayar();
+    } catch (error) {
+      console.log(error.toString());
+    }
+  }
+
+  //過門
+  clubOverLayar = () => {
+    this.setState({ loading: !this.state.loading });
+  }
 
   //檢查社團是否公開(蒐藏)
   checkTheClubOpen = (currentCid, joinClubs, likeClubs, setCurrentClub) => {
@@ -76,6 +100,7 @@ class Club extends React.Component {
   activityReload = async (clubKey) => {
     const { getActivityDataFromClubKey } = this.props;
     const activityData = await getActivityDataFromClubKey(clubKey);
+    console.log(activityData);
     if (activityData != null) {
       this.setState({ activity: activityData });
     }
@@ -87,7 +112,9 @@ class Club extends React.Component {
   //進入活動內頁
   insideActivity = async (activity) => {
     const { getInsideActivity, navigation } = this.props;
+    this.clubOverLayar();
     const activityData = await getInsideActivity(activity.clubKey, activity.activityKey);
+    this.clubOverLayar();
     if (activityData != null) {
       //放進List
       const newActivityList = JSON.parse(JSON.stringify(this.state.activity));
@@ -215,7 +242,15 @@ class Club extends React.Component {
           }}
         >
           <View style={{ flex: 1 }}>
-            <ScrollView>
+            <ScrollView
+              refreshControl={
+                <RefreshControl
+                  refreshing={this.state.refreshing}
+                  onRefresh={() => this.onRefresh()}
+                  tintColor='#f6b456'
+                />
+              }
+            >
               <View
                 style={{
                   height: 400,
@@ -330,7 +365,7 @@ class Club extends React.Component {
                           onPress={async () => { await this.insideActivity(activityElement) }}
                         >
                           <ImageBackground
-                            source={{uri:activityElement.photo}}
+                            source={{ uri: activityElement.photo }}
                             style={styles.clubActivity}
                             imageStyle={styles.borderRadius30}
                           >
@@ -375,6 +410,7 @@ class Club extends React.Component {
                       postList={this.state.post}
                       setPostList={this.setPostList}
                       showUser={this.showUser.bind(this)}
+                      parentOverLayor={this.clubOverLayar}
                     />
                   ))
                 )
@@ -394,10 +430,12 @@ class Club extends React.Component {
               textStyle={styles.modalText}
               dropdownStyle={styles.modalDown}
               options={clubsArray}
-              onSelect={(index, rowData) => {
+              onSelect={async (index, rowData) => {
                 this.props.setCurrentClub(rowData.cid);
-                this.activityReload(rowData.cid);
-                this.postReload(rowData.cid);
+                this.clubOverLayar()
+                await this.activityReload(rowData.cid);
+                await this.postReload(rowData.cid);
+                this.clubOverLayar()
               }}
               renderButtonText={rowData =>
                 rowData.schoolName + "  " + rowData.clubName + " ▼"
@@ -427,6 +465,7 @@ class Club extends React.Component {
             />
             
           </PopupDialog>
+          {this.state.loading ? <Overlayer /> : null}
         </View>
       );
     } else {
