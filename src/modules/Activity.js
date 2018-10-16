@@ -92,7 +92,6 @@ export const getActivityDataFromClubKey = (clubKey) => async (dispatch, getState
         let objPost = {};
         let activityKey;
         const activityData = await getActivityData(clubKey);
-        console.log(activityData);
         if (activityData) {
             activityKey = Object.keys(activityData);
         }
