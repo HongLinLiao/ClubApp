@@ -28,7 +28,7 @@ class Comment extends React.Component {
             setPostList,
             setPost,
             setComment,
-            postList
+            postList,
         } = this.props;
         const obj = await creatingComment(clubKey, postKey, content);
         if (obj != null) {
@@ -131,7 +131,7 @@ class Comment extends React.Component {
                     {Object.values(comment).map(element => (
                         <View key={element.commentKey}>
                             <View style={styles.rowPadding}>
-                                <TouchableOpacity>
+                                <TouchableOpacity onPress={() => this.props.showUser(element.commenter)}>
                                     <View style={styles.littleCircle}>
                                         <Image style={styles.littleHead}
                                             source={{ uri: element.commenterPhotoUrl }}

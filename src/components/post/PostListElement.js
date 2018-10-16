@@ -44,13 +44,15 @@ const PostListElement = ({
   return (
     <TouchableOpacity onPress={async () => await insidePost(post)}>
       <View style={styles.newsView}>
-        <View style={styles.shadow}>
-          <Image
-            source={{ uri: post.posterPhotoUrl }}
-            style={styles.managerImageView}
-            imageStyle={styles.managerImageView}
-          />
-        </View>
+        <TouchableOpacity onPress={() => showUser(post.poster)}>
+          <View style={styles.shadow}>
+            <Image
+              source={{ uri: post.posterPhotoUrl }}
+              style={styles.managerImageView}
+              imageStyle={styles.managerImageView}
+            />
+          </View>
+        </TouchableOpacity>
         <View style={styles.newsTextView}>
           <View style={styles.clubAndManagerNameView}>
             <Text style={styles.newsClubText}>{post.schoolName}</Text>

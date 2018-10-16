@@ -423,8 +423,9 @@ class Club extends React.Component {
               uid={_uid}
               user={_user}
               clubs={_clubs}
+              loading={this.state.loading}
             />
-            {this.state.loading ? <Overlayer /> : null}
+            
           </PopupDialog>
         </View>
       );

@@ -225,6 +225,7 @@ class Post extends React.Component {
                 editingComment={this.props.editingComment}
                 setCommentEditStatus={this.props.setCommentEditStatus}
                 setCommentFavorite={this.props.setCommentFavorite}
+                showUser={this.showUser.bind(this)}
               />
           </KeyboardAvoidingView>
         </ScrollView>
@@ -238,9 +239,9 @@ class Post extends React.Component {
 					<UserDialog
 						uid={uid}
 						user={user}
-						clubs={clubs}
+            clubs={clubs}
+            loading={this.state.loading}
 					/>
-					{this.state.loading ? <Overlayer /> : null}
 				</PopupDialog>          
       </View>
     );
