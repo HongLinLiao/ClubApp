@@ -28,8 +28,10 @@ class Comment extends React.Component {
             setPostList,
             setPost,
             setComment,
-            postList
+            postList,
+            postOverLayar,
         } = this.props;
+        postOverLayar();
         const obj = await creatingComment(clubKey, postKey, content);
         if (obj != null) {
             //放進postList
@@ -43,6 +45,7 @@ class Comment extends React.Component {
             //清空輸入欄
             this.setState({ newContent: "" });
         }
+        postOverLayar();
     };
 
     //刪除留言
@@ -54,8 +57,10 @@ class Comment extends React.Component {
             setPostList,
             setPost,
             setComment,
-            postList
+            postList,
+            postOverLayar,
         } = this.props;
+        postOverLayar();
         const obj = await deletingComment(clubKey, postKey, commentKey);
         if (obj != null) {
             //放進postList
@@ -67,6 +72,7 @@ class Comment extends React.Component {
             //放進comment
             setComment(obj.comment);
         }
+        postOverLayar();
     };
 
     //編輯狀態改變
@@ -91,8 +97,10 @@ class Comment extends React.Component {
             setPostList,
             setPost,
             setComment,
-            postList
+            postList,
+            postOverLayar,
         } = this.props;
+        postOverLayar();
         const obj = await editingComment(clubKey, postKey, commentKey, content);
         if (obj != null) {
             //放進postList
@@ -105,11 +113,13 @@ class Comment extends React.Component {
             setComment(obj.comment);
             this.setState({ oldContent: "" });
         }
+        postOverLayar();
     };
 
     //留言按讚
     pressFavorite = async (clubKey, postKey, commentKey) => {
-        const { setCommentFavorite, setPostList, setPost, setComment, postList } = this.props;
+        const { setCommentFavorite, setPostList, setPost, setComment, postList, postOverLayar } = this.props;
+        postOverLayar();
         const obj = await setCommentFavorite(clubKey, postKey, commentKey);
         if (obj != null) {
             //放進postList
@@ -121,6 +131,7 @@ class Comment extends React.Component {
             //放進comment
             setComment(obj.comment);
         }
+        postOverLayar();
     }
 
     render() {

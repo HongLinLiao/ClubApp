@@ -89,16 +89,16 @@ export const getActivityDataFromClubKey = (clubKey) => async (dispatch, getState
             }
             console.log('是成員');
         }
-        let objPost={};
+        let objPost = {};
         let activityKey;
         const activityData = await getActivityData(clubKey);
-        if(activityData){
+        console.log(activityData);
+        if (activityData) {
             activityKey = Object.keys(activityData);
         }
-        else{
+        else {
             return {};
         }
-        
 
         const activityReducer = getState().activityReducer.allActivity;
         // 新物件: activityReducer
@@ -107,6 +107,9 @@ export const getActivityDataFromClubKey = (clubKey) => async (dispatch, getState
         if (activityKey.length > 0) {
             let i;
             const keepList = await getUserActivities();
+            if (keepList == null) {
+                keepList = {};
+            }
             for (i = 0; i < activityKey.length; i++) {
                 activityData[activityKey[i]] = await setActivityFoundations(clubKey, activityKey[i], activityData[activityKey[i]], club, keepList);
                 newActivityReducer = handleActivityDataToReducer(newActivityReducer, clubKey, activityKey[i], activityData[activityKey[i]]);

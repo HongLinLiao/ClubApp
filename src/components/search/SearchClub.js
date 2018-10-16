@@ -9,7 +9,8 @@ import {
   TouchableOpacity,
   StatusBar,
   Alert,
-  ImageBackground
+  ImageBackground,
+  RefreshControl,
 } from "react-native";
 
 import Expo from "expo";
@@ -28,7 +29,8 @@ class SearchClub extends React.Component {
     postKey: {},
     loading: false,
     hasJoin: false,
-    hasLike: false
+    hasLike: false,
+    refreshing: false,
   };
 
   async componentWillMount() {
@@ -38,8 +40,29 @@ class SearchClub extends React.Component {
       hasJoin,
       hasLike: hasJoin ? hasJoin : hasLike
     });
+    this.clubOverLayar();
     await this.activityReload(navigation.state.params.club.cid);
     await this.postReload(navigation.state.params.club.cid);
+    this.clubOverLayar();
+  }
+
+  //重整
+  onRefresh = async () => {
+    try {
+      this.setState({ refreshing: true });
+      this.setState({ refreshing: false });
+      this.clubOverLayar();
+      await this.activityReload(this.props.navigation.state.params.club.cid);
+      await this.postReload(this.props.navigation.state.params.club.cid);
+      this.clubOverLayar();
+    } catch (error) {
+      console.log(error.toString());
+    }
+  }
+
+  //過門
+  clubOverLayar = () => {
+    this.setState({ loading: !this.state.loading });
   }
 
   //活動重整
@@ -57,7 +80,9 @@ class SearchClub extends React.Component {
   //進入活動內頁
   insideActivity = async (activity) => {
     const { getInsideActivity, navigation } = this.props;
+    this.clubOverLayar();
     const activityData = await getInsideActivity(activity.clubKey, activity.activityKey);
+    this.clubOverLayar();
     if (activityData != null) {
       //放進List
       const newActivityList = JSON.parse(JSON.stringify(this.state.activity));
@@ -143,7 +168,15 @@ class SearchClub extends React.Component {
     return (
       <View style={{ flex: 1, backgroundColor: "#ffffff" }}>
         <View style={{ flex: 1 }}>
-          <ScrollView>
+          <ScrollView
+          refreshControl={
+            <RefreshControl
+              refreshing={this.state.refreshing}
+              onRefresh={() => this.onRefresh()}
+              tintColor='#f6b456'
+            />
+          }
+          >
             <View style={{ height: 400 }}>
               <View
                 style={{ position: "absolute", height: 400, width: "100%" }}
@@ -273,6 +306,7 @@ class SearchClub extends React.Component {
                     setPostFavorite={this.props.setPostFavorite}
                     postList={this.state.post}
                     setPostList={this.setPostList}
+                    parentOverLayor={this.clubOverLayar}
                   />
                 ))
               )}
