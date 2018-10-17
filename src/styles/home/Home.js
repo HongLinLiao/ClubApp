@@ -45,14 +45,15 @@ export default StyleSheet.create({
     height: 50,
     width: 50,
     borderRadius: 30,
-    elevation: 10
+    elevation: 10,
+    marginTop:30
   },
 
   managerImageView: {
     height: 50,
     width: 50,
     borderRadius: 25,
-    flex: 1
+    flex: 1,
   },
 
   newsTextView: {
@@ -65,7 +66,7 @@ export default StyleSheet.create({
     flex: 1,
     flexDirection: "row",
     alignItems: "flex-end",
-    marginBottom: 3
+    marginBottom: 3,
     //borderWidth:1
   },
   schoolNameView: {
@@ -85,11 +86,11 @@ export default StyleSheet.create({
     fontSize: 10
   },
   actNameAndDateView: {
-    flex: 1.6,
+    flex: 1.5,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-end",
-    marginBottom: 3
+    marginBottom: 3,
     //borderWidth:1
   },
   newsNameText: {
@@ -102,7 +103,7 @@ export default StyleSheet.create({
   },
 
   newsContentView: {
-    flex: 1.5
+    flex: 1.3
   },
   newsContentText: {
     color: "#666666",
@@ -127,19 +128,19 @@ export default StyleSheet.create({
     marginLeft: 10
   },
   icon: {
-    height: 15,
-    width: 15,
+    height: 18,
+    width: 18,
     marginRight: 3
   },
   iconNumber: {
     color: "#666666",
-    fontSize: 11
+    fontSize: 15
   },
 
   star: {
     position: "absolute",
-    top: 500, //與最上端的距離
-    right: 30 //與右邊的距離
+    top: 450, //與最上端的距離
+    right: 25 //與右邊的距離
   },
   starButtonView: {
     width: 60,

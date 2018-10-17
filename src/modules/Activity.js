@@ -78,38 +78,42 @@ export const getActivityDataComplete = (activityKeeps) => async (dispatch, getSt
 //用clubKey取得社團下所有活動
 export const getActivityDataFromClubKey = (clubKey) => async (dispatch, getState) => {
     try {
-
-        const keepList = await getUserActivities();
-        // 回傳物件
-        const objPost = {};
-
+        const club = await getClubData(clubKey);
+        const user = firebase.auth().currentUser;
+        console.log('open:' + club.open);
+        if (!club.open) {
+            if (!club.member[user.uid]) {
+                alert('Activity is not exist!');
+                console.log('不是成員');
+                return null;
+            }
+            console.log('是成員');
+        }
+        let objPost = {};
+        let activityKey;
         const activityData = await getActivityData(clubKey);
-        let activityDataList = {};
-        const activityKey = Object.keys(activityData);
+        if (activityData) {
+            activityKey = Object.keys(activityData);
+        }
+        else {
+            return {};
+        }
 
         const activityReducer = getState().activityReducer.allActivity;
         // 新物件: activityReducer
         const newActivityReducer = JSON.parse(JSON.stringify(activityReducer));
 
-        //取得社團資料
-        let club;
-        const joinClubs = getState().clubReducer.joinClubs;
-        const likeClubs = getState().clubReducer.likeClubs;
-        const clubData = { ...joinClubs, ...likeClubs };
-        if (clubData[clubKey]) {
-            club = clubData[clubKey]
-        }
-        else {
-            club = await getClubData(clubKey);
-        }
-
         if (activityKey.length > 0) {
             let i;
+            const keepList = await getUserActivities();
+            if (keepList == null) {
+                keepList = {};
+            }
             for (i = 0; i < activityKey.length; i++) {
-                activityData[activityKey] = await setActivityFoundations(clubKey, activityKey[i], activityData[activityKey], club, keepList);
-                newActivityReducer = handleActivityDataToReducer(newActivityReducer, clubKey, activityKey[i], activityData[activityKey]);
-                if (activityData[activityKey].open) {
-                    objPost = handleActivityDataToObject(objPost, clubKey, activityKey[i], activityData[activityKey]);
+                activityData[activityKey[i]] = await setActivityFoundations(clubKey, activityKey[i], activityData[activityKey[i]], club, keepList);
+                newActivityReducer = handleActivityDataToReducer(newActivityReducer, clubKey, activityKey[i], activityData[activityKey[i]]);
+                if (activityData[activityKey[i]].open) {
+                    objPost = handleActivityDataToObject(objPost, clubKey, activityKey[i], activityData[activityKey[i]]);
                 }
             }
             dispatch(ActivityAction.getActivityData(newActivityReducer));
@@ -118,7 +122,6 @@ export const getActivityDataFromClubKey = (clubKey) => async (dispatch, getState
     }
     catch (error) {
         console.log(error.toString());
-        throw error;
     }
 }
 
@@ -130,7 +133,7 @@ export const getInsideActivity = (clubKey, activityKey) => async (dispatch, getS
         console.log('open:' + club.open);
         if (!club.open) {
             if (!club.member[user.uid]) {
-                alert('Post is not exist!');
+                alert('Activity is not exist!');
                 console.log('不是成員');
                 return null;
             }
@@ -257,6 +260,7 @@ export const handleActivityDataToObject = (objPost, clubKey, activityKey, activi
 //處理活動基本屬性(學校與社團名稱、key值、nickName、職位、views、favorites)
 export const setActivityFoundations = async (clubKey, activityKey, activity, club, userKeeps) => {
     try {
+        //處理活動是否有收藏
         if (userKeeps[clubKey]) {
             if (userKeeps[clubKey][activityKey]) {
                 activity.statusKeep = true;
@@ -333,7 +337,7 @@ export const setActivityFavorite = (clubKey, activityKey) => async (dispatch, ge
         console.log('open:' + club.open);
         if (!club.open) {
             if (!club.member[user.uid]) {
-                alert('Post is not exist!');
+                alert('Activity is not exist!');
                 console.log('不是成員');
                 return null;
             }
@@ -342,7 +346,7 @@ export const setActivityFavorite = (clubKey, activityKey) => async (dispatch, ge
         const activity = await getInsideActivityData(clubKey, activityKey);
         if (activity == null || activity.open == false) {
             console.log('活動不存在');
-            alert('活動不存在');
+            alert('Activity is not exist!');
             return null;
         }
         else {
@@ -415,7 +419,7 @@ export const setActivityKeep = (clubKey, activityKey) => async (dispatch, getSta
         console.log('open:' + club.open);
         if (!club.open) {
             if (!club.member[user.uid]) {
-                alert('Post is not exist!');
+                alert('Activity is not exist!');
                 console.log('不是成員');
                 return null;
             }
@@ -424,7 +428,7 @@ export const setActivityKeep = (clubKey, activityKey) => async (dispatch, getSta
         const activity = await getInsideActivityData(clubKey, activityKey);
         if (activity == null || activity.open == false) {
             console.log('活動不存在');
-            alert('活動不存在');
+            alert('Activity is not exist!');
             return null;
         }
         else {

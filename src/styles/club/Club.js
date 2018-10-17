@@ -72,6 +72,7 @@ export default StyleSheet.create({
   clubRightTextView: {
     flexDirection: "column",
     alignItems: "flex-end",
+    justifyContent: "center",
     paddingLeft: 40,
     paddingRight: 8
   },
@@ -269,5 +270,21 @@ export default StyleSheet.create({
   tabBar: {
     height: 50,
     backgroundColor: "#f6b456"
+  },
+  joinAndLikeView: {
+    flexDirection: "column",
+    justifyContent: "space-around",
+    alignItems: "center"
+  },
+  joinAndLikeTouch: {
+    height: 35,
+    width: 80,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 20,
+    marginBottom: 6
+  },
+  joinAndLikeText: {
+    fontSize: 16
   }
 });

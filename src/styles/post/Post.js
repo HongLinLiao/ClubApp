@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native'
+import { StyleSheet } from "react-native";
 
 export default StyleSheet.create({
     container: {
@@ -22,13 +22,13 @@ export default StyleSheet.create({
     bigHead: {
         height: 60,
         width: 60,
-        borderRadius: 80,
-        marginRight: 15
+        borderRadius: 30,
+        //marginRight: 15
     },
     circle:{
         width: 60, 
         height: 60, 
-        borderRadius: 80, 
+        //borderRadius: 80, 
         overflow: 'hidden', 
         justifyContent: 'center', 
         alignItems: 'center', 

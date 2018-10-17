@@ -10,7 +10,7 @@ class Selecting extends React.Component {
                 clubList={this.props.clubList}
                 numSelectingStatusTrue={this.props.numSelectingStatusTrue}
                 setHomeClubListStatus={this.props.setHomeClubListStatus}
-                homeReload={this.props.navigation.state.params}
+                homeReload={this.props.navigation.state.params.homeReload}
             >
             </SelectClub>
         );

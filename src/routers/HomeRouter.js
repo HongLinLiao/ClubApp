@@ -10,7 +10,11 @@ import { Image, TouchableOpacity } from 'react-native'
 import { View } from 'native-base';
 import homeStyles from '../styles/home/Home'
 
+goSelectingPage = navigation => {
+	navigation.navigate("Selecting", this.homeReload);
+};
 export default createStackNavigator({
+	
 	//預設首頁
 	Home: {
 		screen: requireAppFlow(HomePage),
@@ -26,7 +30,7 @@ export default createStackNavigator({
 				backgroundColor: '#f6b456'
 			},
 			headerRight: (
-				<TouchableOpacity>
+				<TouchableOpacity  onPress={() => { this.goSelectingPage(this.props.navigation); }}>
 					<Image source={require('../images/images2/control.png')}
 						style={homeStyles.controlImage} />
 				</TouchableOpacity>
@@ -65,10 +69,20 @@ export default createStackNavigator({
 	},
 	// 動態貼文列表
 	Stories: {
-		screen: requireAppFlow(HomeActivitiesPage)
+		screen: requireAppFlow(HomeActivitiesPage),
+		navigationOptions: ({ navigation }) => ({
+			title: '社團故事',
+			headerTitleStyle: {
+				color: '#666666',
+				fontSize: 25,
+			},
+			headerStyle: {
+				backgroundColor: '#f6b456'
+			}
+		})
 	},
 	// 動態貼文內頁，從Club匯入
 	Activity:{
-	  screen: requireAppFlow(ActivityPage),
+	    screen: requireAppFlow(ActivityPage),
 	},
 })

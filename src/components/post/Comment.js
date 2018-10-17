@@ -4,7 +4,8 @@ import {
     Text,
     TextInput,
     Image,
-    TouchableOpacity
+    TouchableOpacity,
+    KeyboardAvoidingView
 } from "react-native";
 import { Button } from "react-native-elements";
 import styles from "../../styles/post/Comment";
@@ -28,8 +29,10 @@ class Comment extends React.Component {
             setPostList,
             setPost,
             setComment,
-            postList
+            postList,
+            postOverLayar,
         } = this.props;
+        postOverLayar();
         const obj = await creatingComment(clubKey, postKey, content);
         if (obj != null) {
             //放進postList
@@ -43,6 +46,7 @@ class Comment extends React.Component {
             //清空輸入欄
             this.setState({ newContent: "" });
         }
+        postOverLayar();
     };
 
     //刪除留言
@@ -54,8 +58,10 @@ class Comment extends React.Component {
             setPostList,
             setPost,
             setComment,
-            postList
+            postList,
+            postOverLayar,
         } = this.props;
+        postOverLayar();
         const obj = await deletingComment(clubKey, postKey, commentKey);
         if (obj != null) {
             //放進postList
@@ -67,6 +73,7 @@ class Comment extends React.Component {
             //放進comment
             setComment(obj.comment);
         }
+        postOverLayar();
     };
 
     //編輯狀態改變
@@ -91,8 +98,10 @@ class Comment extends React.Component {
             setPostList,
             setPost,
             setComment,
-            postList
+            postList,
+            postOverLayar,
         } = this.props;
+        postOverLayar();
         const obj = await editingComment(clubKey, postKey, commentKey, content);
         if (obj != null) {
             //放進postList
@@ -105,11 +114,13 @@ class Comment extends React.Component {
             setComment(obj.comment);
             this.setState({ oldContent: "" });
         }
+        postOverLayar();
     };
 
     //留言按讚
     pressFavorite = async (clubKey, postKey, commentKey) => {
-        const { setCommentFavorite, setPostList, setPost, setComment, postList } = this.props;
+        const { setCommentFavorite, setPostList, setPost, setComment, postList, postOverLayar } = this.props;
+        postOverLayar();
         const obj = await setCommentFavorite(clubKey, postKey, commentKey);
         if (obj != null) {
             //放進postList
@@ -121,17 +132,20 @@ class Comment extends React.Component {
             //放進comment
             setComment(obj.comment);
         }
+        postOverLayar();
     }
 
     render() {
         const comment = JSON.parse(JSON.stringify(this.props.comment));
         return (
             <View>
+
                 <View>
                     {Object.values(comment).map(element => (
                         <View key={element.commentKey}>
+
                             <View style={styles.rowPadding}>
-                                <TouchableOpacity>
+                                <TouchableOpacity onPress={() => this.props.showUser(element.commenter)}>
                                     <View style={styles.littleCircle}>
                                         <Image style={styles.littleHead}
                                             source={{ uri: element.commenterPhotoUrl }}
@@ -149,22 +163,32 @@ class Comment extends React.Component {
                                                 await this.pressFavorite(element.clubKey, element.postKey, element.commentKey)
                                             }>
                                                 <Image style={styles.icon}
-                                                    source={require('../../images/like.png')} />
+                                                    source={
+                                                        element.statusFavorite//不知道這個要用什麼來判斷
+                                                            ? require("../../images/images2/like-orange.png")
+                                                            : require("../../images/images2/like-gray.png")
+                                                    } />
                                             </TouchableOpacity>
-                                            <Text style={styles.numberLittle}>{element.numFavorites}</Text>
+                                            <Text style={[styles.numberLittle,
+                                            {
+                                                color: element.numFavorites //這個也是
+                                                    ? "#f6b456" : "#666666"
+                                            }]}>{element.numFavorites}</Text>
                                             <TouchableOpacity >
                                                 <Image source={require('../../images/pencil.png')}
                                                     style={styles.icon} />
                                             </TouchableOpacity>
                                         </View>
                                     </View>
-                                    <Text>{element.date}</Text>
+                                    <Text style={styles.littleName}>{element.date}</Text>
                                     <TextInput
                                         style={styles.comment}
                                         value={element.content}
                                         editable={element.statusEdit}
+                                        multiline={true}
                                         onChangeText={oldContent => { this.setState({ oldContent }); }}
                                     />
+
                                 </View>
                             </View>
 
@@ -206,7 +230,10 @@ class Comment extends React.Component {
                                     }}
                                 />
                             </View>
+
+
                         </View>
+
                     ))}
                 </View>
                 <View style={styles.rowPaddingInput}>
@@ -226,7 +253,6 @@ class Comment extends React.Component {
                             multiline={true}
                             onChangeText={newContent => { this.setState({ newContent }); }}
                             onContentSizeChange={event => { this.setState({ height: event.nativeEvent.contentSize.height }); }}
-                            value={this.state.newContent}
                         />
                     </View>
                     <TouchableOpacity onPress={async () => { await this.addComment(); }}>
@@ -234,6 +260,7 @@ class Comment extends React.Component {
                             style={styles.sendIcon} />
                     </TouchableOpacity>
                 </View>
+                <KeyboardAvoidingView behavior='padding' enabled></KeyboardAvoidingView>//不理我
             </View>
         );
     }
