@@ -1,10 +1,12 @@
 import React from 'react';
-import { View, Text, ScrollView, TouchableOpacity, KeyboardAvoidingView, Image } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, KeyboardAvoidingView, Image, RefreshControl } from 'react-native';
 import { Button } from 'react-native-elements';
 import styles from '../../styles/club/Activities'
 import MapView, { Marker } from 'react-native-maps'
 import { showLocation } from 'react-native-map-link'
 import { Location, DangerZone } from 'expo'
+import Overlayer from '../common/Overlayer'
+
 class Activity extends React.Component {
 
     //寫入本地State
@@ -20,7 +22,20 @@ class Activity extends React.Component {
             latitudeDelta: 0.0922,
             longitudeDelta: 0.0421,
         },
+        loading: false,
+        refreshing: false,
     }
+
+    onRefresh = () => {
+        try {
+            this.setState({ refreshing: true });
+            this.setState({ refreshing: false });
+            this.reload(this.state.activity.clubKey, this.state.activity.activityKey);
+        } catch (error) {
+            console.log(error.toString());
+        }
+    }
+
     getUserLocation = async () => {
         let location = await Location.getCurrentPositionAsync();
 
@@ -33,6 +48,12 @@ class Activity extends React.Component {
             }
         })
     }
+
+    //過門
+    activityOverLayar = () => {
+        this.setState({ loading: !this.state.loading });
+    }
+
     //設定本頁activity
     setActivity = (activityData) => {
         this.setState({ activity: activityData });
@@ -41,7 +62,9 @@ class Activity extends React.Component {
     //點讚
     pressFavorite = async (clubKey, activityKey) => {
         const { setActivityFavorite, activityList, setActivityList } = this.props;
+        this.activityOverLayar();
         const activityData = await setActivityFavorite(clubKey, activityKey);
+        this.activityOverLayar();
         if (activityData != null) {
             //放進activityList
             const newActivityList = JSON.parse(JSON.stringify(activityList));
@@ -68,7 +91,9 @@ class Activity extends React.Component {
     //點擊收藏
     pressKeep = async (activity) => {
         const { setActivityKeep, activityList, setActivityList } = this.props;
+        this.activityOverLayar();
         const activityData = await setActivityKeep(activity.clubKey, activity.activityKey);
+        this.activityOverLayar();
         if (activityData != null) {
             //放進activityList
             const newActivityList = JSON.parse(JSON.stringify(activityList));
@@ -81,7 +106,9 @@ class Activity extends React.Component {
     //頁面重整
     reload = async (clubKey, activityKey) => {
         const { getInsideActivity, navigation, activityList, setActivityList } = this.props;
+        this.activityOverLayar();
         const newActivity = await getInsideActivity(clubKey, activityKey);
+        this.activityOverLayar();
         const newActivityList = JSON.parse(JSON.stringify(activityList));
         if (newActivity == null) {
             newActivityList[clubKey][activityKey] = null;
@@ -101,13 +128,15 @@ class Activity extends React.Component {
 
         return (
             <View style={[styles.container, { flex: 1 }]}>
-                <ScrollView>
-                    <Button
-                        title="reload"
-                        onPress={async () => {
-                            await this.reload(element.clubKey, element.activityKey);
-                        }}
-                    />
+                <ScrollView
+                    refreshControl={
+                        <RefreshControl
+                            refreshing={this.state.refreshing}
+                            onRefresh={() => this.onRefresh()}
+                            tintColor='#f6b456'
+                        />
+                    }
+                >
                     <View style={styles.main}>
                         <View style={styles.clubBackground} >
                             <Image
@@ -120,7 +149,8 @@ class Activity extends React.Component {
                         <View style={styles.main}>
                             <View style={[styles.clubTextView, { flex: 1 }]}>
                                 <Text style={styles.schoolText}>{element.schoolName}    {element.clubName}</Text>
-                                <TouchableOpacity>
+                                <TouchableOpacity onPress={async () =>
+                                    await this.pressKeep(element)}>
                                     <Image source={require('../../images/bookmark.png')}
                                         style={styles.collect} />
                                 </TouchableOpacity>
@@ -132,7 +162,7 @@ class Activity extends React.Component {
                                         await this.pressFavorite(element.clubKey, element.activityKey)}>
                                     <Image
                                         style={styles.titleLikesView}
-                                        source={element.numFavorites ? require("../../images/like-orange.png") : require("../../images/like-gray.png")}
+                                        source={element.statusFavorite ? require("../../images/like-orange.png") : require("../../images/like-gray.png")}
                                     />
                                     <Text style={styles.number}>{element.numFavorites}</Text>
                                 </TouchableOpacity>
@@ -152,12 +182,12 @@ class Activity extends React.Component {
                             <View style={styles.summaryTextView}>
                                 <Image source={require('../../images/coin.png')}
                                     style={styles.icon} />
-                                <Text style={styles.summaryText}>自行負擔</Text>
+                                <Text style={styles.summaryText}>{element.price}</Text>
                             </View>
                             <View style={styles.summaryTextView}>
                                 <Image source={require('../../images/place.png')}
                                     style={styles.icon} />
-                                <Text style={styles.summaryText}>淡水捷運站一號出口</Text>
+                                <Text style={styles.summaryText}>{element.place}</Text>
                             </View>
                         </View>
                     </View>
@@ -184,7 +214,7 @@ class Activity extends React.Component {
                         </View>
                         <View style={styles.divide}>
                             <Text style={styles.titleText}>備註</Text>
-                            <Text numberOfLines={2} ellipsizeMode='tail' style={styles.titleContentText}>{element.content}
+                            <Text numberOfLines={2} ellipsizeMode='tail' style={styles.titleContentText}>{element.remarks}
                             </Text>
 
                         </View>
@@ -204,38 +234,10 @@ class Activity extends React.Component {
                         // </View>
                     }
                 </ScrollView>
-
+                {this.state.loading ? <Overlayer /> : null}
             </View>
         )
     }
 }
 
 export default Activity;
-
-{
-    //     <ScrollView>
-    //     <Image
-    //         source={{ uri: element.photo }}
-    //         resizeMode='cover'
-    //         style={{ width: 50, height: 50 }}
-    //     />
-    //     <Text>{element.schoolName}</Text>
-    //     <Text>{element.clubName}</Text>
-    //     <Text>標題： {element.title}</Text>
-    //     <Text>活動開始時間： {element.startDateTime}</Text>
-    //     <Text>活動結束時間： {element.endDateTime}</Text>
-    //     <Text>費用： {element.price}</Text>
-    //     <Text>地點： {element.place}</Text>
-    //     <TouchableOpacity
-    //         onPress={async () =>
-    //             await this.pressFavorite(element.clubKey, element.activityKey)
-    //         }
-    //     >
-    //         <Text>按讚人數: {element.numFavorites}</Text>
-    //     </TouchableOpacity>
-    //     <Text>{element.content}</Text>
-    //     <Text>{element.remarks}</Text>
-    // </ScrollView>
-
-
-}

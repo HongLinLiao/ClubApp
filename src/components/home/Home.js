@@ -1,5 +1,5 @@
 import React from 'react'
-import { ScrollView, Text, Alert, Image, TouchableOpacity } from 'react-native'
+import { ScrollView, Text, Alert, Image, TouchableOpacity, RefreshControl } from 'react-native'
 import { Button } from 'react-native-elements'
 import PostListElement from '../post/PostListElement'
 import styles from '../../styles/home/Home'
@@ -7,7 +7,7 @@ import { View } from 'native-base';
 import { getUserData, getClubData } from '../../modules/Data'
 import Overlayer from '../common/Overlayer'
 import PopupDialog, { SlideAnimation, DialogTitle } from 'react-native-popup-dialog';
-import UserDialog from '../common/UserDialog' 
+import UserDialog from '../common/UserDialog'
 
 
 const slideAnimation = new SlideAnimation({
@@ -23,37 +23,62 @@ class Home extends React.Component {
 
     state = {
         post: {},
-        userData: { uid: null, user: null, clubs: null},
-        loading: false
+        userData: { uid: null, user: null, clubs: null },
+        //遮罩
+        loading: false,
+        //重整
+        refreshing: false,
+    }
+
+    onRefresh = async () => {
+        try {
+            const { clubList, getHomePostReload } = this.props;
+            this.setState({ refreshing: true });
+            this.setState({ refreshing: false });
+            // await getHomePostReload(clubList, newPostList => {
+            //     this.setState({ post: newPostList });
+            // });
+            this.homeReload(clubList);
+        } catch (error) {
+            console.log(error.toString());
+        }
+    }
+
+    //過門
+    homeOverLayor = () => {
+        this.setState({ loading: !this.state.loading })
     }
 
     //頁面重整
-    homeReload = async clubList => {
+    homeReload = async (clubList) => {
+        //開啟過門
+        this.homeOverLayor();
         const { getHomePostReload } = this.props;
         await getHomePostReload(clubList, newPostList => {
-        this.setState({ post: newPostList });
+            this.setState({ post: newPostList });
         });
+        //關閉過門
+        this.homeOverLayor();
     };
-        
 
     //更改postList
-    setPostList = postList => {
+    setPostList = (postList) => {
         this.setState({ post: postList });
     };
 
     //進入內頁onPress()事件，放入postList讓元件render
-    goSelectingPage = navigation => {
-        navigation.navigate("Selecting", this.homeReload);
+    goSelectingPage = (navigation) => {
+        navigation.navigate("Selecting", { homeReload: this.homeReload });
     };
 
     showUser = async (uid) => {
         try {
             this.popupDialog.show(async () => {
-                this.setState({loading: true, userData: { uid: null, user: null, clubs: null}})
-                const userData = { uid, user: {}, clubs: {}}
+                this.setState({ loading: true, userData: { uid: null, user: null, clubs: null } })
+                const userData = { uid, user: {}, clubs: {} }
                 const user = await getUserData(uid)
 
-                if(user.joinClub) {
+                if (user.joinClub) {
                     const promises = Object.keys(user.joinClub).map(async (cid) => {
                         const club = await getClubData(cid)
                         userData.clubs[cid] = club
@@ -64,12 +89,12 @@ class Home extends React.Component {
 
                 userData.user = user
 
-                this.setState({userData, loading: false})
+                this.setState({ userData, loading: false })
             });
-        } catch(e) {
+        } catch (e) {
             Alert.alert(e.toString())
         }
-        
+
     }
 
     render() {
@@ -77,41 +102,40 @@ class Home extends React.Component {
         const { uid, user, clubs } = this.state.userData
         return (
             <View style={{ backgroundColor: "#ffffff", flex: 1 }}>
-                <ScrollView>
-                    <Button
-                        title='Stories!'
-                        onPress={() => { this.props.navigation.navigate('Stories'); }}
-                    />
+                <ScrollView
+                    refreshControl={
+                        <RefreshControl
+                            refreshing={this.state.refreshing}
+                            onRefresh={() => this.onRefresh()}
+                            tintColor='#f6b456'
+                        />
+                    }
+                >
                     <Button
                         title='selecting!'
                         onPress={() => { this.goSelectingPage(this.props.navigation); }}
                     />
-                    <Button
-                        title='reload!'
-                        onPress={async () => {
-                            await this.homeReload(this.props.clubList);
-                        }}
-                    />
                     <View style={styles.containView}>
-                    {
-                        Object.values(newPostList).map((clubElement) => (
-                            Object.values(clubElement).map((postElement) => (
-                                <PostListElement
-                                    key={postElement.postKey}
-                                    post={postElement}
-                                    navigation={this.props.navigation}
-                                    getInsidePost={this.props.getInsidePost}
-                                    getPostComment={this.props.getPostComment}
-                                    setPostFavorite={this.props.setPostFavorite}
-                                    postList={this.state.post}
-                                    setPostList={this.setPostList}
-                                    showUser={this.showUser.bind(this)}
-                                >
-                                </PostListElement>
+                        {
+                            Object.values(newPostList).map((clubElement) => (
+                                Object.values(clubElement).map((postElement) => (
+                                    <PostListElement
+                                        key={postElement.postKey}
+                                        post={postElement}
+                                        navigation={this.props.navigation}
+                                        getInsidePost={this.props.getInsidePost}
+                                        getPostComment={this.props.getPostComment}
+                                        setPostFavorite={this.props.setPostFavorite}
+                                        postList={this.state.post}
+                                        setPostList={this.setPostList}
+                                        showUser={this.showUser.bind(this)}
+                                        parentOverLayor={this.homeOverLayor}
+                                    >
+                                    </PostListElement>
+                                ))
                             ))
-                        ))
-                    
-                    }
+
+                        }
                     </View>
                 </ScrollView>
                 <PopupDialog
@@ -119,7 +143,7 @@ class Home extends React.Component {
                     dialogAnimation={slideAnimation}
                     width={0.7}
                     height={0.7}
-                    dialogStyle={{borderRadius: 20}}
+                    dialogStyle={{ borderRadius: 20 }}
                 >
                     <UserDialog
                         uid={uid}
@@ -127,16 +151,16 @@ class Home extends React.Component {
                         clubs={clubs}
                     />
                     {this.state.loading ? <Overlayer /> : null}
-                </PopupDialog> 
-
+                </PopupDialog>
+                {this.state.loading ? <Overlayer /> : null}
                 <TouchableOpacity style={styles.star}
-                onPress={() => { this.props.navigation.navigate('Stories'); }}>
+                    onPress={() => { this.props.navigation.navigate('Stories'); }}>
                     <View style={styles.starButtonView}>
                         <Image source={require('../../images/images2/star.png')}
                             style={styles.starImage} />
                     </View>
                 </TouchableOpacity>
-            </View> 
+            </View>
         );
     }
 }

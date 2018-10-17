@@ -29,8 +29,10 @@ class Comment extends React.Component {
             setPostList,
             setPost,
             setComment,
-            postList
+            postList,
+            postOverLayar,
         } = this.props;
+        postOverLayar();
         const obj = await creatingComment(clubKey, postKey, content);
         if (obj != null) {
             //放進postList
@@ -44,6 +46,7 @@ class Comment extends React.Component {
             //清空輸入欄
             this.setState({ newContent: "" });
         }
+        postOverLayar();
     };
 
     //刪除留言
@@ -55,8 +58,10 @@ class Comment extends React.Component {
             setPostList,
             setPost,
             setComment,
-            postList
+            postList,
+            postOverLayar,
         } = this.props;
+        postOverLayar();
         const obj = await deletingComment(clubKey, postKey, commentKey);
         if (obj != null) {
             //放進postList
@@ -68,6 +73,7 @@ class Comment extends React.Component {
             //放進comment
             setComment(obj.comment);
         }
+        postOverLayar();
     };
 
     //編輯狀態改變
@@ -92,8 +98,10 @@ class Comment extends React.Component {
             setPostList,
             setPost,
             setComment,
-            postList
+            postList,
+            postOverLayar,
         } = this.props;
+        postOverLayar();
         const obj = await editingComment(clubKey, postKey, commentKey, content);
         if (obj != null) {
             //放進postList
@@ -106,11 +114,13 @@ class Comment extends React.Component {
             setComment(obj.comment);
             this.setState({ oldContent: "" });
         }
+        postOverLayar();
     };
 
     //留言按讚
     pressFavorite = async (clubKey, postKey, commentKey) => {
-        const { setCommentFavorite, setPostList, setPost, setComment, postList } = this.props;
+        const { setCommentFavorite, setPostList, setPost, setComment, postList, postOverLayar } = this.props;
+        postOverLayar();
         const obj = await setCommentFavorite(clubKey, postKey, commentKey);
         if (obj != null) {
             //放進postList
@@ -122,19 +132,20 @@ class Comment extends React.Component {
             //放進comment
             setComment(obj.comment);
         }
+        postOverLayar();
     }
 
     render() {
         const comment = JSON.parse(JSON.stringify(this.props.comment));
         return (
             <View>
-            
+
                 <View>
                     {Object.values(comment).map(element => (
                         <View key={element.commentKey}>
-                        
+
                             <View style={styles.rowPadding}>
-                                <TouchableOpacity>
+                                <TouchableOpacity onPress={() => this.props.showUser(element.commenter)}>
                                     <View style={styles.littleCircle}>
                                         <Image style={styles.littleHead}
                                             source={{ uri: element.commenterPhotoUrl }}
@@ -168,15 +179,15 @@ class Comment extends React.Component {
                                         </View>
                                     </View>
                                     <Text style={styles.littleName}>{element.date}</Text>
-                                    
-                                    <TextInput//這是啥
+                                    <TextInput
                                         style={styles.comment}
                                         value={element.content}
                                         numberOfLines={5}
                                         editable={element.statusEdit}
+                                        multiline={true}
                                         onChangeText={oldContent => { this.setState({ oldContent }); }}
                                     />
-                                  
+
                                 </View>
                             </View>
 
@@ -218,9 +229,9 @@ class Comment extends React.Component {
                                     }}
                                 />
                             </View>
-                        
-                            
-                            </View>
+
+
+                        </View>
 
                     ))}
                 </View>
@@ -242,7 +253,6 @@ class Comment extends React.Component {
                             multiline={true}
                             onChangeText={newContent => { this.setState({ newContent }); }}
                             onContentSizeChange={event => { this.setState({ height: event.nativeEvent.contentSize.height }); }}
-                            value={this.state.newContent}
                         />
                         
                     </View>

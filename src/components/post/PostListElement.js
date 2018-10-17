@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text, TouchableOpacity, Image } from "react-native";
 import { Button } from "react-native-elements";
-
+import Overlayer from '../common/Overlayer'
 import styles from "../../styles/home/Home";
 
 const PostListElement = ({
@@ -12,10 +12,14 @@ const PostListElement = ({
   setPostFavorite,
   postList,
   setPostList,
-  showUser
+  showUser,
+  parentOverLayor
 }) => {
+
   async function pressFavorite(post) {
+    parentOverLayor()
     const postData = await setPostFavorite(post.clubKey, post.postKey);
+    parentOverLayor()
     if (postData != null) {
       //放進首頁
       const newPostList = JSON.parse(JSON.stringify(postList));
@@ -25,7 +29,9 @@ const PostListElement = ({
   }
 
   async function insidePost(post) {
+    parentOverLayor()
     const obj = await getInsidePost(post.clubKey, post.postKey);
+    parentOverLayor()
     if (obj != null) {
       //放進首頁
       const newPostList = JSON.parse(JSON.stringify(postList));
@@ -44,13 +50,15 @@ const PostListElement = ({
   return (
     <TouchableOpacity onPress={async () => await insidePost(post)}>
       <View style={styles.newsView}>
-        <View style={styles.shadow}>
-          <Image
-            source={{ uri: post.posterPhotoUrl }}
-            style={styles.managerImageView}
-            imageStyle={styles.managerImageView}
-          />
-        </View>
+        <TouchableOpacity onPress={() => showUser(post.poster)}>
+          <View style={styles.shadow}>
+            <Image
+              source={{ uri: post.posterPhotoUrl }}
+              style={styles.managerImageView}
+              imageStyle={styles.managerImageView}
+            />
+          </View>
+        </TouchableOpacity>
         <View style={styles.newsTextView}>
           <View style={styles.clubAndManagerNameView}>
             <Text style={styles.newsClubText}>{post.schoolName}</Text>
@@ -110,7 +118,6 @@ const PostListElement = ({
               style={styles.aIcon}
               onPress={async () => {
                 await pressFavorite(post);
-                this.changeLikeI();
               }}
             >
               <Image

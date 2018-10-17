@@ -33,7 +33,8 @@ export default StyleSheet.create({
         alignItems:'center',
         borderBottomWidth:1,
         borderBottomColor:'rgba(102,102,102,0.15)',
-        height:40
+        height:40,
+        width: '100%',
     },
     boxBottomBorderView:{
         flexDirection:'row',

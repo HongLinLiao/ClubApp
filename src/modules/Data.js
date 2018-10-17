@@ -55,8 +55,7 @@ export const getPostComments = async (clubKey, postKey) => {
 export const getActivityData = async (clubKey) => {
     const activityRef = firebase.database().ref('activities').child(clubKey)
     const snapShot = await activityRef.once('value');
-    const activityData = snapShot.val();
-    return activityData;
+    return snapShot.val();
 }
 
 //取得該社團下某一個活動

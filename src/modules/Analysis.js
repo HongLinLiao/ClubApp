@@ -60,14 +60,14 @@ export const getPopularClubData = async (clubDataArray) => {
             console.log(totalActivityViews)
             console.log(totalActivityFavorites)
 
-            let avgPostViews = (totalPostViews / postCounts) || 0
-            let avgPostFavorites = (totalPostFavorites / postCounts) || 0
-            let avgPostComments = (totalPostComments / postCounts) || 0
-            let avgActivityViews = (totalActivityViews / activityCounts) || 0
-            let avgActivityFavorites = (totalActivityFavorites / activityCounts) || 0
+            let avgPostViews = Math.round((totalPostViews / postCounts)*10)/10 || 0
+            let avgPostFavorites = Math.round((totalPostFavorites / postCounts)*10)/10 || 0
+            let avgPostComments = Math.round((totalPostComments / postCounts)*10)/10 || 0
+            let avgActivityViews = Math.round((totalActivityViews / activityCounts)*10)/10 || 0
+            let avgActivityFavorites = Math.round((totalActivityFavorites / activityCounts)*10)/10 || 0
 
-            let avgPostRank = ((totalPostViews + (totalPostFavorites * 2)) / postCounts) || 0
-            let avgActivityRank = ((totalActivityViews + (totalActivityFavorites * 2)) / activityCounts) || 0
+            let avgPostRank = Math.round(((totalPostViews + (totalPostFavorites * 2)) / postCounts)*10)/10 || 0
+            let avgActivityRank = Math.round(((totalActivityViews + (totalActivityFavorites * 2)) / activityCounts)*10)/10 || 0
             let popular = avgPostRank + avgActivityRank
 
             let clubData = {
