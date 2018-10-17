@@ -141,7 +141,7 @@ class Activity extends React.Component {
 
                                         <Image
                                         style={styles.collect}
-                                        source={element.statusKee ? require("../../images/bookmark-red.png") : require("../../images/bookmark.png")}
+                                        source={element.statusKeep ? require("../../images/bookmark-red.png") : require("../../images/bookmark.png")}
                                     />
                                 </TouchableOpacity>
                             </View>
@@ -172,12 +172,12 @@ class Activity extends React.Component {
                             <View style={styles.summaryTextView}>
                                 <Image source={require('../../images/coin.png')}
                                     style={styles.icon} />
-                                <Text style={styles.summaryText}>自行負擔</Text>
+                                <Text style={styles.summaryText}>{element.price}</Text>
                             </View>
                             <View style={styles.summaryTextView}>
                                 <Image source={require('../../images/place.png')}
                                     style={styles.icon} />
-                                <Text style={styles.summaryText}>淡水捷運站一號出口</Text>
+                                <Text style={styles.summaryText}>{element.place}</Text>
                             </View>
                         </View>
                     </View>
@@ -204,7 +204,7 @@ class Activity extends React.Component {
                         </View>
                         <View style={styles.divide}>
                             <Text style={styles.titleText}>備註</Text>
-                            <Text numberOfLines={2} ellipsizeMode='tail' style={styles.titleContentText}>{element.content}
+                            <Text numberOfLines={2} ellipsizeMode='tail' style={styles.titleContentText}>{element.remarks}
                             </Text>
 
                         </View>
