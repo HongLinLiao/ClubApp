@@ -26,11 +26,13 @@ export default StyleSheet.create({
     iconCamera: {
         height: 150,
         width: 150,
-        paddingBottom: 100
+        //paddingBottom: 100
     },
     cameraView: {
-        paddingBottom: 50,
+        //paddingBottom: 50,
         alignItems: 'center',
+        flex: 1,
+        justifyContent: 'center'
     },
     cameraText: {
         fontSize: 30,
@@ -83,18 +85,7 @@ export default StyleSheet.create({
         paddingLeft: 20,
         paddingRight: 5,
     },
-    calanderButton: {
-        height: 50,
-        width: 50,
-        borderRadius: 100,
-        backgroundColor: '#f6b456',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    iconCalendar: {
-        height: 35,
-        width: 35,
-    },
+
     adminButtonView: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -102,7 +93,7 @@ export default StyleSheet.create({
         paddingTop: 5,
         paddingLeft: 20,
         paddingRight: 20,
-        paddingBottom: 5,
+        paddingBottom: 5
     },
     adminButton: {
         flexDirection: 'column',
@@ -113,11 +104,21 @@ export default StyleSheet.create({
     adminText: {
         fontSize: 12,
         padding: 5,
-        color: '#666666'
+        color: 'rgba(102,102,102,0.3)'
     },
     adminIcon: {
         width: 35,
         height: 35
+    },
+    titleTextView: {
+        marginLeft: 20,
+        marginRight: 20,
+        marginTop: 20,
+        paddingBottom: 10
+    },
+    titleText: {
+        fontSize: 18,
+        color: "#666666"
     },
     clubSummaryView: {
         paddingLeft: 30,

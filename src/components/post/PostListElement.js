@@ -96,7 +96,25 @@ const PostListElement = ({
               />
               <Text style={styles.iconNumber}>{post.numComments}</Text>
             </View>
-            <TouchableOpacity //按讚icon
+           
+            <View style={styles.aIcon}>
+              <Image //看過icon
+                source={
+                  post.statusView
+                    ? require("../../images/images2/eyes-orange.png")
+                    : require("../../images/eyes.png")
+                }
+                style={styles.icon}
+              />
+              <Text
+                style={[
+                  styles.iconNumber,
+                  { color: post.statusView ? "#f6b456" : "#666666" }
+                ]}
+              >
+                {post.numViews}
+              </Text>
+              <TouchableOpacity //按讚icon
               style={styles.aIcon}
               onPress={async () => {
                 await pressFavorite(post);
@@ -119,23 +137,6 @@ const PostListElement = ({
                 {post.numFavorites}
               </Text>
             </TouchableOpacity>
-            <View style={styles.aIcon}>
-              <Image //看過icon
-                source={
-                  post.statusView
-                    ? require("../../images/images2/eyes-orange.png")
-                    : require("../../images/eyes.png")
-                }
-                style={styles.icon}
-              />
-              <Text
-                style={[
-                  styles.iconNumber,
-                  { color: post.statusView ? "#f6b456" : "#666666" }
-                ]}
-              >
-                {post.numViews}
-              </Text>
             </View>
           </View>
         </View>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Image } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, KeyboardAvoidingView, Image, RefreshControl } from 'react-native';
 import { Button } from 'react-native-elements';
 import styles from '../../styles/club/Activities'
 import MapView, { Marker } from 'react-native-maps'
@@ -23,7 +23,19 @@ class Activity extends React.Component {
             longitudeDelta: 0.0421,
         },
         loading: false,
+        refreshing: false,
     }
+
+    onRefresh = () => {
+        try {
+            this.setState({ refreshing: true });
+            this.setState({ refreshing: false });
+            this.reload(this.state.activity.clubKey, this.state.activity.activityKey);
+        } catch (error) {
+            console.log(error.toString());
+        }
+    }
+
     getUserLocation = async () => {
         let location = await Location.getCurrentPositionAsync();
 
@@ -116,13 +128,15 @@ class Activity extends React.Component {
 
         return (
             <View style={[styles.container, { flex: 1 }]}>
-                <ScrollView>
-                    <Button
-                        title="reload"
-                        onPress={async () => {
-                            await this.reload(element.clubKey, element.activityKey);
-                        }}
-                    />
+                <ScrollView
+                    refreshControl={
+                        <RefreshControl
+                            refreshing={this.state.refreshing}
+                            onRefresh={() => this.onRefresh()}
+                            tintColor='#f6b456'
+                        />
+                    }
+                >
                     <View style={styles.main}>
                         <View style={styles.clubBackground} >
                             <Image
@@ -148,7 +162,7 @@ class Activity extends React.Component {
                                         await this.pressFavorite(element.clubKey, element.activityKey)}>
                                     <Image
                                         style={styles.titleLikesView}
-                                        source={element.numFavorites ? require("../../images/like-orange.png") : require("../../images/like-gray.png")}
+                                        source={element.statusFavorite ? require("../../images/like-orange.png") : require("../../images/like-gray.png")}
                                     />
                                     <Text style={styles.number}>{element.numFavorites}</Text>
                                 </TouchableOpacity>
@@ -168,12 +182,12 @@ class Activity extends React.Component {
                             <View style={styles.summaryTextView}>
                                 <Image source={require('../../images/coin.png')}
                                     style={styles.icon} />
-                                <Text style={styles.summaryText}>自行負擔</Text>
+                                <Text style={styles.summaryText}>{element.price}</Text>
                             </View>
                             <View style={styles.summaryTextView}>
                                 <Image source={require('../../images/place.png')}
                                     style={styles.icon} />
-                                <Text style={styles.summaryText}>淡水捷運站一號出口</Text>
+                                <Text style={styles.summaryText}>{element.place}</Text>
                             </View>
                         </View>
                     </View>
@@ -200,7 +214,7 @@ class Activity extends React.Component {
                         </View>
                         <View style={styles.divide}>
                             <Text style={styles.titleText}>備註</Text>
-                            <Text numberOfLines={2} ellipsizeMode='tail' style={styles.titleContentText}>{element.content}
+                            <Text numberOfLines={2} ellipsizeMode='tail' style={styles.titleContentText}>{element.remarks}
                             </Text>
 
                         </View>
