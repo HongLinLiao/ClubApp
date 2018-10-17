@@ -20,19 +20,21 @@ export default StyleSheet.create({
         fontSize: 15,
         marginLeft: 10,
         marginRight: 15,
-        color: 'rgba(102,102,102,1)'
+        color: 'rgba(102,102,102,0.5)'
 
     },
-    botton: {
-        backgroundColor: '#666666',
+    button: {
+        //backgroundColor: '#666666',
         marginBottom: 8,
-        marginTop:8,
-        borderWidth: 0.5,
-        borderColor: 'rgba(102,102,102,1)',
-        width: 230,
-        height: 35,
-        borderRadius: 50,
+        
+        borderWidth: 0.8,
+        borderColor: 'rgba(102,102,102,0.3)',
+        
+        width: 90,
+        height: 28,
+        borderRadius: 3,
         justifyContent: 'center'
+        
     },
 
 })
