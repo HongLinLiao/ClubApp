@@ -84,12 +84,7 @@ export default createStackNavigator({
       headerStyle: {
         backgroundColor: '#f6b456',
       },
-      //headerLeft:(
-          //<TouchableOpacity>
-            //<Image source={require('../images/images2/arrowLeftBlue.png')} 
-            //style={PersonalStyles.arrowLeftBlueImage}/>
-          //</TouchableOpacity>
-      //)
+
     }
     )
   },
@@ -194,7 +189,12 @@ export default createStackNavigator({
       console.log(navigation)
       // console.log(navigation.state.routes)
       return {
-        headerRight: <Button title='創建社團' onPress={() => navigation.push('CreateClub')} />,
+        headerRight: (
+          <TouchableOpacity style={{margin:15}} onPress={() => navigation.push('CreateClub')}>
+            <Image source={require('../images/plus-button.png')}
+            style={{width: 25, height: 25}} />
+          </TouchableOpacity>
+        ),
         title: '社團管理',
         headerTitleStyle: {
           color: '#666666',
@@ -213,11 +213,11 @@ export default createStackNavigator({
       color: '#0d4273',
       fontSize: 15,
     },
-    //headerBackImageLeft: (
-      //<TouchableOpacity>
-        //<Image source={require('../images/images2/arrowLeftBlue.png')} 
-            //style={personalStyles.arrowLeftBlueImage}/>
-      //</TouchableOpacity>
-    //)
+    headerBackImage: (
+      <TouchableOpacity>
+        <Image source={require('../images/images2/arrowLeftBlue.png')} 
+            style={{width: 25, height: 25}}/>
+      </TouchableOpacity>
+    )
   }
 })
