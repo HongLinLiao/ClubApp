@@ -21,10 +21,7 @@ export default createStackNavigator({
 		navigationOptions: ({ navigation }) => ({
 			title: 'iClubs',
 			headerBackTitle: '首頁',
-			headerBackTitleStyle: {
-				color: '#0d4273',
-				fontSize: 15,
-			},
+			
 			headerTitleStyle: {
 				color: '#666666',
 				fontSize: 30,

@@ -12,16 +12,13 @@ import { Button, TouchableOpacity, Image } from 'react-native'
 
 
 export default createStackNavigator({
-  Club: {
-    screen: ClubPage,
-    navigationOptions: {
-      header: null,
-      gesturesEnabled: false,
-      headerBackTitle: '返回',
-      headerBackTitleStyle: {
-				color: '#0d4273',
-				fontSize: 15,
-			},
+    Club: {
+      screen: ClubPage,
+      navigationOptions: {
+        header: null,
+        gesturesEnabled: false,
+        headerBackTitle: '返回',
+      }
     },
 
     Activity: {
@@ -37,7 +34,7 @@ export default createStackNavigator({
       navigationOptions: ({ navigation }) => {
         const { askCreate } = navigation.state.params
         return {
-          headerRight: <Button title='發佈' onPress={() => askCreate()} />,
+          headerRight: <Button title='發佈' style={{marginRight:20,fontSize:15}} color='#0d4273' onPress={() => askCreate()} />,
           headerBackImage: (
             <TouchableOpacity>
               <Image source={require('../images/images2/arrowLeftBlue.png')}
@@ -62,7 +59,7 @@ export default createStackNavigator({
 
         const { askCreate } = navigation.state.params
         return {
-          headerRight: <Button title='建立活動' onPress={() => askCreate()} />,
+          headerRight: <Button title='建立活動'  style={{marginRight:20,fontSize:15}} color='#0d4273' onPress={() => askCreate()} />,
           headerBackImage: (
             <TouchableOpacity>
               <Image source={require('../images/images2/arrowLeftBlue.png')}
@@ -84,11 +81,33 @@ export default createStackNavigator({
 
     ClubAdmin: {
       screen: ClubAdminPage,
+      navigationOptions: ({ navigation }) => ({
+        headerBackImage: (
+          <TouchableOpacity>
+            <Image source={require('../images/images2/arrowLeftBlue.png')}
+              style={{ width: 25, height: 25 }} />
+          </TouchableOpacity>
+        ),
+        title: '管理者模式',
+        headerTitleStyle: {
+          color: '#666666',
+          fontSize: 20,
+        },
+        headerStyle: {
+          backgroundColor: '#f6b456'
+        }
+      })
     },
 
     ClubMember: {
       screen: ClubMemberPage,
       navigationOptions: ({ navigation }) => ({
+        headerBackImage: (
+          <TouchableOpacity>
+            <Image source={require('../images/images2/arrowLeftBlue.png')}
+              style={{ width: 25, height: 25 }} />
+          </TouchableOpacity>
+        ),
         title: '編輯成員',
         headerTitleStyle: {
           color: '#666666',
@@ -99,6 +118,13 @@ export default createStackNavigator({
         }
       })
     }
+},
+{
+  navigationOptions: {
+		headerBackTitleStyle: {
+			color: '#0d4273',
+			fontSize: 15,
+    },
   }
 })
 
