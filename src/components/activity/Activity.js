@@ -168,12 +168,12 @@ class Activity extends React.Component {
                             <View style={styles.summaryTextView}>
                                 <Image source={require('../../images/coin.png')}
                                     style={styles.icon} />
-                                <Text style={styles.summaryText}>自行負擔</Text>
+                                <Text style={styles.summaryText}>{element.price}</Text>
                             </View>
                             <View style={styles.summaryTextView}>
                                 <Image source={require('../../images/place.png')}
                                     style={styles.icon} />
-                                <Text style={styles.summaryText}>淡水捷運站一號出口</Text>
+                                <Text style={styles.summaryText}>{element.place}</Text>
                             </View>
                         </View>
                     </View>

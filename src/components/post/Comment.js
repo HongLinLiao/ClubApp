@@ -253,7 +253,6 @@ class Comment extends React.Component {
                             multiline={true}
                             onChangeText={newContent => { this.setState({ newContent }); }}
                             onContentSizeChange={event => { this.setState({ height: event.nativeEvent.contentSize.height }); }}
-                            value={this.state.newContent}
                         />
                     </View>
                     <TouchableOpacity onPress={async () => { await this.addComment(); }}>
