@@ -213,11 +213,11 @@ export default createStackNavigator({
       color: '#0d4273',
       fontSize: 15,
     },
-    headerBackImageLeft: (
-      <TouchableOpacity>
-        <Image source={require('../images/images2/arrowLeftBlue.png')} 
-            style={personalStyles.arrowLeftBlueImage}/>
-      </TouchableOpacity>
-    )
+    //headerBackImageLeft: (
+      //<TouchableOpacity>
+        //<Image source={require('../images/images2/arrowLeftBlue.png')} 
+            //style={personalStyles.arrowLeftBlueImage}/>
+      //</TouchableOpacity>
+    //)
   }
 })

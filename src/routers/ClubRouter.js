@@ -31,19 +31,19 @@ export default createStackNavigator({
       const { askCreate } = navigation.state.params
       return {
         headerRight: <Button title='新增貼文' onPress={() => askCreate()} />,
-      title: '社員管理',
-      headerBackTitle:'社團',
-      headerBackImage:{
-        tintColor: '#0d4273',
-      },
-			headerTitleStyle: {
-				color: '#666666',
-        fontSize: 20,
-			},
-			headerStyle: {
-				backgroundColor: '#f6b456'
+        title: '新增文章',
+        headerBackTitle: '社團',
+        headerBackImage: {
+          tintColor: '#0d4273',
+        },
+        headerTitleStyle: {
+          color: '#666666',
+          fontSize: 20,
+        },
+        headerStyle: {
+          backgroundColor: '#f6b456'
+        }
       }
-			}
     }
   },
   AddActivity: {
@@ -52,11 +52,23 @@ export default createStackNavigator({
 
       const { askCreate } = navigation.state.params
       return {
-        headerRight: <Button title='建立活動' onPress={() => askCreate()} />
+        headerRight: <Button title='建立活動' onPress={() => askCreate()} />,
+        title: '新增活動',
+        headerBackTitle: '社團',
+        headerBackImage: {
+          tintColor: '#0d4273',
+        },
+        headerTitleStyle: {
+          color: '#666666',
+          fontSize: 20,
+        },
+        headerStyle: {
+          backgroundColor: '#f6b456'
+        }
       }
     }
   },
-  
+
   ClubAdmin: {
     screen: ClubAdminPage,
   },
@@ -64,19 +76,15 @@ export default createStackNavigator({
   ClubMember: {
     screen: ClubMemberPage,
     navigationOptions: ({ navigation }) => ({
-			title: '社員管理',
-      headerBackTitle:'社團',
-      headerBackImage:{
-        tintColor: '#0d4273',
-      },
-			headerTitleStyle: {
-				color: '#666666',
+      title: '新增社團',
+      headerTitleStyle: {
+        color: '#666666',
         fontSize: 20,
-			},
-			headerStyle: {
-				backgroundColor: '#f6b456'
-			},
-		}
-		)
+      },
+      headerStyle: {
+        backgroundColor: '#f6b456'
+      }
+    })
   }
 })
+

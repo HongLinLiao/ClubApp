@@ -65,10 +65,20 @@ export default createStackNavigator({
 	},
 	// 動態貼文列表
 	Stories: {
-		screen: requireAppFlow(HomeActivitiesPage)
+		screen: requireAppFlow(HomeActivitiesPage),
+		navigationOptions: ({ navigation }) => ({
+			title: '社團故事',
+			headerTitleStyle: {
+				color: '#666666',
+				fontSize: 25,
+			},
+			headerStyle: {
+				backgroundColor: '#f6b456'
+			}
+		})
 	},
 	// 動態貼文內頁，從Club匯入
 	Activity:{
-	  screen: requireAppFlow(ActivityPage),
+	    screen: requireAppFlow(ActivityPage),
 	},
 })
