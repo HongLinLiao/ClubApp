@@ -23,14 +23,24 @@ export default StyleSheet.create({
         color: 'rgba(102,102,102,0.5)'
 
     },
+    buttonText:{
+        
+        //marginLeft:16,
+        //marginTop: 6,
+        fontSize: 14,
+        fontWeight: 'bold',
+        justifyContent: 'center',
+        color: 'rgba(102,102,102,1)'
+
+    },
     button: {
         //backgroundColor: '#666666',
-        marginBottom: 8,
-        
+        //marginBottom: 8,
         borderWidth: 0.8,
         borderColor: 'rgba(102,102,102,0.3)',
+        marginLeft:20,
         
-        width: 90,
+        width: 80,
         height: 28,
         borderRadius: 3,
         justifyContent: 'center'

@@ -154,7 +154,7 @@ class ClubMember extends React.Component {
                                             onPress={() => this.askToKick(_uid, nickName)}
                                             disabled={(member[_uid].status == 'master')}
                                         >
-                                            <Text style={[styles.bigText,{Text:10}]}>確定退出</Text>
+                                            <Text style={[styles.buttonText]}>確定退出</Text>
                                         </TouchableOpacity>
                                     }
 
