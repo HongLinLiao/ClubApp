@@ -24,7 +24,7 @@ export default StyleSheet.create({
 
     },
     botton: {
-        backgroundColor: 'rgba(255,255,255,1.5)',
+        backgroundColor: '#666666',
         marginBottom: 8,
         marginTop:8,
         borderWidth: 0.5,
