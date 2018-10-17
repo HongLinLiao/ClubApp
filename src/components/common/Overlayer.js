@@ -6,7 +6,7 @@ import {
 } from 'react-native'
 
 
-const Overlayer = () => {
+const Overlayer = ({addStyle}) => {
   return (
     <View
       style={[
@@ -16,6 +16,9 @@ const Overlayer = () => {
           alignItems: 'center',
           justifyContent: 'center',
         },
+        {
+          ...addStyle
+        }
       ]}
     >
       <ActivityIndicator color="#fff" animating size="large" />

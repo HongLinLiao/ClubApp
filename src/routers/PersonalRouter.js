@@ -152,9 +152,10 @@ export default createStackNavigator({
       headerTitleStyle: {
         color: '#666666',
         fontSize: 20,
+        textAlign:'center'
       },
       headerStyle: {
-        backgroundColor: '#f6b456'
+        backgroundColor: '#f6b456',
       },
     }
     )

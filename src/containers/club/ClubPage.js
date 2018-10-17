@@ -7,6 +7,10 @@ import {
   setPostFavorite,
   getPostComment
 } from '../../modules/Post'
+import {
+  getActivityDataFromClubKey,
+  getInsideActivity,
+} from '../../modules/Activity'
 import { connect } from 'react-redux';
 import Club from '../../components/club/Club'
 
@@ -29,6 +33,8 @@ const mapDispatchToProps = {
   getPostComment,
   //按讚
   setPostFavorite,
+  getActivityDataFromClubKey,
+  getInsideActivity,
 }
 
 

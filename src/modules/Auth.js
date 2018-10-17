@@ -18,6 +18,7 @@ import {
 import {
   getAllClubData,
   randomCid,
+  filterOpenClub
 } from './Club'
 
 import {
@@ -58,9 +59,14 @@ const signInSuccess = (action, user, password, loginType) => async (dispatch) =>
 
     //使用者相關社團資料
     clubsData = await getAllClubData()
+    const _newLikeClubs = filterOpenClub(clubsData.newLikeClubs)
+    const allClubCids = Object.keys(clubsData.newJoinClubs).concat(Object.keys(_newLikeClubs))
+    const _randomCid = randomCid(allClubCids)
+
 
     //更新reducer
     dispatch(SettingAction.setAllSetting(settingData))
+    dispatch(ClubAction.setCurrentClub(_randomCid))
     dispatch(ClubAction.setAllClubData(clubsData))
     dispatch(action(userData)) //最後更新user才出發authFlow
     

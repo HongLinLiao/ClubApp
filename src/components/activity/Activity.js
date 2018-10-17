@@ -4,7 +4,9 @@ import { Button } from 'react-native-elements';
 import styles from '../../styles/club/Activities'
 import MapView, { Marker } from 'react-native-maps'
 import { showLocation } from 'react-native-map-link'
-import { Location } from 'expo'
+import { Location, DangerZone } from 'expo'
+import Overlayer from '../common/Overlayer'
+
 class Activity extends React.Component {
 
     //寫入本地State
@@ -20,6 +22,7 @@ class Activity extends React.Component {
             latitudeDelta: 0.0922,
             longitudeDelta: 0.0421,
         },
+        loading: false,
     }
     getUserLocation = async () => {
         let location = await Location.getCurrentPositionAsync();
@@ -33,6 +36,12 @@ class Activity extends React.Component {
             }
         })
     }
+
+    //過門
+    activityOverLayar = () => {
+        this.setState({ loading: !this.state.loading });
+    }
+
     //設定本頁activity
     setActivity = (activityData) => {
         this.setState({ activity: activityData });
@@ -41,7 +50,9 @@ class Activity extends React.Component {
     //點讚
     pressFavorite = async (clubKey, activityKey) => {
         const { setActivityFavorite, activityList, setActivityList } = this.props;
+        this.activityOverLayar();
         const activityData = await setActivityFavorite(clubKey, activityKey);
+        this.activityOverLayar();
         if (activityData != null) {
             //放進activityList
             const newActivityList = JSON.parse(JSON.stringify(activityList));
@@ -68,7 +79,9 @@ class Activity extends React.Component {
     //點擊收藏
     pressKeep = async (activity) => {
         const { setActivityKeep, activityList, setActivityList } = this.props;
+        this.activityOverLayar();
         const activityData = await setActivityKeep(activity.clubKey, activity.activityKey);
+        this.activityOverLayar();
         if (activityData != null) {
             //放進activityList
             const newActivityList = JSON.parse(JSON.stringify(activityList));
@@ -81,7 +94,9 @@ class Activity extends React.Component {
     //頁面重整
     reload = async (clubKey, activityKey) => {
         const { getInsideActivity, navigation, activityList, setActivityList } = this.props;
+        this.activityOverLayar();
         const newActivity = await getInsideActivity(clubKey, activityKey);
+        this.activityOverLayar();
         const newActivityList = JSON.parse(JSON.stringify(activityList));
         if (newActivity == null) {
             newActivityList[clubKey][activityKey] = null;
@@ -121,7 +136,7 @@ class Activity extends React.Component {
                             <View style={[styles.clubTextView, { flex: 1 }]}>
                                 <Text style={styles.schoolText}>{element.schoolName}    {element.clubName}</Text>
                                 <TouchableOpacity onPress={async () =>
-                                        await this.pressKeep(element)}>
+                                    await this.pressKeep(element)}>
                                     <Image source={require('../../images/bookmark.png')}
                                         style={styles.collect} />
                                 </TouchableOpacity>
@@ -192,7 +207,7 @@ class Activity extends React.Component {
                     </View>
                 
                 </ScrollView>
-
+                {this.state.loading ? <Overlayer /> : null}
             </View>
         )
     }

@@ -1,8 +1,9 @@
 import React from 'react'
 import { View, Text, Image, ScrollView } from 'react-native'
+import Overlayer from '../common/Overlayer'
 
 
-const UserDialog = ({uid, user, clubs}) => {
+const UserDialog = ({uid, user, clubs, loading}) => {
     if(user) {
         return (
             <View style={{flex: 1}}>
@@ -51,10 +52,11 @@ const UserDialog = ({uid, user, clubs}) => {
                                     )
                                 })
                             }
-                        </ScrollView>
+                            </ScrollView>
+                        </View>
                     </View>
                 </View>
-                </View>
+                {loading ? <Overlayer addStyle={{borderRadius: 20}}/> : null}
             </View>                       
         )
     } else return (
@@ -86,6 +88,7 @@ const UserDialog = ({uid, user, clubs}) => {
                     </View>
                 </View>
             </View>
+            {loading ? <Overlayer addStyle={{borderRadius: 20}}/> : null}
         </View>
     )
 }
