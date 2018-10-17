@@ -103,18 +103,24 @@ export default StyleSheet.create({
   },
 
   newsContentView: {
-    flex: 1.3,
+    flex: 3.2,//兩行2.7
     //borderWidth:1
   },
   newsContentText: {
     color: "#666666",
     fontSize: 15,
     height: "100%",
-    lineHeight: 25
+    lineHeight: 20,
   },
   moreText: {
     fontSize: 15,
     color: "#123456"
+  },
+  iconAndDateView:{
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-around"
   },
   iconView: {
     flex: 1,

@@ -6,8 +6,8 @@ export default StyleSheet.create({
   },
   modal: {
     position: "absolute",
-    top: 25, //與最上端的距離
-    right: 150, //與右邊的距離
+    top: '5%', //與最上端的距離
+    right: '45%', //與右邊的距離
     width: 180,
     height: 20,
     backgroundColor: "rgba(255, 157, 0, 0.5)",

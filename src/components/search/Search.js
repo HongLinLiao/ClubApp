@@ -142,7 +142,7 @@ class Search extends React.Component {
                 >
                   <View style={styles.card}>
                     <ImageBackground
-                      source={{ uri: club.imgUrl ? club.imgUrl : 'https://steamuserimages-a.akamaihd.net/ugc/87100177918375746/EDFEECCE614D4A17D884A5E5B7E9D5810C4C1312/' }}
+                      source={{ uri: club.imgUrl ? club.imgUrl : 'https://upload.wikimedia.org/wikipedia/en/d/d3/No-picture.jpg' }}
                       style={styles.clubBackground}
                     />
                     <View style={styles.clubNameView}>

@@ -262,7 +262,7 @@ class Club extends React.Component {
                   style={{ position: "absolute", height: 400, width: "100%" }}
                 >
                   <ImageBackground
-                    source={{ uri: imgUrl ? imgUrl : 'https://steamuserimages-a.akamaihd.net/ugc/87100177918375746/EDFEECCE614D4A17D884A5E5B7E9D5810C4C1312/' }}
+                    source={{ uri: imgUrl ? imgUrl : 'https://upload.wikimedia.org/wikipedia/en/d/d3/No-picture.jpg' }}
                     resizeMode="cover"
                     style={styles.clubBackground}
                   >

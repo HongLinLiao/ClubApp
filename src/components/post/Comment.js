@@ -179,7 +179,8 @@ class Comment extends React.Component {
                                         </View>
                                     </View>
                                     <Text style={styles.littleName}>{element.date}</Text>
-                                    <TextInput
+                                    <View style={{flex:1}}>
+                                    <TextInput//上面flex可能可以讓留言顯示出來，尚未測試
                                         style={styles.comment}
                                         value={element.content}
                                         numberOfLines={5}
@@ -187,6 +188,7 @@ class Comment extends React.Component {
                                         multiline={true}
                                         onChangeText={oldContent => { this.setState({ oldContent }); }}
                                     />
+                                    </View>
 
                                 </View>
                             </View>
