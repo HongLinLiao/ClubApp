@@ -103,7 +103,8 @@ export default StyleSheet.create({
   },
 
   newsContentView: {
-    flex: 1.3
+    flex: 1.3,
+    //borderWidth:1
   },
   newsContentText: {
     color: "#666666",
@@ -137,10 +138,10 @@ export default StyleSheet.create({
     fontSize: 15
   },
 
-  star: {
+  star: {//好像可以用%喔
     position: "absolute",
-    top: 450, //與最上端的距離
-    right: 25 //與右邊的距離
+    top: '80%', //與最上端的距離
+    right: '10%' //與右邊的距離
   },
   starButtonView: {
     width: 60,

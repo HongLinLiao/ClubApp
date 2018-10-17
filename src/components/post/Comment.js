@@ -153,13 +153,13 @@ class Comment extends React.Component {
                                             }>
                                                 <Image style={styles.icon}
                                                 source={
-                                                    this.pressFavorite//不知道這個要用什麼來判斷
+                                                    element.statusFavorite//已可判斷
                                                     ? require("../../images/images2/like-orange.png")
                                                     : require("../../images/images2/like-gray.png")
                                                         } />
                                             </TouchableOpacity>
                                             <Text style={[styles.numberLittle, 
-                                                { color: this.pressFavorite //這個也是
+                                                { color: element.statusFavorite //已可判斷
                                                     ? "#f6b456" : "#666666" }]}>{element.numFavorites}</Text>
                                             <TouchableOpacity >
                                                 <Image source={require('../../images/pencil.png')}
@@ -172,6 +172,7 @@ class Comment extends React.Component {
                                     <TextInput//這是啥
                                         style={styles.comment}
                                         value={element.content}
+                                        numberOfLines={5}
                                         editable={element.statusEdit}
                                         onChangeText={oldContent => { this.setState({ oldContent }); }}
                                     />
@@ -232,6 +233,7 @@ class Comment extends React.Component {
                         />
                     </View>
                     <View style={styles.inputViewTabBar}>
+                    
                         <TextInput
                             style={styles.textInputTabBar}
                             placeholder='新增留言...'
@@ -242,14 +244,17 @@ class Comment extends React.Component {
                             onContentSizeChange={event => { this.setState({ height: event.nativeEvent.contentSize.height }); }}
                             value={this.state.newContent}
                         />
+                        
                     </View>
                     <TouchableOpacity onPress={async () => { await this.addComment(); }}>
                         <Image source={require('../../images/send.png')}
                             style={styles.sendIcon} />
                     </TouchableOpacity>
+                    <KeyboardAvoidingView behavior='padding' enabled> </KeyboardAvoidingView>
                 </View>
-                <KeyboardAvoidingView behavior='padding' enabled></KeyboardAvoidingView>//不理我
+                
             </View>
+            
         );
     }
 }
