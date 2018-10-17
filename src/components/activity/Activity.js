@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, ScrollView, TouchableOpacity, KeyboardAvoidingView, Image } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, KeyboardAvoidingView, Image, RefreshControl } from 'react-native';
 import { Button } from 'react-native-elements';
 import styles from '../../styles/club/Activities'
 import MapView, { Marker } from 'react-native-maps'
@@ -23,7 +23,19 @@ class Activity extends React.Component {
             longitudeDelta: 0.0421,
         },
         loading: false,
+        refreshing: false,
     }
+
+    onRefresh = () => {
+        try {
+            this.setState({ refreshing: true });
+            this.setState({ refreshing: false });
+            this.reload(this.state.activity.clubKey, this.state.activity.activityKey);
+        } catch (error) {
+            console.log(error.toString());
+        }
+    }
+
     getUserLocation = async () => {
         let location = await Location.getCurrentPositionAsync();
 
@@ -116,13 +128,15 @@ class Activity extends React.Component {
 
         return (
             <View style={[styles.container, { flex: 1 }]}>
-                <ScrollView>
-                    <Button
-                        title="reload"
-                        onPress={async () => {
-                            await this.reload(element.clubKey, element.activityKey);
-                        }}
-                    />
+                <ScrollView
+                    refreshControl={
+                        <RefreshControl
+                            refreshing={this.state.refreshing}
+                            onRefresh={() => this.onRefresh()}
+                            tintColor='#f6b456'
+                        />
+                    }
+                >
                     <View style={styles.main}>
                         <View style={styles.clubBackground} >
                             <Image
@@ -152,7 +166,7 @@ class Activity extends React.Component {
                                         await this.pressFavorite(element.clubKey, element.activityKey)}>
                                     <Image
                                         style={styles.titleLikesView}
-                                        source={element.numFavorites ? require("../../images/like-orange.png") : require("../../images/like-gray.png")}
+                                        source={element.statusFavorite ? require("../../images/like-orange.png") : require("../../images/like-gray.png")}
                                     />
                                     <Text style={styles.number}>{element.numFavorites}</Text>
                                 </TouchableOpacity>
@@ -231,31 +245,3 @@ class Activity extends React.Component {
 }
 
 export default Activity;
-
-{
-    //     <ScrollView>
-    //     <Image
-    //         source={{ uri: element.photo }}
-    //         resizeMode='cover'
-    //         style={{ width: 50, height: 50 }}
-    //     />
-    //     <Text>{element.schoolName}</Text>
-    //     <Text>{element.clubName}</Text>
-    //     <Text>標題： {element.title}</Text>
-    //     <Text>活動開始時間： {element.startDateTime}</Text>
-    //     <Text>活動結束時間： {element.endDateTime}</Text>
-    //     <Text>費用： {element.price}</Text>
-    //     <Text>地點： {element.place}</Text>
-    //     <TouchableOpacity
-    //         onPress={async () =>
-    //             await this.pressFavorite(element.clubKey, element.activityKey)
-    //         }
-    //     >
-    //         <Text>按讚人數: {element.numFavorites}</Text>
-    //     </TouchableOpacity>
-    //     <Text>{element.content}</Text>
-    //     <Text>{element.remarks}</Text>
-    // </ScrollView>
-
-
-}

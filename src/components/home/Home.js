@@ -1,5 +1,5 @@
 import React from 'react'
-import { ScrollView, Text, Alert, Image, RefreshControl } from 'react-native'
+import { ScrollView, Text, Alert, Image, TouchableOpacity, RefreshControl } from 'react-native'
 import { Button } from 'react-native-elements'
 import PostListElement from '../post/PostListElement'
 import styles from '../../styles/home/Home'
@@ -32,7 +32,7 @@ class Home extends React.Component {
 
     onRefresh = async () => {
         try {
-            const { clubList,getHomePostReload } = this.props;
+            const { clubList, getHomePostReload } = this.props;
             this.setState({ refreshing: true });
             this.setState({ refreshing: false });
             // await getHomePostReload(clubList, newPostList => {
@@ -112,10 +112,6 @@ class Home extends React.Component {
                     }
                 >
                     <Button
-                        title='Stories!'
-                        onPress={() => { this.props.navigation.navigate('Stories'); }}
-                    />
-                    <Button
                         title='selecting!'
                         onPress={() => { this.goSelectingPage(this.props.navigation); }}
                     />
@@ -157,6 +153,13 @@ class Home extends React.Component {
                     {this.state.loading ? <Overlayer /> : null}
                 </PopupDialog>
                 {this.state.loading ? <Overlayer /> : null}
+                <TouchableOpacity style={styles.star}
+                    onPress={() => { this.props.navigation.navigate('Stories'); }}>
+                    <View style={styles.starButtonView}>
+                        <Image source={require('../../images/images2/star.png')}
+                            style={styles.starImage} />
+                    </View>
+                </TouchableOpacity>
             </View>
         );
     }

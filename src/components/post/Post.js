@@ -235,7 +235,7 @@ class Post extends React.Component {
               </View>
 
             </View>
-            <Comment//已留的言應該要在scrollview裡面，要留言的框框應該要在scrollview外面，不知如何切割
+            <Comment
                 userPhotoUrl={this.props.userPhotoUrl}
                 comment={commentData}
                 postList={this.props.postList}
@@ -267,7 +267,8 @@ class Post extends React.Component {
             clubs={clubs}
             loading={this.state.loading}
 					/>
-				</PopupDialog>          
+				</PopupDialog>  
+        {this.state.loading ? <Overlayer /> : null}        
       </View>
     );
   }
