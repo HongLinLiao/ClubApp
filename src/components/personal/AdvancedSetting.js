@@ -1,13 +1,6 @@
 import React from 'react'
-//import { View, Text, Button, TextInput, Image } from 'react-native'
-import { Text, View, StyleSheet ,ScrollView,TouchableOpacity,Image, StatusBar,TextInput} from 'react-native';
-import {Icon, SearchBar, Button} from 'react-native-elements'
-import { Constants } from 'expo';
-import StatusBarPaddingIOS from 'react-native-ios-status-bar-padding';
-
-
+import { Text, View, TouchableOpacity, Image } from 'react-native';
 import styles from '../../styles/personal/AdvancedSetting'
-//import Overlayer from '../common/Overlayer'
 
 class AdvancedSetting extends React.Component {
 
@@ -62,6 +55,3 @@ class AdvancedSetting extends React.Component {
 
 
 export default AdvancedSetting
-
-//<StatusBarPaddingIOS style={{backgroundColor: '#ffffff'}}/
-// <View style={styles.tabBar}></View>

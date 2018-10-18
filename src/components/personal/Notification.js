@@ -1,9 +1,12 @@
-//import React from 'react'
+import React from 'react'
 import { ListItem } from 'react-native-elements'
-import React, { Component } from 'react';
-import { Text, View, StyleSheet, TouchableOpacity, StatusBar, ScrollView, Image, FlatList, Switch, Alert } from 'react-native';
-import { Constants } from 'expo';
-import StatusBarPaddingIOS from 'react-native-ios-status-bar-padding';
+import {
+  Text,
+  View,
+  ScrollView,
+  Image,
+  Alert
+} from 'react-native';
 import styles from '../../styles/personal/Notification'
 
 class Notification extends React.Component {
@@ -17,7 +20,6 @@ class Notification extends React.Component {
   setGlobal = async on => {
     try {
       await this.props.setGlobalNotification(on)
-
     } catch (e) {
       Alert.alert(e.toString())
     }
@@ -26,7 +28,6 @@ class Notification extends React.Component {
   setNight = async on => {
     try {
       await this.props.setNightModeNotification(on)
-
     } catch (e) {
       Alert.alert(e.toString())
     }
@@ -37,7 +38,6 @@ class Notification extends React.Component {
       let clubSetting = { ...this.props.clubNotificationList[cid] }
       clubSetting.on = on
       await this.props.setClubNotification(cid, clubSetting)
-
     } catch (e) {
       Alert.alert(e.toString())
     }
@@ -91,7 +91,22 @@ class Notification extends React.Component {
             </View>}
         />
 
-        <View style={styles.boxBottomBorderView} />
+          <ListItem
+            title='夜間模式'
+            titleStyle={{ fontSize: 18, color: '#666666', }}
+            switch={{              
+              onValueChange: () => this.setNight(!nightModeNotification),
+              value: nightModeNotification,
+              onTintColor: 'rgba(246,180,86,1)',
+              tintColor: 'rgba(246,180,86,0.1)',
+              thumbTintColor: 'white'
+            }}
+            leftIcon={
+              <View style={styles.leftIcon}>
+                <Image source={require('../../images/moon.png')} style={styles.alarm} />
+              </View>}
+          />
+          <View style={styles.boxBottomBorderView} />
 
         {
           Object.keys(clubNotificationList).map((cid) => {

@@ -1,5 +1,5 @@
 import React from 'react'
-import { View, Text, Button, TextInput, Alert, Image } from 'react-native'
+import { View, Text, Button } from 'react-native'
 
 class SendEmailSuccessful extends React.Component {
 

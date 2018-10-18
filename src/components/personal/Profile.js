@@ -3,10 +3,8 @@ import {
     Text,
     View,
     TouchableOpacity,
-    Image,
-    StatusBar
+    Image
 } from 'react-native';
-import StatusBarPaddingIOS from 'react-native-ios-status-bar-padding';
 import styles from '../../styles/personal/Profile';
 class Profile extends React.Component {
 
@@ -18,7 +16,6 @@ class Profile extends React.Component {
         const { user, signOut, joinClub, aboutMe } = this.props
         return (
             <View style={styles.container}>
-
                 <View style={styles.one}>
                 <View style={styles.circle}>
                     {user.photoURL ?
@@ -29,7 +26,7 @@ class Profile extends React.Component {
                     <Text style={styles.name}>{user.displayName}</Text>
                     <View style={styles.rowx}>
                         <Image style={styles.hotPoint}
-                            source={require('../../images/star.png')} />
+                            source={require('../../images/point.png')} />
                         <Text style={styles.number}>{Object.keys(joinClub).length}</Text>
                     </View>
                 </View>
@@ -76,7 +73,6 @@ class Profile extends React.Component {
                         <Text style={styles.signOutText}>登出</Text>
                     </TouchableOpacity>
                 </View>
-
             </View>
         );
     }
