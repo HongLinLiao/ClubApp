@@ -125,7 +125,9 @@ class Activity extends React.Component {
     render() {
         const activityData = this.state.activity;
         const element = JSON.parse(JSON.stringify(activityData));
-
+        const { startDateTime, endDateTime } = element
+        const _startDateTime = new Date(startDateTime)
+        const _endDateTime = new Date(endDateTime)
         return (
             <View style={[styles.container, { flex: 1 }]}>
                 <ScrollView
@@ -196,7 +198,7 @@ class Activity extends React.Component {
                         </View>
                     </View>
                     {
-                        //     <View style={styles.main}>
+                        // <View style={styles.main}>
                         //     <MapView
                         //         style={{ height: 250, marginLeft: 20, marginTop: 10, marginRight: 20 }}
                         //         region={this.state.region}>
@@ -211,6 +213,7 @@ class Activity extends React.Component {
                         //     </MapView>
                         // </View>
                     }
+                    
                     <View style={styles.main}>
                         <View style={styles.divide}>
                             <Text style={styles.titleText}>活動內容</Text>

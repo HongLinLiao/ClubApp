@@ -33,9 +33,6 @@ export default createStackNavigator({
         headerRight: <Button title='新增貼文' onPress={() => askCreate()} />,
         title: '新增文章',
         headerBackTitle: '社團',
-        headerBackImage: {
-          tintColor: '#0d4273',
-        },
         headerTitleStyle: {
           color: '#666666',
           fontSize: 20,
@@ -55,9 +52,6 @@ export default createStackNavigator({
         headerRight: <Button title='建立活動' onPress={() => askCreate()} />,
         title: '新增活動',
         headerBackTitle: '社團',
-        headerBackImage: {
-          tintColor: '#0d4273',
-        },
         headerTitleStyle: {
           color: '#666666',
           fontSize: 20,
