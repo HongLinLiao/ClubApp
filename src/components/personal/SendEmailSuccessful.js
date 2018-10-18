@@ -1,5 +1,5 @@
 import React from 'react'
-import { View, Text, Button,Image } from 'react-native'
+import { View, Text, Button,Image, TouchableOpacity  } from 'react-native'
 import styles from '../../styles/personal/SendEmailSuccessful';
 class SendEmailSuccessful extends React.Component {
 
@@ -19,12 +19,9 @@ class SendEmailSuccessful extends React.Component {
                   <Text style={styles.userMailText}>{this.props.user.email}</Text>
               </View>
               <View style={styles.buttonView}>
-                  <Button title='確認' onPress={() => this.props.navigation.pop(2)}
-                      title='確認'
-                      color='#666666'
-                      backgroundColor='#fbdaa7'
-                      borderRadius={10}
-                      buttonStyle={styles.button} />
+                      <TouchableOpacity onPress={() => this.props.navigation.pop(2)}>
+                      <Text style={{color:'#666666',fontSize:18}}>確認</Text>
+                      </TouchableOpacity>
               </View>
           </View>
       </View>

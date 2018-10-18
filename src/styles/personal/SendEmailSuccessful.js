@@ -57,9 +57,7 @@ export default StyleSheet.create({
         color: '#666666'
     },
     buttonView: {
-        padding: 20,
-    },
-    button: {
+        margin: 20,
         width: 150,
         height: 45,
         shadowOffset: { width: 0.5, height: 0.5, },
@@ -67,7 +65,13 @@ export default StyleSheet.create({
         shadowRadius: 10,
         shadowOpacity: 0.1,
         elevation: 10,
-
+        backgroundColor:'#fbdaa7',
+        borderRadius:10,
+        justifyContent:'center',
+        alignItems:'center'
+    },
+    button: {
+        
     },
 
 })
