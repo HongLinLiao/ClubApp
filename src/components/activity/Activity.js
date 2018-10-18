@@ -151,9 +151,9 @@ class Activity extends React.Component {
                                 <Text style={styles.schoolText}>{element.schoolName}    {element.clubName}</Text>
                                 <TouchableOpacity onPress={async () =>
                                     await this.pressKeep(element)}>
-                        
 
-                                        <Image
+
+                                    <Image
                                         style={styles.collect}
                                         source={element.statusKeep ? require("../../images/bookmark-red.png") : require("../../images/bookmark.png")}
                                     />
@@ -195,20 +195,22 @@ class Activity extends React.Component {
                             </View>
                         </View>
                     </View>
-                    <View style={styles.main}>
-                        <MapView
-                            style={{ height: 250, marginLeft: 20, marginTop: 10, marginRight: 20 }}
-                            region={this.state.region}>
-                            <Marker
-                                coordinate={{
-                                    latitude: this.state.region.latitude,
-                                    longitude: this.state.region.longitude,
-                                }}
-                                title='你現在的位置'
-                                description='在此位置辦活動'
-                            />
-                        </MapView>
-                    </View>
+                    {
+                        //     <View style={styles.main}>
+                        //     <MapView
+                        //         style={{ height: 250, marginLeft: 20, marginTop: 10, marginRight: 20 }}
+                        //         region={this.state.region}>
+                        //         <Marker
+                        //             coordinate={{
+                        //                 latitude: this.state.region.latitude,
+                        //                 longitude: this.state.region.longitude,
+                        //             }}
+                        //             title='你現在的位置'
+                        //             description='在此位置辦活動'
+                        //         />
+                        //     </MapView>
+                        // </View>
+                    }
                     <View style={styles.main}>
                         <View style={styles.divide}>
                             <Text style={styles.titleText}>活動內容</Text>

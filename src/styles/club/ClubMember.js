@@ -23,7 +23,7 @@ export default StyleSheet.create({
         color: 'rgba(102,102,102,1)'
 
     },
-    botton: {
+    button: {
         backgroundColor: '#666666',
         marginBottom: 8,
         marginTop:8,
