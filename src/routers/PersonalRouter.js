@@ -105,9 +105,28 @@ export default createStackNavigator({
   },
   EmailReVerified: {
     screen: EmailReVerifiedPage,
+    navigationOptions: ({ navigation }) => ({
+      title: '驗證電子信箱',
+      headerBackTitle: '上一頁',
+      headerTitleStyle: {
+        color: '#666666',
+        fontSize: 20,
+      },
+      headerStyle: {
+        backgroundColor: '#f6b456'
+      },
+    }
+    )
   },
   SendEmailSuccessful: {
     screen: SendEmailSuccessfulPage,
+    navigationOptions: ({ navigation }) => ({
+      header:null,
+      headerStyle: {
+        backgroundColor: '#f6b456'
+      },
+    }
+    )
   },
   ChangeEamil: {
     screen: ChangeEamilPage,
