@@ -219,20 +219,7 @@ class Activity extends React.Component {
 
                         </View>
                     </View>
-                    {
-                        // <View style={styles.divideN}>
-                        //     <Text style={styles.titleText}>你有興趣</Text>
-                        //     <View style={styles.intrestView}>
-                        //         <View style={styles.recommendView} />
-                        //         <View style={styles.recommendView} />
-                        //     </View>
-                        //     <View style={styles.intrestView}>
-                        //         <View style={styles.recommendView} />
-                        //         <View style={styles.recommendView} />
-                        //     </View>
-
-                        // </View>
-                    }
+                
                 </ScrollView>
                 {this.state.loading ? <Overlayer /> : null}
             </View>

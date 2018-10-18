@@ -181,12 +181,15 @@ class SearchClub extends React.Component {
               <View
                 style={{ position: "absolute", height: 400, width: "100%" }}
               >
-                {imgUrl ? (
-                  <ImageBackground
-                    source={{ uri: imgUrl }}
-                    resizeMode="cover"
-                    style={styles.clubBackground}
-                  >
+                
+
+                  <ImageBackground//可以了
+                  source={{ uri: imgUrl ? imgUrl : 'https://upload.wikimedia.org/wikipedia/en/d/d3/No-picture.jpg' }}
+                  resizeMode="cover"
+                  style={styles.clubBackground}
+                >
+
+
                     <View style={styles.clubInfoView}>
                       <View style={styles.clubTextView}>
                         <View style={styles.clubLeftTextView}>
@@ -241,7 +244,7 @@ class SearchClub extends React.Component {
                       </View>
                     </View>
                   </ImageBackground>
-                ) : null}
+                
               </View>
             </View>
 

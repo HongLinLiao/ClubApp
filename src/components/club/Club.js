@@ -1,8 +1,6 @@
 import React from "react";
 import {
   View,
-  TextInput,
-  Button,
   Text,
   Image,
   ScrollView,
@@ -14,13 +12,13 @@ import {
 
 import Expo from 'expo'
 import ModalDropdown from 'react-native-modal-dropdown';
-import { randomCid, getClubMemberData, filterOpenClub } from '../../modules/Club'
+import { randomCid } from '../../modules/Club'
 import { getPostKeyListFromClubKey } from '../../modules/Post'
 import PostListElement from '../post/PostListElement'
 import { joinOrLikeClub } from '../../modules/Common'
 import { getUserData, getClubData } from '../../modules/Data'
 import Overlayer from '../common/Overlayer'
-import PopupDialog, { SlideAnimation, DialogTitle } from 'react-native-popup-dialog';
+import PopupDialog, { SlideAnimation } from 'react-native-popup-dialog';
 import UserDialog from '../common/UserDialog'
 import styles from "../../styles/club/Club";
 
@@ -262,7 +260,7 @@ class Club extends React.Component {
                   style={{ position: "absolute", height: 400, width: "100%" }}
                 >
                   <ImageBackground
-                    source={{ uri: imgUrl ? imgUrl : 'https://steamuserimages-a.akamaihd.net/ugc/87100177918375746/EDFEECCE614D4A17D884A5E5B7E9D5810C4C1312/' }}
+                    source={{ uri: imgUrl ? imgUrl : 'https://upload.wikimedia.org/wikipedia/en/d/d3/No-picture.jpg' }}
                     resizeMode="cover"
                     style={styles.clubBackground}
                   >
@@ -302,7 +300,7 @@ class Club extends React.Component {
                         style={styles.adminIcon}
                       />
 
-                      <Text style={styles.adminText}>發布文章</Text>
+                      <Text style={styles.adminText}>發佈文章</Text>
                     </View>
                   </TouchableOpacity>
 

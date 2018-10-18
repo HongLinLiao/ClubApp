@@ -163,17 +163,15 @@ class Comment extends React.Component {
                                                 await this.pressFavorite(element.clubKey, element.postKey, element.commentKey)
                                             }>
                                                 <Image style={styles.icon}
-                                                    source={
-                                                        element.statusFavorite//不知道這個要用什麼來判斷
-                                                            ? require("../../images/images2/like-orange.png")
-                                                            : require("../../images/images2/like-gray.png")
-                                                    } />
+                                                source={
+                                                    element.statusFavorite//已可判斷
+                                                    ? require("../../images/images2/like-orange.png")
+                                                    : require("../../images/images2/like-gray.png")
+                                                        } />
                                             </TouchableOpacity>
-                                            <Text style={[styles.numberLittle,
-                                            {
-                                                color: element.numFavorites //這個也是
-                                                    ? "#f6b456" : "#666666"
-                                            }]}>{element.numFavorites}</Text>
+                                            <Text style={[styles.numberLittle, 
+                                                { color: element.statusFavorite //已可判斷
+                                                    ? "#f6b456" : "#666666" }]}>{element.numFavorites}</Text>
                                             <TouchableOpacity >
                                                 <Image source={require('../../images/pencil.png')}
                                                     style={styles.icon} />
@@ -181,13 +179,16 @@ class Comment extends React.Component {
                                         </View>
                                     </View>
                                     <Text style={styles.littleName}>{element.date}</Text>
-                                    <TextInput
+                                    <View style={{flex:1}}>
+                                    <TextInput//上面flex可能可以讓留言顯示出來，尚未測試
                                         style={styles.comment}
                                         value={element.content}
+                                        numberOfLines={5}
                                         editable={element.statusEdit}
                                         multiline={true}
                                         onChangeText={oldContent => { this.setState({ oldContent }); }}
                                     />
+                                    </View>
 
                                 </View>
                             </View>
@@ -245,6 +246,7 @@ class Comment extends React.Component {
                         />
                     </View>
                     <View style={styles.inputViewTabBar}>
+                    
                         <TextInput
                             style={styles.textInputTabBar}
                             placeholder='新增留言...'
@@ -254,14 +256,17 @@ class Comment extends React.Component {
                             onChangeText={newContent => { this.setState({ newContent }); }}
                             onContentSizeChange={event => { this.setState({ height: event.nativeEvent.contentSize.height }); }}
                         />
+                        
                     </View>
                     <TouchableOpacity onPress={async () => { await this.addComment(); }}>
                         <Image source={require('../../images/send.png')}
                             style={styles.sendIcon} />
                     </TouchableOpacity>
+                    <KeyboardAvoidingView behavior='padding' enabled> </KeyboardAvoidingView>
                 </View>
-                <KeyboardAvoidingView behavior='padding' enabled></KeyboardAvoidingView>//不理我
+                
             </View>
+            
         );
     }
 }
