@@ -89,7 +89,7 @@ class ClubAdmin extends React.Component {
             <View style={styles.container}>
                 <ScrollView>
                     <ImageBackground style={styles.clubBackground}
-                        source={{ uri: imgUrl ? imgUrl : 'https://steamuserimages-a.akamaihd.net/ugc/87100177918375746/EDFEECCE614D4A17D884A5E5B7E9D5810C4C1312/' }} resizeMode='cover' style={{ height: 400 }}>
+                        source={{ uri: imgUrl ? imgUrl : 'https://upload.wikimedia.org/wikipedia/en/d/d3/No-picture.jpg' }} resizeMode='cover' style={{ height: 400 }}>
 
                         <TouchableOpacity style={styles.cameraView} onPress={() => this.handleChangePhoto()}>
                             <Image source={require('../../images/camera.png')}
@@ -97,27 +97,30 @@ class ClubAdmin extends React.Component {
                             <Text style={styles.cameraText}>更換照片</Text>
                         </TouchableOpacity>
 
+                        
                         <View style={styles.clubInfoView}>
-                            <View style={styles.clubTextView}>
-                                <View style={styles.clubLeftTextView}>
-                                    <View style={styles.flexDirectionRow}>
-                                        <Text style={styles.schoolText}>{schoolName}</Text>
-                                    </View>
-                                    <View style={styles.flexDirectionRow}>
-                                        <Text style={styles.clubTopNameText}>{clubName}</Text>
-                                    </View>
-                                </View>
-
-                                <View style={styles.clubRightTextView}>
-                                    <TouchableOpacity style={styles.flexDirectionRow} onPress={this.askClubOpen}>
-                                        <Text style={styles.numberext}>{open ? '公開' : '非公開'}</Text>
-                                        <Image source={require('../../images/exchange.png')}
-                                            style={styles.iconPancil} />
-                                    </TouchableOpacity>
-                                    <Text style={styles.numberext}>{numberOfMember},{status}</Text>
-                                </View>
-                            </View>
+                      <View style={styles.clubLeftTextView}>
+                        <Text style={styles.schoolText}>{schoolName}</Text>
+                        <Text style={styles.clubTopNameText}>{clubName}</Text>
+                      </View>
+                      <View style={styles.clubRightTextView}>
+                        <View style={{ flexDirection: "row" }}>
+                          <Text style={styles.numberext}>
+                            {numberOfMember}
+                            位成員
+                          </Text>
+                          <TouchableOpacity style={styles.flexDirectionRow} onPress={this.askClubOpen}>
+                          <Text style={styles.numberext}>{open ? '公開' : '非公開'}</Text>
+                          <Image source={require('../../images/exchange.png')}
+                              style={styles.iconPancil} />
+                      </TouchableOpacity>
                         </View>
+                        <Text style={styles.numberext}>
+                          你的身分：
+                          {status}
+                        </Text>
+                      </View>
+                    </View>
                     </ImageBackground>
 
                     <View style={styles.adminButtonView}>
@@ -162,11 +165,7 @@ class ClubAdmin extends React.Component {
                         <Button title='活動管理' onPress={() => { }} />
                     </View>
                 </ScrollView>
-                <TouchableOpacity style={styles.selectClub}>
-                    <Text style={styles.selectClubText}>長庚大學 紫藤花親善社</Text>
-                    <Image source={require('../../images/arrowDown.png')}
-                        style={styles.icon} />
-                </TouchableOpacity>
+               
                 <KeyboardAvoidingView behavior="padding">
                 </KeyboardAvoidingView>
                 {this.state.loading ? <Overlayer /> : null}

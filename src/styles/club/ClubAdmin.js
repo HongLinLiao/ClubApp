@@ -43,9 +43,10 @@ export default StyleSheet.create({
         paddingBottom: 5,
         paddingLeft: 30,
         paddingRight: 20,
+        marginBottom: 7,
         flexDirection: 'row',
         justifyContent: 'space-between',
-        backgroundColor: 'rgba(0,0,0,0.3)'
+        backgroundColor: 'rgba(0,0,0,0.45)'
     },
     flexDirectionRow: {
         flexDirection: 'row',
