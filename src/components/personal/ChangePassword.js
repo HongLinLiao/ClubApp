@@ -1,9 +1,7 @@
 import React from 'react'
-import { View, Text, TextInput, Alert, Image, TouchableOpacity, StatusBar, StyleSheet } from 'react-native'
+import { View, Text, TextInput, Alert} from 'react-native'
 import Overlayer from '../common/Overlayer'
-import { Icon, SearchBar, Button } from 'react-native-elements'
 import styles from '../../styles/personal/ChangePassword'
-import * as firebase from 'firebase'
 
 class ChangePassword extends React.Component {
 
@@ -85,23 +83,10 @@ class ChangePassword extends React.Component {
         </View>
         {this.state.loading ? <Overlayer /> : null}
       </View>
-
-
     );
   }
 }
 export default ChangePassword
-
-
-//<View style={styles.buttonView}>
-//<Button
-//  title='確認'
-//  color='#666666'
-//  backgroundColor='#fbdaa7'
-//  borderRadius={10}
-//  buttonStyle={styles.button}
-//  onPress={() => this.handleSavePassword()} />
-//</View>
 
 
 

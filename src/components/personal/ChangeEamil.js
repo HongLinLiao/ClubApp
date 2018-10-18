@@ -1,9 +1,6 @@
 import React from 'react'
-import { View, Text, TextInput, Alert, Image, StatusBar, TouchableOpacity } from 'react-native'
+import { View, Text, TextInput, Alert,StatusBar, TouchableOpacity } from 'react-native'
 import Overlayer from '../common/Overlayer'
-import { Icon, SearchBar, Button } from 'react-native-elements'
-import { Constants } from 'expo';
-import StatusBarPaddingIOS from 'react-native-ios-status-bar-padding';
 import styles from '../../styles/personal/ChangeEmail' 
 
 
@@ -75,8 +72,6 @@ class ChangeEamil extends React.Component {
           </View>
         <View style={styles.tabBar}></View>
     </View>
-
-                
   );
 }
 }

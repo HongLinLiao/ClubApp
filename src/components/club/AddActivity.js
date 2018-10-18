@@ -1,7 +1,6 @@
 import React from 'react'
 import {
     View,
-    Button,
     TextInput,
     Text,
     ScrollView,
@@ -11,13 +10,12 @@ import {
     Alert,
 } from 'react-native'
 
-import { Location, DangerZone } from 'expo'
+import { Location } from 'expo'
 import MapView, { Marker } from 'react-native-maps'
-import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import { showLocation } from 'react-native-map-link'
 import DateTimePicker from 'react-native-modal-datetime-picker';
 
-import { takePhoto, selectPhoto } from '../../modules/Common'
+import { selectPhoto } from '../../modules/Common'
 import Overlayer from '../common/Overlayer'
 import styles from '../../styles/club/AddActivity'
 
@@ -225,10 +223,7 @@ class AddActivity extends React.Component {
                             } 
                         </TouchableOpacity>
                         
-                        
-
-                
-
+  
                     <View style={styles.line}></View>
 
                     <View style={styles.main}>
@@ -349,7 +344,6 @@ class AddActivity extends React.Component {
             </View>
         );
     }
-
 
 }
 

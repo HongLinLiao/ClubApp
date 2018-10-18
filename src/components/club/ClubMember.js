@@ -1,9 +1,7 @@
 import React from 'react'
 import {
     View,
-    Button,
     Alert,
-    Image,
     Text,
     TouchableOpacity
 } from 'react-native'
@@ -11,7 +9,7 @@ import {
 import {
     ListItem,
 } from 'react-native-elements'
-import PopupDialog, { SlideAnimation, DialogTitle } from 'react-native-popup-dialog';
+import PopupDialog, { SlideAnimation} from 'react-native-popup-dialog';
 
 import { getUserData, getClubData } from '../../modules/Data'
 import { getClubMemberData } from '../../modules/Club'
