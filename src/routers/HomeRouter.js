@@ -10,7 +10,7 @@ import { Image, TouchableOpacity } from 'react-native'
 import { View } from 'native-base';
 import homeStyles from '../styles/home/Home'
 
-goSelectingPage = navigation => {
+goSelectingPage = (navigation) => {
 	navigation.navigate("Selecting", this.homeReload);
 };
 export default createStackNavigator({
@@ -56,7 +56,7 @@ export default createStackNavigator({
 	Selecting: {
 		screen: requireAppFlow(SelectingPage),
 		navigationOptions: ({ navigation }) => ({
-			title: '篩選',
+			title: '貼文篩選',
 			headerTitleStyle: {
 				color: '#666666',
 				fontSize: 20,

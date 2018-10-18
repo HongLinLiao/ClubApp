@@ -32,7 +32,7 @@ class Home extends React.Component {
 
     onRefresh = async () => {
         try {
-            const { clubList, getHomePostReload } = this.props;
+            const { clubList } = this.props;
             this.setState({ refreshing: true });
             this.setState({ refreshing: false });
             // await getHomePostReload(clubList, newPostList => {

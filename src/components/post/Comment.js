@@ -179,11 +179,10 @@ class Comment extends React.Component {
                                         </View>
                                     </View>
                                     <Text style={styles.littleName}>{element.date}</Text>
-                                    <View style={{flex:1}}>
-                                    <TextInput//上面flex可能可以讓留言顯示出來，尚未測試
+                                    <View style={{flex:1, display: element.statusEdit ? "flex" : "none" }}>
+                                    <TextInput
                                         style={styles.comment}
                                         value={element.content}
-                                        numberOfLines={5}
                                         editable={element.statusEdit}
                                         multiline={true}
                                         onChangeText={oldContent => { this.setState({ oldContent }); }}
