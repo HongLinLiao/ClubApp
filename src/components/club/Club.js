@@ -302,7 +302,7 @@ class Club extends React.Component {
                         style={styles.adminIcon}
                       />
 
-                      <Text style={styles.adminText}>發布文章</Text>
+                      <Text style={styles.adminText}>發佈文章</Text>
                     </View>
                   </TouchableOpacity>
 
