@@ -8,7 +8,7 @@ import ClubAdminPage from '../containers/club/ClubAdminPage'
 import ClubMemberPage from '../containers/club/ClubMemberPage'
 
 import React from 'react'
-import { Button } from 'react-native'
+import { Button, TouchableOpacity, Image, Text } from 'react-native'
 
 
 export default createStackNavigator({
@@ -16,48 +16,65 @@ export default createStackNavigator({
     screen: ClubPage,
     navigationOptions: {
       header: null,
-      gesturesEnabled: false
-    },
+      gesturesEnabled: false,
+      headerBackTitle: '返回',
+    }
   },
+
   Activity: {
     screen: ActivityPage,
   },
+
   Post: {
     screen: PostPage
   },
+
   AddPost: {
     screen: AddPostPage,
     navigationOptions: ({ navigation }) => {
       const { askCreate } = navigation.state.params
       return {
-        headerRight: <Button title='新增貼文' onPress={() => askCreate()} />,
+        headerRight: (
+          <TouchableOpacity onPress={() => askCreate()}>
+            <Text style={{ fontSize: 18, color: '#0d4273', marginRight: 15 }}>發佈</Text>
+          </TouchableOpacity>
+        ),
+        headerBackImage: (
+          <TouchableOpacity>
+            <Image source={require('../images/images2/arrowLeftBlue.png')}
+              style={{ width: 25, height: 25 }} />
+          </TouchableOpacity>
+        ),
         title: '新增文章',
-        headerBackTitle: '社團',
-        headerBackImage: {
-          tintColor: '#0d4273',
-        },
         headerTitleStyle: {
           color: '#666666',
           fontSize: 20,
         },
         headerStyle: {
           backgroundColor: '#f6b456'
-        }
+        },
       }
     }
   },
+
   AddActivity: {
     screen: AddActivityPage,
     navigationOptions: ({ navigation }) => {
 
       const { askCreate } = navigation.state.params
       return {
-        headerRight: <Button title='建立活動' onPress={() => askCreate()} />,
+        headerRight: (<TouchableOpacity onPress={() => askCreate()} >
+          <Text style={{ fontSize: 18, color: '#0d4273', marginRight: 15 }}>建立活動</Text>
+        </TouchableOpacity>
+        ),
+        headerBackImage: (
+          <TouchableOpacity>
+            <Image source={require('../images/images2/arrowLeftBlue.png')}
+              style={{ width: 25, height: 25 }} />
+          </TouchableOpacity>
+        ),
         title: '新增活動',
         headerBackTitle: '社團',
-        headerBackImage: {
-          tintColor: '#0d4273',
-        },
         headerTitleStyle: {
           color: '#666666',
           fontSize: 20,
@@ -71,12 +88,34 @@ export default createStackNavigator({
 
   ClubAdmin: {
     screen: ClubAdminPage,
+    navigationOptions: ({ navigation }) => ({
+      headerBackImage: (
+        <TouchableOpacity>
+          <Image source={require('../images/images2/arrowLeftBlue.png')}
+            style={{ width: 25, height: 25 }} />
+        </TouchableOpacity>
+      ),
+      title: '管理者模式',
+      headerTitleStyle: {
+        color: '#666666',
+        fontSize: 20,
+      },
+      headerStyle: {
+        backgroundColor: '#f6b456'
+      }
+    })
   },
 
   ClubMember: {
     screen: ClubMemberPage,
     navigationOptions: ({ navigation }) => ({
-      title: '新增社團',
+      headerBackImage: (
+        <TouchableOpacity>
+          <Image source={require('../images/images2/arrowLeftBlue.png')}
+            style={{ width: 25, height: 25 }} />
+        </TouchableOpacity>
+      ),
+      title: '編輯成員',
       headerTitleStyle: {
         color: '#666666',
         fontSize: 20,
@@ -86,5 +125,13 @@ export default createStackNavigator({
       }
     })
   }
-})
+},
+  {
+    navigationOptions: {
+      headerBackTitleStyle: {
+        color: '#0d4273',
+        fontSize: 15,
+      },
+    }
+  })
 

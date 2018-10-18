@@ -14,23 +14,23 @@ goSelectingPage = navigation => {
 	navigation.navigate("Selecting", this.homeReload);
 };
 export default createStackNavigator({
-	
+
 	//預設首頁
 	Home: {
 		screen: requireAppFlow(HomePage),
 		navigationOptions: ({ navigation }) => ({
 			title: 'iClubs',
-			headerBackTitle:'首頁',
+			headerBackTitle: '首頁',
 			headerTitleStyle: {
 				color: '#666666',
 				fontSize: 30,
-				fontFamily:'Courier',
+				fontFamily: 'Courier',
 			},
 			headerStyle: {
 				backgroundColor: '#f6b456'
 			},
 			headerRight: (
-				<TouchableOpacity  onPress={() => { this.goSelectingPage(this.props.navigation); }}>
+				<TouchableOpacity onPress={() => { this.goSelectingPage(this.props.navigation); }}>
 					<Image source={require('../images/images2/control.png')}
 						style={homeStyles.controlImage} />
 				</TouchableOpacity>
@@ -41,26 +41,26 @@ export default createStackNavigator({
 	Post: {
 		screen: requireAppFlow(PostPage),
 		navigationOptions: ({ navigation }) => ({
-			title: 'Posttitle',
 			headerTitleStyle: {
 				color: '#666666',
 				fontSize: 25,
-				fontFamily:'Courier',
+				fontFamily: 'Courier',
 			},
 			headerStyle: {
 				backgroundColor: '#f6b456'
 			}
 		})
+
 	},
 	//篩選
 	Selecting: {
 		screen: requireAppFlow(SelectingPage),
 		navigationOptions: ({ navigation }) => ({
-			title: 'Selecting',
+			title: '篩選',
 			headerTitleStyle: {
 				color: '#666666',
-				fontSize: 25,
-				fontFamily:'Courier',
+				fontSize: 20,
+				fontFamily: 'Courier',
 			},
 			headerStyle: {
 				backgroundColor: '#f6b456'
@@ -71,10 +71,10 @@ export default createStackNavigator({
 	Stories: {
 		screen: requireAppFlow(HomeActivitiesPage),
 		navigationOptions: ({ navigation }) => ({
-			title: '社團故事',
+			title: '社團活動',
 			headerTitleStyle: {
 				color: '#666666',
-				fontSize: 25,
+				fontSize: 20,
 			},
 			headerStyle: {
 				backgroundColor: '#f6b456'
@@ -82,7 +82,31 @@ export default createStackNavigator({
 		})
 	},
 	// 動態貼文內頁，從Club匯入
-	Activity:{
-	    screen: requireAppFlow(ActivityPage),
+	Activity: {
+		screen: requireAppFlow(ActivityPage),
+		navigationOptions: ({ navigation }) => ({
+			headerTitleStyle: {
+				color: '#666666',
+				fontSize: 18,
+				fontFamily: 'Courier',
+			},
+			headerStyle: {
+				backgroundColor: '#f6b456'
+			}
+		})
 	},
+},
+{
+	navigationOptions: {
+		headerBackTitleStyle: {
+			color: '#0d4273',
+			fontSize: 15,
+		},
+		headerBackImage: (
+			<TouchableOpacity>
+				<Image source={require('../images/images2/arrowLeftBlue.png')}
+					style={{ width: 25, height: 25 }} />
+			</TouchableOpacity>
+		)
+	}
 })
