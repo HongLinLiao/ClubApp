@@ -2,7 +2,7 @@ const GOOGLE_MAP_API = 'AIzaSyBAqWCGCH2u8pZrJ9fkC7slorc9tosInk0'
 
 export const autocompletePlace = async (text) => {
     try {
-        const response = await fetch(`https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${text}&types=geocode&language=ZH-TW&components=country:TW&key=${GOOGLE_MAP_API}`)
+        const response = await fetch(`https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${text}&language=ZH-TW&components=country:TW&key=${GOOGLE_MAP_API}`)
         const result = await response.json()
 
         console.log(result)

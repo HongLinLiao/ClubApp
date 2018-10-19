@@ -22,6 +22,7 @@ import { autocompletePlace, geocodingPlaceId } from '../../modules/Api'
 import Overlayer from '../common/Overlayer'
 import styles from '../../styles/club/AddActivity'
 import PlaceDialog from '../common/PlaceDialog';
+import { Button } from 'native-base';
 
 const slideAnimation = new SlideAnimation({
     slideFrom: 'bottom',
@@ -36,6 +37,7 @@ class AddActivity extends React.Component {
             latitudeDelta: 0.0922,
             longitudeDelta: 0.0421,
         },
+        showMap: false,
         showDatePicker: false,
         datePickerId: 0, // 0 or 1 設定開始跟結束
         loading: false,
@@ -82,12 +84,13 @@ class AddActivity extends React.Component {
 
     searchPlace = async () => {
         try {
-            this.popupDialog.show(async () => {
-                this.setState({loading: true})
-                const result = await autocompletePlace(this.state.place)
-                const { predictions, status } = result
-                this.setState({loading: false, predictions, status})
-            })
+            // this.popupDialog.show(async () => {
+            //     this.setState({loading: true})
+            //     const result = await autocompletePlace(this.state.place)
+            //     const { predictions, status } = result
+            //     this.setState({loading: false, predictions, status})
+            // })
+            this.popupDialog.show()
             
         } catch(e) {
             Alert.alert(e.toString())
@@ -96,7 +99,7 @@ class AddActivity extends React.Component {
 
     setPlace = async (place_id) => {
         try {
-            this.setState({loading: true})
+            this.setState({loading: true, showMap: true})
             const result = await geocodingPlaceId(place_id)
             const { formatted_address, geometry } = result.results[0]
             const { location } = geometry
@@ -306,9 +309,6 @@ class AddActivity extends React.Component {
                                 </View>
                             </View>
                         </View>
-
-
-
                         <View style={[styles.row,{flex:1,paddingTop: 10}]}>
                             <Image source={require('../../images/coin.png')}
                                 style={styles.calendarIcon} />
@@ -323,40 +323,47 @@ class AddActivity extends React.Component {
                                 />
                             </View>
                         </View>
-                        <View style={[styles.row, {flex:1 ,paddingTop: 10}]}>
+                        <View style={[styles.row, {flex:1}]}>
                             <Image source={require('../../images/place.png')}
                                 style={styles.calendarIcon} />
                             <View style={styles.littleTextView}>
                                 <TextInput
-                                    style={[styles.littleText,style={width:224}]}
-                                    placeholder='活動地點'
+                                    style={[styles.littleText]}
+                                    placeholder='可以輸入活動地點'
                                     placeholderTextColor='rgba(102,102,102,0.5)'
                                     underlineColorAndroid='transparent'
                                     onChangeText={place => this.setState({ place })}
                                     defaultValue={this.state.tempPlace}
                                 />
                             </View>
-                            <TouchableOpacity onPress={this.searchPlace}>
-                                <Image source={require('../../images/search.png')}
-                                    style={styles.searchIcon} />
-                            </TouchableOpacity>
-
                         </View>
-                        <MapView
-                            style={{ height: 250, marginLeft: 20, marginTop: 10, marginRight: 20 }}
-                            region={this.state.region}
-                        >
-                            <Marker
-                                coordinate={{
-                                    latitude: this.state.region.latitude,
-                                    longitude: this.state.region.longitude,
-                                    latitudeDelta: this.state.region.latitudeDelta,
-                                    longitudeDelta: this.state.region.longitudeDelta
-                                }}
-                                title='你現在的位置'
-                                description='在此位置辦活動'
-                            />
-                        </MapView>
+                        <View style={[styles.row, {flex:1 ,paddingTop: 10}]}>
+                            <TouchableOpacity style={{flexDirection: 'row', alignItems: 'center'}} onPress={this.searchPlace}>
+                                <Text style={{color: '#0d4273', marginRight: 5}}>搜尋地點</Text>
+                                <Image source={require('../../images/search.png')} style={styles.searchIcon} />
+                            </TouchableOpacity>
+                        </View>
+                        {
+                            this.state.showMap ? (
+                                <MapView
+                                    style={{ height: 250, marginLeft: 20, marginTop: 10, marginRight: 20 }}
+                                    region={this.state.region}
+                                    mapType={this.state.mapType}
+                                >
+                                    <Marker
+                                        coordinate={{
+                                            latitude: this.state.region.latitude,
+                                            longitude: this.state.region.longitude,
+                                            latitudeDelta: this.state.region.latitudeDelta,
+                                            longitudeDelta: this.state.region.longitudeDelta
+                                        }}
+                                        title='你現在的位置'
+                                        description='在此位置辦活動'
+                                    />
+                                </MapView>
+                            ) : null
+                        }
+                        
 
                         <View style={{ padding: 30 }}>
                             <Text style={styles.title}>活動內容</Text>
@@ -393,15 +400,12 @@ class AddActivity extends React.Component {
                 <PopupDialog
                     ref={(popupDialog) => this.popupDialog = popupDialog}
                     dialogAnimation={slideAnimation}
-                    width={0.7}
+                    width={0.9}
                     height={0.7}
-                    dialogStyle={{ borderRadius: 20 }}
+                    dialogStyle={{ borderRadius: 10}}
                 >
                     <PlaceDialog
-                        predictions={predictions}
                         setPlace={this.setPlace.bind(this)}
-                        status={this.state.status}
-                        loading={loading}
                     />
                     
                 </PopupDialog>
