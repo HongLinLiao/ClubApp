@@ -14,10 +14,18 @@ import { Location } from 'expo'
 import MapView, { Marker } from 'react-native-maps'
 import { showLocation } from 'react-native-map-link'
 import DateTimePicker from 'react-native-modal-datetime-picker';
+import PopupDialog, { SlideAnimation } from 'react-native-popup-dialog';
+import UserDialog from '../common/UserDialog'
 
 import { selectPhoto } from '../../modules/Common'
+import { autocompletePlace, geocodingPlaceId } from '../../modules/Api'
 import Overlayer from '../common/Overlayer'
 import styles from '../../styles/club/AddActivity'
+import PlaceDialog from '../common/PlaceDialog';
+
+const slideAnimation = new SlideAnimation({
+    slideFrom: 'bottom',
+});
 
 class AddActivity extends React.Component {
 
@@ -31,6 +39,9 @@ class AddActivity extends React.Component {
         showDatePicker: false,
         datePickerId: 0, // 0 or 1 設定開始跟結束
         loading: false,
+        predictions: [],
+        status: null,
+        tempPlace: '',
 
         title: '',
         content: '',
@@ -66,6 +77,45 @@ class AddActivity extends React.Component {
             }
         } catch (e) {
             Alert.alert('發生錯誤！')
+        }
+    }
+
+    searchPlace = async () => {
+        try {
+            this.popupDialog.show(async () => {
+                this.setState({loading: true})
+                const result = await autocompletePlace(this.state.place)
+                const { predictions, status } = result
+                this.setState({loading: false, predictions, status})
+            })
+            
+        } catch(e) {
+            Alert.alert(e.toString())
+        }
+    }
+
+    setPlace = async (place_id) => {
+        try {
+            this.setState({loading: true})
+            const result = await geocodingPlaceId(place_id)
+            const { formatted_address, geometry } = result.results[0]
+            const { location } = geometry
+            this.setState({
+                place: formatted_address,
+                tempPlace: formatted_address,
+                region: {
+                    latitude: location.lat,
+                    longitude: location.lng,
+                    latitudeDelta: 0.003, //經度縮放比例
+                    longitudeDelta: 0.003, //緯度縮放比例
+                },
+                loading: false
+            })
+
+            this.popupDialog.dismiss()
+
+        } catch(e) {
+            Alert.alert(e.toString())
         }
     }
 
@@ -194,7 +244,7 @@ class AddActivity extends React.Component {
     render() {
         const dateArray = this.getDateTime()
         const { user, joinClubs, currentCid } = this.props
-        const { open } = this.state
+        const { open, predictions, loading } = this.state
         const { schoolName, clubName, member } = joinClubs[currentCid]
         const { status } = member[user.uid]
 
@@ -283,9 +333,10 @@ class AddActivity extends React.Component {
                                     placeholderTextColor='rgba(102,102,102,0.5)'
                                     underlineColorAndroid='transparent'
                                     onChangeText={place => this.setState({ place })}
+                                    defaultValue={this.state.tempPlace}
                                 />
                             </View>
-                            <TouchableOpacity onPress={this.open}>
+                            <TouchableOpacity onPress={this.searchPlace}>
                                 <Image source={require('../../images/search.png')}
                                     style={styles.searchIcon} />
                             </TouchableOpacity>
@@ -299,6 +350,8 @@ class AddActivity extends React.Component {
                                 coordinate={{
                                     latitude: this.state.region.latitude,
                                     longitude: this.state.region.longitude,
+                                    latitudeDelta: this.state.region.latitudeDelta,
+                                    longitudeDelta: this.state.region.longitudeDelta
                                 }}
                                 title='你現在的位置'
                                 description='在此位置辦活動'
@@ -337,7 +390,22 @@ class AddActivity extends React.Component {
                         </View>
                     </View>
                 </ScrollView>
-                {this.state.loading ? <Overlayer /> : null}
+                <PopupDialog
+                    ref={(popupDialog) => this.popupDialog = popupDialog}
+                    dialogAnimation={slideAnimation}
+                    width={0.7}
+                    height={0.7}
+                    dialogStyle={{ borderRadius: 20 }}
+                >
+                    <PlaceDialog
+                        predictions={predictions}
+                        setPlace={this.setPlace.bind(this)}
+                        status={this.state.status}
+                        loading={loading}
+                    />
+                    
+                </PopupDialog>
+                {loading ? <Overlayer /> : null}
                 <KeyboardAvoidingView behavior='padding'>
                 </KeyboardAvoidingView>
 
@@ -348,94 +416,3 @@ class AddActivity extends React.Component {
 }
 
 export default AddActivity
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        // <GooglePlacesAutocomplete
-        // textInputProps={{
-        //     onChangeText: (tempText) => {
-        //         console.log(tempText)
-        //         this.setState({tempText})
-        //     },
-        //     onBlur: () => {
-        //         console.log('blur')
-        //         this.setState({text: this.state.tempText})
-        //     },
-        //     onSubmitEditing: () => {
-        //         console.log('sub')
-        //     },
-        //     value: this.state.text
-
-        // }}
-        // placeholder='Search'
-        // minLength={2} // minimum length of text to search
-        // autoFocus={false}
-        // returnKeyType={'search'} // Can be left out for default return key https://facebook.github.io/react-native/docs/textinput.html#returnkeytype
-        // listViewDisplayed='auto'   // true/false/undefined
-        // fetchDetails={true}
-        // renderDescription={row => row.description} // custom description render
-        // onPress={(data, details = null) => { // 'details' is provided when fetchDetails = true
-        //     // console.log(data, details);
-        // }}
-
-
-        // query={{
-        //     // available options: https://developers.google.com/places/web-service/autocomplete
-        //     key: 'AIzaSyBvx44uGRxGR2RlGqdbcad48Rp1CZb77p8',
-        //     language: 'zh-TW', // language of the results
-        //     types: 'country' // default: 'geocode'
-        // }}
-
-        // styles={{
-        // textInputContainer: {
-        //     width: '100%'
-        // },
-        // description: {
-        //     fontWeight: 'bold'
-        // },
-        // predefinedPlacesDescription: {
-        //     color: '#1faadb'
-        // }
-        // }}
-        // currentLocation={true} // Will add a 'Current location' button at the top of the predefined places list
-        // currentLocationLabel="Current location"
-        // nearbyPlacesAPI='GooglePlacesSearch'
-
-        // // GooglePlacesSearchQuery={{
-        // //     // available options for GooglePlacesSearch API : https://developers.google.com/places/web-service/search
-        // //     rankby: 'distance',
-        // //     types: 'food'
-        // // }}
-
-        // // filterReverseGeocodingByTypes={['locality', 'administrative_area_level_3']} // filter the reverse geocoding results by types - ['locality', 'administrative_area_level_3'] if you want to display only cities
-        // />
