@@ -163,30 +163,32 @@ class Comment extends React.Component {
                                                 await this.pressFavorite(element.clubKey, element.postKey, element.commentKey)
                                             }>
                                                 <Image style={styles.icon}
-                                                source={
-                                                    element.statusFavorite//已可判斷
-                                                    ? require("../../images/images2/like-orange.png")
-                                                    : require("../../images/images2/like-gray.png")
-                                                        } />
+                                                    source={
+                                                        element.statusFavorite//已可判斷
+                                                            ? require("../../images/images2/like-orange.png")
+                                                            : require("../../images/images2/like-gray.png")
+                                                    } />
                                             </TouchableOpacity>
-                                            <Text style={[styles.numberLittle, 
-                                                { color: element.statusFavorite //已可判斷
-                                                    ? "#f6b456" : "#666666" }]}>{element.numFavorites}</Text>
-                                            <TouchableOpacity >
+                                            <Text style={[styles.numberLittle,
+                                            {
+                                                color: element.statusFavorite //已可判斷
+                                                    ? "#f6b456" : "#666666"
+                                            }]}>{element.numFavorites}</Text>
+                                            <TouchableOpacity style={{ display: element.statusEnable ? "flex" : "none" }}>
                                                 <Image source={require('../../images/pencil.png')}
                                                     style={styles.icon} />
                                             </TouchableOpacity>
                                         </View>
                                     </View>
                                     <Text style={styles.littleName}>{element.date}</Text>
-                                    <View style={{flex:1, display: element.statusEdit ? "flex" : "none" }}>
-                                    <TextInput
-                                        style={styles.comment}
-                                        value={element.content}
-                                        editable={element.statusEdit}
-                                        multiline={true}
-                                        onChangeText={oldContent => { this.setState({ oldContent }); }}
-                                    />
+                                    <View style={{ flex: 1 }}>
+                                        <TextInput
+                                            style={styles.comment}
+                                            value={element.content}
+                                            editable={element.statusEdit}
+                                            multiline={true}
+                                            onChangeText={oldContent => { this.setState({ oldContent }); }}
+                                        />
                                     </View>
 
                                 </View>
@@ -245,7 +247,7 @@ class Comment extends React.Component {
                         />
                     </View>
                     <View style={styles.inputViewTabBar}>
-                    
+
                         <TextInput
                             style={styles.textInputTabBar}
                             placeholder='新增留言...'
@@ -255,7 +257,7 @@ class Comment extends React.Component {
                             onChangeText={newContent => { this.setState({ newContent }); }}
                             onContentSizeChange={event => { this.setState({ height: event.nativeEvent.contentSize.height }); }}
                         />
-                        
+
                     </View>
                     <TouchableOpacity onPress={async () => { await this.addComment(); }}>
                         <Image source={require('../../images/send.png')}
@@ -263,9 +265,9 @@ class Comment extends React.Component {
                     </TouchableOpacity>
                     <KeyboardAvoidingView behavior='padding' enabled> </KeyboardAvoidingView>
                 </View>
-                
+
             </View>
-            
+
         );
     }
 }
