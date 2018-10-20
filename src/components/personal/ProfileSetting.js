@@ -73,8 +73,8 @@ class ProfileSetting extends React.Component {
     }
 
     render() {
-        const { aboutMe } = this.props
-        const { displayName, photoURL } = this.props.user
+        const { user, aboutMe, joinClub } = this.props
+        const { displayName, photoURL } = user
         return (
             <View style={{ flex: 1 }}>
                 <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
@@ -109,14 +109,14 @@ class ProfileSetting extends React.Component {
                             <View style={styles.nameView}>
                             <View style={styles.empty}></View>
                                 <TextInput style={[styles.nameInput, { color: this.state.nameColor }]}  //state變數代姓名顏色
-                                    placeholder='EJ boyfriend'
+                                    placeholder='請輸入名字'
                                     placeholderTextColor={this.state.nameColor}
                                     underlineColorAndroid='rgba(246,180,86,0)'
                                     multiline={true}
                                     editable={this.state.nameEditable}
                                     onChangeText={(nickName) => this.setState({ nickName })}
                                     defaultValue={displayName}
-                                    value={this.state.nickName} />
+                                />
                                 <TouchableOpacity onPress={() => { this.changeNameEditable() }}>
                                     <Image style={styles.hotPoint}
                                         source={require('../../images/pencil.png')} />
@@ -124,22 +124,22 @@ class ProfileSetting extends React.Component {
                             </View>
                             <View style={styles.row}>
                                 <Image style={styles.hotPoint}
-                                    source={require('../../images/star.png')} />
-                                <Text style={styles.number}>社團數量</Text>
+                                    source={require('../../images/point.png')} />
+                                <Text style={styles.number}>{Object.keys(joinClub).length}</Text>
                             </View>
                         </View>
 
                         <View style={styles.aboutMeView}>
                         <View style={styles.empty}></View>
                             <TextInput style={[styles.aboutMeInput, { color: this.state.aboutColor }]}  //state變數代表自介顏色
-                                placeholder='EJ boyfriend'
+                                placeholder='請輸入自我介紹'
                                 multiline={true}
                                 defaultValue={aboutMe || ''}
                                 placeholderTextColor={this.state.aboutColor}
                                 underlineColorAndroid='rgba(246,180,86,0)'
                                 editable={this.state.aboutEditable}
                                 onChangeText={(aboutMe) => this.setState({ aboutMe })}
-                                value={this.state.aboutMe} />
+                            />
                             <TouchableOpacity onPress={() => { this.changeAboutEditable() }}>
                                 <Image style={styles.hotPoint}
                                     source={require('../../images/pencil.png')} />

@@ -10,7 +10,8 @@ export default createStackNavigator({
 			title: '社團分析',
 			headerTitleStyle: {
 				color: '#666666',
-				fontSize: 30,
+				fontSize: 20,
+				fontFamily:'Courier'
 			},
 			headerStyle: {
 				backgroundColor: '#f6b456'

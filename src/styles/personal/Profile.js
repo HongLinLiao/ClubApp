@@ -48,11 +48,13 @@ export default StyleSheet.create({
     aboutMe: {
         marginLeft:50,
         marginRight:50,
+        marginBottom:5,
         backgroundColor: 'rgba(255,255,255,0.3)',
         borderRadius: 25,
         justifyContent: 'center',
         flex: 2.3,
-        marginBottom:5
+        paddingLeft: 20,
+        paddingRight: 20,
     },
     aboutMeText: {
         color: '#666666',
@@ -71,7 +73,7 @@ export default StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         flexDirection: 'column',
-        flex:1,
+        flex:1
     },
     bottonIcon: {
         height: 28,

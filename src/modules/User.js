@@ -4,7 +4,7 @@ import * as ClubAction from '../actions/ClubAction'
 import * as SettingAction from '../actions/SettingAction'
 import * as firebase from "firebase"
 import { selectPhoto } from './Common'
-import { getAllClubData } from './Club'
+import { getAllClubData, filterOpenClub, randomCid } from './Club'
 import { listenToAllClubs, listenToUser, listenToUserSetting } from './Listener'
 
 import {
@@ -49,8 +49,15 @@ export const getAllUserData = (user) => async (dispatch) => {
 
       //使用者相關社團資料
       clubsData = await getAllClubData()
+      const _newLikeClubs = filterOpenClub(clubsData.newLikeClubs)
+      const allClubCids = Object.keys(clubsData.newJoinClubs).concat(Object.keys(_newLikeClubs))
+      const _randomCid = randomCid(allClubCids)
+      console.log(clubsData)
+      console.log(allClubCids)
+      console.log(_randomCid)
       
-      dispatch(SettingAction.setAllSetting(settingData)) 
+      dispatch(SettingAction.setAllSetting(settingData))
+      dispatch(ClubAction.setCurrentClub(_randomCid))
       dispatch(ClubAction.setAllClubData(clubsData))
       dispatch(UserAction.updateUserState(userData)) //最後更新user才觸發authFlow
 

@@ -12,12 +12,22 @@ export default StyleSheet.create({
         margin: 5
     },
     littleHead: {
-        height: 40,
-        width: 40,
+        height: 50,
+        width: 50,
         justifyContent: 'flex-start',
         alignItems: 'flex-start',
         margin: 10,
-        borderRadius: 50
+        borderRadius: 25,
+        
+    },
+    littleCircle:{
+        width: 50, 
+        height: 50, 
+        //borderRadius: 80, 
+        overflow: 'hidden', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        margin: 10,
     },
     columnLine: {
         flexDirection: 'column',
@@ -75,7 +85,8 @@ export default StyleSheet.create({
         flexDirection: 'row',
         alignSelf: 'stretch',
         backgroundColor: 'rgba(246,180,86,1)',
-        justifyContent: 'space-between'
+        justifyContent: 'space-between',
+        alignItems:'center'
     },
     columnTabBar: {
         flexDirection: 'column',
@@ -90,11 +101,13 @@ export default StyleSheet.create({
         marginTop: 7,
         marginBottom: 7,
         paddingLeft: 10,
-        paddingRight: 10
+        paddingRight: 10,
+        flex:1
     },
     textInputTabBar: {
         alignSelf: 'stretch',
-        color: '#666666'
+        color: '#666666',
+        flex:1
     },
     sbColumn: {
         flexDirection: 'column',

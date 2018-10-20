@@ -1,11 +1,12 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, Image } from 'react-native';
-import { Button } from 'react-native-elements';
+import {  Text, TouchableOpacity, Image } from 'react-native';
 
-const ActivityListElement = ({ activity, activityList, navigation, setActivityList, setActivityFavorite, getInsideActivity }) => {
+const ActivityListElement = ({ activity, activityList, navigation, setActivityList, setActivityFavorite, getInsideActivity, parentOverLayer }) => {
 
     async function pressFavorite(activity) {
+        parentOverLayer();
         const activityData = await setActivityFavorite(activity.clubKey, activity.activityKey);
+        parentOverLayer();
         if (activityData != null) {
             //放進首頁
             const newActivityList = JSON.parse(JSON.stringify(activityList));
@@ -15,7 +16,9 @@ const ActivityListElement = ({ activity, activityList, navigation, setActivityLi
     }
 
     async function insideActivity(activity) {
+        parentOverLayer();
         const activityData = await getInsideActivity(activity.clubKey, activity.activityKey);
+        parentOverLayer();
         if (activityData != null) {
             //放進首頁
             const newActivityList = JSON.parse(JSON.stringify(activityList));

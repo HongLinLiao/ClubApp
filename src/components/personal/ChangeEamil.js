@@ -1,9 +1,6 @@
 import React from 'react'
-import { View, Text, TextInput, Alert, Image, StatusBar, TouchableOpacity } from 'react-native'
+import { View, Text, TextInput, Alert,StatusBar, TouchableOpacity } from 'react-native'
 import Overlayer from '../common/Overlayer'
-import { Icon, SearchBar, Button } from 'react-native-elements'
-import { Constants } from 'expo';
-import StatusBarPaddingIOS from 'react-native-ios-status-bar-padding';
 import styles from '../../styles/personal/ChangeEmail' 
 
 
@@ -41,17 +38,6 @@ class ChangeEamil extends React.Component {
     return (
         <View style={styles.container}>
             <StatusBar hidden={false} height={50} backgroundColor={'#f6b456'} />
-            <View style={styles.headView}>
-                <View >
-                    <TouchableOpacity>
-                        <Image source={require('../../images/arrowLeft.png')}
-                            style={styles.arrow} />
-                    </TouchableOpacity>
-                </View>
-                <Text style={styles.headText}>變更電子信箱</Text>
-                <View style={styles.fake}></View>
-                </View>
-
             <View style={styles.containView}>
             <View style={styles.upView}>
             <View style={styles.passwordView}>
@@ -86,8 +72,6 @@ class ChangeEamil extends React.Component {
           </View>
         <View style={styles.tabBar}></View>
     </View>
-
-                
   );
 }
 }

@@ -1,10 +1,14 @@
-//import React from 'react'
+import React from 'react'
 import { ListItem } from 'react-native-elements'
-import React, { Component } from 'react';
-import { Text, View, StyleSheet, TouchableOpacity, StatusBar, ScrollView, Image, FlatList, Switch, Alert } from 'react-native';
-import { Constants } from 'expo';
-import StatusBarPaddingIOS from 'react-native-ios-status-bar-padding';
+import {
+  Text,
+  View,
+  ScrollView,
+  Image,
+  Alert
+} from 'react-native';
 import styles from '../../styles/personal/Notification'
+
 class Notification extends React.Component {
   state = {
     loading: false,
@@ -16,7 +20,6 @@ class Notification extends React.Component {
   setGlobal = async on => {
     try {
       await this.props.setGlobalNotification(on)
-
     } catch (e) {
       Alert.alert(e.toString())
     }
@@ -25,7 +28,6 @@ class Notification extends React.Component {
   setNight = async on => {
     try {
       await this.props.setNightModeNotification(on)
-
     } catch (e) {
       Alert.alert(e.toString())
     }
@@ -36,7 +38,6 @@ class Notification extends React.Component {
       let clubSetting = { ...this.props.clubNotificationList[cid] }
       clubSetting.on = on
       await this.props.setClubNotification(cid, clubSetting)
-
     } catch (e) {
       Alert.alert(e.toString())
     }
@@ -53,39 +54,19 @@ class Notification extends React.Component {
     const clubs = { ...joinClubs, ...likeClubs };
 
     return (
+      <ScrollView>
       <View style={styles.container}>
-        {
-          <View style={styles.headView}>
-            <View>
-              <TouchableOpacity>
-                <Image source={require('../../images/arrowLeft.png')}
-                  style={styles.arrow} />
-              </TouchableOpacity>
-            </View>
-            <Text style={styles.headText}>通知設定</Text>
-            <View style={styles.fake}></View>
-          </View>
-        }
-
-        {
-          // </View>
-          //   <StatusBar
-          //       backgroundColor='#f6b456'
-          //       barStyle="light-content"
-          //   />
-          //   <View style={styles.headView}>
-          //       <TouchableOpacity>
-          //           <Image source={require('../../images/left.png')}
-          //               style={styles.leftIcon} />
-          //       </TouchableOpacity>
-          //       <Text style={styles.headText}>通知設定</Text>
-          //       <View style={styles.empty}></View>
-          //   </View>
-        }
         <ListItem
           title='提醒'
-          titleStyle={{ fontSize: 18, color: '#666666' }}
-          switch={{ value: globalNotification, onValueChange: () => this.setGlobal(!globalNotification) }}
+          titleStyle={{ fontSize: 18, color: '#666666',fontWeight:'bold' }}
+          switch={{
+            value: globalNotification,
+            onValueChange: () => this.setGlobal(!globalNotification),
+            style:{ transform: [{ scaleX: 1.3 }, { scaleY: 1.3 }] },
+            onTintColor:'rgba(246,180,86,1)',
+            tintColor:'rgba(246,180,86,0.1)',
+            thumbTintColor:'white'
+          }}
           leftElement={
             <View style={styles.leftIcon}>
               <Image source={require('../../images/alarm.png')} style={styles.alarm} />
@@ -96,43 +77,68 @@ class Notification extends React.Component {
         <ListItem
           title='夜間模式'
           titleStyle={{ fontSize: 18, color: '#666666', }}
-          switch={{ value: nightModeNotification, onValueChange: () => this.setNight(!nightModeNotification) }}
+          switch={{
+            value: nightModeNotification,
+            onValueChange: () => this.setNight(!nightModeNotification),
+            style:{ transform: [{ scaleX: 1 }, { scaleY: 1 }] },
+            onTintColor:'rgba(246,180,86,1)',
+            tintColor:'rgba(246,180,86,0.1)',
+            thumbTintColor:'white'
+          }}
           leftIcon={
             <View style={styles.leftIcon}>
               <Image source={require('../../images/moon.png')} style={styles.alarm} />
             </View>}
         />
 
-        <View style={styles.boxBottomBorderView} />
+          <ListItem
+            title='夜間模式'
+            titleStyle={{ fontSize: 18, color: '#666666', }}
+            switch={{              
+              onValueChange: () => this.setNight(!nightModeNotification),
+              value: nightModeNotification,
+              onTintColor: 'rgba(246,180,86,1)',
+              tintColor: 'rgba(246,180,86,0.1)',
+              thumbTintColor: 'white'
+            }}
+            leftIcon={
+              <View style={styles.leftIcon}>
+                <Image source={require('../../images/moon.png')} style={styles.alarm} />
+              </View>}
+          />
+          <View style={styles.boxBottomBorderView} />
 
         {
           Object.keys(clubNotificationList).map((cid) => {
             const item = clubNotificationList[cid]
             return (
-                <View>
-                  <ListItem
-                    title={
-                      <View style={styles.textArea}>
-
-                        <View style={styles.empty}></View>
-                        <Text style={styles.school}>{clubs[cid].schoolName}</Text>
-                        <Text style={styles.club}>{clubs[cid].clubName}</Text>
-                      </View>
-                    }
-
-                    key={cid}
-                    switch={{ value: item.on, onValueChange: () => this.setClub(cid, !item.on), disabled: globalNotification }}
-                  />
-
-                  <View style={styles.boxView} />
-                </View>
-                
-
-                
+              <View key={cid}>
+                <ListItem
+                  title={
+                    <View style={styles.textArea}>
+                      <View style={styles.empty}></View>
+                      <Text style={styles.school}>{clubs[cid].schoolName}</Text>
+                      <Text style={styles.club}>{clubs[cid].clubName}</Text>
+                    </View>
+                  }
+                  key={cid}
+                  switch={{
+                    value: item.on,
+                    onValueChange: () => this.setClub(cid, !item.on),
+                    disabled: globalNotification,
+                    style:{ transform: [{ scaleX: 1 }, { scaleY: 1 }] },
+                    onTintColor:'rgba(246,180,86,1)',
+                    tintColor:'rgba(246,180,86,0.1)',
+                    thumbTintColor:'white'
+                  }}
+                />
+                <View style={styles.boxView} />
+              </View>
             )
           })
         }
       </View>
+      </ScrollView>
     );
   }
 }

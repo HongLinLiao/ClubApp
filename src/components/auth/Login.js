@@ -160,7 +160,7 @@ class Login extends React.Component{
               
               >
                 <Image style={styles.gmailIcon}
-                  source={require('../../images/search.png')}/>
+                  source={require('../../images/google.png')}/>
                 <Text style={styles.gmailText}>Gmail</Text>
               </TouchableOpacity>
             </View>

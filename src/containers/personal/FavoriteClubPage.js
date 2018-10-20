@@ -1,4 +1,4 @@
-import {  } from '../../modules/Club'
+import { dislikeTheClub } from '../../modules/Club'
 import { connect } from 'react-redux';
 import FavoriteClub from '../../components/personal/FavoriteClub'
 
@@ -9,7 +9,7 @@ const mapStateToProps = ({ userReducer, clubReducer }) => ({
 })
 
 const mapDispatchToProps = {
-
+  dislikeTheClub,
 }
 
 

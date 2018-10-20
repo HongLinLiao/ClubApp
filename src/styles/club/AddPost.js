@@ -8,30 +8,6 @@ container: {
     flexDirection: 'column',
     backgroundColor: 'white'
 },
-headView: {
-    alignSelf: 'stretch',
-    height: 45,
-    backgroundColor: '#f6b456',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    flexDirection: 'row'
-},
-leftIcon: {
-    height: 22,
-    width: 22,
-    marginLeft: 15,
-},
-rightIcon: {
-    height: 25,
-    width: 25,
-    marginLeft: 10,
-    marginRight: 10
-},
-headText: {
-    color: '#666666',
-    fontSize: 20,
-    alignSelf: 'center'
-},
 row: {
     flexDirection: 'row',
     alignItems: 'center',

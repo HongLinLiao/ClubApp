@@ -130,7 +130,7 @@ export default StyleSheet.create({
   },
   number: {
     color: "#666666",
-    fontSize: 15,
+    fontSize: 10,
     marginLeft: 10,
     marginRight: 10
   },

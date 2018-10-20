@@ -1,4 +1,4 @@
-import { quitTheClub } from '../../modules/App'
+import { quitTheClub } from '../../modules/Club'
 import { connect } from 'react-redux';
 import JoinedClub from '../../components/personal/JoinedClub'
 

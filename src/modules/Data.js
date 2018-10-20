@@ -55,8 +55,7 @@ export const getPostComments = async (clubKey, postKey) => {
 export const getActivityData = async (clubKey) => {
     const activityRef = firebase.database().ref('activities').child(clubKey)
     const snapShot = await activityRef.once('value');
-    const activityData = snapShot.val();
-    return activityData;
+    return snapShot.val();
 }
 
 //取得該社團下某一個活動
@@ -138,6 +137,12 @@ export const updateActivityFavorites = async (clubKey, activityKey, updateFavori
         favoritesRef = firebase.database().ref('activities/' + clubKey + '/' + activityKey + '/favorites/' + uid);
     }
     await favoritesRef.set(value);
+}
+
+//更新ActivityKeeps
+export const updateActivityKeeps = async (uid, clubKey, activityKey, statusKeep) => {
+    const KeepRef= firebase.database().ref('activityKeeps/' + uid + '/' + clubKey + '/' + activityKey);
+    await KeepRef.set(statusKeep);
 }
 
 //更新使用者基本資料

@@ -10,6 +10,7 @@ export default StyleSheet.create({
     main: {
         flex: 1,
         justifyContent: 'center',
+        
     },
     headView: {
         alignSelf: 'stretch',
@@ -19,6 +20,15 @@ export default StyleSheet.create({
         alignItems: 'center',
         flexDirection: 'row'
     },
+    image: {
+        flex: 1,
+        alignItems:'center',
+        width: '100%',
+        height:300,
+        flexDirection: "column",
+        justifyContent: 'center',
+    },
+    
     leftIcon: {
         height: 30,
         width: 30,
@@ -38,11 +48,12 @@ export default StyleSheet.create({
     title: {
         color: '#666666',
         fontSize: 20,
+        
     },
     graycamera: {
         height: 50,
         width: 50,
-        margin: 20
+        
     },
     bigText: {
         color: '#666666',
@@ -79,7 +90,7 @@ export default StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
-        margin:5
+        margin: 5
 
     },
     calendarIcon: {
@@ -88,9 +99,8 @@ export default StyleSheet.create({
         marginRight: 5
     },
     searchIcon: {
-        height: 22,
-        width: 22,
-        marginRight: 5
+        height: 15,
+        width: 15,
     },
 
     littleText: {
@@ -102,7 +112,7 @@ export default StyleSheet.create({
     littleTextView: {
         borderBottomWidth: 0.5,
         borderColor: 'rgba(102,102,102,0.5)',
-        margin:5
+        margin: 5
     },
     searchTextView: {
         borderBottomWidth: 0.5,

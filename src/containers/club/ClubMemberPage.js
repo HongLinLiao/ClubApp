@@ -6,6 +6,7 @@ import ClubMember from '../../components/club/ClubMember'
 
 const mapStateToProps = ({ userReducer, clubReducer }) => ({
     user: userReducer.user,
+    currentCid: clubReducer.currentCid,
     joinClubs: clubReducer.joinClubs,
     likeClubs: clubReducer.likeClubs,
     currentCid: clubReducer.currentCid,

@@ -27,13 +27,13 @@ export default StyleSheet.create({
     paddingLeft: 10
   },
   card: {
-    flex: 1,
+    //flex: 1,
     height: 300,
     borderWidth: 1,
     borderRadius: 10,
     marginTop: 10,
     marginHorizontal: 10,
-    borderColor: "rgba(102,102,102,0.1)"
+    borderColor: "rgba(102,102,102,0.4)"
   },
   clubBackground: {
     flex: 5,
@@ -77,13 +77,20 @@ export default StyleSheet.create({
   },
   clubIntroView: {
     flex: 2,
-    paddingVertical: 10,
-    paddingLeft: 150,
-    paddingRight: 10
+    // paddingVertical: 10,
+    // paddingLeft: 150,
+    // paddingRight: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   clubIntroText: {
     fontSize: 18,
     color: "rgba(102,102,102,0.8)"
+  },
+  clubStatusText: {
+    fontSize: 18,
+    color: "red",
+    marginRight: 5,
   },
   tabBar: {
     height: 50,

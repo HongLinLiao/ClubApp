@@ -1,11 +1,8 @@
 import React from 'react'
 import {
   View,
-  Text,
   Image,
   Button,
-  StyleSheet,
-  ActivityIndicator,
   Alert,
 } from 'react-native'
 

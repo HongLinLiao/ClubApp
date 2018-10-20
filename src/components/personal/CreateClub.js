@@ -4,15 +4,16 @@ import {
     View,
     TouchableOpacity,
     TextInput,
-    KeyboardAvoidingView
+    KeyboardAvoidingView,
+    Alert
 } from 'react-native';
 import styles from '../../styles/personal/CreateClub';
 
 
 class CreateClub extends React.Component {
     state = {
-        school: '長庚大學',
-        clubName: '熱舞社',
+        school: '',
+        clubName: '',
     }
 
     nextStep = () => {
@@ -32,14 +33,14 @@ class CreateClub extends React.Component {
                     placeholder='長庚大學'
                     placeholderTextColor='rgba(102,102,102,0.5)'
                     underlineColorAndroid={'transparent'}
-                    onChangeText={(school) => this.setState({school})} />
+                    onChangeText={(school) => this.setState({ school })} />
                 <Text style={styles.Q}>社團名稱</Text>
                 <TextInput
                     style={styles.textInput}
                     placeholder='長庚歷史研究社'
                     placeholderTextColor='rgba(102,102,102,0.5)'
                     underlineColorAndroid={'transparent'}
-                    onChangeText={(clubName) => this.setState({clubName})} />
+                    onChangeText={(clubName) => this.setState({ clubName })} />
                 <TouchableOpacity onPress={() => this.nextStep()}>
                     <Text style={styles.nextText}>下一步</Text>
                 </TouchableOpacity>
