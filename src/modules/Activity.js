@@ -187,6 +187,7 @@ export const createActivity = (cid, activityData) => async (dispatch) => {
 
         const activityDB = {
             title: activityData.title,
+            location: activityData.location || false,
             place: activityData.place,
             price: parseInt(activityData.price),
             content: activityData.content,

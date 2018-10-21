@@ -8,6 +8,7 @@ import {
     KeyboardAvoidingView,
     Image,
     Alert,
+    Button,
 } from 'react-native'
 
 import { Location } from 'expo'
@@ -18,11 +19,10 @@ import PopupDialog, { SlideAnimation } from 'react-native-popup-dialog';
 import UserDialog from '../common/UserDialog'
 
 import { selectPhoto } from '../../modules/Common'
-import { autocompletePlace, geocodingPlaceId } from '../../modules/Api'
+import { autocompletePlace, geocodingPlaceId, test } from '../../modules/Api'
 import Overlayer from '../common/Overlayer'
 import styles from '../../styles/club/AddActivity'
 import PlaceDialog from '../common/PlaceDialog';
-import { Button } from 'native-base';
 
 const slideAnimation = new SlideAnimation({
     slideFrom: 'bottom',
@@ -41,8 +41,6 @@ class AddActivity extends React.Component {
         showDatePicker: false,
         datePickerId: 0, // 0 or 1 設定開始跟結束
         loading: false,
-        predictions: [],
-        status: null,
         tempPlace: '',
 
         title: '',
@@ -51,6 +49,7 @@ class AddActivity extends React.Component {
         startDateTime: '',
         endDateTime: '',
         price: '',
+        location: null,
         place: '',
         photo: null,
         open: true,
@@ -82,36 +81,23 @@ class AddActivity extends React.Component {
         }
     }
 
-    searchPlace = async () => {
-        try {
-            // this.popupDialog.show(async () => {
-            //     this.setState({loading: true})
-            //     const result = await autocompletePlace(this.state.place)
-            //     const { predictions, status } = result
-            //     this.setState({loading: false, predictions, status})
-            // })
-            this.popupDialog.show()
-            
-        } catch(e) {
-            Alert.alert(e.toString())
-        }
-    }
-
     setPlace = async (place_id) => {
         try {
             this.setState({loading: true, showMap: true})
             const result = await geocodingPlaceId(place_id)
             const { formatted_address, geometry } = result.results[0]
             const { location } = geometry
+            const region = {
+                latitude: location.lat,
+                longitude: location.lng,
+                latitudeDelta: 0.003, //經度縮放比例
+                longitudeDelta: 0.003, //緯度縮放比例
+            }
             this.setState({
                 place: formatted_address,
                 tempPlace: formatted_address,
-                region: {
-                    latitude: location.lat,
-                    longitude: location.lng,
-                    latitudeDelta: 0.003, //經度縮放比例
-                    longitudeDelta: 0.003, //緯度縮放比例
-                },
+                location: region,
+                region: region,
                 loading: false
             })
 
@@ -223,8 +209,8 @@ class AddActivity extends React.Component {
     createActivity = async () => {
         try {
             const { createActivity, currentCid } = this.props
-            const { title, content, remarks, photo, startDateTime, endDateTime, place, price, open } = this.state
-            const activityData = { title, content, remarks, photo, startDateTime, endDateTime, place, price, open }
+            const { title, content, remarks, photo, startDateTime, endDateTime, location, place, price, open } = this.state
+            const activityData = { title, content, remarks, photo, startDateTime, endDateTime, location, place, price, open }
 
             this.setState({ loading: true })
             await createActivity(currentCid, activityData)
@@ -255,7 +241,7 @@ class AddActivity extends React.Component {
             <View style={styles.container}>
                 
                 <ScrollView>
-                        
+                        <Button title='test' onPress={() => test()}/>
                         <TouchableOpacity style={styles.image} onPress={this.pickPicture}>
                         
                             {
@@ -338,7 +324,7 @@ class AddActivity extends React.Component {
                             </View>
                         </View>
                         <View style={[styles.row, {flex:1 ,paddingTop: 10}]}>
-                            <TouchableOpacity style={{flexDirection: 'row', alignItems: 'center'}} onPress={this.searchPlace}>
+                            <TouchableOpacity style={{flexDirection: 'row', alignItems: 'center'}} onPress={() => this.popupDialog.show()}>
                                 <Text style={{color: '#0d4273', marginRight: 5}}>搜尋地點</Text>
                                 <Image source={require('../../images/search.png')} style={styles.searchIcon} />
                             </TouchableOpacity>

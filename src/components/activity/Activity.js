@@ -126,6 +126,8 @@ class Activity extends React.Component {
         const activityData = this.state.activity;
         const element = JSON.parse(JSON.stringify(activityData));
 
+        console.log(element)
+
         return (
             <View style={[styles.container, { flex: 1 }]}>
                 <ScrollView

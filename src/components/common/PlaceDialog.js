@@ -31,10 +31,10 @@ class PlaceDialog extends React.Component {
                         placeholder='輸入想搜尋的地點'
                         onChangeText={(text) => this.searchPlace(text)}
                         onFocus={() => this.setState({overlay: true})}
-                        style={{borderBottomWidth: 1}}
+                        style={{borderBottomWidth: 1, borderBottomColor: '#0d4273'}}
                     />
                 </View>
-                <View style={{flex: 1}}>
+                <View style={{flex: 1, backgroundColor: '#0d4273'}}>
                     {
                         this.state.status == 'OK' ? 
                             this.state.predictions.map((item, index) => {
@@ -45,16 +45,14 @@ class PlaceDialog extends React.Component {
                                         style={{
                                             flex: 1,
                                             justifyContent: 'center',
-                                            alignItems: 'center',
-                                            paddingLeft: 20,
-                                            paddingRight: 20,
-                                            backgroundColor: '#0d4273',
-                                            borderBottomWidth: 1,
-                                            borderBottomColor: '#f6b456'
+                                            margin: 20,
+                                            // backgroundColor: 'rgba(18, 117, 209, 0.3)',
+                                            borderWidth: 1,
+                                            borderColor: '#f6b456'
                                         }}
                                         onPress={() => setPlace(place_id)}
                                     >
-                                        <Text style={{color: '#f6b456'}}>{description}</Text>
+                                        <Text style={{color: '#f6b456', margin: 5, textAlign: 'center'}}>{description}</Text>
                                     </TouchableOpacity>
                                 )
                             })

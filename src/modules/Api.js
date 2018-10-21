@@ -1,4 +1,7 @@
+import * as firebase from 'firebase'
+require("firebase/functions")
 const GOOGLE_MAP_API = 'AIzaSyBAqWCGCH2u8pZrJ9fkC7slorc9tosInk0'
+
 
 export const autocompletePlace = async (text) => {
     try {
@@ -25,6 +28,18 @@ export const geocodingPlaceId = async (place_id) => {
 
     } catch(e) {
         console.log(e.toString())
+        throw e
+    }
+}
+
+
+export const test = async () => {
+    try {
+        const notifyToClubMember = firebase.functions().httpsCallable('notifyToClubMember')
+        await notifyToClubMember({cid: '-LL9Bb7dHKm923I429fY', message: '熱舞社喔喔喔喔～'})
+
+    } catch(e) {
+        console.log(e)
         throw e
     }
 }
