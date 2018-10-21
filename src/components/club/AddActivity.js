@@ -208,12 +208,12 @@ class AddActivity extends React.Component {
 
     createActivity = async () => {
         try {
-            const { createActivity, currentCid } = this.props
+            const { createActivity, currentCid, joinClubs } = this.props
             const { title, content, remarks, photo, startDateTime, endDateTime, location, place, price, open } = this.state
             const activityData = { title, content, remarks, photo, startDateTime, endDateTime, location, place, price, open }
 
             this.setState({ loading: true })
-            await createActivity(currentCid, activityData)
+            await createActivity(currentCid, activityData, joinClubs[currentCid])
 
             Alert.alert('活動已新增！')
             this.props.navigation.popToTop()

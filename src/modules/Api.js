@@ -33,10 +33,49 @@ export const geocodingPlaceId = async (place_id) => {
 }
 
 
-export const test = async () => {
+export const sendPostNotification = async (cid, postData, club) => {
     try {
+        const user = firebase.auth().currentUser
+        const { schoolName, clubName } = club
         const notifyToClubMember = firebase.functions().httpsCallable('notifyToClubMember')
-        await notifyToClubMember({cid: '-LL9Bb7dHKm923I429fY', message: '熱舞社喔喔喔喔～'})
+        const data = {
+            cid,
+            title: `${schoolName} ${clubName} 發布了一篇貼文`,
+            body: `${postData.title}--${user.displayName}`,
+        }
+        await notifyToClubMember(data)
+
+    } catch(e) {
+        console.log(e.toString())
+        throw e
+    }
+}
+
+export const sendActivityNotification = async (cid, activityData, club) => {
+    try {
+        const user = firebase.auth().currentUser
+        const { schoolName, clubName } = club
+        const notifyToClubMember = firebase.functions().httpsCallable('notifyToClubMember')
+        const data = {
+            cid,
+            title: `${schoolName} ${clubName} 新增了一項新的活動!`,
+            body: `${activityData.title}--${user.displayName}`,
+        }
+        await notifyToClubMember(data)
+
+    } catch(e) {
+        console.log(e.toString())
+        throw e
+    }
+}
+
+
+export const getUserRecord = async (uid) => {
+    try {
+        if(uid) {
+            const userRecord = await fetch(`https://us-central1-clubapp-f9473.cloudfunctions.net/getUser?uid=${uid}`)
+            return userRecord
+        } else return null
 
     } catch(e) {
         console.log(e)

@@ -15,6 +15,7 @@ const admin = require('firebase-admin'); // // Create and Deploy Your First Clou
 
 admin.initializeApp(functions.config().firebase);
 exports.helloWorld = functions.https.onRequest((request, response) => {
+  const body = "";
   response.send("Hello from Firebase!");
 });
 exports.sendPushNotificationToAll = functions.https.onCall(
@@ -53,31 +54,42 @@ exports.notifyToClubMember = functions.https.onCall(
 /*#__PURE__*/
 function () {
   var _ref2 = _asyncToGenerator(function* (data, context) {
-    const uids = [];
+    const uids = {};
     const messages = [];
     const {
       cid,
-      message
+      title,
+      body
     } = data;
     const memberSnapshot = yield admin.database().ref('clubs').child(cid).child('member').once('value');
     memberSnapshot.forEach(childSnapshot => {
       const uid = childSnapshot.key;
-      uids.push(uid);
+      uids[uid] = true;
     });
-    const promises = uids.map(
+    const promises = Object.keys(uids).map(
     /*#__PURE__*/
     function () {
       var _ref3 = _asyncToGenerator(function* (uid) {
         const userRef = admin.database().ref('users').child(uid);
+        const settingRef = admin.database().ref('userSettings').child(uid);
         const userSnapshot = yield userRef.once('value');
+        const settingSnapshot = yield settingRef.once('value');
         const {
           expoToken
         } = userSnapshot.val();
+        const {
+          globalNotification,
+          clubNotificationList,
+          nightModeNotification
+        } = settingSnapshot.val();
+        const hours = new Date().getHours();
+        const nightMode = nightModeNotification ? hours >= 21 : false;
 
-        if (expoToken) {
+        if (expoToken && (globalNotification || clubNotificationList[cid].on) && !nightMode) {
           messages.push({
             "to": expoToken,
-            "body": message
+            title,
+            body
           });
         }
       });
@@ -99,5 +111,25 @@ function () {
 
   return function (_x3, _x4) {
     return _ref2.apply(this, arguments);
+  };
+}());
+exports.getUser = functions.https.onRequest(
+/*#__PURE__*/
+function () {
+  var _ref4 = _asyncToGenerator(function* (request, response) {
+    const {
+      uid
+    } = request.query;
+
+    if (uid) {
+      const userRecord = yield admin.auth().getUser(uid);
+      response.send(userRecord.toJSON());
+    } else {
+      response.send('你不要給我亂用!');
+    }
+  });
+
+  return function (_x6, _x7) {
+    return _ref4.apply(this, arguments);
   };
 }());

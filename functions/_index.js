@@ -8,6 +8,7 @@ const admin = require('firebase-admin')
 admin.initializeApp(functions.config().firebase);
 
 exports.helloWorld = functions.https.onRequest((request, response) => {
+    const body = ""
     response.send("Hello from Firebase!");
 });
 
@@ -39,24 +40,33 @@ exports.sendPushNotificationToAll = functions.https.onCall(async (data, context)
 
 exports.notifyToClubMember = functions.https.onCall(async (data, context) => {
 
-    const uids = []
+    const uids = {}
     const messages = []
-    const { cid, message } = data
+    const { cid, title, body } = data
 
     const memberSnapshot = await admin.database().ref('clubs').child(cid).child('member').once('value')
     memberSnapshot.forEach((childSnapshot) => {
         const uid = childSnapshot.key
-        uids.push(uid)
+        uids[uid] = true
     })
 
-    const promises = uids.map(async (uid) => {
+    const promises = Object.keys(uids).map(async (uid) => {
         const userRef = admin.database().ref('users').child(uid)
+        const settingRef = admin.database().ref('userSettings').child(uid)
+
         const userSnapshot = await userRef.once('value')
+        const settingSnapshot = await settingRef.once('value')
+
         const { expoToken } = userSnapshot.val()
-        if(expoToken) {
+        const { globalNotification, clubNotificationList, nightModeNotification } = settingSnapshot.val()
+        const hours = new Date().getHours()
+        const nightMode = nightModeNotification ? (hours >= 21) : false
+
+        if(expoToken && (globalNotification || clubNotificationList[cid].on) && !nightMode) {
             messages.push({
                 "to": expoToken,
-                "body": message
+                title,
+                body
             })
         }
     })
@@ -74,3 +84,14 @@ exports.notifyToClubMember = functions.https.onCall(async (data, context) => {
     })
 
 })
+
+exports.getUser = functions.https.onRequest(async (request, response) => {
+
+    const { uid } = request.query
+    if(uid) {
+        const userRecord = await admin.auth().getUser(uid)
+        response.send(userRecord.toJSON());
+    } else {
+        response.send('你不要給我亂用!')
+    }
+});
