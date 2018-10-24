@@ -2,7 +2,8 @@ import * as HomeAction from '../actions/HomeAction'
 import { getPostDataComplete, getPostKeyListFromClubKey } from './Post';
 import { getActivityDataComplete, getUserActivities } from './Activity.js';
 import { getClubData } from './Data';
-import * as firebase from "firebase"
+import * as firebase from "firebase";
+require("firebase/functions");
 
 //********************************************************************************
 // reload functiob
@@ -41,9 +42,10 @@ export const getHomePostReload = (clubList, homeReload) => async (dispatch, getS
 
         dispatch(HomeAction.getHomeClubListSuccess(newClubList, numSelect));
         const postKeyList = await dispatch(getHomePostKey(newClubList));
-        const newPostList = await dispatch(getPostDataComplete(postKeyList));
-        homeReload(newPostList);
-        determinToSearch(clubList, newPostList);
+        console.log(postKeyList);
+        // const newPostList = await dispatch(getPostDataComplete(postKeyList));
+        // homeReload(newPostList);
+        // determinToSearch(clubList, newPostList);
     }
     catch (error) {
         console.log(error.toStirng());
@@ -94,30 +96,9 @@ export const initHomeClubList = (joinClub, likeClub) => async (dispatch) => {
 //以clubList去取得postKey
 export const getHomePostKey = (clubList) => async (dispatch) => {
     try {
-        var i;
-        const postKeyList = {};
-        //clubList裡有社團才搜尋貼文
-        if (Object.keys(clubList).length > 0) {
-            const clubKey = Object.keys(clubList);
-            //根據clubList去搜尋clubKey下的post
-            for (i = 0; i < clubKey.length; i++) {
-                //篩選關掉則跳過搜尋
-                if (clubList[clubKey[i]].selectStatus == false) {
-                    continue;
-                }
-                else {
-                    const club = await getClubData(clubKey[i]);
-                    if (!club.open) {
-                        const { uid } = firebase.auth().currentUser;
-                        if (!club.member[uid]) {
-                            continue;
-                        }
-                    }
-                    let tempPostKeyList = await getPostKeyListFromClubKey(clubKey[i]);
-                    postKeyList = { ...postKeyList, ...tempPostKeyList };
-                }
-            }
-        }
+        const getHomePostKey = firebase.functions().httpsCallable('getHomePostKey');
+        const postKeyList = await getHomePostKey(clubList);
+
         dispatch(HomeAction.getHomePostListSuccess(postKeyList));
         return postKeyList;
     }
@@ -196,7 +177,7 @@ export const determinToSearch = (clubList, postList) => {
             alert('You haven\'t joined or liked clubs!');
         }
         else {
-            if (Object.keys(postList).length == 0) {
+            if (postList.length == 0) {
                 alert('Your clubs haven\'t exist posts!');
             }
             else {

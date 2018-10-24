@@ -72,7 +72,14 @@ class Post extends React.Component {
     if (postData != null) {
       //放進postList
       const newPostList = JSON.parse(JSON.stringify(postList));
-      newPostList[postData.clubKey][postData.postKey] = postData;
+      var result = newPostList.some(function (value, index, array) {
+        if (Object.keys(value)[0] == postData.postKey) {
+          const post = {};
+          post[postData.postKey] = postData
+          newPostList[index] = post
+        }
+        return true;
+      });
       setPostList(newPostList);
       this.setState({ post: postData });
     }
@@ -98,7 +105,7 @@ class Post extends React.Component {
     const { deletePostData, setPostList, postList, navigation } = this.props;
     this.postOverLayar();
     const newPostList = await deletePostData(clubKey, postKey, postList);
-    setPostList(newPostList);
+    // setPostList(newPostList);
     this.postOverLayar();
     navigation.goBack();
   };

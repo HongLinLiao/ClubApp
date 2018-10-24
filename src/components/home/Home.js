@@ -22,7 +22,7 @@ class Home extends React.Component {
     }
 
     state = {
-        post: {},
+        post: [],
         userData: { uid: null, user: null, clubs: null },
         //遮罩
         loading: false,
@@ -35,9 +35,6 @@ class Home extends React.Component {
             const { clubList } = this.props;
             this.setState({ refreshing: true });
             this.setState({ refreshing: false });
-            // await getHomePostReload(clubList, newPostList => {
-            //     this.setState({ post: newPostList });
-            // });
             this.homeReload(clubList);
         } catch (error) {
             console.log(error.toString());
@@ -98,7 +95,7 @@ class Home extends React.Component {
     }
 
     render() {
-        const newPostList = { ...this.state.post };
+        const newPostList = JSON.parse(JSON.stringify(this.state.post));
         const { uid, user, clubs } = this.state.userData
         return (
             <View style={{ backgroundColor: "#ffffff", flex: 1 }}>
@@ -117,11 +114,11 @@ class Home extends React.Component {
                     />
                     <View style={styles.containView}>
                         {
-                            Object.values(newPostList).map((clubElement) => (
-                                Object.values(clubElement).map((postElement) => (
+                            newPostList.map((postElement) => (
+                                Object.values(postElement).map((post) => (
                                     <PostListElement
-                                        key={postElement.postKey}
-                                        post={postElement}
+                                        key={post.postKey}
+                                        post={post}
                                         navigation={this.props.navigation}
                                         getInsidePost={this.props.getInsidePost}
                                         getPostComment={this.props.getPostComment}
@@ -134,7 +131,6 @@ class Home extends React.Component {
                                     </PostListElement>
                                 ))
                             ))
-
                         }
                     </View>
                 </ScrollView>

@@ -47,7 +47,8 @@ export const getPostDataComplete = (postKeyList) => async (dispatch, getState) =
         //新物件: postReducer資料
         const newPostReducer = JSON.parse(JSON.stringify(postReducer));
         //回傳物件
-        const objPost = {};
+        // const objPost = {};
+        const objPost = [];
         var i, j;
         for (i = 0; i < Object.keys(postKeyList).length; i++) {
             const clubKey = Object.keys(postKeyList)[i];
@@ -85,7 +86,7 @@ export const getPostDataComplete = (postKeyList) => async (dispatch, getState) =
 export const getInsidePost = (clubKey, postKey) => async (dispatch, getState) => {
     try {
         const club = await getClubData(clubKey);
-        console.log('open:'+club.open);
+        console.log('open:' + club.open);
         if (!club.open) {
             const { uid } = firebase.auth().currentUser;
             if (!club.member[uid]) {
@@ -130,13 +131,25 @@ export const getInsidePost = (clubKey, postKey) => async (dispatch, getState) =>
 //傳入參數貼文列物件，將貼文加入貼文列物件
 export const handlePostDataToObject = (objPost, clubKey, postKey, postData) => {
     try {
-        //新物件
         const newObjPost = JSON.parse(JSON.stringify(objPost));
         const newPostData = {}
         newPostData[postKey] = postData;
-        let nextPostData = {};
-        nextPostData = { ...objPost[clubKey], ...newPostData };
-        newObjPost[clubKey] = nextPostData;
+        newObjPost.push(newPostData);
+        // //重複
+        // for (var i = 0; i < newObjPost.length; i++) {
+        //     for (var j = i + 1; j < newObjPost.length; j++) {
+        //         let preKey = Object.keys(newObjPost[i])[0];
+        //         let nextKey = Object.keys(newObjPost[j])[0];
+        //         if (preKey == nextKey)
+        //             newObjPost.splice(i, 1);
+        //     }
+        // }
+        //排序
+        newObjPost.sort(function (a, b) {
+            const aDate = a[Object.keys(a)[0]].date;
+            const bDate = b[Object.keys(b)[0]].date;
+            return new Date(bDate) < new Date(aDate) ? -1 : 1
+        })
         return newObjPost;
     }
     catch (error) {
@@ -203,8 +216,8 @@ export const createPost = (cid, postData) => async (dispatch) => {
 export const deletePostData = (clubKey, postKey, postList) => async (dispatch, getState) => {
 
     try {
-        await deletePost(clubKey, postKey);
-        await deleteCommentInPost(clubKey, postKey);
+        // await deletePost(clubKey, postKey);
+        // await deleteCommentInPost(clubKey, postKey);
         //寫進postReducer
         const prePostReducer = getState().postReducer.allPost;
         const nextPostReducer = JSON.parse(JSON.stringify(prePostReducer));
@@ -213,9 +226,13 @@ export const deletePostData = (clubKey, postKey, postList) => async (dispatch, g
         delete nextPostReducer[clubKey][postKey];
         dispatch(PostAction.getPostData(nextPostReducer));
         //更改回傳postList
-        const nextPostList = JSON.parse(JSON.stringify(postList));
-        delete nextPostList[clubKey][postKey];
-        return nextPostList
+        const newPostList = JSON.parse(JSON.stringify(postList));
+        var result = newPostList.some(function (value, index, array) {
+            console.log(value);
+            return true;
+        });
+        // const nextPostList = newPostList.
+        return null
     } catch (e) {
         console.log(e)
     }
@@ -333,7 +350,7 @@ export const setPostView = async (post) => {
 export const setPostFavorite = (clubKey, postKey) => async (dispatch, getState) => {
     try {
         const club = await getClubData(clubKey);
-        console.log('open:'+club.open);
+        console.log('open:' + club.open);
         if (!club.open) {
             const { uid } = firebase.auth().currentUser;
             if (!club.member[uid]) {
@@ -377,7 +394,7 @@ export const setPostFavorite = (clubKey, postKey) => async (dispatch, getState) 
                 //沒其他使用者按過讚
                 if (post.numFavorites == 1) {
                     post.numFavorites = post.numFavorites - 1;
-                    post.favorites=false;
+                    post.favorites = false;
                     // delete post.favorites[user.uid];
                     updateFavorites[user.uid] = false;
                 }
@@ -414,9 +431,9 @@ export const setPostFavorite = (clubKey, postKey) => async (dispatch, getState) 
 export const setCommentFavorite = (clubKey, postKey, commentKey) => async (dispatch, getState) => {
     try {
         const club = await getClubData(clubKey);
-        console.log('open:'+club.open);
+        console.log('open:' + club.open);
         if (!club.open) {
-            const {uid} = firebase.auth().currentUser;
+            const { uid } = firebase.auth().currentUser;
             if (!club.member[uid]) {
                 alert('Post is not exist!');
                 console.log('不是成員');
@@ -537,9 +554,9 @@ export const creatingComment = (clubKey, postKey, content) => async (dispatch, g
 
     try {
         const club = await getClubData(clubKey);
-        console.log('open:'+club.open);
+        console.log('open:' + club.open);
         if (!club.open) {
-            const {uid} = firebase.auth().currentUser;
+            const { uid } = firebase.auth().currentUser;
             if (!club.member[uid]) {
                 alert('Post is not exist!');
                 console.log('不是成員');
@@ -584,9 +601,9 @@ export const creatingComment = (clubKey, postKey, content) => async (dispatch, g
 export const deletingComment = (clubKey, postKey, commentKey) => async (dispatch, getState) => {
     try {
         const club = await getClubData(clubKey);
-        console.log('open:'+club.open);
+        console.log('open:' + club.open);
         if (!club.open) {
-            const {uid} = firebase.auth().currentUser;
+            const { uid } = firebase.auth().currentUser;
             if (!club.member[uid]) {
                 alert('Post is not exist!');
                 console.log('不是成員');
@@ -632,9 +649,9 @@ export const deletingComment = (clubKey, postKey, commentKey) => async (dispatch
 export const editingComment = (clubKey, postKey, commentKey, content) => async (dispatch, getState) => {
     try {
         const club = await getClubData(clubKey);
-        console.log('open:'+club.open);
+        console.log('open:' + club.open);
         if (!club.open) {
-            const {uid} = firebase.auth().currentUser;
+            const { uid } = firebase.auth().currentUser;
             if (!club.member[uid]) {
                 alert('Post is not exist!');
                 console.log('不是成員');
