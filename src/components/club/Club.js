@@ -222,9 +222,11 @@ class Club extends React.Component {
       if (type == "JOIN") {
         clubs = joinClubs;
         status = clubs[currentCid].member[user.uid].status;
+        if(status == 'master') status = '社長'
+        else if(status == 'member') status = '社員'
       } else if (type == "LIKE") {
         clubs = likeClubs;
-        status = "路人";
+        status = "蒐藏者";
       }
 
       const { schoolName, clubName, open, member, introduction, imgUrl } = clubs[currentCid];

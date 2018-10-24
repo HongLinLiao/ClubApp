@@ -49,7 +49,8 @@ function () {
   return function (_x, _x2) {
     return _ref.apply(this, arguments);
   };
-}());
+}()); //發通知給社團成員
+
 exports.notifyToClubMember = functions.https.onCall(
 /*#__PURE__*/
 function () {
@@ -131,5 +132,46 @@ function () {
 
   return function (_x6, _x7) {
     return _ref4.apply(this, arguments);
+  };
+}());
+exports.getHomePostKey = functions.https.onCall(
+/*#__PURE__*/
+function () {
+  var _ref5 = _asyncToGenerator(function* (clubList, user) {
+    try {
+      const uid = user.auth.uid;
+      const DB = admin.database();
+      var postKeyList = {}; //clubList裡有社團才搜尋貼文
+
+      const clubKey = Object.keys(clubList);
+
+      if (Object.keys(clubList).length > 0) {
+        //根據clubList去搜尋clubKey下的post
+        var i;
+        var club;
+        let tempPostKeyList = {};
+
+        for (i = 0; i < clubKey.length; i++) {
+          //篩選關掉則跳過搜尋
+          if (clubList[clubKey[i]].selectStatus === false) {
+            continue;
+          } else {
+            let clubRef = DB.ref(`clubs/${clubKey[i]}`);
+            let snapShot = yield clubRef.once('value');
+            let club = snapShot.val();
+            postKeyList = Object.assign(postKeyList, tempPostKeyList);
+          }
+        }
+      }
+
+      return postKeyList;
+    } catch (error) {
+      console.log(user.auth.uid + ':' + error.toString());
+      return null;
+    }
+  });
+
+  return function (_x8, _x9) {
+    return _ref5.apply(this, arguments);
   };
 }());

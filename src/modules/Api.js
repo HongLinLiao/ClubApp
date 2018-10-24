@@ -32,7 +32,7 @@ export const geocodingPlaceId = async (place_id) => {
     }
 }
 
-
+//有新文章通知社團成員
 export const sendPostNotification = async (cid, postData, club) => {
     try {
         const user = firebase.auth().currentUser
@@ -40,8 +40,8 @@ export const sendPostNotification = async (cid, postData, club) => {
         const notifyToClubMember = firebase.functions().httpsCallable('notifyToClubMember')
         const data = {
             cid,
-            title: `${schoolName} ${clubName} 發布了一篇貼文`,
-            body: `${postData.title}--${user.displayName}`,
+            title: `${schoolName} ${clubName} 發布了一篇貼文！`,
+            body: `${postData.title} [${user.displayName}]`,
         }
         await notifyToClubMember(data)
 
@@ -51,6 +51,7 @@ export const sendPostNotification = async (cid, postData, club) => {
     }
 }
 
+//有新活動通知社團成員
 export const sendActivityNotification = async (cid, activityData, club) => {
     try {
         const user = firebase.auth().currentUser
@@ -59,7 +60,7 @@ export const sendActivityNotification = async (cid, activityData, club) => {
         const data = {
             cid,
             title: `${schoolName} ${clubName} 新增了一項新的活動!`,
-            body: `${activityData.title}--${user.displayName}`,
+            body: `${activityData.title} [${user.displayName}]`,
         }
         await notifyToClubMember(data)
 
@@ -69,7 +70,7 @@ export const sendActivityNotification = async (cid, activityData, club) => {
     }
 }
 
-
+//取得使用者紀錄
 export const getUserRecord = async (uid) => {
     try {
         if(uid) {

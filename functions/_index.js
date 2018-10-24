@@ -38,6 +38,7 @@ exports.sendPushNotificationToAll = functions.https.onCall(async (data, context)
 
 })
 
+//發通知給社團成員
 exports.notifyToClubMember = functions.https.onCall(async (data, context) => {
 
     const uids = {}

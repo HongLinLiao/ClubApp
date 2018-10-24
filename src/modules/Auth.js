@@ -296,6 +296,8 @@ export const signOut = () => async (dispatch) => {
   dispatch(CommonAction.setLoadingState(true)) //進入等待狀態
 
   try {
+    const { uid } = firebase.auth().currentUser
+    await firebase.database().ref('users').child(uid).update({expoToken: false}) //避免同一個手幾有多個expoToken
     await firebase.auth().signOut()
     dispatch(UserAction.clearUser())
 
