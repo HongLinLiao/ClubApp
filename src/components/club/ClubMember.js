@@ -51,7 +51,7 @@ class ClubMember extends React.Component {
 
     askToKick = (uid, nickName) => {
         const { joinClubs, currentCid } = this.props
-        
+
         Alert.alert('踢出社員', '確定要踢除' + nickName,
             [
                 { text: '取消', onPress: () => console.log('取消'), style: 'cancel' },

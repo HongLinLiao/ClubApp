@@ -24,14 +24,14 @@ export default StyleSheet.create({
 
     },
     buttonText:{
-        
-        //marginLeft:16,
+        marginRight:12,
+        marginLeft:12,
         //marginTop: 6,
         fontSize: 14,
         fontWeight: 'bold',
-        justifyContent: 'center',
-        color: 'rgba(102,102,102,1)'
-
+        //aligenContent: 'center',
+        color: 'rgba(102,102,102,1)',
+        
     },
     button: {
         //backgroundColor: '#666666',
