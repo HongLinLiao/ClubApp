@@ -15,6 +15,8 @@ import {
   createUserSettingInDB
 } from './User'
 
+import { registerForPushNotificationsAsync } from './Common'
+
 import {
   getAllClubData,
   randomCid,
@@ -31,6 +33,7 @@ import { listenToAllClubs, listenToUser, listenToUserSetting } from './Listener'
 const signInSuccess = (action, user, password, loginType) => async (dispatch) => {
 
   try {
+    await registerForPushNotificationsAsync(user) //紀錄expoToken
     const userRef = firebase.database().ref('users').child(user.uid)
     const settingRef = firebase.database().ref('userSettings').child(user.uid)
 
@@ -293,6 +296,8 @@ export const signOut = () => async (dispatch) => {
   dispatch(CommonAction.setLoadingState(true)) //進入等待狀態
 
   try {
+    const { uid } = firebase.auth().currentUser
+    await firebase.database().ref('users').child(uid).update({expoToken: false}) //避免同一個手幾有多個expoToken
     await firebase.auth().signOut()
     dispatch(UserAction.clearUser())
 

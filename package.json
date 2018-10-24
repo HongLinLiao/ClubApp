@@ -22,5 +22,9 @@
     "redux-logger": "^3.0.6",
     "redux-thunk": "^2.3.0",
     "victory-native": "^30.4.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "build-funcs": "babel functions/index1.js --out-file functions/index.js"
   }
 }

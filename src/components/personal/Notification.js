@@ -91,23 +91,6 @@ class Notification extends React.Component {
             </View>}
         />
 
-          <ListItem
-            title='夜間模式'
-            titleStyle={{ fontSize: 18, color: '#666666', }}
-            switch={{              
-              onValueChange: () => this.setNight(!nightModeNotification),
-              value: nightModeNotification,
-              onTintColor: 'rgba(246,180,86,1)',
-              tintColor: 'rgba(246,180,86,0.1)',
-              thumbTintColor: 'white'
-            }}
-            leftIcon={
-              <View style={styles.leftIcon}>
-                <Image source={require('../../images/moon.png')} style={styles.alarm} />
-              </View>}
-          />
-          <View style={styles.boxBottomBorderView} />
-
         {
           Object.keys(clubNotificationList).map((cid) => {
             const item = clubNotificationList[cid]

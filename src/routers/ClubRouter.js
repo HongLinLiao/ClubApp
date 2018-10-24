@@ -6,6 +6,7 @@ import ActivityPage from '../containers/club/ActivityPage'
 import AddActivityPage from '../containers/club/AddActivityPage'
 import ClubAdminPage from '../containers/club/ClubAdminPage'
 import ClubMemberPage from '../containers/club/ClubMemberPage'
+import SearchPlacePage from '../containers/club/SearchPlacePage'
 
 import React from 'react'
 import { Button, TouchableOpacity, Image, Text } from 'react-native'
@@ -124,6 +125,9 @@ export default createStackNavigator({
         backgroundColor: '#f6b456'
       }
     })
+  },
+  SearchPlace: {
+    screen: SearchPlacePage,
   }
 },
   {

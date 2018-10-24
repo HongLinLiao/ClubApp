@@ -11,6 +11,7 @@ import {
     updateActivityKeeps,
 } from './Data'
 import { changeMemberStatusToChinese } from './Common';
+import { sendActivityNotification } from './Api'
 
 //********************************************************************************
 // Get Data
@@ -171,7 +172,7 @@ export const getInsideActivity = (clubKey, activityKey) => async (dispatch, getS
 //********************************************************************************
 
 //建立一個新活動
-export const createActivity = (cid, activityData) => async (dispatch) => {
+export const createActivity = (cid, activityData, club) => async (dispatch) => {
     try {
         dispatch(ActivityAction.createAcitvityRequest())
 
@@ -185,8 +186,9 @@ export const createActivity = (cid, activityData) => async (dispatch) => {
         const snapshot = await activityStorageRef.put(blob)
         const photoUrl = await snapshot.ref.getDownloadURL()
 
-        const activityDB = {
+        const activity = {
             title: activityData.title,
+            location: activityData.location || false,
             place: activityData.place,
             price: parseInt(activityData.price),
             content: activityData.content,
@@ -201,7 +203,9 @@ export const createActivity = (cid, activityData) => async (dispatch) => {
             favorites: false,
         }
 
-        await activityRef.set(activityDB)
+        await activityRef.set(activity)
+
+        await sendActivityNotification(cid, activity, club)
 
     } catch (e) {
 

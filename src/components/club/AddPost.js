@@ -62,10 +62,10 @@ class AddPost extends React.Component {
     createPost = async () => {
         try {
             this.setState({ loading: true })
-            const { createPost, currentCid } = this.props
+            const { createPost, currentCid, joinClubs } = this.props
             const { title, content, images } = this.state
             const postData = { title, content, images }
-            await createPost(currentCid, postData)
+            await createPost(currentCid, postData, joinClubs[currentCid])
             Alert.alert('貼文發佈成功！')
             this.props.navigation.popToTop()
         } catch (e) {
