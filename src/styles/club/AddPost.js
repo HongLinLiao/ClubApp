@@ -10,19 +10,19 @@ container: {
 },
 row: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-end',
 },
 rowLeft: {
     flexDirection: 'row',
     justifyContent: 'flex-start',
-    alignItems: 'center',
+    alignItems: 'flex-end',
     paddingLeft: 20,
     paddingTop: 20
 },
 bigHead: {
     height: 60,
     width: 60,
-    borderRadius: 50,
+    borderRadius: 30,
     marginRight: 15
 },
 column: {
@@ -33,23 +33,25 @@ column: {
 school: {
     color: '#666666',
     fontSize: 15,
-    marginRight: 5
+    marginRight: 5,
+    margin:5
 },
 club: {
     color: '#666666',
     fontSize: 20,
-    margin: 5,
-    fontWeight: 'bold'
+    fontWeight: 'bold',
+    margin:5
 },
 name: {
     color: '#666666',
     fontSize: 15,
-    marginRight: 5
+    marginRight: 5,
+    margin:5
 },
 job: {
     color: '#666666',
     fontSize: 15,
-    margin: 5
+    margin:5
 },
 date: {
     color: '#666666',

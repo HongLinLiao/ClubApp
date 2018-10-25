@@ -57,6 +57,7 @@ export default StyleSheet.create({
   },
 
   newsTextView: {
+    paddingTop:3,
     marginLeft: 8,
     marginRight: 8,
     flexDirection: "column",

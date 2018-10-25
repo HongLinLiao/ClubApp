@@ -128,11 +128,15 @@ export default StyleSheet.create({
         borderRadius: 30,
         marginLeft: 20,
         marginRight: 20,
+        justifyContent:'center',
+        alignContent:'center',
+        paddingBottom:15,
     },
     clubSummaryText: {
         fontSize: 18,
         color: '#666666',
         lineHeight: 32,
+
     },
     icon: {
 
