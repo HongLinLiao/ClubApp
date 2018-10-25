@@ -114,6 +114,14 @@ class ClubMember extends React.Component {
 
     }
 
+    memberManagement = () => {
+        try {
+
+        } catch(e) {
+            Alert.alert
+        }
+    }
+
 
 
 
@@ -135,6 +143,7 @@ class ClubMember extends React.Component {
                                     leftAvatar={{
                                         source: { uri: photoUrl ? photoUrl : 'https://image.freepik.com/free-icon/man-dark-avatar_318-9118.jpg' },
                                         size: 'medium',
+                                        onPress: () => this.showUser(_uid)
                                     }}
 
                                     title={

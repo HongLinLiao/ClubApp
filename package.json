@@ -16,6 +16,7 @@
     "react-native-modal-datetime-picker": "^6.0.0",
     "react-native-modal-dropdown": "^0.6.2",
     "react-native-popup-dialog": "^0.15.1",
+    "react-native-simple-radio-button": "^2.7.3",
     "react-navigation": "^2.9.0",
     "react-redux": "^5.0.7",
     "redux": "^4.0.0",
