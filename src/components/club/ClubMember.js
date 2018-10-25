@@ -3,6 +3,7 @@ import {
     View,
     Alert,
     Text,
+    ScrollView,
     TouchableOpacity
 } from 'react-native'
 
@@ -46,27 +47,25 @@ class ClubMember extends React.Component {
         }
     }
 
-    askToKick = (uid) => {
-        const { nickName } = this.props.navigation.state.params.memberData[uid]
+    askToKick = (uid, nickName) => {
+        const { joinClubs, currentCid } = this.props
+
         Alert.alert('踢出社員', '確定要踢除' + nickName,
             [
                 { text: '取消', onPress: () => console.log('取消'), style: 'cancel' },
-                { text: '踢除', onPress: () => this.handleKickMember(uid) },
+                { text: '踢除', onPress: () => this.handleKickMember(uid, nickName) },
             ],
             { cancelable: false }
         )
     }
 
-    handleKickMember = async (uid) => {
-        const { currentCid, kickClubMember, navigation } = this.props
-        const { memberData } = navigation.state.params
+    handleKickMember = async (uid, nickName) => {
+        const { currentCid, kickClubMember, joinClubs } = this.props
         try {
-            delete memberData[uid]
-            navigation.setParams({ memberData })
 
             await kickClubMember(currentCid, uid)
 
-            Alert.alert('已踢出' + memberData[uid].nickName)
+            Alert.alert('已踢出' + nickName)
 
 
         } catch (e) {
@@ -131,12 +130,12 @@ class ClubMember extends React.Component {
         const member = joinClubs ? joinClubs[currentCid].member : {}
         const { uid, user, clubs } = this.state.userData
         return (
-            <View style={{ flex: 1 }}>
+            <ScrollView style={{ flex: 1 }}>
                 {
                     Object.keys(memberData).map((_uid, index) => {
                         const { photoUrl, nickName, } = memberData[_uid]
                         return (
-                            <TouchableOpacity key={_uid} onPress={() => this.showUser(_uid)}>
+                            <TouchableOpacity key={_uid} onPress={() => {}}>
 
                                 <ListItem
                                     key={_uid}
@@ -159,10 +158,10 @@ class ClubMember extends React.Component {
                                     rightElement={
                                         <TouchableOpacity
                                             style={styles.button}
-                                            onPress={() => this.askToKick(_uid)}
+                                            onPress={() => this.askToKick(_uid, nickName)}
                                             disabled={(member[_uid].status == 'master')}
                                         >
-                                            <Text style={styles.bigText}>確定退出</Text>
+                                            <Text style={[styles.buttonText]}>確定退出</Text>
                                         </TouchableOpacity>
                                     }
 
@@ -187,7 +186,7 @@ class ClubMember extends React.Component {
                     />
                 </PopupDialog>
                 {this.state.loading ? <Overlayer /> : null}
-            </View>
+            </ScrollView>
         )
     }
 }

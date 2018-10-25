@@ -47,6 +47,7 @@ export default createStackNavigator({
           </TouchableOpacity>
         ),
         title: '新增文章',
+        headerBackTitle: '社團',
         headerTitleStyle: {
           color: '#666666',
           fontSize: 20,
