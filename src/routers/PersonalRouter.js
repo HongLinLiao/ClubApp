@@ -163,7 +163,7 @@ export default createStackNavigator({
       headerTitleStyle: {
         color: '#666666',
         fontSize: 20,
-        textAlign:'center'
+        textAlign: 'center'
       },
       headerStyle: {
         backgroundColor: '#f6b456',
@@ -225,16 +225,16 @@ export default createStackNavigator({
   }
 },
   {
-    navigationOptions: {
+    navigationOptions: ({ navigation }) => ({
       headerBackTitleStyle: {
         color: '#0d4273',
         fontSize: 15,
       },
       headerBackImage: (
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.pop()}>
           <Image source={require('../images/images2/arrowLeftBlue.png')}
             style={{ width: 25, height: 25 }} />
         </TouchableOpacity>
       )
-    }
+    })
   })
