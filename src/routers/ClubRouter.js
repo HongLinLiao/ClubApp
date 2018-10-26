@@ -42,7 +42,7 @@ export default createStackNavigator({
           </TouchableOpacity>
         ),
         headerBackImage: (
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.goBack()}>
             <Image source={require('../images/images2/arrowLeftBlue.png')}
               style={{ width: 25, height: 25 }} />
           </TouchableOpacity>
@@ -71,7 +71,7 @@ export default createStackNavigator({
         </TouchableOpacity>
         ),
         headerBackImage: (
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.pop()}>
             <Image source={require('../images/images2/arrowLeftBlue.png')}
               style={{ width: 25, height: 25 }} />
           </TouchableOpacity>
@@ -93,7 +93,7 @@ export default createStackNavigator({
     screen: ClubAdminPage,
     navigationOptions: ({ navigation }) => ({
       headerBackImage: (
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
           <Image source={require('../images/images2/arrowLeftBlue.png')}
             style={{ width: 25, height: 25 }} />
         </TouchableOpacity>
@@ -112,7 +112,7 @@ export default createStackNavigator({
     screen: ClubMemberPage,
     navigationOptions: ({ navigation }) => ({
       headerBackImage: (
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.pop()}>
           <Image source={require('../images/images2/arrowLeftBlue.png')}
             style={{ width: 25, height: 25 }} />
         </TouchableOpacity>
