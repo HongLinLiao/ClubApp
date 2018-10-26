@@ -117,7 +117,7 @@ export default createStackNavigator({
             style={{ width: 25, height: 25 }} />
         </TouchableOpacity>
       ),
-      title: '編輯成員',
+      title: '成員',
       headerTitleStyle: {
         color: '#666666',
         fontSize: 20,

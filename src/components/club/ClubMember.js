@@ -150,9 +150,6 @@ class ClubMember extends React.Component {
         
     }
 
-
-
-
     render() {
         const { currentCid, joinClubs } = this.state
         const memberData = this.state.memberData || {}
@@ -185,8 +182,6 @@ class ClubMember extends React.Component {
                                         subtitle={
                                             <Text style={styles.smallText}>{_status}</Text>
                                         }
-
-
                                         rightElement={
                                             canKickMember ?
                                                 <TouchableOpacity
@@ -196,7 +191,7 @@ class ClubMember extends React.Component {
                                                     <Text style={[styles.buttonText]}>確定退出</Text>
                                                 </TouchableOpacity> : null
                                         }
-
+                                        containerStyle={{ flex: 1, alignContent: 'center', justifyContent: 'center'}}
                                     />
                                 </TouchableOpacity>
 

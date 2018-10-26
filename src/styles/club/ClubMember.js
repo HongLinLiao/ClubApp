@@ -4,20 +4,19 @@ export default StyleSheet.create({
 
 
     bigText: {
-        flex: 1,
-        flexDirection: 'row',
+        // flex: 1,
+        // flexDirection: 'row',
         fontSize: 15,
         fontWeight: 'bold',
         marginLeft: 10,
         marginRight: 15,
         color: 'rgba(102,102,102,1)'
-
-
     },
     smallText: {
-        flex: 1,
-        flexDirection: 'row',
+        // flex: 1,
+        // flexDirection: 'row',
         fontSize: 15,
+        marginTop: 5,
         marginLeft: 10,
         marginRight: 15,
         color: 'rgba(102,102,102,0.5)'
