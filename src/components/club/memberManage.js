@@ -32,8 +32,8 @@ class MemberManage extends React.Component {
             const { currentCid, joinClubs, navigation } = nextProps
             const { uid } = this.state
             const { status } = joinClubs[currentCid].member[uid]
-            if(this.state.currentCid == currentCid) {
-                if(status == 'master') {
+            if(this.state.currentCid == currentCid) { //不是被踢出社團
+                if(status != 'master') { //有人被升為社長
                     this.setState({ loading: false, member: {status} })
                 } else {
                     navigation.pop()
@@ -111,6 +111,7 @@ class MemberManage extends React.Component {
                                 index={index}
                                 labelStyle={{color: '#0d4273'}}
                                 labelWrapStyle={{ marginLeft: 5}}
+                                onPress={(status) => this.checkToChange(status)}
                             />
                         </RadioButton>
                     ))}

@@ -94,3 +94,12 @@ export const convertClubStatus = (status) => {
       return '無職位'
   }
 }
+
+export const convertDateFormat = (dateTime) => {
+  const _dateTime = new Date(dateTime)
+  const date = _dateTime.toLocaleDateString()
+  const hours = _dateTime.getHours() < 10 ? '0' + _dateTime.getHours() : _dateTime.getHours()
+  const minutes = _dateTime.getMinutes() < 10 ? '0' + _dateTime.getMinutes() : _dateTime.getMinutes()
+
+  return `${date} ${hours}:${minutes}`
+}

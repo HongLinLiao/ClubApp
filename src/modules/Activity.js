@@ -196,9 +196,9 @@ export const createActivity = (cid, activityData, club) => async (dispatch) => {
             photo: photoUrl,
             poster: user.uid,
             open: activityData.open,
-            startDateTime: new Date(activityData.startDateTime).toLocaleString(),
-            endDateTime: new Date(activityData.endDateTime).toLocaleString(),
-            editDate: new Date().toLocaleString(),
+            startDateTime: new Date(activityData.startDateTime).toUTCString(),
+            endDateTime: new Date(activityData.endDateTime).toUTCString(),
+            editDate: new Date().toUTCString(),
             views: false,
             favorites: false,
         }

@@ -356,7 +356,7 @@ class Club extends React.Component {
                           style={styles.adminIcon}
                         />
                       </View>
-                      <Text style={styles.adminText}>{status == member ? '查看成員' : '成員管理'}</Text>
+                      <Text style={styles.adminText}>{status == 'member' ? '查看成員' : '成員管理'}</Text>
                     </View>
                   </TouchableOpacity>
                 </View>
