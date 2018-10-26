@@ -15,7 +15,7 @@ import {
   createUserSettingInDB
 } from './User'
 
-import { registerForPushNotificationsAsync } from './Common'
+import { registerForPushNotificationsAsync } from './App'
 
 import {
   getAllClubData,

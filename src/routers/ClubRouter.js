@@ -7,6 +7,7 @@ import AddActivityPage from '../containers/club/AddActivityPage'
 import ClubAdminPage from '../containers/club/ClubAdminPage'
 import ClubMemberPage from '../containers/club/ClubMemberPage'
 import SearchPlacePage from '../containers/club/SearchPlacePage'
+import MemberManagePage from '../containers/club/MemberManagePage'
 
 import React from 'react'
 import { Button, TouchableOpacity, Image, Text } from 'react-native'
@@ -107,7 +108,6 @@ export default createStackNavigator({
       }
     })
   },
-
   ClubMember: {
     screen: ClubMemberPage,
     navigationOptions: ({ navigation }) => ({
@@ -126,6 +126,9 @@ export default createStackNavigator({
         backgroundColor: '#f6b456'
       }
     })
+  },
+  MemberManage: {
+    screen: MemberManagePage,
   },
   SearchPlace: {
     screen: SearchPlacePage,
