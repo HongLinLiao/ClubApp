@@ -154,6 +154,7 @@ class Analysis extends React.Component {
                         padAngle={0}
                         width={330}
                         height={330}
+                        labels={(data) => ''}
                         style={{
                             data: {
                                 fillOpacity: 0.8,

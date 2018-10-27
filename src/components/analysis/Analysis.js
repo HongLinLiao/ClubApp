@@ -22,6 +22,7 @@ import * as firebase from 'firebase'
 class Analysis extends React.Component {
     state = {
         clubArray: [{x: '無社團', y: 1}],
+        tickValues: ['無社團'],
         colorArray: ['rgb(255, 190, 0)'],
         radius: 10,
         result: false,
@@ -81,9 +82,13 @@ class Analysis extends React.Component {
         try {
             const { joinClub, likeClub, joinClubs, likeClubs } = this.props
             const clubDataArray = {...joinClubs, ...likeClubs}
+            const tickValues = []
 
             const clubArray = await getPopularClubData(clubDataArray)
-            this.setState({clubArray, result: true})
+            clubArray.map((item) => {
+                tickValues.push(item.x)
+            })
+            this.setState({clubArray, tickValues, result: true})
 
         } catch(e) {
             Alert.alert(e.toString())
@@ -166,11 +171,11 @@ class Analysis extends React.Component {
                                     axis: {stroke: "#f6b456"},
                                     axisLabel: {fontSize: 20, padding: 30},
                                     grid: {stroke: null},
-                                    tickLabels: {fontSize: 10, padding: 5},
                                     ticks: {stroke: "#f6b456", size: 5},
                                     tickLabels: {fontSize: 15, padding: 5, fill: '#f6b456'}
                                 }}
                                 tickFormat={(t) => Math.round(t)}
+                                tickValues={this.state.tickValues}
                             />
                             <VictoryAxis
                                 dependentAxis

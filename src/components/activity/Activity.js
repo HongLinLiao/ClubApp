@@ -6,6 +6,7 @@ import MapView, { Marker } from 'react-native-maps'
 import { showLocation } from 'react-native-map-link'
 import { Location, DangerZone } from 'expo'
 import Overlayer from '../common/Overlayer'
+import { convertDateFormat } from '../../modules/Common'
 
 class Activity extends React.Component {
 
@@ -122,10 +123,14 @@ class Activity extends React.Component {
         }
     };
 
+    
+
     render() {
         const activityData = this.state.activity;
         const element = JSON.parse(JSON.stringify(activityData));
-
+        const { startDateTime, endDateTime } = element
+        const _startDateTime = convertDateFormat(startDateTime)
+        const _endDateTime = convertDateFormat(endDateTime)
         return (
             <View style={[styles.container, { flex: 1 }]}>
                 <ScrollView
@@ -151,8 +156,12 @@ class Activity extends React.Component {
                                 <Text style={styles.schoolText}>{element.schoolName}    {element.clubName}</Text>
                                 <TouchableOpacity onPress={async () =>
                                     await this.pressKeep(element)}>
-                                    <Image source={require('../../images/bookmark.png')}
-                                        style={styles.collect} />
+
+
+                                    <Image
+                                        style={styles.collect}
+                                        source={element.statusKeep ? require("../../images/bookmark-red.png") : require("../../images/bookmark.png")}
+                                    />
                                 </TouchableOpacity>
                             </View>
                             <View style={[styles.clubTextView]}>
@@ -175,9 +184,9 @@ class Activity extends React.Component {
                             <View style={styles.summaryTextView}>
                                 <Image source={require('../../images/calendar.png')}
                                     style={styles.icon} />
-                                <Text style={[styles.summaryText, style = { marginRight: 1 }]}>{element.startDateTime}</Text>
+                                <Text style={[styles.summaryText, style = { marginRight: 1 }]}>{_startDateTime}</Text>
                                 <Text style={styles.toText}>~</Text>
-                                <Text style={[styles.summaryText, style = { marginLeft: 1 }]}>{element.endDateTime}</Text>
+                                <Text style={[styles.summaryText, style = { marginLeft: 1 }]}>{_endDateTime}</Text>
                             </View>
                             <View style={styles.summaryTextView}>
                                 <Image source={require('../../images/coin.png')}
@@ -191,20 +200,23 @@ class Activity extends React.Component {
                             </View>
                         </View>
                     </View>
-                    <View style={styles.main}>
-                        <MapView
-                            style={{ height: 250, marginLeft: 20, marginTop: 10, marginRight: 20 }}
-                            region={this.state.region}>
-                            <Marker
-                                coordinate={{
-                                    latitude: this.state.region.latitude,
-                                    longitude: this.state.region.longitude,
-                                }}
-                                title='你現在的位置'
-                                description='在此位置辦活動'
-                            />
-                        </MapView>
-                    </View>
+                    {
+                        // <View style={styles.main}>
+                        //     <MapView
+                        //         style={{ height: 250, marginLeft: 20, marginTop: 10, marginRight: 20 }}
+                        //         region={this.state.region}>
+                        //         <Marker
+                        //             coordinate={{
+                        //                 latitude: this.state.region.latitude,
+                        //                 longitude: this.state.region.longitude,
+                        //             }}
+                        //             title='你現在的位置'
+                        //             description='在此位置辦活動'
+                        //         />
+                        //     </MapView>
+                        // </View>
+                    }
+                    
                     <View style={styles.main}>
                         <View style={styles.divide}>
                             <Text style={styles.titleText}>活動內容</Text>

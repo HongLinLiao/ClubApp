@@ -1,8 +1,7 @@
 import * as UserAction from '../actions/UserAction'
 import * as CommonAction from '../actions/CommonAction'
 import * as firebase from "firebase"
-import { ImagePicker } from 'expo'
-import { Alert } from 'react-native'
+import { ImagePicker, Permissions, Notifications } from 'expo'
 import { store } from '../../App'
 
 
@@ -80,4 +79,27 @@ export const joinOrLikeClub = (cid) => {
   })
 
   return result
+}
+
+
+export const convertClubStatus = (status) => {
+  switch(status) {
+    case 'master':
+      return '社長'
+    case 'supervisor':
+      return '幹部'
+    case 'member':
+      return '社員'
+    default:
+      return '無職位'
+  }
+}
+
+export const convertDateFormat = (dateTime) => {
+  const _dateTime = new Date(dateTime)
+  const date = _dateTime.toLocaleDateString()
+  const hours = _dateTime.getHours() < 10 ? '0' + _dateTime.getHours() : _dateTime.getHours()
+  const minutes = _dateTime.getMinutes() < 10 ? '0' + _dateTime.getMinutes() : _dateTime.getMinutes()
+
+  return `${date} ${hours}:${minutes}`
 }

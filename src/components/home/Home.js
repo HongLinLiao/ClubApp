@@ -149,8 +149,8 @@ class Home extends React.Component {
                         uid={uid}
                         user={user}
                         clubs={clubs}
+                        loading={this.state.loading}
                     />
-                    {this.state.loading ? <Overlayer /> : null}
                 </PopupDialog>
                 {this.state.loading ? <Overlayer /> : null}
                 <TouchableOpacity style={styles.star}

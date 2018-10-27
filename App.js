@@ -11,8 +11,7 @@ import { getAllUserData } from './src/modules/User'
 import createRootRouter from './src/routers/Router'
 import { Spinner } from './src/components/common/Spinner'
 import { setLoadingState } from './src/actions/CommonAction'
-import { listenToClubs } from './src/modules/Listener'
-
+import { registerForPushNotificationsAsync } from './src/modules/App'
 
 
 export const store = createStore(rootReducer, {}, applyMiddleware(thunk, logger))
@@ -29,13 +28,14 @@ export default class App extends React.Component {
 
     firebase.initializeApp(firebaseConfig)
     
-    firebase.auth().onAuthStateChanged((user) => { //監聽起始點
+    firebase.auth().onAuthStateChanged(async (user) => { //監聽起始點
       
       console.log('user is', user)
 
       if(this.state.loading) { //初次載入App
 
         if(user) {
+          await registerForPushNotificationsAsync(user)
           store.dispatch(getAllUserData(user))
         }
         else {
@@ -44,8 +44,6 @@ export default class App extends React.Component {
         this.setState({ loading: false })
 
       }
-
-      
       
     })
 
@@ -55,6 +53,7 @@ export default class App extends React.Component {
     await Permissions.askAsync(Permissions.CAMERA_ROLL);
     await Permissions.askAsync(Permissions.CAMERA);
     await Permissions.askAsync(Permissions.LOCATION);
+    await Permissions.askAsync(Permissions.NOTIFICATIONS);
   }
 
   render() {

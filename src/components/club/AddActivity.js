@@ -8,16 +8,25 @@ import {
     KeyboardAvoidingView,
     Image,
     Alert,
+    Button,
 } from 'react-native'
 
 import { Location } from 'expo'
 import MapView, { Marker } from 'react-native-maps'
 import { showLocation } from 'react-native-map-link'
 import DateTimePicker from 'react-native-modal-datetime-picker';
+import PopupDialog, { SlideAnimation } from 'react-native-popup-dialog';
+import UserDialog from '../common/UserDialog'
 
 import { selectPhoto } from '../../modules/Common'
+import { autocompletePlace, geocodingPlaceId, test } from '../../modules/Api'
 import Overlayer from '../common/Overlayer'
 import styles from '../../styles/club/AddActivity'
+import PlaceDialog from '../common/PlaceDialog';
+
+const slideAnimation = new SlideAnimation({
+    slideFrom: 'bottom',
+});
 
 class AddActivity extends React.Component {
 
@@ -28,9 +37,11 @@ class AddActivity extends React.Component {
             latitudeDelta: 0.0922,
             longitudeDelta: 0.0421,
         },
+        showMap: false,
         showDatePicker: false,
         datePickerId: 0, // 0 or 1 設定開始跟結束
         loading: false,
+        tempPlace: '',
 
         title: '',
         content: '',
@@ -38,6 +49,7 @@ class AddActivity extends React.Component {
         startDateTime: '',
         endDateTime: '',
         price: '',
+        location: null,
         place: '',
         photo: null,
         open: true,
@@ -66,6 +78,33 @@ class AddActivity extends React.Component {
             }
         } catch (e) {
             Alert.alert('發生錯誤！')
+        }
+    }
+
+    setPlace = async (place_id) => {
+        try {
+            this.setState({loading: true, showMap: true})
+            const result = await geocodingPlaceId(place_id)
+            const { formatted_address, geometry } = result.results[0]
+            const { location } = geometry
+            const region = {
+                latitude: location.lat,
+                longitude: location.lng,
+                latitudeDelta: 0.003, //經度縮放比例
+                longitudeDelta: 0.003, //緯度縮放比例
+            }
+            this.setState({
+                place: formatted_address,
+                tempPlace: formatted_address,
+                location: region,
+                region: region,
+                loading: false
+            })
+
+            this.popupDialog.dismiss()
+
+        } catch(e) {
+            Alert.alert(e.toString())
         }
     }
 
@@ -169,12 +208,12 @@ class AddActivity extends React.Component {
 
     createActivity = async () => {
         try {
-            const { createActivity, currentCid } = this.props
-            const { title, content, remarks, photo, startDateTime, endDateTime, place, price, open } = this.state
-            const activityData = { title, content, remarks, photo, startDateTime, endDateTime, place, price, open }
+            const { createActivity, currentCid, joinClubs } = this.props
+            const { title, content, remarks, photo, startDateTime, endDateTime, location, place, price, open } = this.state
+            const activityData = { title, content, remarks, photo, startDateTime, endDateTime, location, place, price, open }
 
             this.setState({ loading: true })
-            await createActivity(currentCid, activityData)
+            await createActivity(currentCid, activityData, joinClubs[currentCid])
 
             Alert.alert('活動已新增！')
             this.props.navigation.popToTop()
@@ -194,7 +233,7 @@ class AddActivity extends React.Component {
     render() {
         const dateArray = this.getDateTime()
         const { user, joinClubs, currentCid } = this.props
-        const { open } = this.state
+        const { open, predictions, loading } = this.state
         const { schoolName, clubName, member } = joinClubs[currentCid]
         const { status } = member[user.uid]
 
@@ -202,9 +241,7 @@ class AddActivity extends React.Component {
             <View style={styles.container}>
                 
                 <ScrollView>
-                        
                         <TouchableOpacity style={styles.image} onPress={this.pickPicture}>
-                        
                             {
                                 this.state.photo ?
                                     <Image source={{ uri: this.state.photo }} 
@@ -256,9 +293,6 @@ class AddActivity extends React.Component {
                                 </View>
                             </View>
                         </View>
-
-
-
                         <View style={[styles.row,{flex:1,paddingTop: 10}]}>
                             <Image source={require('../../images/coin.png')}
                                 style={styles.calendarIcon} />
@@ -273,37 +307,47 @@ class AddActivity extends React.Component {
                                 />
                             </View>
                         </View>
-                        <View style={[styles.row, {flex:1 ,paddingTop: 10}]}>
+                        <View style={[styles.row, {flex:1}]}>
                             <Image source={require('../../images/place.png')}
                                 style={styles.calendarIcon} />
                             <View style={styles.littleTextView}>
                                 <TextInput
-                                    style={[styles.littleText,style={width:224}]}
-                                    placeholder='活動地點'
+                                    style={[styles.littleText]}
+                                    placeholder='可以輸入活動地點'
                                     placeholderTextColor='rgba(102,102,102,0.5)'
                                     underlineColorAndroid='transparent'
                                     onChangeText={place => this.setState({ place })}
+                                    defaultValue={this.state.tempPlace}
                                 />
                             </View>
-                            <TouchableOpacity onPress={this.open}>
-                                <Image source={require('../../images/search.png')}
-                                    style={styles.searchIcon} />
-                            </TouchableOpacity>
-
                         </View>
-                        <MapView
-                            style={{ height: 250, marginLeft: 20, marginTop: 10, marginRight: 20 }}
-                            region={this.state.region}
-                        >
-                            <Marker
-                                coordinate={{
-                                    latitude: this.state.region.latitude,
-                                    longitude: this.state.region.longitude,
-                                }}
-                                title='你現在的位置'
-                                description='在此位置辦活動'
-                            />
-                        </MapView>
+                        <View style={[styles.row, {flex:1 ,paddingTop: 10}]}>
+                            <TouchableOpacity style={{flexDirection: 'row', alignItems: 'center'}} onPress={() => this.popupDialog.show()}>
+                                <Text style={{color: '#0d4273', marginRight: 5}}>搜尋地點</Text>
+                                <Image source={require('../../images/search.png')} style={styles.searchIcon} />
+                            </TouchableOpacity>
+                        </View>
+                        {
+                            this.state.showMap ? (
+                                <MapView
+                                    style={{ height: 250, marginLeft: 20, marginTop: 10, marginRight: 20 }}
+                                    region={this.state.region}
+                                    mapType={this.state.mapType}
+                                >
+                                    <Marker
+                                        coordinate={{
+                                            latitude: this.state.region.latitude,
+                                            longitude: this.state.region.longitude,
+                                            latitudeDelta: this.state.region.latitudeDelta,
+                                            longitudeDelta: this.state.region.longitudeDelta
+                                        }}
+                                        title='你現在的位置'
+                                        description='在此位置辦活動'
+                                    />
+                                </MapView>
+                            ) : null
+                        }
+                        
 
                         <View style={{ padding: 30 }}>
                             <Text style={styles.title}>活動內容</Text>
@@ -328,16 +372,28 @@ class AddActivity extends React.Component {
                                     onChangeText={(remarks) => this.setState({ remarks })} />
                             </View>
 
-                            <DateTimePicker
-                                isVisible={this.state.showDatePicker}
-                                onConfirm={this.setDateTime}
-                                onCancel={() => this.setState({ showDatePicker: false })}
-                                mode='datetime'
-                            />
                         </View>
                     </View>
                 </ScrollView>
-                {this.state.loading ? <Overlayer /> : null}
+                <DateTimePicker
+                    isVisible={this.state.showDatePicker}
+                    onConfirm={this.setDateTime}
+                    onCancel={() => this.setState({ showDatePicker: false })}
+                    mode='datetime'
+                />
+                <PopupDialog
+                    ref={(popupDialog) => this.popupDialog = popupDialog}
+                    dialogAnimation={slideAnimation}
+                    width={0.9}
+                    height={0.7}
+                    dialogStyle={{ borderRadius: 10}}
+                >
+                    <PlaceDialog
+                        setPlace={this.setPlace.bind(this)}
+                    />
+                    
+                </PopupDialog>
+                {loading ? <Overlayer /> : null}
                 <KeyboardAvoidingView behavior='padding'>
                 </KeyboardAvoidingView>
 
@@ -348,94 +404,3 @@ class AddActivity extends React.Component {
 }
 
 export default AddActivity
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        // <GooglePlacesAutocomplete
-        // textInputProps={{
-        //     onChangeText: (tempText) => {
-        //         console.log(tempText)
-        //         this.setState({tempText})
-        //     },
-        //     onBlur: () => {
-        //         console.log('blur')
-        //         this.setState({text: this.state.tempText})
-        //     },
-        //     onSubmitEditing: () => {
-        //         console.log('sub')
-        //     },
-        //     value: this.state.text
-
-        // }}
-        // placeholder='Search'
-        // minLength={2} // minimum length of text to search
-        // autoFocus={false}
-        // returnKeyType={'search'} // Can be left out for default return key https://facebook.github.io/react-native/docs/textinput.html#returnkeytype
-        // listViewDisplayed='auto'   // true/false/undefined
-        // fetchDetails={true}
-        // renderDescription={row => row.description} // custom description render
-        // onPress={(data, details = null) => { // 'details' is provided when fetchDetails = true
-        //     // console.log(data, details);
-        // }}
-
-
-        // query={{
-        //     // available options: https://developers.google.com/places/web-service/autocomplete
-        //     key: 'AIzaSyBvx44uGRxGR2RlGqdbcad48Rp1CZb77p8',
-        //     language: 'zh-TW', // language of the results
-        //     types: 'country' // default: 'geocode'
-        // }}
-
-        // styles={{
-        // textInputContainer: {
-        //     width: '100%'
-        // },
-        // description: {
-        //     fontWeight: 'bold'
-        // },
-        // predefinedPlacesDescription: {
-        //     color: '#1faadb'
-        // }
-        // }}
-        // currentLocation={true} // Will add a 'Current location' button at the top of the predefined places list
-        // currentLocationLabel="Current location"
-        // nearbyPlacesAPI='GooglePlacesSearch'
-
-        // // GooglePlacesSearchQuery={{
-        // //     // available options for GooglePlacesSearch API : https://developers.google.com/places/web-service/search
-        // //     rankby: 'distance',
-        // //     types: 'food'
-        // // }}
-
-        // // filterReverseGeocodingByTypes={['locality', 'administrative_area_level_3']} // filter the reverse geocoding results by types - ['locality', 'administrative_area_level_3'] if you want to display only cities
-        // />
