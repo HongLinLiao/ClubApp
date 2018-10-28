@@ -15,7 +15,7 @@ import ModalDropdown from 'react-native-modal-dropdown';
 import { randomCid } from '../../modules/Club'
 import { getPostKeyListFromClubKey } from '../../modules/Post'
 import PostListElement from '../post/PostListElement'
-import { joinOrLikeClub } from '../../modules/Common'
+import { joinOrLikeClub, convertClubStatus } from '../../modules/Common'
 import { getUserData, getClubData } from '../../modules/Data'
 import Overlayer from '../common/Overlayer'
 import PopupDialog, { SlideAnimation } from 'react-native-popup-dialog';
@@ -218,13 +218,15 @@ class Club extends React.Component {
       const { _uid, _user, _clubs } = this.state.userData
       let type = joinOrLikeClub(currentCid);
       let clubs = {};
-      let status = "";
+      let status = '';
+      let _status = '';
       if (type == "JOIN") {
         clubs = joinClubs;
         status = clubs[currentCid].member[user.uid].status;
+        _status = convertClubStatus(status)
       } else if (type == "LIKE") {
         clubs = likeClubs;
-        status = "路人";
+        status = "蒐藏者";
       }
 
       const { schoolName, clubName, open, member, introduction, imgUrl } = clubs[currentCid];
@@ -281,7 +283,7 @@ class Club extends React.Component {
                         </View>
                         <Text style={styles.numberext}>
                           你的身分：
-                          {status}
+                          {_status}
                         </Text>
                       </View>
                     </View>
@@ -305,27 +307,43 @@ class Club extends React.Component {
                   </TouchableOpacity>
 
                   <TouchableOpacity
+                    disabled={status == 'member'}
                     onPress={() =>
                       this.props.navigation.push("AddActivity", {})
                     }
                   >
                     <View style={styles.adminButton}>
-                      <Image
-                        source={require("../../images/images2/idea.png")}
-                        style={styles.adminIcon}
-                      />
+                    {
+                      status == 'member' ? 
+                        <Image
+                          source={require('../../images/idea-gray.png')}
+                          style={styles.adminIcon}
+                        /> :
+                        <Image 
+                          source={require('../../images/idea.png')}
+                          style={styles.adminIcon}
+                        />
+                    }
                       <Text style={styles.adminText}>舉辦活動</Text>
                     </View>
                   </TouchableOpacity>
 
                   <TouchableOpacity
+                    disabled={status != 'master'}
                     onPress={() => this.props.navigation.push("ClubAdmin", {})}
                   >
                     <View style={styles.adminButton}>
-                      <Image
-                        source={require("../../images/images2/manager.png")}
-                        style={styles.adminIcon}
-                      />
+                      {
+                        status == 'master' ? 
+                          <Image
+                            source={require("../../images/images2/manager.png")}
+                            style={styles.adminIcon}
+                          /> :
+                          <Image
+                            source={require('../../images/manager-gray.png')}
+                            style={styles.adminIcon}
+                          />
+                      }
                       <Text style={styles.adminText}>管理者模式</Text>
                     </View>
                   </TouchableOpacity>
@@ -338,7 +356,7 @@ class Club extends React.Component {
                           style={styles.adminIcon}
                         />
                       </View>
-                      <Text style={styles.adminText}>編輯成員</Text>
+                      <Text style={styles.adminText}>{status == 'member' ? '查看成員' : '成員管理'}</Text>
                     </View>
                   </TouchableOpacity>
                 </View>

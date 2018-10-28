@@ -6,6 +6,8 @@ import ActivityPage from '../containers/club/ActivityPage'
 import AddActivityPage from '../containers/club/AddActivityPage'
 import ClubAdminPage from '../containers/club/ClubAdminPage'
 import ClubMemberPage from '../containers/club/ClubMemberPage'
+import SearchPlacePage from '../containers/club/SearchPlacePage'
+import MemberManagePage from '../containers/club/MemberManagePage'
 
 import React from 'react'
 import { Button, TouchableOpacity, Image, Text } from 'react-native'
@@ -40,12 +42,13 @@ export default createStackNavigator({
           </TouchableOpacity>
         ),
         headerBackImage: (
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.goBack()}>
             <Image source={require('../images/images2/arrowLeftBlue.png')}
               style={{ width: 25, height: 25 }} />
           </TouchableOpacity>
         ),
         title: '新增文章',
+        headerBackTitle: '社團',
         headerTitleStyle: {
           color: '#666666',
           fontSize: 20,
@@ -68,7 +71,7 @@ export default createStackNavigator({
         </TouchableOpacity>
         ),
         headerBackImage: (
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.pop()}>
             <Image source={require('../images/images2/arrowLeftBlue.png')}
               style={{ width: 25, height: 25 }} />
           </TouchableOpacity>
@@ -90,7 +93,7 @@ export default createStackNavigator({
     screen: ClubAdminPage,
     navigationOptions: ({ navigation }) => ({
       headerBackImage: (
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
           <Image source={require('../images/images2/arrowLeftBlue.png')}
             style={{ width: 25, height: 25 }} />
         </TouchableOpacity>
@@ -105,17 +108,16 @@ export default createStackNavigator({
       }
     })
   },
-
   ClubMember: {
     screen: ClubMemberPage,
     navigationOptions: ({ navigation }) => ({
       headerBackImage: (
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.pop()}>
           <Image source={require('../images/images2/arrowLeftBlue.png')}
             style={{ width: 25, height: 25 }} />
         </TouchableOpacity>
       ),
-      title: '編輯成員',
+      title: '成員',
       headerTitleStyle: {
         color: '#666666',
         fontSize: 20,
@@ -124,6 +126,12 @@ export default createStackNavigator({
         backgroundColor: '#f6b456'
       }
     })
+  },
+  MemberManage: {
+    screen: MemberManagePage,
+  },
+  SearchPlace: {
+    screen: SearchPlacePage,
   }
 },
   {
