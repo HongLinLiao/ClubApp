@@ -17,29 +17,13 @@ import {
 import { changeMemberStatusToChinese } from './Common';
 import { sendPostNotification } from './Api'
 import * as PostAction from '../actions/PostAction'
+require("firebase/functions");
 
 //********************************************************************************
 // Get Data
 //********************************************************************************
 
-//傳入clubKey，取得社團下postKeyArray
-export const getPostKeyListFromClubKey = async (clubKey) => {
-    try {
-        const postData = await getPostData(clubKey);
-        let postKeyList = {};
-        if (postData != null) {
-            postKeyList[clubKey] = Object.keys(postData);
-        }
-        return postKeyList;
-    }
-    catch (error) {
-        console.log(error.toString());
-        throw error;
-    }
-
-}
-
-//用postKeyArray進firebase抓新資料
+//用postKeyArray進firebase抓新資料(不需要)
 export const getPostDataComplete = (postKeyList) => async (dispatch, getState) => {
     try {
         let postData;
@@ -129,34 +113,6 @@ export const getInsidePost = (clubKey, postKey) => async (dispatch, getState) =>
 // handle
 //********************************************************************************
 
-//傳入參數貼文列物件，將貼文加入貼文列物件
-export const handlePostDataToObject = (objPost, clubKey, postKey, postData) => {
-    try {
-        const newObjPost = JSON.parse(JSON.stringify(objPost));
-        const newPostData = {}
-        newPostData[postKey] = postData;
-        newObjPost.push(newPostData);
-        // //重複
-        // for (var i = 0; i < newObjPost.length; i++) {
-        //     for (var j = i + 1; j < newObjPost.length; j++) {
-        //         let preKey = Object.keys(newObjPost[i])[0];
-        //         let nextKey = Object.keys(newObjPost[j])[0];
-        //         if (preKey == nextKey)
-        //             newObjPost.splice(i, 1);
-        //     }
-        // }
-        //排序
-        newObjPost.sort(function (a, b) {
-            const aDate = a[Object.keys(a)[0]].date;
-            const bDate = b[Object.keys(b)[0]].date;
-            return new Date(bDate) < new Date(aDate) ? -1 : 1
-        })
-        return newObjPost;
-    }
-    catch (error) {
-        throw error;
-    }
-}
 
 //產生新的object混合新貼文
 export const handlePostDataToReducer = (postReducer, clubKey, postKey, postData) => {
@@ -347,80 +303,12 @@ export const setPostView = async (post) => {
 }
 
 //按貼文讚
-export const setPostFavorite = (clubKey, postKey) => async (dispatch, getState) => {
+export const setPostFavorite = (clubKey, postKey) => async (dispatch) => {
     try {
-        const club = await getClubData(clubKey);
-        console.log('open:' + club.open);
-        if (!club.open) {
-            const { uid } = firebase.auth().currentUser;
-            if (!club.member[uid]) {
-                alert('Post is not exist!');
-                console.log('不是成員');
-                return null;
-            }
-            console.log('是成員');
-        }
-        const post = await getInsidePostData(clubKey, postKey);
-        if (post != null) {
-            //取得使用者id
-            const user = firebase.auth().currentUser;
-            //先取得貼文基本屬性
-            post = await setPostFoundations(clubKey, postKey, post, club);
-
-            let updateFavorites = {};
-            //按讚處理
-            //按讚
-            if (post.statusFavorite == false) {
-                post.statusFavorite = !post.statusFavorite;
-                //牽扯到物件形狀
-                //沒其他使用者按過讚
-                if (post.numFavorites == 0) {
-                    post.numFavorites = post.numFavorites + 1;
-                    post.favorites = {};
-                    post.favorites[user.uid] = true;
-                    updateFavorites[user.uid] = true;
-                }
-                //有其他使用者按過讚
-                else {
-                    post.numFavorites = post.numFavorites + 1;
-                    post.favorites[user.uid] = true;
-                    updateFavorites[user.uid] = true;
-                }
-            }
-            //取消讚
-            else {
-                post.statusFavorite = !post.statusFavorite;
-                //牽扯到物件形狀
-                //沒其他使用者按過讚
-                if (post.numFavorites == 1) {
-                    post.numFavorites = post.numFavorites - 1;
-                    post.favorites = false;
-                    // delete post.favorites[user.uid];
-                    updateFavorites[user.uid] = false;
-                }
-                //有其他使用者按過讚
-                //設為null寫進firebase會自動消失
-                else {
-                    post.numFavorites = post.numFavorites - 1;
-                    delete post.favorites[user.uid];
-                    updateFavorites[user.uid] = null;
-                }
-            }
-            //更改firebasePostFavorites
-            await updatePostFavorites(post.clubKey, post.postKey, updateFavorites);
-
-            //寫進Reducer
-            const prePostReducer = getState().postReducer.allPost;
-            const newPrePostReducer = JSON.parse(JSON.stringify(prePostReducer));
-            const nextPostReducer = handlePostDataToReducer(newPrePostReducer, clubKey, postKey, post);
-            dispatch(PostAction.getPostData(nextPostReducer));
-            return post;
-        }
-        else {
-            console.log('Post is not exist!');
-            alert('Post is not exist!');
-            return null;
-        }
+        const setPostFavorite = firebase.functions().httpsCallable('setPostFavorite');
+        const response = await setPostFavorite({clubKey:clubKey,postKey:postKey});
+        console.log(response);
+        return response.data;
     }
     catch (error) {
         console.log(error.toString());

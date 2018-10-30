@@ -1,12 +1,11 @@
 import * as HomeAction from '../actions/HomeAction'
-import { getPostDataComplete, getPostKeyListFromClubKey } from './Post';
 import { getActivityDataComplete, getUserActivities } from './Activity.js';
 import { getClubData } from './Data';
 import * as firebase from "firebase";
 require("firebase/functions");
 
 //********************************************************************************
-// reload functiob
+// reload function
 //********************************************************************************
 
 //貼文列重整
@@ -41,11 +40,10 @@ export const getHomePostReload = (clubList, homeReload) => async (dispatch, getS
         }
 
         dispatch(HomeAction.getHomeClubListSuccess(newClubList, numSelect));
-        const postKeyList = await dispatch(getHomePostKey(newClubList));
-        console.log(postKeyList);
-        // const newPostList = await dispatch(getPostDataComplete(postKeyList));
-        // homeReload(newPostList);
-        // determinToSearch(clubList, newPostList);
+        const getHomePost = firebase.functions().httpsCallable('getHomePost');
+        const response = await getHomePost(clubList);
+        homeReload(response.data);
+        determinToSearch(clubList, response.data);
     }
     catch (error) {
         console.log(error.toStirng());
@@ -89,21 +87,6 @@ export const initHomeClubList = (joinClub, likeClub) => async (dispatch) => {
     }
     catch (error) {
         dispatch(HomeAction.getHomeClubListFailure(error.toString()));
-        console.log(error.toString());
-    }
-}
-
-//以clubList去取得postKey
-export const getHomePostKey = (clubList) => async (dispatch) => {
-    try {
-        const getHomePostKey = firebase.functions().httpsCallable('getHomePostKey');
-        const postKeyList = await getHomePostKey(clubList);
-
-        dispatch(HomeAction.getHomePostListSuccess(postKeyList));
-        return postKeyList;
-    }
-    catch (error) {
-        dispatch(HomeAction.getHomePostListFailure(error.toString()))
         console.log(error.toString());
     }
 }
@@ -171,13 +154,14 @@ export const getClubListForSelecting = async (allClub) => {
 }
 
 //判斷是否使用者有收藏或加入社團與社團是否有存在文章
-export const determinToSearch = (clubList, postList) => {
+export const determinToSearch = (clubList, postArr) => {
     try {
         if (Object.keys(clubList).length == 0) {
             alert('You haven\'t joined or liked clubs!');
+            //換頁處理
         }
         else {
-            if (postList.length == 0) {
+            if (postArr.length == 0) {
                 alert('Your clubs haven\'t exist posts!');
             }
             else {
@@ -186,6 +170,6 @@ export const determinToSearch = (clubList, postList) => {
         }
     }
     catch (error) {
-        console.log(error.toString());
+        throw error;
     }
 }

@@ -19,16 +19,16 @@ const PostListElement = ({
   //按讚
   async function pressFavorite(post) {
     parentOverLayor()
-    const postData = await setPostFavorite(post.clubKey, post.postKey);
+    let postData = await setPostFavorite(post.clubKey, post.postKey);
     parentOverLayor()
     if (postData != null) {
       //放進首頁
-      const newPostList = JSON.parse(JSON.stringify(postList));
-      const index = newPostList.indexOf(postData.postKey);
-      const post = {};
+      let newPostList = postList.slice();
+      let index = newPostList.indexOf(postData.postKey);
+      let post = {};
       post[postData.postKey] = postData
       newPostList[index] = post
-      var result = newPostList.some(function (value, index, array) {
+      let result = newPostList.some(function (value, index, array) {
         if (Object.keys(value)[0] == postData.postKey) {
           const post = {};
           post[postData.postKey] = postData
