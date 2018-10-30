@@ -74,8 +74,14 @@ const MainRouter = createBottomTabNavigator(
     navigationOptions: ({ navigation }) => {
       const { index, routes } = navigation.state
       const { routeName } = routes[index]
+      
       return {
-        tabBarVisible: !((routeName == "AddPost") || (routeName == "AddActivity") || (routeName == "ClubAdmin")),
+        tabBarVisible: !( (routeName == "AddPost") || 
+                          (routeName == "AddActivity") || 
+                          (routeName == "ClubAdmin") ||
+                          (routeName == "ClubMember") ||
+                          (routeName == "MemberManage")
+                        ),
         animationEnabled: true,
         swipeEnabled: true
       };

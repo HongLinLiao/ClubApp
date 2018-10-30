@@ -241,9 +241,7 @@ class AddActivity extends React.Component {
             <View style={styles.container}>
                 
                 <ScrollView>
-                        <Button title='test' onPress={() => test()}/>
                         <TouchableOpacity style={styles.image} onPress={this.pickPicture}>
-                        
                             {
                                 this.state.photo ?
                                     <Image source={{ uri: this.state.photo }} 
@@ -374,15 +372,15 @@ class AddActivity extends React.Component {
                                     onChangeText={(remarks) => this.setState({ remarks })} />
                             </View>
 
-                            <DateTimePicker
-                                isVisible={this.state.showDatePicker}
-                                onConfirm={this.setDateTime}
-                                onCancel={() => this.setState({ showDatePicker: false })}
-                                mode='datetime'
-                            />
                         </View>
                     </View>
                 </ScrollView>
+                <DateTimePicker
+                    isVisible={this.state.showDatePicker}
+                    onConfirm={this.setDateTime}
+                    onCancel={() => this.setState({ showDatePicker: false })}
+                    mode='datetime'
+                />
                 <PopupDialog
                     ref={(popupDialog) => this.popupDialog = popupDialog}
                     dialogAnimation={slideAnimation}

@@ -96,17 +96,17 @@ export default createStackNavigator({
 		})
 	},
 },
-{
-	navigationOptions: {
-		headerBackTitleStyle: {
-			color: '#0d4273',
-			fontSize: 15,
-		},
-		headerBackImage: (
-			<TouchableOpacity>
-				<Image source={require('../images/images2/arrowLeftBlue.png')}
-					style={{ width: 25, height: 25 }} />
-			</TouchableOpacity>
-		)
-	}
-})
+	{
+		navigationOptions: ({ navigation }) => ({
+			headerBackTitleStyle: {
+				color: '#0d4273',
+				fontSize: 15,
+			},
+			headerBackImage: (
+				<TouchableOpacity onPress={() => navigation.goBack()}>
+					<Image source={require('../images/images2/arrowLeftBlue.png')}
+						style={{ width: 25, height: 25 }} />
+				</TouchableOpacity>
+			)
+		})
+	})
