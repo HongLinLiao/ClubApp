@@ -181,7 +181,7 @@ export const createPost = (cid, postData, club) => async (dispatch) => {
             content: postData.content,
             images: postData.images,
             poster: user.uid,
-            date: new Date().toLocaleString(),
+            date: new Date().toUTCString(),
             favorites: false,
             views: false,
             numComments: 0

@@ -7,7 +7,7 @@ export default createStackNavigator({
     Analysis: {
         screen: AnalysisPage,
         navigationOptions: ({ navigation }) => ({
-			title: '社團分析',
+			title: '社團統計',
 			headerTitleStyle: {
 				color: '#666666',
 				fontSize: 20,

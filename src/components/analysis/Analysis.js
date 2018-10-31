@@ -120,7 +120,7 @@ class Analysis extends React.Component {
                         <Button
                             icon={<Image source={require('../../images/bars-chart.png')} />}
                             iconRight
-                            title='分析社團'
+                            title='點擊統計'
                             titleStyle={{ fontWeight: "700", color: '#0d4273' }}
                             buttonStyle={{ paddingRight: 15 ,paddingLeft: 10, paddingTop: 5, paddingBottom: 5, backgroundColor: 'rgba(246, 180, 86, 0.75)', }}
                             onPress={() => this.searchData()} 
@@ -211,11 +211,11 @@ class Analysis extends React.Component {
                                                 containerStyle: {marginTop: 5}
                                             }}
                                             leftElement={<Text style={{color: '#f6b456', fontWeight: 'bold'}}>{index + 1}</Text>}
-                                            title={<Text style={{fontSize: 15, color: 'rgb(255, 199, 81)'}}>{club.schoolName + ' ' + club.clubName}</Text>}
+                                            title={<Text style={{fontSize: 20, color: 'rgb(255, 199, 81)'}}>{club.schoolName + ' ' + club.clubName}</Text>}
                                             subtitle={
                                                 <View style={{marginTop: 5}}>
-                                                    <Text style={{fontSize: 10, color: 'rgb(255, 199, 81)'}}>{`文章活躍度：${clubData.avgPostRank}`}</Text>
-                                                    <Text style={{fontSize: 10, color: 'rgb(255, 199, 81)'}}>{`活動活躍度：${clubData.avgActivityRank}`}</Text>
+                                                    <Text style={{fontSize: 15, color: 'rgb(255, 199, 81)', marginBottom: 5}}>{`文章活躍度：${clubData.avgPostRank}`}</Text>
+                                                    <Text style={{fontSize: 15, color: 'rgb(255, 199, 81)'}}>{`活動活躍度：${clubData.avgActivityRank}`}</Text>
                                                 </View> 
                                             }
                                             containerStyle={{backgroundColor: null}}

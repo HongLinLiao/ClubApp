@@ -63,7 +63,7 @@ class ClubAdmin extends React.Component {
             Alert.alert('照片新增成功')
             this.setState({ loading: false })
         } catch (e) {
-            Alert.alert(e.toString())
+            this.setState({ loading: false })
         }
     }
 

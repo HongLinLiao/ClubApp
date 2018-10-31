@@ -183,56 +183,46 @@ class Analysis extends React.Component {
                     <View style={{flex:1 , flexDirection: 'row', alignItems: 'center'}}>
                         <View style={{width: 20, height: 20, backgroundColor: 'orange', opacity: 0.8}}></View>
                         <View style={{margin: 10}}>
-                            <Text style={{fontSize: 15, color: 'rgb(255, 199, 81)'}}>貼文觀看</Text>
+                            <Text style={{fontSize: 20, color: 'rgb(255, 199, 81)'}}>貼文觀看</Text>
                         </View>
                         <View>
-                            <Text style={{fontSize: 10, color: 'rgb(255, 199, 81)'}}>{`總觀看次數:${totalPostViews}`}</Text>
-                            <Text style={{fontSize: 10, color: 'rgb(255, 199, 81)'}}>{`平均觀看次數:${avgPostViews}`}</Text>
-                        </View>
+                            <Text style={{fontSize: 15, color: 'rgb(255, 199, 81)'}}>{`總${totalPostViews}/平均${avgPostViews}`}</Text>                        </View>
                     </View>
 
                     <View style={{flex:1 , flexDirection: 'row', alignItems: 'center'}}>
                         <View style={{width: 20, height: 20, backgroundColor: 'tomato', opacity: 0.8}}></View>
                         <View style={{margin: 10}}>
-                            <Text style={{fontSize: 15, color: 'rgb(255, 199, 81)'}}>貼文喜愛</Text>
+                            <Text style={{fontSize: 20, color: 'rgb(255, 199, 81)'}}>貼文喜愛</Text>
                         </View>
                         <View>
-                            <Text style={{fontSize: 10, color: 'rgb(255, 199, 81)'}}>{`總喜愛次數:${totalPostFavorites}`}</Text>
-                            <Text style={{fontSize: 10, color: 'rgb(255, 199, 81)'}}>{`平均喜歡次數:${avgPostFavorites}`}</Text>
-                        </View>
+                            <Text style={{fontSize: 15, color: 'rgb(255, 199, 81)'}}>{`總${totalPostFavorites}/平均${avgPostFavorites}`}</Text>                        </View>
                     </View>
 
                     <View style={{flex:1 , flexDirection: 'row', alignItems: 'center'}}>
                         <View style={{width: 20, height: 20, backgroundColor: 'gold', opacity: 0.8}}></View>
                         <View style={{margin: 10}}>
-                            <Text style={{fontSize: 15, color: 'rgb(255, 199, 81)'}}>貼文留言</Text>
+                            <Text style={{fontSize: 20, color: 'rgb(255, 199, 81)'}}>貼文留言</Text>
                         </View>
                         <View>
-                            <Text style={{fontSize: 10, color: 'rgb(255, 199, 81)'}}>{`總留言次數:${totalPostComments}`}</Text>
-                            <Text style={{fontSize: 10, color: 'rgb(255, 199, 81)'}}>{`平均留言次數:${avgPostComments}`}</Text>
-                        </View>
+                            <Text style={{fontSize: 15, color: 'rgb(255, 199, 81)'}}>{`總${totalPostComments}/平均${avgPostComments}`}</Text>                        </View>
                     </View>
 
                     <View style={{flex:1 , flexDirection: 'row', alignItems: 'center'}}>
                         <View style={{width: 20, height: 20, backgroundColor: 'green', opacity: 0.8}}></View>
                         <View style={{margin: 10}}>
-                            <Text style={{fontSize: 15, color: 'rgb(255, 199, 81)'}}>活動觀看</Text>
+                            <Text style={{fontSize: 20, color: 'rgb(255, 199, 81)'}}>活動觀看</Text>
                         </View>
                         <View>
-                            <Text style={{fontSize: 10, color: 'rgb(255, 199, 81)'}}>{`總觀看次數:${totalActivityViews}`}</Text>
-                            <Text style={{fontSize: 10, color: 'rgb(255, 199, 81)'}}>{`平均觀看次數:${avgActivityViews}`}</Text>
-                        </View>
+                            <Text style={{fontSize: 15, color: 'rgb(255, 199, 81)'}}>{`總${totalActivityViews}/平均${avgActivityViews}`}</Text>                        </View>
                     </View>
 
                     <View style={{flex:1 , flexDirection: 'row', alignItems: 'center'}}>
                         <View style={{width: 20, height: 20, backgroundColor: 'cyan', opacity: 0.8}}></View>
                         <View style={{margin: 10}}>
-                            <Text style={{fontSize: 15, color: 'rgb(255, 199, 81)'}}>活動喜愛</Text>
+                            <Text style={{fontSize: 20, color: 'rgb(255, 199, 81)'}}>活動喜愛</Text>
                         </View>
                         <View>
-                            <Text style={{fontSize: 10, color: 'rgb(255, 199, 81)'}}>{`總喜愛次數:${totalActivityFavorites}`}</Text>
-                            <Text style={{fontSize: 10, color: 'rgb(255, 199, 81)'}}>{`平均喜愛次數:${avgActivityFavorites}`}</Text>
-                        </View>
+                            <Text style={{fontSize: 15, color: 'rgb(255, 199, 81)'}}>{`總${totalActivityFavorites}/平均${avgActivityFavorites}`}</Text>                        </View>
                     </View>
                     
                 </View>          
