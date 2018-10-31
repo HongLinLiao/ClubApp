@@ -200,7 +200,7 @@ export const createComment = async (clubKey, postKey, content) => {
     const commentRef = firebase.database().ref('comments/' + clubKey + '/' + postKey).push();
     const commentData = {
         commenter: user.uid,
-        date: new Date().toLocaleString(),
+        date: new Date().toUTCString(),
         content: content,
         favorites: false
     }
