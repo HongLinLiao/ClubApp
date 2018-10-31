@@ -25,10 +25,42 @@ export default createStackNavigator({
 
   Activity: {
     screen: ActivityPage,
+    navigationOptions: ({ navigation }) => ({
+			headerTitleStyle: {
+				color: '#666666',
+				fontSize: 18,
+				fontFamily: 'Courier',
+			},
+			headerStyle: {
+				backgroundColor: '#f6b456'
+      },
+      headerBackImage: (
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Image source={require('../images/images2/arrowLeftBlue.png')}
+            style={{ width: 25, height: 25 }} />
+        </TouchableOpacity>
+      ),
+		})
   },
 
   Post: {
-    screen: PostPage
+    screen: PostPage,
+    navigationOptions: ({ navigation }) => ({
+			headerTitleStyle: {
+				color: '#666666',
+				fontSize: 25,
+				fontFamily: 'Courier',
+			},
+			headerStyle: {
+				backgroundColor: '#f6b456'
+      },
+      headerBackImage: (
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Image source={require('../images/images2/arrowLeftBlue.png')}
+            style={{ width: 25, height: 25 }} />
+        </TouchableOpacity>
+      ),
+		})
   },
 
   AddPost: {
@@ -129,9 +161,40 @@ export default createStackNavigator({
   },
   MemberManage: {
     screen: MemberManagePage,
+    navigationOptions: ({ navigation }) => ({
+      headerBackImage: (
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Image source={require('../images/images2/arrowLeftBlue.png')}
+            style={{ width: 25, height: 25 }} />
+        </TouchableOpacity>
+      ),
+      title: '更改職位',
+      headerTitleStyle: {
+        color: '#666666',
+        fontSize: 20,
+      },
+      headerStyle: {
+        backgroundColor: '#f6b456'
+      }
+    })
   },
   SearchPlace: {
     screen: SearchPlacePage,
+    navigationOptions: ({ navigation }) => ({
+      headerBackImage: (
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Image source={require('../images/images2/arrowLeftBlue.png')}
+            style={{ width: 25, height: 25 }} />
+        </TouchableOpacity>
+      ),
+      headerTitleStyle: {
+        color: '#666666',
+        fontSize: 20,
+      },
+      headerStyle: {
+        backgroundColor: '#f6b456'
+      }
+    })
   }
 },
   {
