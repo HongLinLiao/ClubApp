@@ -26,13 +26,17 @@ export default StyleSheet.create({
     iconCamera: {
         height: 150,
         width: 150,
+        
         //paddingBottom: 100
     },
     cameraView: {
         //paddingBottom: 50,
         alignItems: 'center',
         flex: 1,
-        justifyContent: 'center'
+        justifyContent: 'center',
+        backgroundColor:'rgba(0,0,0,0.65)',
+        borderRadius:120,
+        margin:60,
     },
     cameraText: {
         fontSize: 30,
