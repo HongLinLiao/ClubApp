@@ -1,6 +1,6 @@
 import { createStackNavigator } from "react-navigation";
 import SearchPage from "../containers/search/SearchPage";
-import { TextInput, StyleSheet, Image } from "react-native";
+import { TextInput, StyleSheet, Image,TouchableOpacity } from "react-native";
 import SearchClubPage from "../containers/search/SearchClubPage";
 import PostPage from "../containers/club/PostPage";
 import ActivityPage from '../containers/club/ActivityPage'
@@ -46,15 +46,36 @@ export default createStackNavigator({
     }
   },
   SearchClub: {
-    screen: SearchClubPage
+    screen: SearchClubPage,
+    navigationOptions: ({ navigation }) => ({
+      title: '社團',
+      headerBackTitle: '上一頁',
+      headerTitleStyle: {
+        color: '#666666',
+        fontSize: 20,
+      },
+      headerStyle: {
+        backgroundColor: '#f6b456'
+      },
+      headerBackImage: (
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Image source={require('../images/images2/arrowLeftBlue.png')}
+            style={{ width: 25, height: 25 }} />
+        </TouchableOpacity>
+      )
+    }
+    )
   },
   Activity: {
     screen: ActivityPage,
   },
   Post: {
-    screen: PostPage
-  }
+    screen: PostPage,
+  },
+
+
 });
+
 
 const styles = StyleSheet.create({
   search: {
@@ -76,3 +97,17 @@ const styles = StyleSheet.create({
     flex: 1
   }
 });
+{
+  navigationOptions: ({ navigation }) => ({
+    headerBackTitleStyle: {
+      color: '#0d4273',
+      fontSize: 15,
+    },
+    headerBackImage: (
+      <TouchableOpacity onPress={() => navigation.goBack()}>
+        <Image source={require('../images/images2/arrowLeftBlue.png')}
+          style={{ width: 25, height: 25 }} />
+      </TouchableOpacity>
+    )
+  })
+}
