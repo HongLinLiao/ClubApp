@@ -22,13 +22,13 @@ const slideAnimation = new SlideAnimation({
 });
 class Post extends React.Component {
   //寫入本地State
-  async componentWillMount() {
+  componentWillMount() {
     this.setState({ post: this.props.post, comment: this.props.comment });
   }
 
   state = {
     post: {},
-    comment: {},
+    comment: [],
     userData: { uid: null, user: null, clubs: null },
     loading: false,
     refreshing: false,
@@ -66,22 +66,43 @@ class Post extends React.Component {
   //點讚
   pressFavorite = async (clubKey, postKey) => {
     const { setPostFavorite, postList, setPostList } = this.props;
-    this.postOverLayar()
-    const postData = await setPostFavorite(clubKey, postKey);
-    this.postOverLayar()
-    if (postData != null) {
-      //放進postList
-      const newPostList = JSON.parse(JSON.stringify(postList));
-      var result = newPostList.some(function (value, index, array) {
-        if (Object.keys(value)[0] == postData.postKey) {
-          const post = {};
-          post[postData.postKey] = postData
-          newPostList[index] = post
+    this.postOverLayar();
+    let obj = await setPostFavorite(clubKey, postKey, true);
+    if (obj != null) {
+      //放回state
+      this.setState({ post: obj.post, comment: obj.comment });
+      //放進首頁
+      let newPostList = postList.slice();
+      let result = newPostList.some(function (value, index, array) {
+        if (Object.keys(value)[0] == obj.post.postKey) {
+          let newPost = {};
+          newPost[obj.post.postKey] = obj.post
+          newPostList[index] = newPost
+          return true;
         }
-        return true;
+        else {
+          return false;
+        }
       });
       setPostList(newPostList);
-      this.setState({ post: postData });
+      this.postOverLayar();
+    }
+    else {
+      const { navigation } = this.props;
+      let newPostList = postList.slice();
+      let result = newPostList.some(function (value, index, array) {
+        if (Object.keys(value)[0] == obj.post.postKey) {
+          newPostList.splice(index, 1);
+          alert("該貼文不存在");
+          return true;
+        }
+        else {
+          return false;
+        }
+      });
+      setPostList(newPostList);
+      this.postOverLayar();
+      navigation.goBack();
     }
   };
 
@@ -136,9 +157,8 @@ class Post extends React.Component {
   }
 
   render() {
-    const postData = this.state.post;
-    const commentData = this.state.comment;
-    const element = JSON.parse(JSON.stringify(postData));
+    const commentData = this.state.comment
+    const element = JSON.parse(JSON.stringify(this.state.post));
     const { uid, user, clubs } = this.state.userData
 
     return (
@@ -243,39 +263,39 @@ class Post extends React.Component {
 
             </View>
             <Comment
-                userPhotoUrl={this.props.userPhotoUrl}
-                comment={commentData}
-                postList={this.props.postList}
-                clubKey={element.clubKey}
-                postKey={element.postKey}
-                setPostList={this.props.setPostList}
-                setPost={this.setPost}
-                setComment={this.setComment}
-                creatingComment={this.props.creatingComment}
-                deletingComment={this.props.deletingComment}
-                editingComment={this.props.editingComment}
-                setCommentEditStatus={this.props.setCommentEditStatus}
-                setCommentFavorite={this.props.setCommentFavorite}
-                showUser={this.showUser.bind(this)}
-                postOverLayar={this.postOverLayar}
-              />
+              userPhotoUrl={this.props.userPhotoUrl}
+              comment={commentData}
+              postList={this.props.postList}
+              clubKey={element.clubKey}
+              postKey={element.postKey}
+              setPostList={this.props.setPostList}
+              setPost={this.setPost}
+              setComment={this.setComment}
+              creatingComment={this.props.creatingComment}
+              deletingComment={this.props.deletingComment}
+              editingComment={this.props.editingComment}
+              setCommentEditStatus={this.props.setCommentEditStatus}
+              setCommentFavorite={this.props.setCommentFavorite}
+              showUser={this.showUser.bind(this)}
+              postOverLayar={this.postOverLayar}
+            />
           </KeyboardAvoidingView>
         </ScrollView>
         <PopupDialog
-					ref={(popupDialog) => this.popupDialog = popupDialog}
-					dialogAnimation={slideAnimation}
-					width={0.7}
-					height={0.7}
-					dialogStyle={{ borderRadius: 20 }}
-				>
-					<UserDialog
-						uid={uid}
-						user={user}
+          ref={(popupDialog) => this.popupDialog = popupDialog}
+          dialogAnimation={slideAnimation}
+          width={0.7}
+          height={0.7}
+          dialogStyle={{ borderRadius: 20 }}
+        >
+          <UserDialog
+            uid={uid}
+            user={user}
             clubs={clubs}
             loading={this.state.loading}
-					/>
-				</PopupDialog>  
-        {this.state.loading ? <Overlayer /> : null}        
+          />
+        </PopupDialog>
+        {this.state.loading ? <Overlayer /> : null}
       </View>
     );
   }

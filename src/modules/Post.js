@@ -68,41 +68,11 @@ export const getPostDataComplete = (postKeyList) => async (dispatch, getState) =
 }
 
 //進入內頁
-export const getInsidePost = (clubKey, postKey) => async (dispatch, getState) => {
+export const getInsidePost = (clubKey, postKey) => async (dispatch) => {
     try {
-        const club = await getClubData(clubKey);
-        console.log('open:' + club.open);
-        if (!club.open) {
-            const { uid } = firebase.auth().currentUser;
-            if (!club.member[uid]) {
-                alert('Post is not exist!');
-                console.log('不是成員');
-                return null;
-            }
-            console.log('是成員');
-        }
-        const postData = await getInsidePostData(clubKey, postKey);
-        if (postData == null) {
-            alert('Post is not exist!');
-            console.log('Post is not exist!');
-            return null;
-        }
-        else {
-            const obj = {};
-            //先取得貼文基本屬性
-            postData = await setPostFoundations(clubKey, postKey, postData, club);
-            //觀看
-            postData = await setPostView(postData);
-            //寫進postReducer
-            const prePostReducer = getState().postReducer.allPost;
-            const newPrePostReducer = JSON.parse(JSON.stringify(prePostReducer));
-            const nextPostReducer = handlePostDataToReducer(newPrePostReducer, clubKey, postKey, postData);
-            dispatch(PostAction.getPostData(nextPostReducer));
-            obj['post'] = postData;
-            const commentData = await dispatch(getPostComment(clubKey, postKey));
-            obj['comment'] = commentData;
-            return obj;
-        }
+        const getPostInside = firebase.functions().httpsCallable('getPostInside');
+        const response = await getPostInside({ clubKey: clubKey, postKey: postKey });
+        return response.data;
     }
     catch (error) {
         console.log(error.toString);
@@ -114,7 +84,7 @@ export const getInsidePost = (clubKey, postKey) => async (dispatch, getState) =>
 //********************************************************************************
 
 
-//產生新的object混合新貼文
+//產生新的object混合新貼文(不需要))
 export const handlePostDataToReducer = (postReducer, clubKey, postKey, postData) => {
     try {
         //新物件: postReducer資料
@@ -198,7 +168,7 @@ export const deletePostData = (clubKey, postKey, postList) => async (dispatch, g
 //處理貼文屬性
 //********************************************************************************
 
-//處理貼文基本屬性(學校與社團名稱、key值、nickName、職位、views、favorites)
+//處理貼文基本屬性(學校與社團名稱、key值、nickName、職位、views、favorites)(不需要)
 export const setPostFoundations = async (clubKey, postKey, post, club) => {
     try {
         const user = firebase.auth().currentUser;
@@ -237,7 +207,7 @@ export const setPostFoundations = async (clubKey, postKey, post, club) => {
     }
 }
 
-//產生statusView和statusFavorite
+//產生statusView和statusFavorite(不需要)
 export const setViewFavoriteData = (post, userUid) => {
     try {
         //views與favorite數量
@@ -263,7 +233,7 @@ export const setViewFavoriteData = (post, userUid) => {
 //按讚與觀看
 //********************************************************************************
 
-//觀看
+//觀看(不需要))
 export const setPostView = async (post) => {
     try {
         const user = firebase.auth().currentUser;
@@ -302,12 +272,11 @@ export const setPostView = async (post) => {
     }
 }
 
-//按貼文讚
-export const setPostFavorite = (clubKey, postKey) => async (dispatch) => {
+//按貼文讚，commentStatus如果為true則抓留言，反之
+export const setPostFavorite = (clubKey, postKey, commentStatus) => async (dispatch) => {
     try {
         const setPostFavorite = firebase.functions().httpsCallable('setPostFavorite');
-        const response = await setPostFavorite({clubKey:clubKey,postKey:postKey});
-        console.log(response);
+        const response = await setPostFavorite({ clubKey: clubKey, postKey: postKey, commentStatus: commentStatus });
         return response.data;
     }
     catch (error) {
@@ -403,7 +372,7 @@ export const setCommentFavorite = (clubKey, postKey, commentKey) => async (dispa
 //留言
 //********************************************************************************
 
-//取得貼文留言
+//取得貼文留言(不需要)
 export const getPostComment = (clubKey, postKey) => async (dispatch) => {
     const user = firebase.auth().currentUser;
     const commentPost = {};

@@ -136,106 +136,106 @@ class Comment extends React.Component {
     }
 
     render() {
-        const comment = JSON.parse(JSON.stringify(this.props.comment));
+        const commentData = this.props.comment;
+        const comment = commentData.slice();
         return (
             <View>
-
                 <View>
-                    {Object.values(comment).map(element => (
-                        <View key={element.commentKey}>
-
-                            <View style={styles.rowPadding}>
-                                <TouchableOpacity onPress={() => this.props.showUser(element.commenter)}>
-                                    <View style={styles.littleCircle}>
-                                        <Image style={styles.littleHead}
-                                            source={{ uri: element.commenterPhotoUrl }}
-                                            resizeMode="cover" />
-                                    </View>
-                                </TouchableOpacity>
-
-                                <View style={styles.columnLine}>
-                                    <View style={styles.sbRow}>
-                                        <View style={styles.row}>
-                                            <Text style={styles.littleName}>{element.commenterNickName}</Text>
+                    {comment.map(obj => (
+                        Object.values(obj).map((element) => (
+                            <View key={element.commentKey}>
+                                <View style={styles.rowPadding}>
+                                    <TouchableOpacity onPress={() => this.props.showUser(element.commenter)}>
+                                        <View style={styles.littleCircle}>
+                                            <Image style={styles.littleHead}
+                                                source={{ uri: element.commenterPhotoUrl }}
+                                                resizeMode="cover" />
                                         </View>
-                                        <View style={styles.row}>
-                                            <TouchableOpacity onPress={async () =>
-                                                await this.pressFavorite(element.clubKey, element.postKey, element.commentKey)
-                                            }>
-                                                <Image style={styles.icon}
-                                                    source={
-                                                        element.statusFavorite//已可判斷
-                                                            ? require("../../images/images2/like-orange.png")
-                                                            : require("../../images/images2/like-gray.png")
-                                                    } />
-                                            </TouchableOpacity>
-                                            <Text style={[styles.numberLittle,
-                                            {
-                                                color: element.statusFavorite //已可判斷
-                                                    ? "#f6b456" : "#666666"
-                                            }]}>{element.numFavorites}</Text>
-                                            <TouchableOpacity style={{ display: element.statusEnable ? "flex" : "none" }}>
-                                                <Image source={require('../../images/pencil.png')}
-                                                    style={styles.icon} />
-                                            </TouchableOpacity>
-                                        </View>
-                                    </View>
-                                    <Text style={styles.littleName}>{element.date}</Text>
-                                    <View style={{ flex: 1 }}>
-                                        <TextInput
-                                            style={styles.comment}
-                                            value={element.content}
-                                            editable={element.statusEdit}
-                                            multiline={true}
-                                            onChangeText={oldContent => { this.setState({ oldContent }); }}
-                                        />
-                                    </View>
+                                    </TouchableOpacity>
 
+                                    <View style={styles.columnLine}>
+                                        <View style={styles.sbRow}>
+                                            <View style={styles.row}>
+                                                <Text style={styles.littleName}>{element.commenterNickName}</Text>
+                                            </View>
+                                            <View style={styles.row}>
+                                                <TouchableOpacity onPress={async () =>
+                                                    await this.pressFavorite(element.clubKey, element.postKey, element.commentKey)
+                                                }>
+                                                    <Image style={styles.icon}
+                                                        source={
+                                                            element.statusFavorite//已可判斷
+                                                                ? require("../../images/images2/like-orange.png")
+                                                                : require("../../images/images2/like-gray.png")
+                                                        } />
+                                                </TouchableOpacity>
+                                                <Text style={[styles.numberLittle,
+                                                {
+                                                    color: element.statusFavorite //已可判斷
+                                                        ? "#f6b456" : "#666666"
+                                                }]}>{element.numFavorites}</Text>
+                                                <TouchableOpacity style={{ display: element.statusEnable ? "flex" : "none" }}>
+                                                    <Image source={require('../../images/pencil.png')}
+                                                        style={styles.icon} />
+                                                </TouchableOpacity>
+                                            </View>
+                                        </View>
+                                        <Text style={styles.littleName}>{element.date}</Text>
+                                        <View style={{ flex: 1 }}>
+                                            <TextInput
+                                                style={styles.comment}
+                                                value={element.content}
+                                                editable={element.statusEdit}
+                                                multiline={true}
+                                                onChangeText={oldContent => { this.setState({ oldContent }); }}
+                                            />
+                                        </View>
+
+                                    </View>
                                 </View>
-                            </View>
 
-                            <View style={{ display: element.statusEnable ? "flex" : "none" }}>
-                                <Button
-                                    style={{ display: element.statusEdit ? "flex" : "none" }}
-                                    title="完成"
-                                    onPress={async () =>
-                                        await this.editComment(element.commentKey)
-                                    }
-                                />
-                                <Button
-                                    style={{ display: element.statusEdit ? "flex" : "none" }}
-                                    title="取消"
-                                    onPress={() => this.statusEditChange(element)}
-                                />
-                                <Button
-                                    disabled={
-                                        element.statusEnable
-                                            ? element.statusEdit
+                                <View style={{ display: element.statusEnable ? "flex" : "none" }}>
+                                    <Button
+                                        style={{ display: element.statusEdit ? "flex" : "none" }}
+                                        title="完成"
+                                        onPress={async () =>
+                                            await this.editComment(element.commentKey)
+                                        }
+                                    />
+                                    <Button
+                                        style={{ display: element.statusEdit ? "flex" : "none" }}
+                                        title="取消"
+                                        onPress={() => this.statusEditChange(element)}
+                                    />
+                                    <Button
+                                        disabled={
+                                            element.statusEnable
                                                 ? element.statusEdit
-                                                : element.statusEdit
-                                            : !element.statusEnable
-                                    }
-                                    title="編輯留言"
-                                    onPress={() => this.statusEditChange(element)}
-                                />
-                                <Button
-                                    disabled={
-                                        element.statusEnable
-                                            ? element.statusEdit
+                                                    ? element.statusEdit
+                                                    : element.statusEdit
+                                                : !element.statusEnable
+                                        }
+                                        title="編輯留言"
+                                        onPress={() => this.statusEditChange(element)}
+                                    />
+                                    <Button
+                                        disabled={
+                                            element.statusEnable
                                                 ? element.statusEdit
-                                                : element.statusEdit
-                                            : !element.statusEnable
-                                    }
-                                    title="刪除留言"
-                                    onPress={async () => {
-                                        await this.deleteComment(element.commentKey);
-                                    }}
-                                />
+                                                    ? element.statusEdit
+                                                    : element.statusEdit
+                                                : !element.statusEnable
+                                        }
+                                        title="刪除留言"
+                                        onPress={async () => {
+                                            await this.deleteComment(element.commentKey);
+                                        }}
+                                    />
+                                </View>
+
+
                             </View>
-
-
-                        </View>
-
+                        ))
                     ))}
                 </View>
                 <View style={styles.rowPaddingInput}>

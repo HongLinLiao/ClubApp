@@ -17,7 +17,9 @@ const slideAnimation = new SlideAnimation({
 class Home extends React.Component {
     async componentDidMount() {
         const { joinClub, likeClub, initHomeClubList } = this.props;
+        this.setState({ loading: !this.state.loading })
         const homeClubList = await initHomeClubList(joinClub, likeClub);
+        this.setState({ loading: !this.state.loading })
         await this.homeReload(homeClubList);
     }
 

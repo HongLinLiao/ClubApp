@@ -5,9 +5,11 @@ import styles from '../../styles/home/Selecting'
 const SelectClubElement = (element) => {
 
     reload = async (clubKey) => {
-        const { clubList, numSelectingStatusTrue, setHomeClubListStatus, homeReload } = element;
+        const { clubList, numSelectingStatusTrue, setHomeClubListStatus, homeReload,parentOverLayor } = element;
+        parentOverLayor();
         const newClubList = await setHomeClubListStatus(clubKey, clubList, numSelectingStatusTrue);
         await homeReload(newClubList);
+        parentOverLayor();
     }
 
     return (

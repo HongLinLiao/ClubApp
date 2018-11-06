@@ -18,57 +18,84 @@ const PostListElement = ({
 
   //按讚
   async function pressFavorite(post) {
-    parentOverLayor()
-    let postData = await setPostFavorite(post.clubKey, post.postKey);
-    parentOverLayor()
-    if (postData != null) {
+    parentOverLayor();
+    let obj = await setPostFavorite(post.clubKey, post.postKey, false);
+    if (obj != null) {
       //放進首頁
       let newPostList = postList.slice();
-      let index = newPostList.indexOf(postData.postKey);
-      let post = {};
-      post[postData.postKey] = postData
-      newPostList[index] = post
       let result = newPostList.some(function (value, index, array) {
-        if (Object.keys(value)[0] == postData.postKey) {
-          const post = {};
-          post[postData.postKey] = postData
-          newPostList[index] = post
+        if (Object.keys(value)[0] == obj.post.postKey) {
+          let newPost = {};
+          newPost[obj.post.postKey] = obj.post
+          newPostList[index] = newPost
           return true;
         }
-        else{
+        else {
           return false;
         }
       });
       setPostList(newPostList);
+      parentOverLayor();
+    }
+    else {
+      let newPostList = postList.slice();
+      let result = newPostList.some(function (value, index, array) {
+        if (Object.keys(value)[0] == obj.post.postKey) {
+          newPostList.splice(index, 1);
+          alert("該貼文不存在");
+          return true;
+        }
+        else {
+          return false;
+        }
+      });
+      setPostList(newPostList);
+      parentOverLayor();
     }
   }
 
+  //進入內頁
   async function insidePost(post) {
     parentOverLayor()
     const obj = await getInsidePost(post.clubKey, post.postKey);
-    parentOverLayor()
     if (obj != null) {
       //放進首頁
-      const newPostList = JSON.parse(JSON.stringify(postList));
-      var result = newPostList.some(function (value, index, array) {
-        if (Object.keys(value)[0] == obj.post.postKey) {
-          const post = {};
-          post[obj.post.postKey] = obj.post
-          newPostList[index] = post
+      let newPostList = postList.slice();
+      let result = newPostList.some(function (value, index, array) {
+        if (Object.keys(value)[0] == post.postKey) {
+          let newPost = {};
+          newPost[post.postKey] = obj.post
+          newPostList[index] = newPost
           return true;
         }
-        else{
+        else {
           return false;
         }
       });
       setPostList(newPostList);
-
+      parentOverLayor();
       navigation.navigate("Post", {
         post: obj.post,
         setPostList: setPostList,
         postList: postList,
         comment: obj.comment
       });
+
+    }
+    else {
+      let newPostList = postList.slice();
+      let result = newPostList.some(function (value, index, array) {
+        if (Object.keys(value)[0] == post.postKey) {
+          newPostList.splice(index, 1);
+          alert("該貼文不存在");
+          return true;
+        }
+        else {
+          return false;
+        }
+      });
+      setPostList(newPostList);
+      parentOverLayor();
     }
   }
 

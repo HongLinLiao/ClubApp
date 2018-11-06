@@ -135,10 +135,59 @@ exports.getHomePost = functions.https.onCall(async (data, context) => {
     }
 });
 
+//進入貼文內頁
+exports.getPostInside = functions.https.onCall(async (data, context) => {
+    try {
+        const { clubKey, postKey } = data;
+        const { uid } = context.auth;
+        const club = await getClubData(clubKey);
+        if (club) {
+            if (club.open == false) {
+                if (!club.member[uid]) {
+                    return null;
+                }
+            }
+            let obj = {};
+            let post = await getPostInsideData(clubKey, postKey);
+            if (post) {
+                //先取得貼文基本屬性
+                post = await setPostFoundations(clubKey, postKey, uid, post, club);
+                post = await setPostView(post, uid);
+                obj.post = post;
+            }
+            else {
+                return null;
+            }
+            let commentData = await getPostCommentData(clubKey, postKey);
+            let comment = [];
+            if (commentData) {
+                let keyList = Object.keys(commentData);
+                let temp;
+                for (let i = 0; i < keyList.length; i++) {
+                    commentData[keyList[i]] = await setCommentFoundations(clubKey, postKey, keyList[i], uid, commentData[keyList[i]]);
+                    temp = {}
+                    temp[keyList[i]] = commentData[keyList[i]]
+                    comment.push(temp);
+                }
+                comment.sort(function (a, b) {
+                    let aDate = a[Object.keys(a)[0]].date;
+                    let bDate = b[Object.keys(b)[0]].date;
+                    return new Date(bDate) < new Date(aDate) ? -1 : 1
+                })
+            }
+            obj.comment = comment;
+            return obj;
+        }
+    }
+    catch (error) {
+        console.log(context.auth.uid + ' : ' + error.toString());
+    }
+});
+
 //按貼文讚
 exports.setPostFavorite = functions.https.onCall(async (data, context) => {
     try {
-        const { clubKey, postKey } = data;
+        const { clubKey, postKey, commentStatus } = data;
         const uid = context.auth.uid;
         const club = await getClubData(clubKey);
         if (club) {
@@ -147,9 +196,9 @@ exports.setPostFavorite = functions.https.onCall(async (data, context) => {
                     return null;
                 }
             }
-
             let post = await getPostInsideData(clubKey, postKey);
             if (post) {
+                let obj = {};
                 //先取得貼文基本屬性
                 post = await setPostFoundations(clubKey, postKey, uid, post, club);
 
@@ -186,8 +235,28 @@ exports.setPostFavorite = functions.https.onCall(async (data, context) => {
                 }
                 //更改firebasePostFavorites
                 await updatePostFavorites(post.clubKey, post.postKey, updateFavorites);
-                console.log(post);
-                return post;
+                obj.post = post;
+                if (commentStatus) {
+                    let commentData = await getPostCommentData(post.clubKey, post.postKey);
+                    let comment = [];
+                    if (commentData) {
+                        let keyList = Object.keys(commentData);
+                        let temp;
+                        for (let i = 0; i < keyList.length; i++) {
+                            commentData[keyList[i]] = await setCommentFoundations(post.clubKey, post.postKey, keyList[i], uid, commentData[keyList[i]]);
+                            temp = {}
+                            temp[keyList[i]] = commentData[keyList[i]]
+                            comment.push(temp);
+                        }
+                        comment.sort(function (a, b) {
+                            let aDate = a[Object.keys(a)[0]].date;
+                            let bDate = b[Object.keys(b)[0]].date;
+                            return new Date(bDate) < new Date(aDate) ? -1 : 1
+                        })
+                    }
+                    obj.comment = comment;
+                }
+                return obj;
             }
             else {
                 return null;
@@ -198,7 +267,7 @@ exports.setPostFavorite = functions.https.onCall(async (data, context) => {
         }
     }
     catch (error) {
-        console.log(error.toString);
+        console.log(context.auth.uid + ' : ' + error.toString());
     }
 });
 
@@ -251,6 +320,41 @@ const handlePostDataToObject = (objPost, clubKey, postKey, postData) => {
     }
 }
 
+//貼文觀看
+const setPostView = async (post, uid) => {
+    try {
+        //檢查使用者是否是第一次查看
+        //不是第一次看
+        if (post.views[uid] == true) {
+        }
+        //是第一次看
+        else {
+            let updateViews = {};
+            //沒有其他使用者看過
+            if (Object.keys(post.views).length == 0) {
+                post.numViews = post.numViews + 1;
+                post.views = {};
+                post.views[uid] = true;
+                post.statusView = true;
+                updateViews[uid] = true;
+            }
+            //有其他使用者看過
+            else {
+                post.numViews = post.numViews + 1;
+                post.views[uid] = true;
+                post.statusView = true;
+                updateViews[uid] = true;
+            }
+            //寫進資料庫
+            await updatePostViews(post.clubKey, post.postKey, updateViews);
+        }
+        return post;
+    }
+    catch (error) {
+        throw error;
+    }
+}
+
 //處理貼文基本屬性(學校與社團名稱、key值、nickName、職位、views、favorites)
 const setPostFoundations = async (clubKey, postKey, uid, post, club) => {
     try {
@@ -287,6 +391,31 @@ const setPostFoundations = async (clubKey, postKey, uid, post, club) => {
     catch (error) {
         throw error;
     }
+}
+
+const setCommentFoundations = async (clubKey, postKey, commentKey, uid, comment) => {
+    comment.clubKey = clubKey;
+    comment.postKey = postKey;
+    comment.commentKey = commentKey;
+    comment.numFavorites = Object.keys(comment.favorites).length;
+    if (comment.favorites[uid] == true)
+        comment.statusFavorite = true;
+    else
+        comment.statusFavorite = false;
+    //處理User
+    const userData = await getUserData(comment.commenter);
+    if (userData) {
+        comment.commenterNickName = userData.nickName;
+        comment.commenterPhotoUrl = userData.photoUrl;
+    }
+    if (comment.commenter === uid) {
+        comment.statusEnable = true;
+    }
+    else {
+        comment.statusEnable = false;
+    }
+    comment.statusEdit = false;
+    return comment;
 }
 
 //產生statusView和statusFavorite
@@ -351,6 +480,18 @@ const getPostInsideData = async (clubKey, postKey) => {
     }
 }
 
+//取得貼文下的留言資訊
+const getPostCommentData = async (clubKey, postKey) => {
+    try {
+        let commentRef = await admin.database().ref('comments').child(clubKey).child(postKey).once('value');
+        let data = commentRef.val();
+        return data;
+    }
+    catch (error) {
+        throw error;
+    }
+}
+
 //取得特定使用者資訊
 const getUserData = async (uid) => {
     try {
@@ -374,6 +515,14 @@ const updatePostFavorites = async (clubKey, postKey, updateFavorites) => {
         favoritesRef = admin.database().ref('posts/' + clubKey + '/' + postKey + '/favorites/' + uid);
     }
     await favoritesRef.set(updateFavorites[uid]);
+}
+
+//更新Post的Views
+const updatePostViews = async (clubKey, postKey, updateViews) => {
+    const uid = Object.keys(updateViews)[0];
+    const value = updateViews[uid];
+    const viewsRef = admin.database().ref('posts/' + clubKey + '/' + postKey + '/views/' + uid);
+    await viewsRef.set(value)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
