@@ -13,6 +13,8 @@
     "react-native-ios-status-bar-padding": "^1.2.0",
     "react-native-map-link": "^2.1.0",
     "react-native-maps": "^0.21.0",
+    "react-native-masonry": "^0.5.0-alpha.3",
+    "react-native-masonry-layout": "^1.0.6",
     "react-native-modal-datetime-picker": "^6.0.0",
     "react-native-modal-dropdown": "^0.6.2",
     "react-native-popup-dialog": "^0.15.1",

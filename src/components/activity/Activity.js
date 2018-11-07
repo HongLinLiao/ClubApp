@@ -157,7 +157,7 @@ class Activity extends React.Component {
 
                                     <Image
                                         style={styles.collect}
-                                        source={element.statusKeep ? require("../../images/bookmark-red.png") : require("../../images/bookmark.png")}
+                                        source={element.statusKeep ? require("../../images/bookmark-yellow.png") : require("../../images/bookmark-gray.png")}
                                     />
                                 </TouchableOpacity>
                             </View>

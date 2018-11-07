@@ -3,6 +3,7 @@ import { ScrollView, Text, View } from 'react-native'
 import { Button } from 'react-native-elements'
 import ActivityListElement from '../activity/ActivityListElement';
 import Overlayer from '../common/Overlayer'
+import Masonry from 'react-native-masonry-layout'
 
 class HomeActivities extends React.Component {
 
@@ -33,6 +34,7 @@ class HomeActivities extends React.Component {
 
     render() {
         const newActivityList = { ...this.state.activity };
+  
         return (
             <View>
                 <ScrollView>
@@ -60,7 +62,7 @@ class HomeActivities extends React.Component {
                     }
                 </ScrollView>
                 {this.state.loading ? <Overlayer /> : null}
-            </View>
+            </View >
         );
     }
 }

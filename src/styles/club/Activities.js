@@ -43,8 +43,8 @@ export default StyleSheet.create({
   },
   collect: {
     //backgroundColor:'#666666',
-    height: 20,
-    width: 20,
+    height:25,
+    width: 25,
     marginTop: 20,
     marginRight: 20,
 
