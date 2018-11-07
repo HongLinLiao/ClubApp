@@ -5,7 +5,6 @@ import Overlayer from '../common/Overlayer'
 import { changeStatus } from '../../modules/Club'
 import { convertClubStatus } from '../../modules/Common'
 
-
 class MemberManage extends React.Component {
     state = {
         uid: null,
@@ -122,6 +121,5 @@ class MemberManage extends React.Component {
         
     }
 }
-
 
 export default MemberManage
