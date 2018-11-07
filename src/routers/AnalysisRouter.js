@@ -44,6 +44,14 @@ export default createStackNavigator({
 	},
 
 	
+},
+{
+	navigationOptions: ({ navigation }) => ({
+		headerBackTitleStyle: {
+			color: '#0d4273',
+			fontSize: 15,
+		}
+	})
 })
 
 // export default createStackNavigator({
