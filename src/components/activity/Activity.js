@@ -132,8 +132,8 @@ class Activity extends React.Component {
         const _startDateTime = convertDateFormat(startDateTime)
         const _endDateTime = convertDateFormat(endDateTime)
         return (
-            <View style={[styles.container, { flex: 1 }]}>
-                <ScrollView
+            <View style={[styles.container]}>
+                <ScrollView 
                     refreshControl={
                         <RefreshControl
                             refreshing={this.state.refreshing}
