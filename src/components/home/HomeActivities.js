@@ -1,5 +1,5 @@
-import React, { Component } from 'react'
-import { ScrollView, Text, View } from 'react-native'
+import React from 'react'
+import { ScrollView } from 'react-native'
 import { Button } from 'react-native-elements'
 import ActivityListElement from '../activity/ActivityListElement';
 import Overlayer from '../common/Overlayer'

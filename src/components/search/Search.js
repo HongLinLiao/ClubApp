@@ -1,18 +1,13 @@
 import React from "react";
 import {
   View,
-  Button,
   Alert,
   Text,
-  TextInput,
   TouchableOpacity,
   ImageBackground,
   ScrollView,
   StyleSheet,
 } from "react-native";
-
-import { ListItem } from "react-native-elements";
-
 import { searchAllClubs } from "../../modules/Data";
 import Overlayer from "../common/Overlayer";
 import styles from "../../styles/search/Search";
@@ -33,16 +28,17 @@ class Search extends React.Component {
   }
 
   async componentDidMount() {
-    // const dataArray = await searchAllClubs()
-    // this.setState({dataArray})
-    // console.log(dataArray)
+    this.setState({ loading: true });
+    const dataArray = await searchAllClubs();
+    this.setState({ dataArray, tempArray: dataArray });
+
+    this.setState({ loading: false });
   }
 
   search = async () => {
     this.setState({ loading: true });
     const dataArray = await searchAllClubs();
     this.setState({ dataArray });
-    console.log(dataArray);
 
     this.setState({ loading: false });
   };
@@ -83,7 +79,9 @@ class Search extends React.Component {
           this.setState({ searching: false });
         }, 500);
       } else {
-        this.setState({ searching: false, text, tempArray: [] });
+        this.setState({ loading: true });
+        const dataArray = await searchAllClubs();
+        this.setState({ loading: false, searching: false, text, dataArray, tempArray: dataArray });
       }
 
     } catch (e) {
@@ -101,7 +99,7 @@ class Search extends React.Component {
       } else {
         this.props.navigation.push("SearchClub", { club, status });
       }
-    } catch (e) {}
+    } catch (e) { }
   };
 
   filterClubStatus = club => {
@@ -123,67 +121,64 @@ class Search extends React.Component {
   //我把listitem都刪掉了
   render() {
     return (
-      <ScrollView style={{ backgroundColor: "#ffffff" }}>
-        <View style={{ flex: 1, backgroundColor: "#ffffff" }}>
-          {
-            // <Text>{this.state.dataArray.length}</Text>
-          }
-          <View style={{ flex: 1 }}>
-            {this.state.tempArray.map((club, index) => {
-              const status = this.filterClubStatus(club);
+      <View style={{flex: 1}}>
+        <ScrollView style={{ backgroundColor: "#ffffff" }}>
+          <View style={{ flex: 1, backgroundColor: "#ffffff" }}>
+            <View style={{ flex: 1 }}>
+              {this.state.tempArray.map((club, index) => {
+                const status = this.filterClubStatus(club);
 
-              return (
-                <TouchableOpacity
-                  key={club.cid}
-                  disabled={status.hasJoin ? false : !club.open}
-                  onPress={() =>
-                    this.props.navigation.push("SearchClub", { club, status })
-                  }
-                >
-                  <View style={styles.card}>
-                    <ImageBackground
-                      source={{ uri: club.imgUrl ? club.imgUrl : 'https://steamuserimages-a.akamaihd.net/ugc/87100177918375746/EDFEECCE614D4A17D884A5E5B7E9D5810C4C1312/' }}
-                      style={styles.clubBackground}
-                    />
-                    <View style={styles.clubNameView}>
-                      <View style={{flex: 1, flexDirection: 'row'}}>
-                        <Text style={styles.clubNameText}>{club.schoolName}</Text>
-                        <Text style={styles.clubNameText}>{club.clubName}</Text>
+                return (
+                  <TouchableOpacity
+                    key={club.cid}
+                    disabled={status.hasJoin ? false : !club.open}
+                    onPress={() =>
+                      this.props.navigation.push("SearchClub", { club, status })
+                    }
+                  >
+                    <View style={styles.card}>
+                      <ImageBackground
+                        source={{ uri: club.imgUrl ? club.imgUrl : 'https://upload.wikimedia.org/wikipedia/en/d/d3/No-picture.jpg' }}
+                        style={styles.clubBackground}
+                      />
+                      <View style={styles.clubNameView}>
+                        <View style={{ flex: 1, flexDirection: 'row' }}>
+                          <Text style={styles.clubNameText}>{club.schoolName}</Text>
+                          <Text style={styles.clubNameText}>{club.clubName}</Text>
+                        </View>
+                        <View style={{ justifyContent: 'flex-end' }}>
+                          <Text style={styles.clubStatusText}>
+                            {status.hasJoin ? '已加入' : !club.open ? '不公開' : status.hasLike ? '已收藏' : '新的社團'}
+                          </Text>
+                        </View>
                       </View>
-                      <View style={{justifyContent: 'flex-end'}}>
-                        <Text style={styles.clubStatusText}>
-                          {status.hasJoin ? '已加入' : !club.open ? '不公開' : status.hasLike ? '已收藏' : '新的社團'}
-                        </Text>
+                      <View style={styles.clubIntroView}>
+                        <Text style={styles.clubIntroText}>{club.introduction}</Text>
                       </View>
+                      {!club.open ? (
+                        <View
+                          style={[
+                            StyleSheet.absoluteFill,
+                            {
+                              borderRadius: 10,
+                              backgroundColor: 'rgba(0,0,0,0.4)',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+
+                            },
+                          ]}
+                        >
+                        </View>
+                      ) : null}
                     </View>
-                    <View style={styles.clubIntroView}>
-                      <Text style={styles.clubIntroText}>{club.introduction}</Text>
-                    </View>
-                    {!club.open ? (
-                      <View
-                        style={[
-                          StyleSheet.absoluteFill,
-                          {
-                            borderRadius: 10,
-                            backgroundColor: 'rgba(0,0,0,0.4)',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            
-                          },
-                        ]}
-                      >
-                      </View>
-                    ) : null }
-                  </View>   
-                </TouchableOpacity>
-              );
-            })}
-            {this.state.searching ? <Overlayer /> : null}
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
           </View>
-
-          {this.state.loading ? <Overlayer /> : null}
-        </View>
-      </ScrollView>
+        </ScrollView>
+        {this.state.loading ? <Overlayer /> : null}
+      </View>
     );
   }
 }

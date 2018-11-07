@@ -99,9 +99,8 @@ export default StyleSheet.create({
         marginRight: 5
     },
     searchIcon: {
-        height: 22,
-        width: 22,
-        marginRight: 5
+        height: 15,
+        width: 15,
     },
 
     littleText: {

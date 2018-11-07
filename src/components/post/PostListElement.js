@@ -76,18 +76,22 @@ const PostListElement = ({
             >
               {post.title}
             </Text>
-            <Text style={styles.newsDateText}>{post.date}</Text>
+            
           </View>
           <View style={styles.newsContentView}>
+          <View style={{flex:1}}>
             <Text
-              numberOfLines={3}
-              ellipsizeMode="tail"
+               numberOfLines={3}
+               ellipsizeMode="tail"
               //ellipsizeText="...more"好像無法顯示除了...的字
               style={styles.newsContentText}
             >
               {post.content}
             </Text>
+            </View>
           </View>
+          <View style={styles.iconAndDateView}>
+           <Text style={styles.newsDateText}>{post.date}</Text>
           <View style={styles.iconView}>
             <View style={styles.aIcon}>
               <Image //留言icon 不會留過言變色 字也不會變色
@@ -139,6 +143,9 @@ const PostListElement = ({
             </TouchableOpacity>
             </View>
           </View>
+</View>
+
+
         </View>
       </View>
     </TouchableOpacity>

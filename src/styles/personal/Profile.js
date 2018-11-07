@@ -73,7 +73,7 @@ export default StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         flexDirection: 'column',
-        flex:1,
+        flex:1
     },
     bottonIcon: {
         height: 28,

@@ -16,7 +16,7 @@ import requireAppFlow from '../containers/flowControll/requireAppFlow'
 
 
 import React from 'react'
-import { Button, TouchableOpacity,Image } from 'react-native'
+import { Button, TouchableOpacity, Image } from 'react-native'
 
 
 const ClubManagePage = createMaterialTopTabNavigator({
@@ -28,7 +28,7 @@ const ClubManagePage = createMaterialTopTabNavigator({
         style: {
           backgroundColor: '#0d4273'
         },
-        indicatorStyle:{
+        indicatorStyle: {
           backgroundColor: '#f6b456'
         }
       }
@@ -42,14 +42,14 @@ const ClubManagePage = createMaterialTopTabNavigator({
         style: {
           backgroundColor: '#0d4273',
         },
-        indicatorStyle:{
+        indicatorStyle: {
           backgroundColor: '#f6b456'
         }
       }
     })
   },
 })
-    
+
 
 
 
@@ -57,20 +57,20 @@ export default createStackNavigator({
   Profile: {
     screen: ProfilePage,
     navigationOptions: ({ navigation }) => ({
-			title: '個人管理',
-      headerBackTitle:'個人管理',
-      headerBackImage:{
+      title: '個人管理',
+      headerBackTitle: '個人管理',
+      headerBackImage: {
         tintColor: '#0d4273',
       },
-			headerTitleStyle: {
-				color: '#666666',
+      headerTitleStyle: {
+        color: '#666666',
         fontSize: 20,
-			},
-			headerStyle: {
-				backgroundColor: '#f6b456'
-			},
-		}
-		)
+      },
+      headerStyle: {
+        backgroundColor: '#f6b456'
+      },
+    }
+    )
   },
   ProfileSetting: {
     screen: ProfileSettingPage,
@@ -80,16 +80,11 @@ export default createStackNavigator({
       headerTitleStyle: {
         color: '#666666',
         fontSize: 20,
-  },
+      },
       headerStyle: {
         backgroundColor: '#f6b456',
       },
-      //headerLeft:(
-          //<TouchableOpacity>
-            //<Image source={require('../images/images2/arrowLeftBlue.png')} 
-            //style={PersonalStyles.arrowLeftBlueImage}/>
-          //</TouchableOpacity>
-      //)
+
     }
     )
   },
@@ -101,7 +96,7 @@ export default createStackNavigator({
       headerTitleStyle: {
         color: '#666666',
         fontSize: 20,
-  },
+      },
       headerStyle: {
         backgroundColor: '#f6b456'
       },
@@ -110,9 +105,25 @@ export default createStackNavigator({
   },
   EmailReVerified: {
     screen: EmailReVerifiedPage,
+    navigationOptions: ({ navigation }) => ({
+      title: '驗證電子信箱',
+      headerBackTitle: '上一頁',
+      headerTitleStyle: {
+        color: '#666666',
+        fontSize: 20,
+      },
+      headerStyle: {
+        backgroundColor: '#f6b456'
+      },
+    }
+    )
   },
   SendEmailSuccessful: {
     screen: SendEmailSuccessfulPage,
+    navigationOptions: ({ navigation }) => ({
+      header: null,
+    }
+    )
   },
   ChangeEamil: {
     screen: ChangeEamilPage,
@@ -152,9 +163,10 @@ export default createStackNavigator({
       headerTitleStyle: {
         color: '#666666',
         fontSize: 20,
+        textAlign: 'center'
       },
       headerStyle: {
-        backgroundColor: '#f6b456'
+        backgroundColor: '#f6b456',
       },
     }
     )
@@ -194,7 +206,12 @@ export default createStackNavigator({
       console.log(navigation)
       // console.log(navigation.state.routes)
       return {
-        headerRight: <Button title='創建社團' onPress={() => navigation.push('CreateClub')} />,
+        headerRight: (
+          <TouchableOpacity style={{ margin: 15 }} onPress={() => navigation.push('CreateClub')}>
+            <Image source={require('../images/plus-button.png')}
+              style={{ width: 25, height: 25 }} />
+          </TouchableOpacity>
+        ),
         title: '社團管理',
         headerTitleStyle: {
           color: '#666666',
@@ -207,17 +224,17 @@ export default createStackNavigator({
     }
   }
 },
-{
-  navigationOptions: {
-    headerBackTitleStyle:{
-      color: '#0d4273',
-      fontSize: 15,
-    },
-    //headerBackImageLeft: (
-      //<TouchableOpacity>
-        //<Image source={require('../images/images2/arrowLeftBlue.png')} 
-            //style={personalStyles.arrowLeftBlueImage}/>
-      //</TouchableOpacity>
-    //)
-  }
-})
+  {
+    navigationOptions: ({ navigation }) => ({
+      headerBackTitleStyle: {
+        color: '#0d4273',
+        fontSize: 15,
+      },
+      headerBackImage: (
+        <TouchableOpacity onPress={() => navigation.pop()}>
+          <Image source={require('../images/images2/arrowLeftBlue.png')}
+            style={{ width: 25, height: 25 }} />
+        </TouchableOpacity>
+      )
+    })
+  })

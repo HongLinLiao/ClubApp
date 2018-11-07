@@ -6,6 +6,7 @@ import MapView, { Marker } from 'react-native-maps'
 import { showLocation } from 'react-native-map-link'
 import { Location, DangerZone } from 'expo'
 import Overlayer from '../common/Overlayer'
+import { convertDateFormat } from '../../modules/Common'
 
 class Activity extends React.Component {
 
@@ -122,12 +123,14 @@ class Activity extends React.Component {
         }
     };
 
+    
+
     render() {
         const activityData = this.state.activity;
         const element = JSON.parse(JSON.stringify(activityData));
         const { startDateTime, endDateTime } = element
-        const _startDateTime = new Date(startDateTime)
-        const _endDateTime = new Date(endDateTime)
+        const _startDateTime = convertDateFormat(startDateTime)
+        const _endDateTime = convertDateFormat(endDateTime)
         return (
             <View style={[styles.container, { flex: 1 }]}>
                 <ScrollView
@@ -181,9 +184,9 @@ class Activity extends React.Component {
                             <View style={styles.summaryTextView}>
                                 <Image source={require('../../images/calendar.png')}
                                     style={styles.icon} />
-                                <Text style={[styles.summaryText, style = { marginRight: 1 }]}>{element.startDateTime}</Text>
+                                <Text style={[styles.summaryText, style = { marginRight: 1 }]}>{_startDateTime}</Text>
                                 <Text style={styles.toText}>~</Text>
-                                <Text style={[styles.summaryText, style = { marginLeft: 1 }]}>{element.endDateTime}</Text>
+                                <Text style={[styles.summaryText, style = { marginLeft: 1 }]}>{_endDateTime}</Text>
                             </View>
                             <View style={styles.summaryTextView}>
                                 <Image source={require('../../images/coin.png')}
@@ -228,20 +231,7 @@ class Activity extends React.Component {
 
                         </View>
                     </View>
-                    {
-                        // <View style={styles.divideN}>
-                        //     <Text style={styles.titleText}>你有興趣</Text>
-                        //     <View style={styles.intrestView}>
-                        //         <View style={styles.recommendView} />
-                        //         <View style={styles.recommendView} />
-                        //     </View>
-                        //     <View style={styles.intrestView}>
-                        //         <View style={styles.recommendView} />
-                        //         <View style={styles.recommendView} />
-                        //     </View>
-
-                        // </View>
-                    }
+                
                 </ScrollView>
                 {this.state.loading ? <Overlayer /> : null}
             </View>

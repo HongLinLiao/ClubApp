@@ -87,7 +87,7 @@ export const createClub = (schoolName, clubName, open) => async (dispatch, getSt
       clubName,
       open,
       member,
-      initDate: new Date().toLocaleString(), //格式：2018/8/30 下午3:07:08
+      initDate: new Date().toUTCString(), //格式：
       imgUrl: false,
       introduction: false,
     }
@@ -509,6 +509,33 @@ export const getClubMemberData = async (member) => {
     return memberData
 
   } catch (e) {
+    console.log(e)
+    throw e
+  }
+}
+
+export const changeStatus = async (uid, cid, status) => {
+  try {
+    const _uid = firebase.auth().currentUser.uid
+    const memberRef = firebase.database().ref('clubs').child(cid).child('member')
+    switch(status) {
+      case 'master':
+        const member = {}
+        member[_uid] = { status: 'member' }
+        member[uid] = { status: 'master' }
+        await memberRef.update({ ...member })
+        break;
+      case 'supervisor':
+        await memberRef.child(uid).update({ status })
+        break;
+      case 'member':
+        await memberRef.child(uid).update({ status })
+        break;
+      default:
+        return '沒有符合的職位！'
+    }
+
+  } catch(e) {
     console.log(e)
     throw e
   }

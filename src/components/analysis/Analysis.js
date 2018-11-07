@@ -22,6 +22,7 @@ import * as firebase from 'firebase'
 class Analysis extends React.Component {
     state = {
         clubArray: [{x: '無社團', y: 1}],
+        tickValues: ['無社團'],
         colorArray: ['rgb(255, 190, 0)'],
         radius: 10,
         result: false,
@@ -81,9 +82,13 @@ class Analysis extends React.Component {
         try {
             const { joinClub, likeClub, joinClubs, likeClubs } = this.props
             const clubDataArray = {...joinClubs, ...likeClubs}
+            const tickValues = []
 
             const clubArray = await getPopularClubData(clubDataArray)
-            this.setState({clubArray, result: true})
+            clubArray.map((item) => {
+                tickValues.push(item.x)
+            })
+            this.setState({clubArray, tickValues, result: true})
 
         } catch(e) {
             Alert.alert(e.toString())
@@ -115,7 +120,7 @@ class Analysis extends React.Component {
                         <Button
                             icon={<Image source={require('../../images/bars-chart.png')} />}
                             iconRight
-                            title='分析社團'
+                            title='點擊統計'
                             titleStyle={{ fontWeight: "700", color: '#0d4273' }}
                             buttonStyle={{ paddingRight: 15 ,paddingLeft: 10, paddingTop: 5, paddingBottom: 5, backgroundColor: 'rgba(246, 180, 86, 0.75)', }}
                             onPress={() => this.searchData()} 
@@ -166,11 +171,11 @@ class Analysis extends React.Component {
                                     axis: {stroke: "#f6b456"},
                                     axisLabel: {fontSize: 20, padding: 30},
                                     grid: {stroke: null},
-                                    tickLabels: {fontSize: 10, padding: 5},
                                     ticks: {stroke: "#f6b456", size: 5},
                                     tickLabels: {fontSize: 15, padding: 5, fill: '#f6b456'}
                                 }}
                                 tickFormat={(t) => Math.round(t)}
+                                tickValues={this.state.tickValues}
                             />
                             <VictoryAxis
                                 dependentAxis
@@ -206,11 +211,11 @@ class Analysis extends React.Component {
                                                 containerStyle: {marginTop: 5}
                                             }}
                                             leftElement={<Text style={{color: '#f6b456', fontWeight: 'bold'}}>{index + 1}</Text>}
-                                            title={<Text style={{fontSize: 15, color: 'rgb(255, 199, 81)'}}>{club.schoolName + ' ' + club.clubName}</Text>}
+                                            title={<Text style={{fontSize: 20, color: 'rgb(255, 199, 81)'}}>{club.schoolName + ' ' + club.clubName}</Text>}
                                             subtitle={
                                                 <View style={{marginTop: 5}}>
-                                                    <Text style={{fontSize: 10, color: 'rgb(255, 199, 81)'}}>{`文章活躍度：${clubData.avgPostRank}`}</Text>
-                                                    <Text style={{fontSize: 10, color: 'rgb(255, 199, 81)'}}>{`活動活躍度：${clubData.avgActivityRank}`}</Text>
+                                                    <Text style={{fontSize: 15, color: 'rgb(255, 199, 81)', marginBottom: 5}}>{`文章活躍度：${clubData.avgPostRank}`}</Text>
+                                                    <Text style={{fontSize: 15, color: 'rgb(255, 199, 81)'}}>{`活動活躍度：${clubData.avgActivityRank}`}</Text>
                                                 </View> 
                                             }
                                             containerStyle={{backgroundColor: null}}

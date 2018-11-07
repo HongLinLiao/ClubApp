@@ -1,9 +1,7 @@
 import React from 'react'
 import {
     View,
-    Button,
     Alert,
-    Image,
     Text,
     ScrollView,
     TouchableOpacity
@@ -12,9 +10,11 @@ import {
 import {
     ListItem,
 } from 'react-native-elements'
-import PopupDialog, { SlideAnimation, DialogTitle } from 'react-native-popup-dialog';
+import PopupDialog, { SlideAnimation} from 'react-native-popup-dialog';
+import RadioForm from 'react-native-simple-radio-button'
 
 import { getUserData, getClubData } from '../../modules/Data'
+import { convertClubStatus } from '../../modules/Common'
 import { getClubMemberData } from '../../modules/Club'
 import Overlayer from '../common/Overlayer'
 import UserDialog from '../common/UserDialog'
@@ -31,6 +31,7 @@ class ClubMember extends React.Component {
         memberData: null,
         loading: false,
         userData: { uid: null, user: null, clubs: null },
+        radio_props: null
     }
 
     async componentWillMount() {
@@ -40,10 +41,15 @@ class ClubMember extends React.Component {
     async componentWillReceiveProps(nextProps) {
         try {
             this.setState({ loading: true })
-            const { currentCid, joinClubs } = nextProps
-            const memberData = await getClubMemberData(joinClubs[currentCid].member)
-            this.setState({ memberData, currentCid, joinClubs, loading: false })
-
+            const { currentCid, joinClubs, navigation } = nextProps
+            if(this.state.currentCid == currentCid) {
+                const memberData = await getClubMemberData(joinClubs[currentCid].member) 
+                this.setState({ memberData, currentCid, joinClubs, loading: false })
+            } else {
+                this.popupDialog.dismiss()
+                navigation.popToTop()
+            } 
+            
         } catch (e) {
             Alert.alert(e.toString())
         }
@@ -115,55 +121,84 @@ class ClubMember extends React.Component {
 
     }
 
+    filterStatusPermission = (uid) => {
+        const { user, joinClubs, currentCid } = this.props
+        const status = joinClubs[currentCid].member[user.uid].status //目前使用者職位
+        const _status = joinClubs[currentCid].member[uid].status //社團成員職位
+        let canChangeStatus = false
+        let canKickMember = false
+        if(user.uid == uid) return {canChangeStatus, canKickMember} //自己
+        else {
+            if(status == 'master') { //是社長
+                canChangeStatus = true
+                canKickMember = true
+            }
+            else if(status == 'supervisor') { //是管理者
+                if(_status == 'master' || _status == 'supervisor') { //管理者對於社長或是管理者
+                    canChangeStatus = false
+                    canKickMember = false
+                } else { //管理者對於社員
+                    canChangeStatus = false
+                    canKickMember = true
+                }
+            }
+            
+        }
 
+        return {canChangeStatus, canKickMember}
 
+        
+    }
 
     render() {
         const { currentCid, joinClubs } = this.state
         const memberData = this.state.memberData || {}
         const member = joinClubs ? joinClubs[currentCid].member : {}
         const { uid, user, clubs } = this.state.userData
+        
         return (
-            <ScrollView style={{ flex: 1 }}>
-                {
-                    Object.keys(memberData).map((_uid, index) => {
-                        const { photoUrl, nickName, } = memberData[_uid]
-                        return (
-                            <TouchableOpacity key={_uid} onPress={() => this.showUser(_uid)}>
+            <View style={{flex: 1}}>
+                <ScrollView>
+                    {
+                        Object.keys(memberData).map((_uid, index) => {
+                            const { photoUrl, nickName, } = memberData[_uid]
+                            const status = member[_uid].status
+                            const _status = convertClubStatus(status) //職位轉成中文
+                            const { canChangeStatus, canKickMember } = this.filterStatusPermission(_uid) //過濾每個人的權限
+                            return (
+                                <TouchableOpacity key={_uid} disabled={!canChangeStatus} onPress={() => this.props.navigation.push('MemberManage', {uid: _uid, userData: memberData[_uid]})}>
 
-                                <ListItem
-                                    key={_uid}
-                                    leftAvatar={{
-                                        source: { uri: photoUrl ? photoUrl : 'https://image.freepik.com/free-icon/man-dark-avatar_318-9118.jpg' },
-                                        size: 'medium',
-                                    }}
+                                    <ListItem
+                                        key={_uid}
+                                        leftAvatar={{
+                                            source: { uri: photoUrl ? photoUrl : 'https://image.freepik.com/free-icon/man-dark-avatar_318-9118.jpg' },
+                                            size: 'medium',
+                                            onPress: () => this.showUser(_uid)
+                                        }}
 
-                                    title={
+                                        title={
+                                            <Text style={styles.bigText}>{nickName}</Text>
+                                        }
+                                        subtitle={
+                                            <Text style={styles.smallText}>{_status}</Text>
+                                        }
+                                        rightElement={
+                                            canKickMember ?
+                                                <TouchableOpacity
+                                                    style={styles.button}
+                                                    onPress={() => this.askToKick(_uid, nickName)}
+                                                >
+                                                    <Text style={[styles.buttonText]}>確定退出</Text>
+                                                </TouchableOpacity> : null
+                                        }
+                                        containerStyle={{ flex: 1, alignContent: 'center', justifyContent: 'center'}}
+                                    />
+                                </TouchableOpacity>
 
-                                        <Text style={styles.bigText}>{nickName}</Text>
-                                    }
-                                    subtitle={
-
-                                        <Text style={styles.smallText}>{member[_uid].status}</Text>
-                                    }
-
-
-                                    rightElement={
-                                        <TouchableOpacity
-                                            style={styles.button}
-                                            onPress={() => this.askToKick(_uid, nickName)}
-                                            disabled={(member[_uid].status == 'master')}
-                                        >
-                                            <Text style={[styles.buttonText]}>確定退出</Text>
-                                        </TouchableOpacity>
-                                    }
-
-                                />
-                            </TouchableOpacity>
-
-                        )
-                    })
-                }
+                            )
+                        })
+                    }
+                </ScrollView>
                 <PopupDialog
                     ref={(popupDialog) => this.popupDialog = popupDialog}
                     dialogAnimation={slideAnimation}
@@ -179,7 +214,7 @@ class ClubMember extends React.Component {
                     />
                 </PopupDialog>
                 {this.state.loading ? <Overlayer /> : null}
-            </ScrollView>
+            </View>
         )
     }
 }

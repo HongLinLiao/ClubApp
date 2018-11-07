@@ -15,6 +15,7 @@ import {
     updateCommentFavorites,
 } from "./Data"
 import { changeMemberStatusToChinese } from './Common';
+import { sendPostNotification } from './Api'
 import * as PostAction from '../actions/PostAction'
 
 //********************************************************************************
@@ -166,7 +167,7 @@ export const handlePostDataToReducer = (postReducer, clubKey, postKey, postData)
 //********************************************************************************
 
 //新增貼文
-export const createPost = (cid, postData) => async (dispatch) => {
+export const createPost = (cid, postData, club) => async (dispatch) => {
 
     try {
         dispatch(PostAction.createPostRequest())
@@ -175,21 +176,20 @@ export const createPost = (cid, postData) => async (dispatch) => {
         const user = firebase.auth().currentUser
         const postRef = firebase.database().ref('posts').child(cid).push()
 
-        const postDB = {
+        const post = {
             title: postData.title,
             content: postData.content,
             images: postData.images,
             poster: user.uid,
-            date: new Date().toLocaleString(),
+            date: new Date().toUTCString(),
             favorites: false,
             views: false,
             numComments: 0
         }
 
-        await postRef.set(postDB)
+        await postRef.set(post)
 
-
-        //更新reducer還沒做
+        await sendPostNotification(cid, post, club)
 
     } catch (e) {
 
