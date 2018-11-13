@@ -4,6 +4,7 @@ import { CheckBox } from 'react-native-elements';
 import styles from '../../styles/home/Selecting'
 const SelectClubElement = (element) => {
 
+    //重整
     reload = async (clubKey) => {
         const { clubList, numSelectingStatusTrue, setHomeClubListStatus, homeReload,parentOverLayor } = element;
         parentOverLayor();

@@ -23,6 +23,9 @@ const slideAnimation = new SlideAnimation({
 class Post extends React.Component {
   //寫入本地State
   componentWillMount() {
+    const { initSetPost, navigation, initPostToReducer } = this.props;
+    initSetPost((obj) => { this.setState({ post: obj.post, comment: obj.comment }); }, navigation);
+    initPostToReducer({ post: this.props.post, comment: this.props.comment }, navigation);
     this.setState({ post: this.props.post, comment: this.props.comment });
   }
 
@@ -34,6 +37,7 @@ class Post extends React.Component {
     refreshing: false,
   };
 
+  //重整動畫
   onRefresh = async () => {
     try {
       this.setState({ refreshing: true });
@@ -93,7 +97,7 @@ class Post extends React.Component {
       let result = newPostList.some(function (value, index, array) {
         if (Object.keys(value)[0] == obj.post.postKey) {
           newPostList.splice(index, 1);
-          alert("該貼文不存在");
+          alert("該貼文不存在！");
           return true;
         }
         else {
@@ -104,6 +108,22 @@ class Post extends React.Component {
       this.postOverLayar();
       navigation.goBack();
     }
+  };
+
+  //刪除貼文
+  deletePost = async (clubKey, postKey) => {
+    const { deletingPost, setPostList, postList, navigation } = this.props;
+    this.postOverLayar();
+    const obj = await deletingPost(clubKey, postKey, postList);
+    console.log(obj);
+    if (obj != null) {
+      if (obj.status == false) {
+        alert("該貼文不存在！");
+      }
+      setPostList(obj.postList);
+    }
+    this.postOverLayar();
+    navigation.goBack();
   };
 
   //設定本頁post
@@ -119,16 +139,6 @@ class Post extends React.Component {
   //設定本頁comment
   setComment = (commentData) => {
     this.setState({ comment: commentData });
-  };
-
-  //刪除貼文
-  deletePost = async (clubKey, postKey) => {
-    const { deletePostData, setPostList, postList, navigation } = this.props;
-    this.postOverLayar();
-    const newPostList = await deletePostData(clubKey, postKey, postList);
-    // setPostList(newPostList);
-    this.postOverLayar();
-    navigation.goBack();
   };
 
   showUser = async (uid) => {
@@ -175,7 +185,7 @@ class Post extends React.Component {
           <KeyboardAvoidingView behavior="padding">
             <View style={styles.container}>
               <View style={styles.rowLeft}>
-                <TouchableOpacity onPress={() => this.showUser(postData.poster)}>
+                <TouchableOpacity onPress={() => this.showUser(element.poster)}>
                   <View style={styles.circle}>
                     <Image
                       source={{ uri: element.posterPhotoUrl }}
@@ -224,9 +234,6 @@ class Post extends React.Component {
                       styles.number,
                       { color: element.statusFavorite ? "#f6b456" : "#666666" }
                     ]}>{element.numFavorites} </Text>
-
-
-
                   </TouchableOpacity>
                 </View>
 
@@ -252,9 +259,9 @@ class Post extends React.Component {
               </View>
 
               <View style={{ display: element.statusEnable ? "flex" : "none" }}>
-                <Button title="Edit Post" onPress={async () => { }} />
+                <Button title="編輯貼文" onPress={async () => { }} />
                 <Button
-                  title="Delete Post"
+                  title="刪除貼文"
                   onPress={async () => {
                     await this.deletePost(element.clubKey, element.postKey);
                   }}
@@ -269,6 +276,7 @@ class Post extends React.Component {
               clubKey={element.clubKey}
               postKey={element.postKey}
               setPostList={this.props.setPostList}
+              navigation={this.props.navigation}
               setPost={this.setPost}
               setComment={this.setComment}
               creatingComment={this.props.creatingComment}

@@ -13,10 +13,12 @@ class SelectClub extends React.Component {
         refreshing: false,
     }
 
+    //過門
     selectOverLayor = () => {
         this.setState({ loading: !this.state.loading })
     }
 
+    //重整動畫
     onRefresh = async () => {
         try {
             const { homeReload, clubList } = this.props;

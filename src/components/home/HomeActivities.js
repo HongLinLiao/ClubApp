@@ -16,22 +16,24 @@ class HomeActivities extends React.Component {
         refreshing: false,
     }
 
-    onRefresh = () => {
-        this.setState({ refreshing: true });
-        this.setState({ refreshing: false });
-        this.activityReload();
-    }
-
-    homeOverLayar = () => {
-        this.setState({ loading: !this.state.loading });
-    }
-
     //頁面重整
     activityReload = async () => {
         const { getHomeActivityReload } = this.props;
         this.homeOverLayar();
         await getHomeActivityReload((newActivityList) => { this.setState({ activity: newActivityList }) });
         this.homeOverLayar();
+    }
+
+    //重整動畫
+    onRefresh = () => {
+        this.setState({ refreshing: true });
+        this.setState({ refreshing: false });
+        this.activityReload();
+    }
+
+    //過門
+    homeOverLayar = () => {
+        this.setState({ loading: !this.state.loading });
     }
 
     setActivityList = (activityList) => {

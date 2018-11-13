@@ -8,8 +8,10 @@ import {
     editingComment,
     setCommentEditStatus,
     getInsidePost,
-    deletePostData,
+    deletingPost,
     setCommentFavorite,
+    initSetPost,
+    initPostToReducer,
 } from '../../modules/Post'
 
 class PostPage extends Component {
@@ -28,8 +30,10 @@ class PostPage extends Component {
                 deletingComment={this.props.deletingComment}
                 editingComment={this.props.editingComment}
                 setCommentEditStatus={this.props.setCommentEditStatus}
-                deletePostData={this.props.deletePostData}
+                deletingPost={this.props.deletingPost}
                 setCommentFavorite={this.props.setCommentFavorite}
+                initSetPost={this.props.initSetPost}
+                initPostToReducer={this.props.initPostToReducer}
             />
         )
     }
@@ -46,8 +50,10 @@ const mapDispatchToProps = {
     deletingComment,
     editingComment,
     setCommentEditStatus,
-    deletePostData,
+    deletingPost,
     setCommentFavorite,
+    initSetPost,
+    initPostToReducer,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(PostPage);

@@ -1,6 +1,7 @@
 import * as HomeAction from '../actions/HomeAction'
 import { getActivityDataComplete, getUserActivities } from './Activity.js';
 import { getClubData } from './Data';
+import { initPostListToReducer,syncPost } from './Post';
 import * as firebase from "firebase";
 require("firebase/functions");
 
@@ -9,7 +10,7 @@ require("firebase/functions");
 //********************************************************************************
 
 //貼文列重整
-export const getHomePostReload = (clubList, homeReload) => async (dispatch, getState) => {
+export const getHomePostReload = (clubList, navigation, homeReload) => async (dispatch, getState) => {
     try {
         const newClubList = {};
         let numSelect = 0;
@@ -42,15 +43,21 @@ export const getHomePostReload = (clubList, homeReload) => async (dispatch, getS
         dispatch(HomeAction.getHomeClubListSuccess(newClubList, numSelect));
         const getHomePost = firebase.functions().httpsCallable('getHomePost');
         const response = await getHomePost(clubList);
-        homeReload(response.data);
-        determinToSearch(clubList, response.data);
+        if (response.data.postListArr) {
+            //丟進reducer
+            dispatch(initPostListToReducer(response.data.postListArr, navigation));
+            //檢查同步
+            dispatch(syncPost(response.data.postListArr))
+        }
+        homeReload(response.data.postListArr);
+        determinToSearch(clubList, response.data.postListArr, navigation);
     }
     catch (error) {
         console.log(error.toStirng());
     }
 }
 
-//活動列重整
+//活動列重整（未知）
 export const getHomeActivityReload = (activityReload) => async (dispatch) => {
     try {
         const keepList = await getUserActivities();
@@ -72,7 +79,7 @@ export const getHomeActivityReload = (activityReload) => async (dispatch) => {
 
 
 //********************************************************************************
-// main functiob
+// main function
 //********************************************************************************
 
 //抓joinClub與likeClub，產生clubList放入homeReducer控制篩選 （初始狀態）
@@ -96,7 +103,7 @@ export const setHomeClubListStatus = (clubKey, clubList, numSelectingStatusTrue)
     try {
         if (numSelectingStatusTrue == 1) {
             if (clubList[clubKey].selectStatus == true) {
-                alert('At least one club need openning！');
+                alert('至少需開啟一個社團！');
             }
             else {
                 clubList[clubKey].selectStatus = !(clubList[clubKey].selectStatus);
@@ -154,15 +161,16 @@ export const getClubListForSelecting = async (allClub) => {
 }
 
 //判斷是否使用者有收藏或加入社團與社團是否有存在文章
-export const determinToSearch = (clubList, postArr) => {
+export const determinToSearch = (clubList, postArr, navigation) => {
     try {
         if (Object.keys(clubList).length == 0) {
-            alert('You haven\'t joined or liked clubs!');
+            alert('您目前未有已加入或收藏的社團！');
             //換頁處理
+            navigation.navigate("Search");
         }
         else {
             if (postArr.length == 0) {
-                alert('Your clubs haven\'t exist posts!');
+                alert('您的社團目前未存在任何文章！');
             }
             else {
                 console.log('pass!');

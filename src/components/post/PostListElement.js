@@ -13,45 +13,47 @@ const PostListElement = ({
   postList,
   setPostList,
   showUser,
-  parentOverLayor
+  parentOverLayor,
+  syncPost
 }) => {
 
   //按讚
   async function pressFavorite(post) {
     parentOverLayor();
     let obj = await setPostFavorite(post.clubKey, post.postKey, false);
-    if (obj != null) {
-      //放進首頁
-      let newPostList = postList.slice();
-      let result = newPostList.some(function (value, index, array) {
-        if (Object.keys(value)[0] == obj.post.postKey) {
-          let newPost = {};
-          newPost[obj.post.postKey] = obj.post
-          newPostList[index] = newPost
-          return true;
-        }
-        else {
-          return false;
-        }
-      });
-      setPostList(newPostList);
-      parentOverLayor();
-    }
-    else {
-      let newPostList = postList.slice();
-      let result = newPostList.some(function (value, index, array) {
-        if (Object.keys(value)[0] == obj.post.postKey) {
-          newPostList.splice(index, 1);
-          alert("該貼文不存在");
-          return true;
-        }
-        else {
-          return false;
-        }
-      });
-      setPostList(newPostList);
-      parentOverLayor();
-    }
+    syncPost(obj);
+    // if (obj != null) {
+    //   //放進首頁
+    //   let newPostList = postList.slice();
+    //   let result = newPostList.some(function (value, index, array) {
+    //     if (Object.keys(value)[0] == obj.post.postKey) {
+    //       let newPost = {};
+    //       newPost[obj.post.postKey] = obj.post
+    //       newPostList[index] = newPost
+    //       return true;
+    //     }
+    //     else {
+    //       return false;
+    //     }
+    //   });
+    //   setPostList(newPostList);
+    //   parentOverLayor();
+    // }
+    // else {
+    //   let newPostList = postList.slice();
+    //   let result = newPostList.some(function (value, index, array) {
+    //     if (Object.keys(value)[0] == post.postKey) {
+    //       newPostList.splice(index, 1);
+    //       alert("該貼文不存在！");
+    //       return true;
+    //     }
+    //     else {
+    //       return false;
+    //     }
+    //   });
+    //   setPostList(newPostList);
+    //   parentOverLayor();
+    // }
   }
 
   //進入內頁
@@ -74,7 +76,8 @@ const PostListElement = ({
       });
       setPostList(newPostList);
       parentOverLayor();
-      navigation.navigate("Post", {
+      const routeName = navigation.state.routeName+"Post"
+      navigation.navigate(routeName, {
         post: obj.post,
         setPostList: setPostList,
         postList: postList,
@@ -87,7 +90,7 @@ const PostListElement = ({
       let result = newPostList.some(function (value, index, array) {
         if (Object.keys(value)[0] == post.postKey) {
           newPostList.splice(index, 1);
-          alert("該貼文不存在");
+          alert("該貼文不存在！");
           return true;
         }
         else {

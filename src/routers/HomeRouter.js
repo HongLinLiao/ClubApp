@@ -38,7 +38,7 @@ export default createStackNavigator({
 		})
 	},
 	// 貼文內頁，從Club匯入
-	Post: {
+	HomePost: {
 		screen: requireAppFlow(PostPage),
 		navigationOptions: ({ navigation }) => ({
 			headerTitleStyle: {

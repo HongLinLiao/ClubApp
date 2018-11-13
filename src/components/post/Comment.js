@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { Button } from "react-native-elements";
 import styles from "../../styles/post/Comment";
+import { DatePicker } from "native-base";
 class Comment extends React.Component {
 
     state = {
@@ -31,13 +32,24 @@ class Comment extends React.Component {
             setComment,
             postList,
             postOverLayar,
+            navigation,
         } = this.props;
         postOverLayar();
         const obj = await creatingComment(clubKey, postKey, content);
         if (obj != null) {
             //放進postList
-            const newPostList = JSON.parse(JSON.stringify(postList));
-            newPostList[clubKey][postKey] = obj.post;
+            let newPostList = postList.slice();
+            let result = newPostList.some(function (value, index, array) {
+                if (Object.keys(value)[0] == obj.post.postKey) {
+                    let newPost = {};
+                    newPost[obj.post.postKey] = obj.post
+                    newPostList[index] = newPost
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            });
             setPostList(newPostList);
             //放進post
             setPost(obj.post);
@@ -45,6 +57,22 @@ class Comment extends React.Component {
             setComment(obj.comment);
             //清空輸入欄
             this.setState({ newContent: "" });
+        }
+        else {
+            //放進postList
+            let newPostList = postList.slice();
+            let result = newPostList.some(function (value, index, array) {
+                if (Object.keys(value)[0] == postKey) {
+                    newPostList.splice(index, 1);
+                    alert("該貼文不存在！");
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            });
+            setPostList(newPostList);
+            navigation.goBack();
         }
         postOverLayar();
     };
@@ -60,18 +88,47 @@ class Comment extends React.Component {
             setComment,
             postList,
             postOverLayar,
+            navigation
         } = this.props;
         postOverLayar();
         const obj = await deletingComment(clubKey, postKey, commentKey);
         if (obj != null) {
             //放進postList
-            const newPostList = JSON.parse(JSON.stringify(postList));
-            newPostList[clubKey][postKey] = obj.post;
+            let newPostList = postList.slice();
+            let result = newPostList.some(function (value, index, array) {
+                if (Object.keys(value)[0] == obj.post.postKey) {
+                    let newPost = {};
+                    newPost[obj.post.postKey] = obj.post
+                    newPostList[index] = newPost
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            });
             setPostList(newPostList);
             //放進post
             setPost(obj.post);
             //放進comment
             setComment(obj.comment);
+            //清空輸入欄
+            this.setState({ newContent: "" });
+        }
+        else {
+            //放進postList
+            let newPostList = postList.slice();
+            let result = newPostList.some(function (value, index, array) {
+                if (Object.keys(value)[0] == postKey) {
+                    newPostList.splice(index, 1);
+                    alert("該貼文不存在！");
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            });
+            setPostList(newPostList);
+            navigation.goBack();
         }
         postOverLayar();
     };
@@ -79,10 +136,18 @@ class Comment extends React.Component {
     //編輯狀態改變
     statusEditChange = async (element) => {
         const { setComment } = this.props;
-        const newComment = JSON.parse(JSON.stringify(this.props.comment));
-        newComment[element.commentKey]["statusEdit"] = !newComment[element.commentKey]["statusEdit"];
+        let newCommentList = this.props.comment.slice();
+        let result = newCommentList.some(function (value, index, array) {
+            if (Object.keys(value)[0] == element.commentKey) {
+                newCommentList[index][element.commentKey].statusEdit = !newCommentList[index][element.commentKey].statusEdit;
+                return true;
+            }
+            else {
+                return false;
+            }
+        });
         //放進comment
-        setComment(newComment);
+        setComment(newCommentList);
         this.setState({
             oldContent: ""
         });
@@ -100,37 +165,100 @@ class Comment extends React.Component {
             setComment,
             postList,
             postOverLayar,
+            navigation
         } = this.props;
         postOverLayar();
         const obj = await editingComment(clubKey, postKey, commentKey, content);
         if (obj != null) {
             //放進postList
-            const newPostList = JSON.parse(JSON.stringify(postList));
-            newPostList[clubKey][postKey] = obj.post;
+            let newPostList = postList.slice();
+            let result = newPostList.some(function (value, index, array) {
+                if (Object.keys(value)[0] == obj.post.postKey) {
+                    let newPost = {};
+                    newPost[obj.post.postKey] = obj.post
+                    newPostList[index] = newPost
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            });
             setPostList(newPostList);
             //放進post
             setPost(obj.post);
             //放進comment
             setComment(obj.comment);
-            this.setState({ oldContent: "" });
+            //清空輸入欄
+            this.setState({ newContent: "" });
+        }
+        else {
+            //放進postList
+            let newPostList = postList.slice();
+            let result = newPostList.some(function (value, index, array) {
+                if (Object.keys(value)[0] == postKey) {
+                    newPostList.splice(index, 1);
+                    alert("該貼文不存在！");
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            });
+            setPostList(newPostList);
+            navigation.goBack();
         }
         postOverLayar();
     };
 
     //留言按讚
     pressFavorite = async (clubKey, postKey, commentKey) => {
-        const { setCommentFavorite, setPostList, setPost, setComment, postList, postOverLayar } = this.props;
+        const {
+            setCommentFavorite,
+            setPostList,
+            setPost,
+            setComment,
+            postList,
+            postOverLayar,
+            navigation } = this.props;
         postOverLayar();
         const obj = await setCommentFavorite(clubKey, postKey, commentKey);
         if (obj != null) {
             //放進postList
-            const newPostList = JSON.parse(JSON.stringify(postList));
-            newPostList[clubKey][postKey] = obj.post;
+            let newPostList = postList.slice();
+            let result = newPostList.some(function (value, index, array) {
+                if (Object.keys(value)[0] == obj.post.postKey) {
+                    let newPost = {};
+                    newPost[obj.post.postKey] = obj.post
+                    newPostList[index] = newPost
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            });
             setPostList(newPostList);
             //放進post
             setPost(obj.post);
             //放進comment
             setComment(obj.comment);
+            //清空輸入欄
+            this.setState({ newContent: "" });
+        }
+        else {
+            //放進postList
+            let newPostList = postList.slice();
+            let result = newPostList.some(function (value, index, array) {
+                if (Object.keys(value)[0] == postKey) {
+                    newPostList.splice(index, 1);
+                    alert("該貼文不存在！");
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            });
+            setPostList(newPostList);
+            navigation.goBack();
         }
         postOverLayar();
     }

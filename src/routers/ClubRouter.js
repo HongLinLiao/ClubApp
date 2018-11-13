@@ -27,7 +27,7 @@ export default createStackNavigator({
     screen: ActivityPage,
   },
 
-  Post: {
+  ClubPost: {
     screen: PostPage
   },
 
