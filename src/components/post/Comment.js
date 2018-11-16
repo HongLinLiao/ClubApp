@@ -287,21 +287,23 @@ class Comment extends React.Component {
                                                 <Text style={styles.littleName}>{element.commenterNickName}</Text>
                                             </View>
                                             <View style={styles.row}>
-                                                <TouchableOpacity onPress={async () =>
-                                                    await this.pressFavorite(element.clubKey, element.postKey, element.commentKey)
-                                                }>
+                                                <TouchableOpacity style={{ flexDirection: 'row' }}
+                                                    onPress={async () =>
+                                                        await this.pressFavorite(element.clubKey, element.postKey, element.commentKey)
+                                                    }>
                                                     <Image style={styles.icon}
                                                         source={
                                                             element.statusFavorite//已可判斷
                                                                 ? require("../../images/images2/like-orange.png")
                                                                 : require("../../images/images2/like-gray.png")
                                                         } />
+                                                    <Text style={[styles.numberLittle,
+                                                    {
+                                                        color: element.statusFavorite //已可判斷
+                                                            ? "#f6b456" : "#666666"
+                                                    }]}>
+                                                        {element.numFavorites}</Text>
                                                 </TouchableOpacity>
-                                                <Text style={[styles.numberLittle,
-                                                {
-                                                    color: element.statusFavorite //已可判斷
-                                                        ? "#f6b456" : "#666666"
-                                                }]}>{element.numFavorites}</Text>
                                                 <TouchableOpacity style={{ display: element.statusEnable ? "flex" : "none" }}>
                                                     <Image source={require('../../images/pencil.png')}
                                                         style={styles.icon} />

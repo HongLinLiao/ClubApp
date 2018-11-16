@@ -58,7 +58,6 @@ class SelectClub extends React.Component {
                                     clubList={newClubList}
                                     setHomeClubListStatus={this.props.setHomeClubListStatus}
                                     numSelectingStatusTrue={newNumSelectingStatsTrue}
-                                    homeReload={this.props.homeReload}
                                     parentOverLayor={this.selectOverLayor}
                                 >
                                 </SelectClubElement>

@@ -111,7 +111,7 @@ exports.getHomePost = functions.https.onCall(async (data, context) => {
         const clubKeyList = Object.keys(clubList);
         //回傳物件
         let obj = {
-            postListArr:[]
+            postListArr: []
         };
         if (clubKeyList.length > 0) {
             for (let i = 0; i < clubKeyList.length; i++) {
@@ -675,7 +675,7 @@ const setPostView = async (post, uid) => {
     }
 }
 
-//處理貼文基本屬性(學校與社團名稱、key值、nickName、職位、views、favorites)
+//處理貼文基本屬性(學校與社團名稱、key值、nickName、職位、views、favorites、編輯狀態、照片)
 const setPostFoundations = async (clubKey, postKey, uid, post, club) => {
     try {
         //該貼文社團與學校名稱
@@ -690,13 +690,28 @@ const setPostFoundations = async (clubKey, postKey, uid, post, club) => {
             post.posterStatus = ''
             post.posterStatusChinese = ''
         }
-        //判斷是否可編輯或刪除貼文
-        if (post.poster === uid) {
+        //判斷是否可編輯或刪除貼文(社長與幹部有此權限)
+        let editStatus = false;
+        if(club.member[uid]){
+            if(club.member[uid].status == "master"||club.member[uid].status=="supervisor"){
+                editStatus = true;
+            }  
+        }
+        if (post.poster === uid ) {
             post.statusEnable = true;
         }
-        else {
+        if(editStatus){
+            post.statusEnable = true;
+        }
+        else{
             post.statusEnable = false;
         }
+
+        //處理照片
+        if(!post.images){
+            post.images={};
+        }
+        
         //將clubKey放進attribute，否則找不到該貼文社團
         post.clubKey = clubKey;
         post.postKey = postKey;

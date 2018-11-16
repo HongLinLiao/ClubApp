@@ -57,11 +57,6 @@ class Home extends React.Component {
         }
     }
 
-    //進入內頁onPress()事件，放入postList讓元件render
-    goSelectingPage = (navigation) => {
-        navigation.navigate("Selecting", { homeReload: this.homeReload });
-    };
-
     //更改postList
     setPostList = (postList) => {
         this.setState({ post: postList });
@@ -112,10 +107,6 @@ class Home extends React.Component {
                         />
                     }
                 >
-                    <Button
-                        title='selecting!'
-                        onPress={() => { this.goSelectingPage(this.props.navigation); }}
-                    />
                     <View style={styles.containView}>
                         {
                             newPostList.map((postElement) => (
@@ -131,6 +122,7 @@ class Home extends React.Component {
                                         showUser={this.showUser.bind(this)}
                                         parentOverLayor={this.homeOverLayor}
                                         syncPost={this.props.syncPost}
+                                        syncPostDelete={this.props.syncPostDelete}
                                     >
                                     </PostListElement>
                                 ))

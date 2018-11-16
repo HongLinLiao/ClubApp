@@ -50,67 +50,40 @@ class Post extends React.Component {
 
   //頁面重整
   reload = async (clubKey, postKey) => {
-    const { getInsidePost, navigation, postList, setPostList } = this.props;
+    const { getInsidePost, navigation, postList, setPostList, syncPost, syncPostDelete } = this.props;
     this.postOverLayar();
-    const newPost = await getInsidePost(clubKey, postKey);
+    const obj = await getInsidePost(clubKey, postKey);
     this.postOverLayar();
-    const newPostList = JSON.parse(JSON.stringify(postList));
-    if (newPost == null) {
-      newPostList[clubKey][postKey] = null;
-      delete newPostList[clubKey][postKey];
-      setPostList(newPostList);
+    if (obj != null) {
+      //貼文同步
+      syncPost(obj);
+    }
+    else {
+      //刪除貼文同步
+      syncPostDelete(postKey);
       navigation.goBack();
-    } else {
-      newPostList[clubKey][postKey] = newPost.post;
-      setPostList(newPostList);
-      this.setState({ post: newPost.post, comment: newPost.comment });
     }
   };
 
   //點讚
   pressFavorite = async (clubKey, postKey) => {
-    const { setPostFavorite, postList, setPostList } = this.props;
+    const { setPostFavorite, postList, setPostList, syncPost, syncPostDelete, navigation } = this.props;
     this.postOverLayar();
     let obj = await setPostFavorite(clubKey, postKey, true);
     if (obj != null) {
-      //放回state
-      this.setState({ post: obj.post, comment: obj.comment });
-      //放進首頁
-      let newPostList = postList.slice();
-      let result = newPostList.some(function (value, index, array) {
-        if (Object.keys(value)[0] == obj.post.postKey) {
-          let newPost = {};
-          newPost[obj.post.postKey] = obj.post
-          newPostList[index] = newPost
-          return true;
-        }
-        else {
-          return false;
-        }
-      });
-      setPostList(newPostList);
+      //貼文同步
+      syncPost(obj);
       this.postOverLayar();
     }
     else {
-      const { navigation } = this.props;
-      let newPostList = postList.slice();
-      let result = newPostList.some(function (value, index, array) {
-        if (Object.keys(value)[0] == obj.post.postKey) {
-          newPostList.splice(index, 1);
-          alert("該貼文不存在！");
-          return true;
-        }
-        else {
-          return false;
-        }
-      });
-      setPostList(newPostList);
+      //刪除貼文同步
+      syncPostDelete(postKey);
       this.postOverLayar();
       navigation.goBack();
     }
   };
 
-  //刪除貼文
+  //刪除貼文(未完成))
   deletePost = async (clubKey, postKey) => {
     const { deletingPost, setPostList, postList, navigation } = this.props;
     this.postOverLayar();
@@ -213,12 +186,23 @@ class Post extends React.Component {
                   <Text style={styles.postText}>{element.content}</Text>
                 </View>
               </View>
-              <View style={styles.postPictureView} />
-
+              <View style={styles.postPictureView} >
+                {
+                  Object.keys(element.images).map((child) => (
+                    <View key={child}>
+                      <Image
+                        style={styles.postPicture}
+                        source={{ uri: element.images[child] }}
+                      />
+                      {/* 換行用 */}
+                      <Text>  </Text>
+                    </View>
+                  ))
+                }
+              </View>
               <View style={styles.sbRowLine}>
                 <View style={styles.row}>
                   <TouchableOpacity style={{ flexDirection: 'row' }}
-
                     onPress={async () =>
                       await this.pressFavorite(element.clubKey, element.postKey)
                     }
@@ -257,7 +241,6 @@ class Post extends React.Component {
                   ]}>{element.numViews}</Text>
                 </View>
               </View>
-
               <View style={{ display: element.statusEnable ? "flex" : "none" }}>
                 <Button title="編輯貼文" onPress={async () => { }} />
                 <Button
@@ -267,7 +250,6 @@ class Post extends React.Component {
                   }}
                 />
               </View>
-
             </View>
             <Comment
               userPhotoUrl={this.props.userPhotoUrl}

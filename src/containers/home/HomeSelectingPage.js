@@ -11,7 +11,6 @@ class Selecting extends React.Component {
                 navigation={this.props.navigation}
                 numSelectingStatusTrue={this.props.numSelectingStatusTrue}
                 setHomeClubListStatus={this.props.setHomeClubListStatus}
-                homeReload={this.props.navigation.state.params.homeReload}
             >
             </SelectClub>
         );

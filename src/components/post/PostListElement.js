@@ -1,7 +1,5 @@
 import React from "react";
 import { View, Text, TouchableOpacity, Image } from "react-native";
-import { Button } from "react-native-elements";
-import Overlayer from '../common/Overlayer'
 import styles from "../../styles/home/Home";
 
 const PostListElement = ({
@@ -14,46 +12,23 @@ const PostListElement = ({
   setPostList,
   showUser,
   parentOverLayor,
-  syncPost
+  syncPost,
+  syncPostDelete
 }) => {
 
   //按讚
   async function pressFavorite(post) {
     parentOverLayor();
     let obj = await setPostFavorite(post.clubKey, post.postKey, false);
-    syncPost(obj);
-    // if (obj != null) {
-    //   //放進首頁
-    //   let newPostList = postList.slice();
-    //   let result = newPostList.some(function (value, index, array) {
-    //     if (Object.keys(value)[0] == obj.post.postKey) {
-    //       let newPost = {};
-    //       newPost[obj.post.postKey] = obj.post
-    //       newPostList[index] = newPost
-    //       return true;
-    //     }
-    //     else {
-    //       return false;
-    //     }
-    //   });
-    //   setPostList(newPostList);
-    //   parentOverLayor();
-    // }
-    // else {
-    //   let newPostList = postList.slice();
-    //   let result = newPostList.some(function (value, index, array) {
-    //     if (Object.keys(value)[0] == post.postKey) {
-    //       newPostList.splice(index, 1);
-    //       alert("該貼文不存在！");
-    //       return true;
-    //     }
-    //     else {
-    //       return false;
-    //     }
-    //   });
-    //   setPostList(newPostList);
-    //   parentOverLayor();
-    // }
+    if (obj != null) {
+      //貼文同步
+      syncPost(obj);
+    }
+    else {
+      //刪除貼文同步
+      syncPostDelete(post.postKey);
+    }
+    parentOverLayor();
   }
 
   //進入內頁
@@ -61,22 +36,10 @@ const PostListElement = ({
     parentOverLayor()
     const obj = await getInsidePost(post.clubKey, post.postKey);
     if (obj != null) {
-      //放進首頁
-      let newPostList = postList.slice();
-      let result = newPostList.some(function (value, index, array) {
-        if (Object.keys(value)[0] == post.postKey) {
-          let newPost = {};
-          newPost[post.postKey] = obj.post
-          newPostList[index] = newPost
-          return true;
-        }
-        else {
-          return false;
-        }
-      });
-      setPostList(newPostList);
+      //貼文同步
+      syncPost(obj);
       parentOverLayor();
-      const routeName = navigation.state.routeName+"Post"
+      const routeName = navigation.state.routeName + "Post"
       navigation.navigate(routeName, {
         post: obj.post,
         setPostList: setPostList,
@@ -86,18 +49,8 @@ const PostListElement = ({
 
     }
     else {
-      let newPostList = postList.slice();
-      let result = newPostList.some(function (value, index, array) {
-        if (Object.keys(value)[0] == post.postKey) {
-          newPostList.splice(index, 1);
-          alert("該貼文不存在！");
-          return true;
-        }
-        else {
-          return false;
-        }
-      });
-      setPostList(newPostList);
+      //刪除貼文同步
+      syncPostDelete(post.postKey);
       parentOverLayor();
     }
   }

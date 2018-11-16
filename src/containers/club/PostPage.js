@@ -12,6 +12,8 @@ import {
     setCommentFavorite,
     initSetPost,
     initPostToReducer,
+    syncPost,
+    syncPostDelete,
 } from '../../modules/Post'
 
 class PostPage extends Component {
@@ -34,6 +36,8 @@ class PostPage extends Component {
                 setCommentFavorite={this.props.setCommentFavorite}
                 initSetPost={this.props.initSetPost}
                 initPostToReducer={this.props.initPostToReducer}
+                syncPost={this.props.syncPost}
+                syncPostDelete={this.props.syncPostDelete}
             />
         )
     }
@@ -54,6 +58,8 @@ const mapDispatchToProps = {
     setCommentFavorite,
     initSetPost,
     initPostToReducer,
+    syncPost,
+    syncPostDelete,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(PostPage);

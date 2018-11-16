@@ -821,7 +821,7 @@ function () {
   return function setPostView(_x28, _x29) {
     return _ref14.apply(this, arguments);
   };
-}(); //處理貼文基本屬性(學校與社團名稱、key值、nickName、職位、views、favorites)
+}(); //處理貼文基本屬性(學校與社團名稱、key值、nickName、職位、views、favorites、編輯狀態、照片)
 
 
 const setPostFoundations =
@@ -839,13 +839,30 @@ function () {
       } else {
         post.posterStatus = '';
         post.posterStatusChinese = '';
-      } //判斷是否可編輯或刪除貼文
+      } //判斷是否可編輯或刪除貼文(社長與幹部有此權限)
 
+
+      let editStatus = false;
+
+      if (club.member[uid]) {
+        if (club.member[uid].status == "master" || club.member[uid].status == "supervisor") {
+          editStatus = true;
+        }
+      }
 
       if (post.poster === uid) {
         post.statusEnable = true;
+      }
+
+      if (editStatus) {
+        post.statusEnable = true;
       } else {
         post.statusEnable = false;
+      } //處理照片
+
+
+      if (!post.images) {
+        post.images = {};
       } //將clubKey放進attribute，否則找不到該貼文社團
 
 

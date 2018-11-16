@@ -6,13 +6,9 @@ import SelectingPage from '../containers/home/HomeSelectingPage'
 import HomeActivitiesPage from '../containers/home/HomeActivitiesPage'
 import ActivityPage from '../containers/club/ActivityPage'
 import requireAppFlow from '../containers/flowControll/requireAppFlow'
-import { Image, TouchableOpacity } from 'react-native'
-import { View } from 'native-base';
+import { Image, TouchableOpacity, Text } from 'react-native'
 import homeStyles from '../styles/home/Home'
 
-goSelectingPage = (navigation) => {
-	navigation.navigate("Selecting", this.homeReload);
-};
 export default createStackNavigator({
 
 	//預設首頁
@@ -30,14 +26,16 @@ export default createStackNavigator({
 				backgroundColor: '#f6b456'
 			},
 			headerRight: (
-				<TouchableOpacity onPress={() => { this.goSelectingPage(this.props.navigation); }}>
+				<TouchableOpacity onPress={() => {
+					navigation.navigate("Selecting");
+				}}>
 					<Image source={require('../images/images2/control.png')}
 						style={homeStyles.controlImage} />
 				</TouchableOpacity>
 			)
 		})
 	},
-	// 貼文內頁，從Club匯入
+	// 貼文內頁，返回鍵用headerLeft覆蓋默認返回
 	HomePost: {
 		screen: requireAppFlow(PostPage),
 		navigationOptions: ({ navigation }) => ({
@@ -103,7 +101,7 @@ export default createStackNavigator({
 				fontSize: 15,
 			},
 			headerBackImage: (
-				<TouchableOpacity onPress={() => navigation.goBack()}>
+				<TouchableOpacity onPress={() => { navigation.goBack(); }}>
 					<Image source={require('../images/images2/arrowLeftBlue.png')}
 						style={{ width: 25, height: 25 }} />
 				</TouchableOpacity>
