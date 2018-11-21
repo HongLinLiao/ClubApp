@@ -312,7 +312,9 @@ export const changePhoto = () => async (dispatch) => {
       await userRef.update({ photoUrl: uploadUrl })
 
       dispatch(UserAction.updateUser({ ...user }))
-    }
+
+      return true
+    } else return false
 
   } catch (error) {
     console.log(error.toString())

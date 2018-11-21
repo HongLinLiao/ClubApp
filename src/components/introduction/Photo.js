@@ -12,7 +12,8 @@ import Overlayer from '../../components/common/Overlayer'
 class Photo extends React.Component {
 
   state = {
-    loading: false
+    loading: false,
+    setting: false,
   }
 
   handleChangePhoto = async () => {
@@ -21,7 +22,7 @@ class Photo extends React.Component {
       this.setState({loading: true})
       await this.props.changePhoto()
 
-      this.setState({loading: false})
+      this.setState({loading: false, setting: true})
       
     } catch(e) {
       Alert.alert(e.toString())
@@ -40,7 +41,7 @@ class Photo extends React.Component {
           }
         </View>
         <Button title='選擇照片' onPress={() => this.handleChangePhoto()} />
-        <Button title='稍後設定' onPress={() => this.props.setUserFirstLgoin(false)}/>
+        <Button title={this.state.setting ? '確定' : '稍後設定'} onPress={() => this.props.setUserFirstLgoin(false)}/>
 
         {this.state.loading ? <Overlayer /> : null }
       </View>
