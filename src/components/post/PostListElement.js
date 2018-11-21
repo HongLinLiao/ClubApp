@@ -6,14 +6,12 @@ const PostListElement = ({
   post,
   navigation,
   getInsidePost,
-  getPostComment,
   setPostFavorite,
-  postList,
-  setPostList,
   showUser,
   parentOverLayor,
   syncPost,
-  syncPostDelete
+  syncPostDelete,
+  syncPostBack
 }) => {
 
   //按讚
@@ -42,11 +40,9 @@ const PostListElement = ({
       const routeName = navigation.state.routeName + "Post"
       navigation.navigate(routeName, {
         post: obj.post,
-        setPostList: setPostList,
-        postList: postList,
-        comment: obj.comment
+        comment: obj.comment,
+        syncPostBack: syncPostBack
       });
-
     }
     else {
       //刪除貼文同步

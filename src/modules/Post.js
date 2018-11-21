@@ -43,11 +43,11 @@ export const initPostToReducer = (obj, navigation) => async (dispatch, getState)
     }
 }
 
-//init:放setPost進postReducer
+//init:放setPost進postReducer,(第三個變數控制是否刪除)
 export const initSetPost = (setPost, navigation) => async (dispatch, getState) => {
     try {
         let setPostInReducer = getState().postReducer.setPost;
-        let newObjct = JSON.parse(JSON.stringify(setPostInReducer));
+        let newObjct = Object.assign({}, setPostInReducer);
         const routeName = navigation.state.routeName;
         newObjct[routeName] = setPost;
         dispatch(PostAction.getSetPost(newObjct));
@@ -287,6 +287,30 @@ export const syncPostDelete = (postKey) => async (dispatch, getState) => {
             dispatch(PostAction.getPost(ordPost));
         }
         alert("該貼文不存在！");
+    }
+    catch (error) {
+        console.log(error.toString());
+    }
+}
+
+//synchronize:貼文頁返回
+export const syncPostBack = (routeName) => async (dispatch, getState) => {
+    try {
+        let setPostInReducer = getState().postReducer.setPost;
+        let newObjct = Object.assign({}, setPostInReducer);
+        if (newObjct[routeName]) {
+            newObjct[routeName] = null;
+            delete newObjct[routeName];
+            dispatch(PostAction.getSetPost(newObjct));
+        }
+
+        let post = getState().postReducer.post;
+        let newReducer = JSON.parse(JSON.stringify(post));
+        if (newReducer[routeName]) {
+            newReducer[routeName] = null;
+            delete newReducer[routeName];
+            dispatch(PostAction.getPost(newReducer));
+        }
     }
     catch (error) {
         console.log(error.toString());

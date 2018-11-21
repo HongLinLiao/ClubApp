@@ -1,6 +1,5 @@
 import React from 'react'
 import { ScrollView, Text, Alert, Image, TouchableOpacity, RefreshControl } from 'react-native'
-import { Button } from 'react-native-elements'
 import PostListElement from '../post/PostListElement'
 import styles from '../../styles/home/Home'
 import { View } from 'native-base';
@@ -117,12 +116,11 @@ class Home extends React.Component {
                                         navigation={this.props.navigation}
                                         getInsidePost={this.props.getInsidePost}
                                         setPostFavorite={this.props.setPostFavorite}
-                                        postList={this.state.post}
-                                        setPostList={this.setPostList}
                                         showUser={this.showUser.bind(this)}
                                         parentOverLayor={this.homeOverLayor}
                                         syncPost={this.props.syncPost}
                                         syncPostDelete={this.props.syncPostDelete}
+                                        syncPostBack={this.props.syncPostBack}
                                     >
                                     </PostListElement>
                                 ))

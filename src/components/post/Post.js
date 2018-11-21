@@ -50,7 +50,7 @@ class Post extends React.Component {
 
   //頁面重整
   reload = async (clubKey, postKey) => {
-    const { getInsidePost, navigation, postList, setPostList, syncPost, syncPostDelete } = this.props;
+    const { getInsidePost, navigation, syncPost, syncPostDelete } = this.props;
     this.postOverLayar();
     const obj = await getInsidePost(clubKey, postKey);
     this.postOverLayar();
@@ -67,7 +67,7 @@ class Post extends React.Component {
 
   //點讚
   pressFavorite = async (clubKey, postKey) => {
-    const { setPostFavorite, postList, setPostList, syncPost, syncPostDelete, navigation } = this.props;
+    const { setPostFavorite, syncPost, syncPostDelete, navigation } = this.props;
     this.postOverLayar();
     let obj = await setPostFavorite(clubKey, postKey, true);
     if (obj != null) {
@@ -83,7 +83,7 @@ class Post extends React.Component {
     }
   };
 
-  //刪除貼文(未完成))
+  //刪除貼文(未完成)
   deletePost = async (clubKey, postKey) => {
     const { deletingPost, setPostList, postList, navigation } = this.props;
     this.postOverLayar();
@@ -254,13 +254,9 @@ class Post extends React.Component {
             <Comment
               userPhotoUrl={this.props.userPhotoUrl}
               comment={commentData}
-              postList={this.props.postList}
               clubKey={element.clubKey}
               postKey={element.postKey}
-              setPostList={this.props.setPostList}
               navigation={this.props.navigation}
-              setPost={this.setPost}
-              setComment={this.setComment}
               creatingComment={this.props.creatingComment}
               deletingComment={this.props.deletingComment}
               editingComment={this.props.editingComment}
@@ -268,6 +264,8 @@ class Post extends React.Component {
               setCommentFavorite={this.props.setCommentFavorite}
               showUser={this.showUser.bind(this)}
               postOverLayar={this.postOverLayar}
+              syncPost={this.props.syncPost}
+              syncPostDelete={this.props.syncPostDelete}
             />
           </KeyboardAvoidingView>
         </ScrollView>

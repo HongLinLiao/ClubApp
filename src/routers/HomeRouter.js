@@ -46,7 +46,20 @@ export default createStackNavigator({
 			},
 			headerStyle: {
 				backgroundColor: '#f6b456'
-			}
+			},
+			headerLeft: (
+				<TouchableOpacity onPress={async () => {
+					const syncPostBack = navigation.state.params.syncPostBack;
+					const routeName = navigation.state.routeName;
+					await syncPostBack(routeName);
+					navigation.goBack();
+				}}
+					style={{ flexDirection: 'row' }}
+				>
+					<Image source={require('../images/images2/arrowLeftBlue.png')}
+						style={{ width: 25, height: 25 }} />
+				</TouchableOpacity>
+			)
 		})
 
 	},
