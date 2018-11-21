@@ -123,7 +123,7 @@ class Activity extends React.Component {
         }
     };
 
-    
+
 
     render() {
         const activityData = this.state.activity;
@@ -133,7 +133,7 @@ class Activity extends React.Component {
         const _endDateTime = convertDateFormat(endDateTime)
         return (
             <View style={[styles.container]}>
-                <ScrollView 
+                <ScrollView
                     refreshControl={
                         <RefreshControl
                             refreshing={this.state.refreshing}
@@ -173,7 +173,10 @@ class Activity extends React.Component {
                                         style={styles.titleLikesView}
                                         source={element.statusFavorite ? require("../../images/like-orange.png") : require("../../images/like-gray.png")}
                                     />
-                                    <Text style={styles.number}>{element.numFavorites}</Text>
+                                    <Text style=
+                                        {[
+                                            styles.number,
+                                            { color: element.statusFavorite ? "#f6b456" : "#666666" }]}>{element.numFavorites}</Text>
                                 </TouchableOpacity>
 
 
@@ -216,7 +219,7 @@ class Activity extends React.Component {
                         //     </MapView>
                         // </View>
                     }
-                    
+
                     <View style={styles.main}>
                         <View style={styles.divide}>
                             <Text style={styles.titleText}>活動內容</Text>
@@ -231,7 +234,7 @@ class Activity extends React.Component {
 
                         </View>
                     </View>
-                
+
                 </ScrollView>
                 {this.state.loading ? <Overlayer /> : null}
             </View>
