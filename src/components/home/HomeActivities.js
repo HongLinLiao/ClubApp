@@ -1,5 +1,5 @@
 import React from 'react'
-import { ScrollView } from 'react-native'
+import { View, ScrollView, RefreshControl } from 'react-native'
 import { Button } from 'react-native-elements'
 import ActivityListElement from '../activity/ActivityListElement';
 import Overlayer from '../common/Overlayer'
@@ -13,10 +13,7 @@ class HomeActivities extends React.Component {
     state = {
         activity: {},
         loading: false,
-    }
-
-    homeOverLayar = () => {
-        this.setState({ loading: !this.state.loading });
+        refreshing: false,
     }
 
     //頁面重整
@@ -27,6 +24,18 @@ class HomeActivities extends React.Component {
         this.homeOverLayar();
     }
 
+    //重整動畫
+    onRefresh = () => {
+        this.setState({ refreshing: true });
+        this.setState({ refreshing: false });
+        this.activityReload();
+    }
+
+    //過門
+    homeOverLayar = () => {
+        this.setState({ loading: !this.state.loading });
+    }
+
     setActivityList = (activityList) => {
         this.setState({ activity: activityList });
     }
@@ -35,13 +44,15 @@ class HomeActivities extends React.Component {
         const newActivityList = { ...this.state.activity };
         return (
             <View>
-                <ScrollView>
-                    <Button
-                        title='reload!'
-                        onPress={async () => {
-                            await this.activityReload();
-                        }}
-                    />
+                <ScrollView
+                    refreshControl={
+                        <RefreshControl
+                            refreshing={this.state.refreshing}
+                            onRefresh={() => this.onRefresh()}
+                            tintColor='#f6b456'
+                        />
+                    }
+                >
                     {
                         Object.values(newActivityList).map((clubElement) => (
                             Object.values(clubElement).map((activityElement) => (

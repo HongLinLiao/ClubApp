@@ -51,7 +51,7 @@ export default createStackNavigator({
   Activity: {
     screen: ActivityPage,
   },
-  Post: {
+  SearchPost: {
     screen: PostPage
   }
 });

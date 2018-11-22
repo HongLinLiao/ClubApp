@@ -26,27 +26,26 @@ class Comment extends React.Component {
             clubKey,
             postKey,
             creatingComment,
-            setPostList,
-            setPost,
-            setComment,
-            postList,
             postOverLayar,
+            navigation,
+            syncPost,
+            syncPostDelete
         } = this.props;
         postOverLayar();
         const obj = await creatingComment(clubKey, postKey, content);
         if (obj != null) {
-            //放進postList
-            const newPostList = JSON.parse(JSON.stringify(postList));
-            newPostList[clubKey][postKey] = obj.post;
-            setPostList(newPostList);
-            //放進post
-            setPost(obj.post);
-            //放進comment
-            setComment(obj.comment);
+            //貼文同步
+            syncPost(obj);
+            postOverLayar();
             //清空輸入欄
             this.setState({ newContent: "" });
         }
-        postOverLayar();
+        else {
+            //刪除貼文同步
+            syncPostDelete(postKey);
+            postOverLayar();
+            navigation.goBack();
+        }
     };
 
     //刪除留言
@@ -55,34 +54,43 @@ class Comment extends React.Component {
             deletingComment,
             clubKey,
             postKey,
-            setPostList,
-            setPost,
-            setComment,
-            postList,
             postOverLayar,
+            navigation,
+            syncPost,
+            syncPostDelete,
         } = this.props;
         postOverLayar();
         const obj = await deletingComment(clubKey, postKey, commentKey);
         if (obj != null) {
-            //放進postList
-            const newPostList = JSON.parse(JSON.stringify(postList));
-            newPostList[clubKey][postKey] = obj.post;
-            setPostList(newPostList);
-            //放進post
-            setPost(obj.post);
-            //放進comment
-            setComment(obj.comment);
+            //貼文同步
+            syncPost(obj);
+            postOverLayar();
+            //清空輸入欄
+            this.setState({ newContent: "" });
         }
-        postOverLayar();
+        else {
+            //刪除貼文同步
+            syncPostDelete(postKey);
+            postOverLayar();
+            navigation.goBack();
+        }
     };
 
     //編輯狀態改變
     statusEditChange = async (element) => {
         const { setComment } = this.props;
-        const newComment = JSON.parse(JSON.stringify(this.props.comment));
-        newComment[element.commentKey]["statusEdit"] = !newComment[element.commentKey]["statusEdit"];
+        let newCommentList = this.props.comment.slice();
+        let result = newCommentList.some(function (value, index, array) {
+            if (Object.keys(value)[0] == element.commentKey) {
+                newCommentList[index][element.commentKey].statusEdit = !newCommentList[index][element.commentKey].statusEdit;
+                return true;
+            }
+            else {
+                return false;
+            }
+        });
         //放進comment
-        setComment(newComment);
+        setComment(newCommentList);
         this.setState({
             oldContent: ""
         });
@@ -95,146 +103,157 @@ class Comment extends React.Component {
             editingComment,
             clubKey,
             postKey,
-            setPostList,
-            setPost,
-            setComment,
-            postList,
             postOverLayar,
+            navigation,
+            syncPost,
+            syncPostDelete
         } = this.props;
         postOverLayar();
         const obj = await editingComment(clubKey, postKey, commentKey, content);
         if (obj != null) {
-            //放進postList
-            const newPostList = JSON.parse(JSON.stringify(postList));
-            newPostList[clubKey][postKey] = obj.post;
-            setPostList(newPostList);
-            //放進post
-            setPost(obj.post);
-            //放進comment
-            setComment(obj.comment);
-            this.setState({ oldContent: "" });
+            //貼文同步
+            syncPost(obj);
+            postOverLayar();
+            //清空輸入欄
+            this.setState({ newContent: "" });
         }
-        postOverLayar();
+        else {
+            //刪除貼文同步
+            syncPostDelete(postKey);
+            postOverLayar();
+            navigation.goBack();
+        }
     };
 
     //留言按讚
     pressFavorite = async (clubKey, postKey, commentKey) => {
-        const { setCommentFavorite, setPostList, setPost, setComment, postList, postOverLayar } = this.props;
+        const {
+            setCommentFavorite,
+            postOverLayar,
+            syncPost,
+            syncPostDelete,
+            navigation,
+        } = this.props;
         postOverLayar();
         const obj = await setCommentFavorite(clubKey, postKey, commentKey);
         if (obj != null) {
-            //放進postList
-            const newPostList = JSON.parse(JSON.stringify(postList));
-            newPostList[clubKey][postKey] = obj.post;
-            setPostList(newPostList);
-            //放進post
-            setPost(obj.post);
-            //放進comment
-            setComment(obj.comment);
+            //貼文同步
+            syncPost(obj);
+            postOverLayar();
+            //清空輸入欄
+            this.setState({ newContent: "" });
         }
-        postOverLayar();
+        else {
+            //刪除貼文同步
+            syncPostDelete(postKey);
+            postOverLayar();
+            navigation.goBack();
+        }
     }
 
     render() {
-        const comment = JSON.parse(JSON.stringify(this.props.comment));
+        const commentData = this.props.comment;
+        const comment = commentData.slice();
         return (
             <View>
-
                 <View>
-                    {Object.values(comment).map(element => (
-                        <View key={element.commentKey}>
-
-                            <View style={styles.rowPadding}>
-                                <TouchableOpacity onPress={() => this.props.showUser(element.commenter)}>
-                                    <View style={styles.littleCircle}>
-                                        <Image style={styles.littleHead}
-                                            source={{ uri: element.commenterPhotoUrl }}
-                                            resizeMode="cover" />
-                                    </View>
-                                </TouchableOpacity>
-
-                                <View style={styles.columnLine}>
-                                    <View style={styles.sbRow}>
-                                        <View style={styles.row}>
-                                            <Text style={styles.littleName}>{element.commenterNickName}</Text>
+                    {comment.map(obj => (
+                        Object.values(obj).map((element) => (
+                            <View key={element.commentKey}>
+                                <View style={styles.rowPadding}>
+                                    <TouchableOpacity onPress={() => this.props.showUser(element.commenter)}>
+                                        <View style={styles.littleCircle}>
+                                            <Image style={styles.littleHead}
+                                                source={{ uri: element.commenterPhotoUrl }}
+                                                resizeMode="cover" />
                                         </View>
-                                        <View style={styles.row}>
-                                            <TouchableOpacity onPress={async () =>
-                                                await this.pressFavorite(element.clubKey, element.postKey, element.commentKey)
-                                            }>
-                                                <Image style={styles.icon}
-                                                source={
-                                                    element.statusFavorite//已可判斷
-                                                    ? require("../../images/images2/like-orange.png")
-                                                    : require("../../images/images2/like-gray.png")
+                                    </TouchableOpacity>
+
+                                    <View style={styles.columnLine}>
+                                        <View style={styles.sbRow}>
+                                            <View style={styles.row}>
+                                                <Text style={styles.littleName}>{element.commenterNickName}</Text>
+                                            </View>
+                                            <View style={styles.row}>
+                                                <TouchableOpacity style={{ flexDirection: 'row' }}
+                                                    onPress={async () =>
+                                                        await this.pressFavorite(element.clubKey, element.postKey, element.commentKey)
+                                                    }>
+                                                    <Image style={styles.icon}
+                                                        source={
+                                                            element.statusFavorite//已可判斷
+                                                                ? require("../../images/images2/like-orange.png")
+                                                                : require("../../images/images2/like-gray.png")
                                                         } />
-                                            </TouchableOpacity>
-                                            <Text style={[styles.numberLittle, 
-                                                { color: element.statusFavorite //已可判斷
-                                                    ? "#f6b456" : "#666666" }]}>{element.numFavorites}</Text>
-                                            <TouchableOpacity >
-                                                <Image source={require('../../images/pencil.png')}
-                                                    style={styles.icon} />
-                                            </TouchableOpacity>
+                                                    <Text style={[styles.numberLittle,
+                                                    {
+                                                        color: element.statusFavorite //已可判斷
+                                                            ? "#f6b456" : "#666666"
+                                                    }]}>
+                                                        {element.numFavorites}</Text>
+                                                </TouchableOpacity>
+                                                <TouchableOpacity style={{ display: element.statusEnable ? "flex" : "none" }}>
+                                                    <Image source={require('../../images/pencil.png')}
+                                                        style={styles.icon} />
+                                                </TouchableOpacity>
+                                            </View>
                                         </View>
-                                    </View>
-                                    <Text style={styles.littleName}>{element.date}</Text>
-                                    <View style={{flex:1}}>
-                                    <TextInput//上面flex可能可以讓留言顯示出來，尚未測試
-                                        style={styles.comment}
-                                        value={element.content}
-                                        numberOfLines={5}
-                                        editable={element.statusEdit}
-                                        multiline={true}
-                                        onChangeText={oldContent => { this.setState({ oldContent }); }}
-                                    />
-                                    </View>
+                                        <Text style={styles.littleName}>{element.date}</Text>
+                                        <View style={{ flex: 1 }}>
+                                            <TextInput
+                                                style={styles.comment}
+                                                value={element.content}
+                                                editable={element.statusEdit}
+                                                multiline={true}
+                                                onChangeText={oldContent => { this.setState({ oldContent }); }}
+                                            />
+                                        </View>
 
+                                    </View>
                                 </View>
-                            </View>
 
-                            <View style={{ display: element.statusEnable ? "flex" : "none" }}>
-                                <Button
-                                    style={{ display: element.statusEdit ? "flex" : "none" }}
-                                    title="完成"
-                                    onPress={async () =>
-                                        await this.editComment(element.commentKey)
-                                    }
-                                />
-                                <Button
-                                    style={{ display: element.statusEdit ? "flex" : "none" }}
-                                    title="取消"
-                                    onPress={() => this.statusEditChange(element)}
-                                />
-                                <Button
-                                    disabled={
-                                        element.statusEnable
-                                            ? element.statusEdit
+                                <View style={{ display: element.statusEnable ? "flex" : "none" }}>
+                                    <Button
+                                        style={{ display: element.statusEdit ? "flex" : "none" }}
+                                        title="完成"
+                                        onPress={async () =>
+                                            await this.editComment(element.commentKey)
+                                        }
+                                    />
+                                    <Button
+                                        style={{ display: element.statusEdit ? "flex" : "none" }}
+                                        title="取消"
+                                        onPress={() => this.statusEditChange(element)}
+                                    />
+                                    <Button
+                                        disabled={
+                                            element.statusEnable
                                                 ? element.statusEdit
-                                                : element.statusEdit
-                                            : !element.statusEnable
-                                    }
-                                    title="編輯留言"
-                                    onPress={() => this.statusEditChange(element)}
-                                />
-                                <Button
-                                    disabled={
-                                        element.statusEnable
-                                            ? element.statusEdit
+                                                    ? element.statusEdit
+                                                    : element.statusEdit
+                                                : !element.statusEnable
+                                        }
+                                        title="編輯留言"
+                                        onPress={() => this.statusEditChange(element)}
+                                    />
+                                    <Button
+                                        disabled={
+                                            element.statusEnable
                                                 ? element.statusEdit
-                                                : element.statusEdit
-                                            : !element.statusEnable
-                                    }
-                                    title="刪除留言"
-                                    onPress={async () => {
-                                        await this.deleteComment(element.commentKey);
-                                    }}
-                                />
+                                                    ? element.statusEdit
+                                                    : element.statusEdit
+                                                : !element.statusEnable
+                                        }
+                                        title="刪除留言"
+                                        onPress={async () => {
+                                            await this.deleteComment(element.commentKey);
+                                        }}
+                                    />
+                                </View>
+
+
                             </View>
-
-
-                        </View>
-
+                        ))
                     ))}
                 </View>
                 <View style={styles.rowPaddingInput}>
@@ -246,7 +265,7 @@ class Comment extends React.Component {
                         />
                     </View>
                     <View style={styles.inputViewTabBar}>
-                    
+
                         <TextInput
                             style={styles.textInputTabBar}
                             placeholder='新增留言...'
@@ -256,7 +275,7 @@ class Comment extends React.Component {
                             onChangeText={newContent => { this.setState({ newContent }); }}
                             onContentSizeChange={event => { this.setState({ height: event.nativeEvent.contentSize.height }); }}
                         />
-                        
+
                     </View>
                     <TouchableOpacity onPress={async () => { await this.addComment(); }}>
                         <Image source={require('../../images/send.png')}
@@ -264,9 +283,9 @@ class Comment extends React.Component {
                     </TouchableOpacity>
                     <KeyboardAvoidingView behavior='padding' enabled> </KeyboardAvoidingView>
                 </View>
-                
+
             </View>
-            
+
         );
     }
 }

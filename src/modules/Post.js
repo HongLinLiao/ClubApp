@@ -1,164 +1,319 @@
 import * as firebase from "firebase"
-import {
-    getPostData,
-    getClubData,
-    getInsidePostData,
-    updatePostViews,
-    updatePostFavorites,
-    getPostComments,
-    createComment,
-    deleteComment,
-    editComment,
-    getUserData,
-    deletePost,
-    deleteCommentInPost,
-    updateCommentFavorites,
-} from "./Data"
-import { changeMemberStatusToChinese } from './Common';
 import { sendPostNotification } from './Api'
 import * as PostAction from '../actions/PostAction'
+require("firebase/functions");
 
 //********************************************************************************
-// Get Data
+// 貼文同步
 //********************************************************************************
 
-//傳入clubKey，取得社團下postKeyArray
-export const getPostKeyListFromClubKey = async (clubKey) => {
+//init:放貼文列進postReducer
+export const initPostListToReducer = (postList, navigation) => async (dispatch, getState) => {
     try {
-        const postData = await getPostData(clubKey);
-        let postKeyList = {};
-        if (postData != null) {
-            postKeyList[clubKey] = Object.keys(postData);
+        let newPostList = postList.slice();
+        let newReducer = getState().postReducer.postList;
+        const routeName = navigation.state.routeName;
+        newReducer[routeName] = newPostList
+        dispatch(PostAction.getPostList(newReducer));
+    }
+    catch (error) {
+        throw error;
+    }
+}
+
+//init:放貼文進postReducer
+export const initPostToReducer = (obj, navigation) => async (dispatch, getState) => {
+    try {
+        let newObj = JSON.parse(JSON.stringify(obj));
+        let newReducer = getState().postReducer.post;
+        const routeName = navigation.state.routeName;
+        if (obj) {
+            let newPost = {};
+            newPost[obj.post.postKey] = newObj
+            newReducer[routeName] = newPost;
         }
-        return postKeyList;
+        else {
+            newReducer[routeName] = null;
+            delete newReducer[routeName];
+        }
+        dispatch(PostAction.getPost(newReducer));
+    }
+    catch (error) {
+        throw error;
+    }
+}
+
+//init:放setPost進postReducer,(第三個變數控制是否刪除)
+export const initSetPost = (setPost, navigation) => async (dispatch, getState) => {
+    try {
+        let setPostInReducer = getState().postReducer.setPost;
+        let newObjct = Object.assign({}, setPostInReducer);
+        const routeName = navigation.state.routeName;
+        newObjct[routeName] = setPost;
+        dispatch(PostAction.getSetPost(newObjct));
     }
     catch (error) {
         console.log(error.toString());
-        throw error;
     }
-
 }
 
-//用postKeyArray進firebase抓新資料
-export const getPostDataComplete = (postKeyList) => async (dispatch, getState) => {
+//init:放setPostList進postReducer
+export const initSetPostList = (setPostList, navigation) => async (dispatch, getState) => {
     try {
-        let postData;
+        let setPostListInReducer = getState().postReducer.setPostList;
+        let newObjct = JSON.parse(JSON.stringify(setPostListInReducer));
+        const routeName = navigation.state.routeName;
+        newObjct[routeName] = setPostList;
+        dispatch(PostAction.getSetPostList(newObjct));
+    }
+    catch (error) {
+        console.log(error.toString());
+    }
+}
 
-        const postReducer = getState().postReducer.allPost;
-        //新物件: postReducer資料
-        const newPostReducer = JSON.parse(JSON.stringify(postReducer));
-        //回傳物件
-        const objPost = {};
-        var i, j;
-        for (i = 0; i < Object.keys(postKeyList).length; i++) {
-            const clubKey = Object.keys(postKeyList)[i];
+//synchronize:貼文同步更改
+export const syncPost = (data) => async (dispatch, getState) => {
+    try {
+        //call reducer
+        const postListInReducer = getState().postReducer.postList;
+        let ordPostList = JSON.parse(JSON.stringify(postListInReducer));
+        const postInReducer = getState().postReducer.post;
+        let ordPost = JSON.parse(JSON.stringify(postInReducer));
+        let postListStatus = false;
+        let postStatus = false;
+        let status = false;
+        //如果是陣列，表示更動的來源是重整
+        if (Array.isArray(data)) {
+            data.map((child) => {
+                let postKey = Object.keys(child)[0];
 
-            //取得社團資料
-            let club;
-            const joinClubs = getState().clubReducer.joinClubs;
-            const likeClubs = getState().clubReducer.likeClubs;
-            const clubData = { ...joinClubs, ...likeClubs };
-            if (clubData[clubKey]) {
-                club = clubData[clubKey]
-            }
-            else {
-                club = await getClubData(clubKey);
-            }
-            for (j = 0; j < postKeyList[clubKey].length; j++) {
-                const postKey = postKeyList[clubKey][j];
-                postData = await getInsidePostData(clubKey, postKey);
-                if (postData != null) {
-                    postData = await setPostFoundations(clubKey, postKey, postData, club);
-                    newPostReducer = handlePostDataToReducer(newPostReducer, clubKey, postKey, postData);
-                    objPost = handlePostDataToObject(objPost, clubKey, postKey, postData);
+                //更新貼文列
+                //需要查詢的route
+                let itemPostList = Object.keys(ordPostList);
+                //跑查詢的route裡是否具有要更動的貼文
+                for (let i = 0; i < itemPostList.length; i++) {
+                    let result = ordPostList[itemPostList[i]].some(function (value, index, array) {
+                        if (Object.keys(value)[0] == postKey) {
+                            //更改貼文列
+                            ordPostList[itemPostList[i]][index][postKey] = child[postKey];
+                            //代表有改變要寫進route 頁面
+                            status = true;
+                            postListStatus = true;
+                            return true;
+                        }
+                        else {
+                            return false;
+                        }
+                    });
+                    if (status) {
+                        let setPostListFuction = getState().postReducer.setPostList[itemPostList[i]];
+                        setPostListFuction(ordPostList[itemPostList[i]]);
+                        console.log(postKey + ': ' + itemPostList[i] + '已同步');
+                    }
+                };
+
+                //更新貼文
+                //需要查詢的route
+                let itemPost = Object.keys(ordPost);
+                let keyList;
+                //跑查詢的route是某具有要更動的貼文
+                for (let j = 0; j < itemPost.length; j++) {
+                    keyList = Object.keys(ordPost[itemPost[j]]);
+                    for (let z = 0; z < keyList.length; z++) {
+                        if (keyList[z] == postKey) {
+                            //更改內容
+                            ordPost[itemPost[j]][keyList[z]]['post'] = child[postKey];
+                            //寫進頁面
+                            let setPostFuction = getState().postReducer.setPost[itemPost[j]];
+                            setPostFuction(ordPost[itemPost[j]][keyList[z]]);
+                            postStatus = true;
+                            console.log(postKey + ': ' + itemPost[j] + '已同步');
+                            break;
+                        }
+                    }
+                }
+            });
+        }
+        //其餘來源是物件，表示更動來源是貼文動作
+        else {
+            if (Object.keys(data).length >= 1) {
+                let postKey = data.post.postKey;
+
+                //更新貼文列
+                //需要查詢的route
+                let itemPostList = Object.keys(ordPostList);
+                //跑查詢的route裡是否具有要更動的貼文
+                for (let i = 0; i < itemPostList.length; i++) {
+                    let result = ordPostList[itemPostList[i]].some(function (value, index, array) {
+                        if (Object.keys(value)[0] == postKey) {
+                            //更改貼文列
+                            ordPostList[itemPostList[i]][index][postKey] = data.post;
+                            //代表有改變要寫進route頁面
+                            status = true;
+                            postListStatus = true;
+                            return true;
+                        }
+                        else {
+                            return false;
+                        }
+                    });
+                    if (status) {
+                        let setPostListFuction = getState().postReducer.setPostList[itemPostList[i]];
+                        setPostListFuction(ordPostList[itemPostList[i]]);
+                        console.log(postKey + ': ' + itemPostList[i] + '已同步');
+                    }
+                };
+                //如果長度=1，代表是單篇貼文外部動作(不更新comment)，反之
+                if (Object.keys(data).length > 1) {
+                    //更新貼文
+                    //需要查詢的route
+                    let itemPost = Object.keys(ordPost);
+                    let keyList;
+                    //跑查詢的route是某具有要更動的貼文
+                    for (let j = 0; j < itemPost.length; j++) {
+                        keyList = Object.keys(ordPost[itemPost[j]]);
+                        for (let z = 0; z < keyList.length; z++) {
+                            if (keyList[z] == postKey) {
+                                //更改內容
+                                ordPost[itemPost[j]][keyList[z]]['post'] = data.post;
+                                ordPost[itemPost[j]][keyList[z]]['comment'] = data.comment;
+                                //寫進頁面
+                                let setPostFuction = getState().postReducer.setPost[itemPost[j]];
+                                setPostFuction(ordPost[itemPost[j]][keyList[z]]);
+                                postStatus = true;
+                                console.log(postKey + ': ' + itemPost[j] + '已同步');
+                                break;
+                            }
+                        }
+                    }
+                }
+                else {
+                    //更新貼文
+                    //需要查詢的route
+                    let itemPost = Object.keys(ordPost);
+                    let keyList;
+                    //跑查詢的route是某具有要更動的貼文
+                    for (let j = 0; j < itemPost.length; j++) {
+                        keyList = Object.keys(ordPost[itemPost[j]]);
+                        for (let z = 0; z < keyList.length; z++) {
+                            if (keyList[z] == postKey) {
+                                //更改內容
+                                ordPost[itemPost[j]][keyList[z]]['post'] = data.post;
+                                //寫進頁面
+                                let setPostFuction = getState().postReducer.setPost[itemPost[j]];
+                                setPostFuction(ordPost[itemPost[j]][keyList[z]]);
+                                postStatus = true;
+                                console.log(postKey + ': ' + itemPost[j] + '已同步');
+                                break;
+                            }
+                        }
+                    }
                 }
             }
         }
-        dispatch(PostAction.getPostData(newPostReducer));
-        return objPost;
+        //寫回reducer
+        if (postListStatus) {
+            dispatch(PostAction.getPostList(ordPostList));
+        }
+        if (postStatus) {
+            dispatch(PostAction.getPost(ordPost));
+        }
     }
     catch (error) {
         console.log(error.toString());
     }
 }
 
-//進入內頁
-export const getInsidePost = (clubKey, postKey) => async (dispatch, getState) => {
+//synchronize:貼文同步更改(刪除)
+export const syncPostDelete = (postKey) => async (dispatch, getState) => {
     try {
-        const club = await getClubData(clubKey);
-        console.log('open:'+club.open);
-        if (!club.open) {
-            const { uid } = firebase.auth().currentUser;
-            if (!club.member[uid]) {
-                alert('Post is not exist!');
-                console.log('不是成員');
-                return null;
+        //call reducer
+        const postListInReducer = getState().postReducer.postList;
+        let ordPostList = JSON.parse(JSON.stringify(postListInReducer));
+        const postInReducer = getState().postReducer.post;
+        let ordPost = JSON.parse(JSON.stringify(postInReducer));
+        let postListStatus = false;
+        let postStatus = false;
+        let status = false;
+
+        //更新貼文列
+        //需要查詢的route
+        let itemPostList = Object.keys(ordPostList);
+        //跑查詢的route裡是否具有要更動的貼文
+        for (let i = 0; i < itemPostList.length; i++) {
+            let result = ordPostList[itemPostList[i]].some(function (value, index, array) {
+                if (Object.keys(value)[0] == postKey) {
+                    //更改貼文列
+                    ordPostList[itemPostList[i]].splice(index, 1);
+                    //代表有改變要寫進route頁面
+                    status = true;
+                    postListStatus = true;
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            });
+            if (status) {
+                let setPostListFuction = getState().postReducer.setPostList[itemPostList[i]];
+                setPostListFuction(ordPostList[itemPostList[i]]);
+                console.log(postKey + ': ' + itemPostList[i] + '已同步');
             }
-            console.log('是成員');
+        };
+        //更新貼文
+        //需要查詢的route
+        let itemPost = Object.keys(ordPost);
+        let keyList;
+        //跑查詢的route是某具有要更動的貼文
+        for (let j = 0; j < itemPost.length; j++) {
+            keyList = Object.keys(ordPost[itemPost[j]]);
+            for (let z = 0; z < keyList.length; z++) {
+                if (keyList[z] == postKey) {
+                    //更改內容
+                    ordPost[itemPost[j]][keyList[z]] = null;
+                    delete ordPost[itemPost[j]];
+                    //寫進頁面
+                    postStatus = true;
+                    console.log(postKey + ': ' + itemPost[j] + '已同步');
+                    break;
+                }
+            }
         }
-        const postData = await getInsidePostData(clubKey, postKey);
-        if (postData == null) {
-            alert('Post is not exist!');
-            console.log('Post is not exist!');
-            return null;
+        //寫回reducer
+        if (postListStatus) {
+            dispatch(PostAction.getPostList(ordPostList));
         }
-        else {
-            const obj = {};
-            //先取得貼文基本屬性
-            postData = await setPostFoundations(clubKey, postKey, postData, club);
-            //觀看
-            postData = await setPostView(postData);
-            //寫進postReducer
-            const prePostReducer = getState().postReducer.allPost;
-            const newPrePostReducer = JSON.parse(JSON.stringify(prePostReducer));
-            const nextPostReducer = handlePostDataToReducer(newPrePostReducer, clubKey, postKey, postData);
-            dispatch(PostAction.getPostData(nextPostReducer));
-            obj['post'] = postData;
-            const commentData = await dispatch(getPostComment(clubKey, postKey));
-            obj['comment'] = commentData;
-            return obj;
+        if (postStatus) {
+            dispatch(PostAction.getPost(ordPost));
         }
+        alert("該貼文不存在！");
     }
     catch (error) {
-        console.log(error.toString);
+        console.log(error.toString());
     }
 }
 
-//********************************************************************************
-// handle
-//********************************************************************************
-
-//傳入參數貼文列物件，將貼文加入貼文列物件
-export const handlePostDataToObject = (objPost, clubKey, postKey, postData) => {
+//synchronize:貼文頁返回
+export const syncPostBack = (routeName) => async (dispatch, getState) => {
     try {
-        //新物件
-        const newObjPost = JSON.parse(JSON.stringify(objPost));
-        const newPostData = {}
-        newPostData[postKey] = postData;
-        let nextPostData = {};
-        nextPostData = { ...objPost[clubKey], ...newPostData };
-        newObjPost[clubKey] = nextPostData;
-        return newObjPost;
+        let setPostInReducer = getState().postReducer.setPost;
+        let newObjct = Object.assign({}, setPostInReducer);
+        if (newObjct[routeName]) {
+            newObjct[routeName] = null;
+            delete newObjct[routeName];
+            dispatch(PostAction.getSetPost(newObjct));
+        }
+
+        let post = getState().postReducer.post;
+        let newReducer = JSON.parse(JSON.stringify(post));
+        if (newReducer[routeName]) {
+            newReducer[routeName] = null;
+            delete newReducer[routeName];
+            dispatch(PostAction.getPost(newReducer));
+        }
     }
     catch (error) {
-        throw error;
-    }
-}
-
-//產生新的object混合新貼文
-export const handlePostDataToReducer = (postReducer, clubKey, postKey, postData) => {
-    try {
-        //新物件: postReducer資料
-        const newPrePostReducer = JSON.parse(JSON.stringify(postReducer));
-        const newPostData = {}
-        newPostData[postKey] = postData;
-        const nextPostData = {};
-        nextPostData = { ...newPrePostReducer[clubKey], ...newPostData };
-        newPrePostReducer[clubKey] = nextPostData;
-        return newPrePostReducer;
-    }
-    catch (error) {
-        throw error;
+        console.log(error.toString());
     }
 }
 
@@ -168,11 +323,9 @@ export const handlePostDataToReducer = (postReducer, clubKey, postKey, postData)
 
 //新增貼文
 export const createPost = (cid, postData, club) => async (dispatch) => {
-
     try {
         dispatch(PostAction.createPostRequest())
 
-        console.log(cid)
         const user = firebase.auth().currentUser
         const postRef = firebase.database().ref('posts').child(cid).push()
 
@@ -200,210 +353,74 @@ export const createPost = (cid, postData, club) => async (dispatch) => {
 }
 
 //刪除貼文
-export const deletePostData = (clubKey, postKey, postList) => async (dispatch, getState) => {
-
+export const deletingPost = (clubKey, postKey, postList) => async (dispatch) => {
     try {
-        await deletePost(clubKey, postKey);
-        await deleteCommentInPost(clubKey, postKey);
-        //寫進postReducer
-        const prePostReducer = getState().postReducer.allPost;
-        const nextPostReducer = JSON.parse(JSON.stringify(prePostReducer));
-        //delete不可直接刪除物件中的物件，必須先轉型
-        nextPostReducer[clubKey][postKey] = null;
-        delete nextPostReducer[clubKey][postKey];
-        dispatch(PostAction.getPostData(nextPostReducer));
-        //更改回傳postList
-        const nextPostList = JSON.parse(JSON.stringify(postList));
-        delete nextPostList[clubKey][postKey];
-        return nextPostList
-    } catch (e) {
-        console.log(e)
+        const deletePost = firebase.functions().httpsCallable('deletePost');
+        const response = await deletePost({ clubKey: clubKey, postKey: postKey, postList: postList });
+        return response.data;
+    } catch (error) {
+        console.log(error.toString())
     }
 }
 
-//********************************************************************************
-//處理貼文屬性
-//********************************************************************************
-
-//處理貼文基本屬性(學校與社團名稱、key值、nickName、職位、views、favorites)
-export const setPostFoundations = async (clubKey, postKey, post, club) => {
+//按貼文讚，commentStatus如果為true則抓留言，反之
+export const setPostFavorite = (clubKey, postKey, commentStatus) => async (dispatch) => {
     try {
-        const user = firebase.auth().currentUser;
-        //該貼文社團與學校名稱
-        post.clubName = club.clubName;
-        post.schoolName = club.schoolName;
-        //處理poster職位名稱
-        if (club.member[post.poster]) {
-            post.posterStatus = club.member[post.poster].status;
-            post.posterStatusChinese = changeMemberStatusToChinese(post.posterStatus);
-        }
-        else {
-            post.posterStatus = ''
-            post.posterStatusChinese = ''
-        }
-        //判斷是否可編輯或刪除貼文
-        if (post.poster === user.uid) {
-            post.statusEnable = true;
-        }
-        else {
-            post.statusEnable = false;
-        }
-        //將clubKey放進attribute，否則找不到該貼文社團
-        post.clubKey = clubKey;
-        post.postKey = postKey;
-        //處理User
-        userData = await getUserData(post.poster);
-        post.posterNickName = userData.nickName;
-        post.posterPhotoUrl = userData.photoUrl;
-        //處理view和favorite
-        post = setViewFavoriteData(post, user.uid);
-        return post;
-    }
-    catch (error) {
-        throw error;
-    }
-}
-
-//產生statusView和statusFavorite
-export const setViewFavoriteData = (post, userUid) => {
-    try {
-        //views與favorite數量
-        post.numViews = Object.keys(post.views).length;
-        post.numFavorites = Object.keys(post.favorites).length;
-        //該使用者是否有按讚與觀看
-        if (post.views[userUid] == true)
-            post.statusView = true;
-        else
-            post.statusView = false;
-        if (post.favorites[userUid] == true)
-            post.statusFavorite = true;
-        else
-            post.statusFavorite = false;
-        return post;
-    }
-    catch (error) {
-        throw error;
-    }
-}
-
-//********************************************************************************
-//按讚與觀看
-//********************************************************************************
-
-//觀看
-export const setPostView = async (post) => {
-    try {
-        const user = firebase.auth().currentUser;
-        //檢查使用者是否是第一次查看
-        //不是第一次看
-        if (post.views[user.uid] == true) {
-            console.log('已看過');
-        }
-        //是第一次看
-        else {
-            let updateViews = {};
-            //沒有其他使用者看過
-            if (Object.keys(post.views).length == 0) {
-                post.numViews = post.numViews + 1;
-                post.views = {};
-                post.views[user.uid] = true;
-                post.statusView = true;
-                updateViews[user.uid] = true;
-            }
-            //有其他使用者看過
-            else {
-                post.numViews = post.numViews + 1;
-                post.views[user.uid] = true;
-                post.statusView = true;
-                updateViews[user.uid] = true;
-            }
-            //寫進資料庫
-            await updatePostViews(post.clubKey, post.postKey, updateViews);
-            console.log('已設定觀看');
-        }
-        return post;
+        const setPostFavorite = firebase.functions().httpsCallable('setPostFavorite');
+        const response = await setPostFavorite({ clubKey: clubKey, postKey: postKey, commentStatus: commentStatus });
+        return response.data;
     }
     catch (error) {
         console.log(error.toString());
-        throw error;
     }
 }
 
-//按貼文讚
-export const setPostFavorite = (clubKey, postKey) => async (dispatch, getState) => {
+//進入內頁
+export const getInsidePost = (clubKey, postKey) => async (dispatch) => {
     try {
-        const club = await getClubData(clubKey);
-        console.log('open:'+club.open);
-        if (!club.open) {
-            const { uid } = firebase.auth().currentUser;
-            if (!club.member[uid]) {
-                alert('Post is not exist!');
-                console.log('不是成員');
-                return null;
-            }
-            console.log('是成員');
-        }
-        const post = await getInsidePostData(clubKey, postKey);
-        if (post != null) {
-            //取得使用者id
-            const user = firebase.auth().currentUser;
-            //先取得貼文基本屬性
-            post = await setPostFoundations(clubKey, postKey, post, club);
+        const getPostInside = firebase.functions().httpsCallable('getPostInside');
+        let response = await getPostInside({ clubKey: clubKey, postKey: postKey });
+        return response.data;
+    }
+    catch (error) {
+        console.log(error.toString);
+    }
+}
 
-            let updateFavorites = {};
-            //按讚處理
-            //按讚
-            if (post.statusFavorite == false) {
-                post.statusFavorite = !post.statusFavorite;
-                //牽扯到物件形狀
-                //沒其他使用者按過讚
-                if (post.numFavorites == 0) {
-                    post.numFavorites = post.numFavorites + 1;
-                    post.favorites = {};
-                    post.favorites[user.uid] = true;
-                    updateFavorites[user.uid] = true;
-                }
-                //有其他使用者按過讚
-                else {
-                    post.numFavorites = post.numFavorites + 1;
-                    post.favorites[user.uid] = true;
-                    updateFavorites[user.uid] = true;
-                }
-            }
-            //取消讚
-            else {
-                post.statusFavorite = !post.statusFavorite;
-                //牽扯到物件形狀
-                //沒其他使用者按過讚
-                if (post.numFavorites == 1) {
-                    post.numFavorites = post.numFavorites - 1;
-                    post.favorites=false;
-                    // delete post.favorites[user.uid];
-                    updateFavorites[user.uid] = false;
-                }
-                //有其他使用者按過讚
-                //設為null寫進firebase會自動消失
-                else {
-                    post.numFavorites = post.numFavorites - 1;
-                    delete post.favorites[user.uid];
-                    updateFavorites[user.uid] = null;
-                }
-            }
-            //更改firebasePostFavorites
-            await updatePostFavorites(post.clubKey, post.postKey, updateFavorites);
+//********************************************************************************
+// 留言
+//********************************************************************************
 
-            //寫進Reducer
-            const prePostReducer = getState().postReducer.allPost;
-            const newPrePostReducer = JSON.parse(JSON.stringify(prePostReducer));
-            const nextPostReducer = handlePostDataToReducer(newPrePostReducer, clubKey, postKey, post);
-            dispatch(PostAction.getPostData(nextPostReducer));
-            return post;
-        }
-        else {
-            console.log('Post is not exist!');
-            alert('Post is not exist!');
-            return null;
-        }
+//新增留言
+export const creatingComment = (clubKey, postKey, content) => async (dispatch) => {
+    try {
+        const createComment = firebase.functions().httpsCallable('createComment');
+        const response = await createComment({ clubKey: clubKey, postKey: postKey, content: content });
+        return response.data;
+    }
+    catch (error) {
+        console.log(error.toString());
+    }
+}
+
+//編輯留言
+export const editingComment = (clubKey, postKey, commentKey, content) => async (dispatch) => {
+    try {
+        const editComment = firebase.functions().httpsCallable('editComment');
+        const response = await editComment({ clubKey: clubKey, postKey: postKey, commentKey: commentKey, content: content });
+        return response.data;
+    }
+    catch (error) {
+        console.log(error.toString());
+    }
+}
+
+//刪除留言
+export const deletingComment = (clubKey, postKey, commentKey) => async (dispatch) => {
+    try {
+        const deleteComment = firebase.functions().httpsCallable('deleteComment');
+        const response = await deleteComment({ clubKey: clubKey, postKey: postKey, commentKey: commentKey });
+        return response.data;
     }
     catch (error) {
         console.log(error.toString());
@@ -411,266 +428,13 @@ export const setPostFavorite = (clubKey, postKey) => async (dispatch, getState) 
 }
 
 //按留言讚
-export const setCommentFavorite = (clubKey, postKey, commentKey) => async (dispatch, getState) => {
+export const setCommentFavorite = (clubKey, postKey, commentKey) => async (dispatch) => {
     try {
-        const club = await getClubData(clubKey);
-        console.log('open:'+club.open);
-        if (!club.open) {
-            const {uid} = firebase.auth().currentUser;
-            if (!club.member[uid]) {
-                alert('Post is not exist!');
-                console.log('不是成員');
-                return null;
-            }
-            console.log('是成員');
-        }
-        const post = await getInsidePostData(clubKey, postKey);
-        if (post != null) {
-            //先取得貼文基本屬性
-            post = await setPostFoundations(clubKey, postKey, post, club);
-            const user = firebase.auth().currentUser;
-            const comment = await dispatch(getPostComment(clubKey, postKey));
-            let updateFavorites = {};
-            //按讚處理
-            //按讚
-            if (comment[commentKey].statusFavorite == false) {
-                comment[commentKey].statusFavorite = !comment[commentKey].statusFavorite;
-                //牽扯到物件形狀
-                //沒其他使用者按過讚
-                if (comment[commentKey].numFavorites == 0) {
-                    comment[commentKey].numFavorites = comment[commentKey].numFavorites + 1;
-                    comment[commentKey].favorites = {};
-                    comment[commentKey].favorites[user.uid] = true;
-                    updateFavorites[user.uid] = true;
-                }
-                //有其他使用者按過讚
-                else {
-                    comment[commentKey].numFavorites = comment[commentKey].numFavorites + 1;
-                    comment[commentKey].favorites[user.uid] = true;
-                    updateFavorites[user.uid] = true;
-                }
-            }
-            //取消讚
-            else {
-                comment[commentKey].statusFavorite = !comment[commentKey].statusFavorite;
-                //牽扯到物件形狀
-                //沒其他使用者按過讚
-                if (comment[commentKey].numFavorites == 1) {
-                    comment[commentKey].numFavorites = comment[commentKey].numFavorites - 1;
-                    delete comment[commentKey].favorites[user.uid];
-                    updateFavorites[user.uid] = false;
-                }
-                //有其他使用者按過讚
-                //設為null寫進firebase會自動消失
-                else {
-                    comment[commentKey].numFavorites = comment[commentKey].numFavorites - 1;
-                    delete comment[commentKey].favorites[user.uid];
-                    updateFavorites[user.uid] = null;
-                }
-            }
-            //更改firebasePostFavorites
-            await updateCommentFavorites(clubKey, postKey, commentKey, updateFavorites);
-
-            //寫進Reducer
-            const prePostReducer = getState().postReducer.allPost;
-            const newPrePostReducer = JSON.parse(JSON.stringify(prePostReducer));
-            const nextPostReducer = handlePostDataToReducer(newPrePostReducer, clubKey, postKey, post);
-            dispatch(PostAction.getPostData(nextPostReducer));
-
-            const obj = {};
-            obj['post'] = post;
-            obj['comment'] = comment;
-            return obj;
-        }
-        else {
-            console.log('Post is not exist!');
-            alert('Post is not exist!');
-            return null;
-        }
+        const setCommentFavorite = firebase.functions().httpsCallable('setCommentFavorite');
+        const response = await setCommentFavorite({ clubKey: clubKey, postKey: postKey, commentKey: commentKey });
+        return response.data;
     }
     catch (error) {
         console.log(error.toString());
-    }
-}
-
-
-//********************************************************************************
-//留言
-//********************************************************************************
-
-//取得貼文留言
-export const getPostComment = (clubKey, postKey) => async (dispatch) => {
-    const user = firebase.auth().currentUser;
-    const commentPost = {};
-    const commentData = await getPostComments(clubKey, postKey);
-    if (commentData != null) {
-        //將key放進物件裡
-        const promisesComment = Object.keys(commentData).map(async (element) => {
-            commentData[element].clubKey = clubKey;
-            commentData[element].postKey = postKey;
-            commentData[element].commentKey = element;
-            commentData[element].numFavorites = Object.keys(commentData[element].favorites).length;
-            if (commentData[element].favorites[user.uid] == true)
-                commentData[element].statusFavorite = true;
-            else
-                commentData[element].statusFavorite = false;
-            //處理User
-            userData = await getUserData(commentData[element].commenter);
-            commentData[element].commenterNickName = userData.nickName;
-            commentData[element].commenterPhotoUrl = userData.photoUrl;
-            if (commentData[element].commenter === user.uid) {
-                commentData[element].statusEnable = true;
-            }
-            else {
-                commentData[element].statusEnable = false;
-            }
-            commentData[element].statusEdit = false;
-            commentPost[commentData[element].commentKey] = commentData[element];
-        })
-        await Promise.all(promisesComment);
-    }
-    return commentPost;
-}
-
-//新增留言
-export const creatingComment = (clubKey, postKey, content) => async (dispatch, getState) => {
-
-    try {
-        const club = await getClubData(clubKey);
-        console.log('open:'+club.open);
-        if (!club.open) {
-            const {uid} = firebase.auth().currentUser;
-            if (!club.member[uid]) {
-                alert('Post is not exist!');
-                console.log('不是成員');
-                return null;
-            }
-            console.log('是成員');
-        }
-
-        const postRef = firebase.database().ref('posts/' + clubKey + '/' + postKey);
-        const snapshot = await postRef.once("value");
-        if (snapshot.exists()) {
-            const obj = {};
-            //新增留言進firebase
-            await createComment(clubKey, postKey, content);
-
-            //貼文資料全部重抓更新
-            const post = await getInsidePostData(clubKey, postKey);
-            //先取得貼文基本屬性
-            post = await setPostFoundations(clubKey, postKey, post, club);
-            const prePostReducer = getState().postReducer.allPost;
-            const newPrePostReducer = JSON.parse(JSON.stringify(prePostReducer));
-            const nextPostReducer = handlePostDataToReducer(newPrePostReducer, clubKey, postKey, post);
-            dispatch(PostAction.getPostData(nextPostReducer));
-            obj['post'] = post;
-            //留言資料全部重抓
-            const comment = await dispatch(getPostComment(clubKey, postKey));
-            obj['comment'] = comment;
-            return obj;
-        }
-        else {
-            console.log('貼文不存在');
-            alert('貼文不存在');
-            return null;
-        }
-    }
-    catch (error) {
-        console.log(error);
-    }
-}
-
-//刪除留言
-export const deletingComment = (clubKey, postKey, commentKey) => async (dispatch, getState) => {
-    try {
-        const club = await getClubData(clubKey);
-        console.log('open:'+club.open);
-        if (!club.open) {
-            const {uid} = firebase.auth().currentUser;
-            if (!club.member[uid]) {
-                alert('Post is not exist!');
-                console.log('不是成員');
-                return null;
-            }
-            console.log('是成員');
-        }
-
-        const postRef = firebase.database().ref('posts/' + clubKey + '/' + postKey);
-        const snapshot = await postRef.once("value");
-        if (snapshot.exists()) {
-            const obj = {};
-
-            //從firebase刪除留言
-            await deleteComment(clubKey, postKey, commentKey);
-
-            //貼文資料全部重抓更新
-            const post = await getInsidePostData(clubKey, postKey);
-            //先取得貼文基本屬性
-            post = await setPostFoundations(clubKey, postKey, post, club);
-            const prePostReducer = getState().postReducer.allPost;
-            const newPrePostReducer = JSON.parse(JSON.stringify(prePostReducer));
-            const nextPostReducer = handlePostDataToReducer(newPrePostReducer, clubKey, postKey, post);
-            dispatch(PostAction.getPostData(nextPostReducer));
-            obj['post'] = post;
-            //留言資料全部重抓
-            const comment = await dispatch(getPostComment(clubKey, postKey));
-            obj['comment'] = comment;
-            return obj;
-        }
-        else {
-            console.log('貼文不存在');
-            alert('貼文不存在');
-            return null;
-        }
-    }
-    catch (error) {
-        console.log(error);
-    }
-}
-
-//編輯留言
-export const editingComment = (clubKey, postKey, commentKey, content) => async (dispatch, getState) => {
-    try {
-        const club = await getClubData(clubKey);
-        console.log('open:'+club.open);
-        if (!club.open) {
-            const {uid} = firebase.auth().currentUser;
-            if (!club.member[uid]) {
-                alert('Post is not exist!');
-                console.log('不是成員');
-                return null;
-            }
-            console.log('是成員');
-        }
-
-        const postRef = firebase.database().ref('posts/' + clubKey + '/' + postKey);
-        const snapshot = await postRef.once("value");
-        if (snapshot.exists()) {
-            const obj = {};
-            //從firebase編輯留言
-            await editComment(clubKey, postKey, commentKey, content);
-
-            //貼文資料全部重抓更新
-            const post = await getInsidePostData(clubKey, postKey);
-            //先取得貼文基本屬性
-            post = await setPostFoundations(clubKey, postKey, post, club);
-            const prePostReducer = getState().postReducer.allPost;
-            const newPrePostReducer = JSON.parse(JSON.stringify(prePostReducer));
-            const nextPostReducer = handlePostDataToReducer(newPrePostReducer, clubKey, postKey, post);
-            dispatch(PostAction.getPostData(nextPostReducer));
-            obj['post'] = post;
-            //留言資料全部重抓
-            const comment = await dispatch(getPostComment(clubKey, postKey));
-            obj['comment'] = comment;
-            return obj;
-        }
-        else {
-            console.log('貼文不存在');
-            alert('貼文不存在');
-            return null;
-        }
-    }
-    catch (error) {
-        console.log(error);
     }
 }
