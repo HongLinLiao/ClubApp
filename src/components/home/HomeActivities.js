@@ -3,6 +3,7 @@ import { View, ScrollView, RefreshControl } from 'react-native'
 import { Button } from 'react-native-elements'
 import ActivityListElement from '../activity/ActivityListElement';
 import Overlayer from '../common/Overlayer'
+import Masonry from 'react-native-masonry-layout'
 
 class HomeActivities extends React.Component {
 
@@ -42,17 +43,16 @@ class HomeActivities extends React.Component {
 
     render() {
         const newActivityList = { ...this.state.activity };
+  
         return (
-            <View>
-                <ScrollView
-                    refreshControl={
-                        <RefreshControl
-                            refreshing={this.state.refreshing}
-                            onRefresh={() => this.onRefresh()}
-                            tintColor='#f6b456'
-                        />
-                    }
-                >
+            <View style={{flex: 1}}>
+                <ScrollView>
+                    <Button
+                        title='reload!'
+                        onPress={async () => {
+                            await this.activityReload();
+                        }}
+                    />
                     {
                         Object.values(newActivityList).map((clubElement) => (
                             Object.values(clubElement).map((activityElement) => (
@@ -71,7 +71,7 @@ class HomeActivities extends React.Component {
                     }
                 </ScrollView>
                 {this.state.loading ? <Overlayer /> : null}
-            </View>
+            </View >
         );
     }
 }
