@@ -9,7 +9,6 @@ import {
 } from "react-native";
 import { Button } from "react-native-elements";
 import styles from "../../styles/post/Comment";
-import { DatePicker } from "native-base";
 class Comment extends React.Component {
 
     state = {
@@ -77,7 +76,7 @@ class Comment extends React.Component {
         }
     };
 
-    //編輯狀態改變(未完成)
+    //編輯狀態改變
     statusEditChange = async (element) => {
         const { setComment } = this.props;
         let newCommentList = this.props.comment.slice();

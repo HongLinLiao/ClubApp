@@ -260,6 +260,7 @@ class Post extends React.Component {
               creatingComment={this.props.creatingComment}
               deletingComment={this.props.deletingComment}
               editingComment={this.props.editingComment}
+              setComment={this.setComment}
               setCommentEditStatus={this.props.setCommentEditStatus}
               setCommentFavorite={this.props.setCommentFavorite}
               showUser={this.showUser.bind(this)}

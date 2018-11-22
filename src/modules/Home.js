@@ -10,7 +10,7 @@ require("firebase/functions");
 //********************************************************************************
 
 //貼文列重整
-export const getHomePostReload = (clubList, navigation, homeReload) => async (dispatch, getState) => {
+export const getHomePostReload = (clubList, navigation) => async (dispatch, getState) => {
     try {
         const newClubList = {};
         let numSelect = 0;
@@ -49,7 +49,6 @@ export const getHomePostReload = (clubList, navigation, homeReload) => async (di
             //檢查同步
             dispatch(syncPost(response.data.postListArr))
         }
-        homeReload(response.data.postListArr);
         determinToSearch(clubList, response.data.postListArr, navigation);
     }
     catch (error) {

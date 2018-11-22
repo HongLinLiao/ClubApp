@@ -6,7 +6,7 @@ const SelectClubElement = (element) => {
 
     //重整
     reload = async (clubKey) => {
-        const { clubList, numSelectingStatusTrue, setHomeClubListStatus,parentOverLayor } = element;
+        const { clubList, numSelectingStatusTrue, setHomeClubListStatus, parentOverLayor } = element;
         parentOverLayor();
         const newClubList = await setHomeClubListStatus(clubKey, clubList, numSelectingStatusTrue);
         parentOverLayor();

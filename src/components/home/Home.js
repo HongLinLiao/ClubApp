@@ -36,10 +36,8 @@ class Home extends React.Component {
     homeReload = async (clubList) => {
         //開啟過門
         this.homeOverLayor();
-        const { getHomePostReload, navigation, syncPost } = this.props;
-        await getHomePostReload(clubList, navigation, newPostList => {
-            this.setState({ post: newPostList });
-        });
+        const { getHomePostReload, navigation } = this.props;
+        await getHomePostReload(clubList, navigation);
         //關閉過門
         this.homeOverLayor();
     };
