@@ -118,7 +118,7 @@ class Activity extends React.Component {
         }
     };
 
-    
+
 
     render() {
         const activityData = this.state.activity;
@@ -127,7 +127,7 @@ class Activity extends React.Component {
         const _startDateTime = convertDateFormat(startDateTime)
         const _endDateTime = convertDateFormat(endDateTime)
         return (
-            <View style={[styles.container, { flex: 1 }]}>
+            <View style={[styles.container]}>
                 <ScrollView
                     refreshControl={
                         <RefreshControl
@@ -155,7 +155,7 @@ class Activity extends React.Component {
 
                                     <Image
                                         style={styles.collect}
-                                        source={element.statusKeep ? require("../../images/bookmark-red.png") : require("../../images/bookmark.png")}
+                                        source={element.statusKeep ? require("../../images/bookmark-yellow.png") : require("../../images/bookmark-gray.png")}
                                     />
                                 </TouchableOpacity>
                             </View>
@@ -168,7 +168,10 @@ class Activity extends React.Component {
                                         style={styles.titleLikesView}
                                         source={element.statusFavorite ? require("../../images/like-orange.png") : require("../../images/like-gray.png")}
                                     />
-                                    <Text style={styles.number}>{element.numFavorites}</Text>
+                                    <Text style=
+                                        {[
+                                            styles.number,
+                                            { color: element.statusFavorite ? "#f6b456" : "#666666" }]}>{element.numFavorites}</Text>
                                 </TouchableOpacity>
 
 
@@ -214,7 +217,7 @@ class Activity extends React.Component {
                             </MapView>
                         ) : null
                     }
-                    
+
                     <View style={styles.main}>
                         <View style={styles.divide}>
                             <Text style={styles.titleText}>活動內容</Text>
@@ -229,7 +232,7 @@ class Activity extends React.Component {
 
                         </View>
                     </View>
-                
+
                 </ScrollView>
                 {this.state.loading ? <Overlayer /> : null}
             </View>
