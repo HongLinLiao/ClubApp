@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { initHomeClubList, getHomePostReload } from '../../modules/Home'
-import { getInsidePost, setPostFavorite, getPostComment } from '../../modules/Post'
+import { getInsidePost, setPostFavorite, initSetPostList, syncPost, syncPostDelete,syncPostBack } from '../../modules/Post'
 import Home from '../../components/home/Home'
 
 const mapStateToProps = ({ homeReducer, userReducer }) => ({
@@ -18,10 +18,13 @@ const mapDispatchToProps = {
     getHomePostReload,
     //取得單一貼文資料
     getInsidePost,
-    //取得留言
-    getPostComment,
     //按讚
     setPostFavorite,
+    //同步貼文
+    initSetPostList,
+    syncPost,
+    syncPostDelete,
+    syncPostBack,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Home);

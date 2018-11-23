@@ -1,5 +1,5 @@
 import React from 'react'
-import { ScrollView, View } from 'react-native'
+import { View, ScrollView, RefreshControl } from 'react-native'
 import { Button } from 'react-native-elements'
 import ActivityListElement from '../activity/ActivityListElement';
 import Overlayer from '../common/Overlayer'
@@ -14,10 +14,7 @@ class HomeActivities extends React.Component {
     state = {
         activity: {},
         loading: false,
-    }
-
-    homeOverLayar = () => {
-        this.setState({ loading: !this.state.loading });
+        refreshing: false,
     }
 
     //頁面重整
@@ -26,6 +23,18 @@ class HomeActivities extends React.Component {
         this.homeOverLayar();
         await getHomeActivityReload((newActivityList) => { this.setState({ activity: newActivityList }) });
         this.homeOverLayar();
+    }
+
+    //重整動畫
+    onRefresh = () => {
+        this.setState({ refreshing: true });
+        this.setState({ refreshing: false });
+        this.activityReload();
+    }
+
+    //過門
+    homeOverLayar = () => {
+        this.setState({ loading: !this.state.loading });
     }
 
     setActivityList = (activityList) => {

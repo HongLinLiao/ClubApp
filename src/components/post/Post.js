@@ -22,18 +22,22 @@ const slideAnimation = new SlideAnimation({
 });
 class Post extends React.Component {
   //寫入本地State
-  async componentWillMount() {
+  componentWillMount() {
+    const { initSetPost, navigation, initPostToReducer } = this.props;
+    initSetPost((obj) => { this.setState({ post: obj.post, comment: obj.comment }); }, navigation);
+    initPostToReducer({ post: this.props.post, comment: this.props.comment }, navigation);
     this.setState({ post: this.props.post, comment: this.props.comment });
   }
 
   state = {
     post: {},
-    comment: {},
+    comment: [],
     userData: { uid: null, user: null, clubs: null },
     loading: false,
     refreshing: false,
   };
 
+  //重整動畫
   onRefresh = async () => {
     try {
       this.setState({ refreshing: true });
@@ -46,36 +50,53 @@ class Post extends React.Component {
 
   //頁面重整
   reload = async (clubKey, postKey) => {
-    const { getInsidePost, navigation, postList, setPostList } = this.props;
+    const { getInsidePost, navigation, syncPost, syncPostDelete } = this.props;
     this.postOverLayar();
-    const newPost = await getInsidePost(clubKey, postKey);
+    const obj = await getInsidePost(clubKey, postKey);
     this.postOverLayar();
-    const newPostList = JSON.parse(JSON.stringify(postList));
-    if (newPost == null) {
-      newPostList[clubKey][postKey] = null;
-      delete newPostList[clubKey][postKey];
-      setPostList(newPostList);
+    if (obj != null) {
+      //貼文同步
+      syncPost(obj);
+    }
+    else {
+      //刪除貼文同步
+      syncPostDelete(postKey);
       navigation.goBack();
-    } else {
-      newPostList[clubKey][postKey] = newPost.post;
-      setPostList(newPostList);
-      this.setState({ post: newPost.post, comment: newPost.comment });
     }
   };
 
   //點讚
   pressFavorite = async (clubKey, postKey) => {
-    const { setPostFavorite, postList, setPostList } = this.props;
-    this.postOverLayar()
-    const postData = await setPostFavorite(clubKey, postKey);
-    this.postOverLayar()
-    if (postData != null) {
-      //放進postList
-      const newPostList = JSON.parse(JSON.stringify(postList));
-      newPostList[postData.clubKey][postData.postKey] = postData;
-      setPostList(newPostList);
-      this.setState({ post: postData });
+    const { setPostFavorite, syncPost, syncPostDelete, navigation } = this.props;
+    this.postOverLayar();
+    let obj = await setPostFavorite(clubKey, postKey, true);
+    if (obj != null) {
+      //貼文同步
+      syncPost(obj);
+      this.postOverLayar();
     }
+    else {
+      //刪除貼文同步
+      syncPostDelete(postKey);
+      this.postOverLayar();
+      navigation.goBack();
+    }
+  };
+
+  //刪除貼文(未完成)
+  deletePost = async (clubKey, postKey) => {
+    const { deletingPost, setPostList, postList, navigation } = this.props;
+    this.postOverLayar();
+    const obj = await deletingPost(clubKey, postKey, postList);
+    console.log(obj);
+    if (obj != null) {
+      if (obj.status == false) {
+        alert("該貼文不存在！");
+      }
+      setPostList(obj.postList);
+    }
+    this.postOverLayar();
+    navigation.goBack();
   };
 
   //設定本頁post
@@ -91,16 +112,6 @@ class Post extends React.Component {
   //設定本頁comment
   setComment = (commentData) => {
     this.setState({ comment: commentData });
-  };
-
-  //刪除貼文
-  deletePost = async (clubKey, postKey) => {
-    const { deletePostData, setPostList, postList, navigation } = this.props;
-    this.postOverLayar();
-    const newPostList = await deletePostData(clubKey, postKey, postList);
-    setPostList(newPostList);
-    this.postOverLayar();
-    navigation.goBack();
   };
 
   showUser = async (uid) => {
@@ -129,9 +140,8 @@ class Post extends React.Component {
   }
 
   render() {
-    const postData = this.state.post;
-    const commentData = this.state.comment;
-    const element = JSON.parse(JSON.stringify(postData));
+    const commentData = this.state.comment
+    const element = JSON.parse(JSON.stringify(this.state.post));
     const { uid, user, clubs } = this.state.userData
 
     return (
@@ -148,7 +158,7 @@ class Post extends React.Component {
           <KeyboardAvoidingView behavior="padding">
             <View style={styles.container}>
               <View style={styles.rowLeft}>
-                <TouchableOpacity onPress={() => this.showUser(postData.poster)}>
+                <TouchableOpacity onPress={() => this.showUser(element.poster)}>
                   <View style={styles.circle}>
                     <Image
                       source={{ uri: element.posterPhotoUrl }}
@@ -176,12 +186,23 @@ class Post extends React.Component {
                   <Text style={styles.postText}>{element.content}</Text>
                 </View>
               </View>
-              <View style={styles.postPictureView} />
-
+              <View style={styles.postPictureView} >
+                {
+                  Object.keys(element.images).map((child) => (
+                    <View key={child}>
+                      <Image
+                        style={styles.postPicture}
+                        source={{ uri: element.images[child] }}
+                      />
+                      {/* 換行用 */}
+                      <Text>  </Text>
+                    </View>
+                  ))
+                }
+              </View>
               <View style={styles.sbRowLine}>
                 <View style={styles.row}>
                   <TouchableOpacity style={{ flexDirection: 'row' }}
-
                     onPress={async () =>
                       await this.pressFavorite(element.clubKey, element.postKey)
                     }
@@ -197,9 +218,6 @@ class Post extends React.Component {
                       styles.number,
                       { color: element.statusFavorite ? "#f6b456" : "#666666" }
                     ]}>{element.numFavorites} </Text>
-
-
-
                   </TouchableOpacity>
                 </View>
 
@@ -223,52 +241,50 @@ class Post extends React.Component {
                   ]}>{element.numViews}</Text>
                 </View>
               </View>
-
               <View style={{ display: element.statusEnable ? "flex" : "none" }}>
-                <Button title="Edit Post" onPress={async () => { }} />
+                <Button title="編輯貼文" onPress={async () => { }} />
                 <Button
-                  title="Delete Post"
+                  title="刪除貼文"
                   onPress={async () => {
                     await this.deletePost(element.clubKey, element.postKey);
                   }}
                 />
               </View>
-
             </View>
             <Comment
-                userPhotoUrl={this.props.userPhotoUrl}
-                comment={commentData}
-                postList={this.props.postList}
-                clubKey={element.clubKey}
-                postKey={element.postKey}
-                setPostList={this.props.setPostList}
-                setPost={this.setPost}
-                setComment={this.setComment}
-                creatingComment={this.props.creatingComment}
-                deletingComment={this.props.deletingComment}
-                editingComment={this.props.editingComment}
-                setCommentEditStatus={this.props.setCommentEditStatus}
-                setCommentFavorite={this.props.setCommentFavorite}
-                showUser={this.showUser.bind(this)}
-                postOverLayar={this.postOverLayar}
-              />
+              userPhotoUrl={this.props.userPhotoUrl}
+              comment={commentData}
+              clubKey={element.clubKey}
+              postKey={element.postKey}
+              navigation={this.props.navigation}
+              creatingComment={this.props.creatingComment}
+              deletingComment={this.props.deletingComment}
+              editingComment={this.props.editingComment}
+              setComment={this.setComment}
+              setCommentEditStatus={this.props.setCommentEditStatus}
+              setCommentFavorite={this.props.setCommentFavorite}
+              showUser={this.showUser.bind(this)}
+              postOverLayar={this.postOverLayar}
+              syncPost={this.props.syncPost}
+              syncPostDelete={this.props.syncPostDelete}
+            />
           </KeyboardAvoidingView>
         </ScrollView>
         <PopupDialog
-					ref={(popupDialog) => this.popupDialog = popupDialog}
-					dialogAnimation={slideAnimation}
-					width={0.7}
-					height={0.7}
-					dialogStyle={{ borderRadius: 20 }}
-				>
-					<UserDialog
-						uid={uid}
-						user={user}
+          ref={(popupDialog) => this.popupDialog = popupDialog}
+          dialogAnimation={slideAnimation}
+          width={0.7}
+          height={0.7}
+          dialogStyle={{ borderRadius: 20 }}
+        >
+          <UserDialog
+            uid={uid}
+            user={user}
             clubs={clubs}
             loading={this.state.loading}
-					/>
-				</PopupDialog>  
-        {this.state.loading ? <Overlayer /> : null}        
+          />
+        </PopupDialog>
+        {this.state.loading ? <Overlayer /> : null}
       </View>
     );
   }

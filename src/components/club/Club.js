@@ -45,10 +45,10 @@ class Club extends React.Component {
     // const cid = randomCid(allClubCids);
     // this.props.setCurrentClub(cid);
     if (currentCid) {
-      this.clubOverLayar()
-      await this.activityReload(currentCid);
-      await this.postReload(currentCid);
-      this.clubOverLayar()
+      // this.clubOverLayar()
+      // await this.activityReload(currentCid);
+      // await this.postReload(currentCid);
+      // this.clubOverLayar()
     }
   }
 
@@ -459,10 +459,10 @@ class Club extends React.Component {
               options={clubsArray}
               onSelect={async (index, rowData) => {
                 this.props.setCurrentClub(rowData.cid);
-                this.clubOverLayar()
-                await this.activityReload(rowData.cid);
-                await this.postReload(rowData.cid);
-                this.clubOverLayar()
+                // this.clubOverLayar()
+                // await this.activityReload(rowData.cid);
+                // await this.postReload(rowData.cid);
+                // this.clubOverLayar()
               }}
               renderButtonText={rowData =>
                 rowData.schoolName + "  " + rowData.clubName + " ▼"

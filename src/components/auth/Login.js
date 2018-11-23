@@ -117,7 +117,7 @@ class Login extends React.Component{
               />         
             </View>
 
-            <CheckBox
+            {/* <CheckBox
               center
               title='記住我'
               containerStyle={[styles.checkContainer]}
@@ -130,9 +130,7 @@ class Login extends React.Component{
                             />}
               checked={this.state.remember}
               onPress={() => this.setState({remember: !this.state.remember})}
-            
-
-            />
+            /> */}
             <TouchableOpacity 
               style={styles.gobotton}
               onPress={() => this.handleLogin()}
