@@ -6,8 +6,8 @@ import {
     Image,
     TextInput,
     KeyboardAvoidingView,
-	ScrollView,
-	StyleSheet,
+    ScrollView,
+    StyleSheet,
     Keyboard,
     Alert
 } from 'react-native';
@@ -160,6 +160,18 @@ class AddPost extends React.Component {
                         onFocus={() => this.setState({ texting: true })}
                     />
                     <Text style={styles.date}>{new Date().toLocaleString()}</Text>
+                    <ScrollView horizontal>
+                        <View style={{ flexDirection: 'row' }}>
+                            {
+                                this.state.images.map((uri, index) => (
+                                    <TouchableOpacity key={index}
+                                        onPress={() => this.askDelete(index)} style={{ height: 100, width: 100, marginRight: 0 }}>
+                                        <Image source={{ uri }} style={{ height: 100, width: 100 }} />
+                                    </TouchableOpacity>
+                                ))
+                            }
+                        </View>
+                    </ScrollView>
                     <TextInput
                         style={styles.littleTextInput}
                         placeholder='內容......'
@@ -170,18 +182,7 @@ class AddPost extends React.Component {
                         onFocus={() => this.setState({ texting: true })}
                     />
                 </ScrollView>
-                <ScrollView horizontal>
-							<View style={{ flexDirection: 'row' }}>
-								{
-									this.state.images.map((uri, index) => (
-										<TouchableOpacity key={index} 
-										onPress={() => this.askDelete(index)} style={{ height: 100, width: 100, marginRight: 0 }}>
-											<Image source={{ uri }} style={{ height: 100, width: 100 }} />
-										</TouchableOpacity>
-									))
-								}
-							</View>
-				</ScrollView>
+
                 <View style={styles.tabBar}>
                     <TouchableOpacity onPress={() => this.handleTakePhoto()}>
                         <Image style={styles.barIcon}
@@ -192,19 +193,19 @@ class AddPost extends React.Component {
                             source={require('../../images/grayphoto.png')} />
                     </TouchableOpacity>
                 </View>
-                
-					{
-						this.state.texting ?
-							<TouchableOpacity style={[StyleSheet.absoluteFill]}
-								onPress={() => {
-									Keyboard.dismiss()
-									this.setState({ texting: false })
-								}}
-							>
-							</TouchableOpacity> : null
-					}
 
-					{this.state.loading ? <Overlayer /> : null}
+                {
+                    this.state.texting ?
+                        <TouchableOpacity style={[StyleSheet.absoluteFill]}
+                            onPress={() => {
+                                Keyboard.dismiss()
+                                this.setState({ texting: false })
+                            }}
+                        >
+                        </TouchableOpacity> : null
+                }
+
+                {this.state.loading ? <Overlayer /> : null}
                 <KeyboardAvoidingView behavior='padding'></KeyboardAvoidingView>
             </View>
         );
