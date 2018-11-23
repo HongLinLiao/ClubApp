@@ -63,7 +63,7 @@ exports.notifyToClubMember = functions.https.onCall(async (data, context) => {
         const hours = new Date().getHours()
         const nightMode = nightModeNotification ? (hours >= 21) : false
 
-        if(expoToken && (globalNotification || clubNotificationList[cid].on) && !nightMode) {
+        if(expoToken && globalNotification && clubNotificationList[cid].on && !nightMode) {
             messages.push({
                 "to": expoToken,
                 title,

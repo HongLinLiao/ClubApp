@@ -108,7 +108,7 @@ class Notification extends React.Component {
                   switch={{
                     value: item.on,
                     onValueChange: () => this.setClub(cid, !item.on),
-                    disabled: globalNotification,
+                    disabled: !globalNotification,
                     style:{ transform: [{ scaleX: 1 }, { scaleY: 1 }] },
                     onTintColor:'rgba(246,180,86,1)',
                     tintColor:'rgba(246,180,86,0.1)',

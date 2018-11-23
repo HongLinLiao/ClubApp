@@ -332,7 +332,6 @@ class AddActivity extends React.Component {
                                 <MapView
                                     style={{ height: 250, marginLeft: 20, marginTop: 10, marginRight: 20 }}
                                     region={this.state.region}
-                                    mapType={this.state.mapType}
                                 >
                                     <Marker
                                         coordinate={{

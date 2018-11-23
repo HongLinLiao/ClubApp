@@ -8,6 +8,7 @@ const mapStateToProps = ({ userReducer, clubReducer }) => ({
     likeClub: userReducer.likeClub,
     joinClubs: clubReducer.joinClubs,
     likeClubs: clubReducer.likeClubs,
+    currentCid: clubReducer.currentCid,
 })
 
 const mapDispatchToProps = {
