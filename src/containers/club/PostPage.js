@@ -6,7 +6,6 @@ import {
     creatingComment,
     deletingComment,
     editingComment,
-    setCommentEditStatus,
     getInsidePost,
     deletingPost,
     setCommentFavorite,
@@ -29,7 +28,6 @@ class PostPage extends Component {
                 creatingComment={this.props.creatingComment}
                 deletingComment={this.props.deletingComment}
                 editingComment={this.props.editingComment}
-                setCommentEditStatus={this.props.setCommentEditStatus}
                 deletingPost={this.props.deletingPost}
                 setCommentFavorite={this.props.setCommentFavorite}
                 initSetPost={this.props.initSetPost}
@@ -51,7 +49,6 @@ const mapDispatchToProps = {
     creatingComment,
     deletingComment,
     editingComment,
-    setCommentEditStatus,
     deletingPost,
     setCommentFavorite,
     initSetPost,

@@ -25,13 +25,13 @@ export default StyleSheet.create({
         borderRadius: 30,
         //marginRight: 15
     },
-    circle:{
-        width: 60, 
-        height: 60, 
+    circle: {
+        width: 60,
+        height: 60,
         //borderRadius: 80, 
-        overflow: 'hidden', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
+        overflow: 'hidden',
+        justifyContent: 'center',
+        alignItems: 'center',
         marginRight: 15
     },
     column: {
@@ -112,5 +112,20 @@ export default StyleSheet.create({
         fontSize: 15,
         marginLeft: 10,
         marginRight: 10
-    }
+    },
+    advancedPostBtn: {
+        backgroundColor: 'rgba(246,180,86,1)',
+        width: 250,
+        height: 45,
+        borderColor: "transparent",
+        borderWidth: 0,
+        borderRadius: 30
+    },
+    textInput: {//好像可以用%喔
+        flex: 1,
+        flexDirection: 'row',
+        position: "absolute",
+        bottom: 0,
+        alignItems:'stretch'
+    },
 })

@@ -286,7 +286,6 @@ export const syncPostDelete = (postKey) => async (dispatch, getState) => {
         if (postStatus) {
             dispatch(PostAction.getPost(ordPost));
         }
-        alert("該貼文不存在！");
     }
     catch (error) {
         console.log(error.toString());
@@ -353,10 +352,10 @@ export const createPost = (cid, postData, club) => async (dispatch) => {
 }
 
 //刪除貼文
-export const deletingPost = (clubKey, postKey, postList) => async (dispatch) => {
+export const deletingPost = (clubKey, postKey) => async (dispatch) => {
     try {
         const deletePost = firebase.functions().httpsCallable('deletePost');
-        const response = await deletePost({ clubKey: clubKey, postKey: postKey, postList: postList });
+        const response = await deletePost({ clubKey: clubKey, postKey: postKey });
         return response.data;
     } catch (error) {
         console.log(error.toString())

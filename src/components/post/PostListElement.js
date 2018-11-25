@@ -25,6 +25,7 @@ const PostListElement = ({
     else {
       //刪除貼文同步
       syncPostDelete(post.postKey);
+      alert("該貼文不存在！");
     }
     parentOverLayor();
   }
@@ -47,6 +48,7 @@ const PostListElement = ({
     else {
       //刪除貼文同步
       syncPostDelete(post.postKey);
+      alert("該貼文不存在！");
       parentOverLayor();
     }
   }

@@ -267,37 +267,34 @@ function () {
     try {
       const {
         clubKey,
-        postKey,
-        postList
+        postKey
       } = data;
       const {
         uid
       } = context.auth;
       const club = yield getClubData(clubKey);
       let obj = {};
-      let newPostList = postList.slice();
-      let result = newPostList.some(function (value, index, array) {
-        if (Object.keys(value)[0] == postKey) {
-          newPostList.splice(index, 1);
-          return true;
-        } else {
-          return false;
-        }
-      });
-      obj.postList = newPostList;
 
       if (club) {
-        if (club.open == false) {
-          if (!club.member[uid]) {
-            obj.status = false;
-            return obj;
+        if (!club.member[uid]) {
+          obj.status = false;
+        } else {
+          if (club.member[uid].status == "master" || club.member[uid].status == "supervisor") {
+            obj.status = true;
+          } else {
+            let post = yield getPostInsideData(clubKey, postKey);
+
+            if (post.poster == uid) {
+              obj.status = true;
+            }
           }
         }
-
-        yield deletePostData(clubKey, postKey);
-        obj.status = true;
       } else {
         obj.status = false;
+      }
+
+      if (obj.status) {
+        yield deletePostData(clubKey, postKey);
       }
 
       return obj;
@@ -829,7 +826,9 @@ const setPostFoundations =
 function () {
   var _ref15 = _asyncToGenerator(function* (clubKey, postKey, uid, post, club) {
     try {
-      //該貼文社團與學校名稱
+      //轉時間
+      post.date = new Date(post.date).toLocaleString(); //該貼文社團與學校名稱
+
       post.clubName = club.clubName;
       post.schoolName = club.schoolName; //處理poster職位名稱
 
@@ -891,6 +890,8 @@ const setCommentFoundations =
 function () {
   var _ref16 = _asyncToGenerator(function* (clubKey, postKey, commentKey, uid, comment) {
     try {
+      //轉時間
+      comment.date = new Date(comment.date).toLocaleString();
       comment.clubKey = clubKey;
       comment.postKey = postKey;
       comment.commentKey = commentKey;

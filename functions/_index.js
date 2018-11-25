@@ -63,7 +63,7 @@ exports.notifyToClubMember = functions.https.onCall(async (data, context) => {
         const hours = new Date().getHours()
         const nightMode = nightModeNotification ? (hours >= 21) : false
 
-        if(expoToken && globalNotification && clubNotificationList[cid].on && !nightMode) {
+        if (expoToken && globalNotification && clubNotificationList[cid].on && !nightMode) {
             messages.push({
                 "to": expoToken,
                 title,
@@ -202,35 +202,32 @@ exports.getPostInside = functions.https.onCall(async (data, context) => {
 //刪除貼文
 exports.deletePost = functions.https.onCall(async (data, context) => {
     try {
-        const { clubKey, postKey, postList } = data;
+        const { clubKey, postKey } = data;
         const { uid } = context.auth;
         const club = await getClubData(clubKey);
-
         let obj = {};
-        let newPostList = postList.slice();
-        let result = newPostList.some(function (value, index, array) {
-            if (Object.keys(value)[0] == postKey) {
-                newPostList.splice(index, 1);
-                return true;
-            }
-            else {
-                return false;
-            }
-        });
-        obj.postList = newPostList;
 
         if (club) {
-            if (club.open == false) {
-                if (!club.member[uid]) {
-                    obj.status = false;
-                    return obj;
+            if (!club.member[uid]) {
+                obj.status = false;
+            }
+            else {
+                if (club.member[uid].status == "master" || club.member[uid].status == "supervisor") {
+                    obj.status = true;
+                }
+                else {
+                    let post = await getPostInsideData(clubKey, postKey);
+                    if (post.poster == uid) {
+                        obj.status = true;
+                    }
                 }
             }
-            await deletePostData(clubKey, postKey);
-            obj.status = true;
         }
         else {
             obj.status = false;
+        }
+        if(obj.status){
+            await deletePostData(clubKey, postKey);
         }
         return obj;
     }
@@ -678,6 +675,8 @@ const setPostView = async (post, uid) => {
 //處理貼文基本屬性(學校與社團名稱、key值、nickName、職位、views、favorites、編輯狀態、照片)
 const setPostFoundations = async (clubKey, postKey, uid, post, club) => {
     try {
+        //轉時間
+        post.date = new Date(post.date).toLocaleString();
         //該貼文社團與學校名稱
         post.clubName = club.clubName;
         post.schoolName = club.schoolName;
@@ -692,26 +691,26 @@ const setPostFoundations = async (clubKey, postKey, uid, post, club) => {
         }
         //判斷是否可編輯或刪除貼文(社長與幹部有此權限)
         let editStatus = false;
-        if(club.member[uid]){
-            if(club.member[uid].status == "master"||club.member[uid].status=="supervisor"){
+        if (club.member[uid]) {
+            if (club.member[uid].status == "master" || club.member[uid].status == "supervisor") {
                 editStatus = true;
-            }  
+            }
         }
-        if (post.poster === uid ) {
+        if (post.poster === uid) {
             post.statusEnable = true;
         }
-        if(editStatus){
+        if (editStatus) {
             post.statusEnable = true;
         }
-        else{
+        else {
             post.statusEnable = false;
         }
 
         //處理照片
-        if(!post.images){
-            post.images={};
+        if (!post.images) {
+            post.images = {};
         }
-        
+
         //將clubKey放進attribute，否則找不到該貼文社團
         post.clubKey = clubKey;
         post.postKey = postKey;
@@ -731,6 +730,8 @@ const setPostFoundations = async (clubKey, postKey, uid, post, club) => {
 //處理留言基本屬性
 const setCommentFoundations = async (clubKey, postKey, commentKey, uid, comment) => {
     try {
+        //轉時間
+        comment.date = new Date(comment.date).toLocaleString();
         comment.clubKey = clubKey;
         comment.postKey = postKey;
         comment.commentKey = commentKey;

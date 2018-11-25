@@ -7,15 +7,18 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   Image,
-  RefreshControl
+  RefreshControl,
+  Alert
 } from "react-native";
 import { Button } from "react-native-elements";
 import Comment from "./Comment";
+import CommentInput from "./CommentInput";
 import styles from "../../styles/post/Post";
 import { getUserData, getClubData } from '../../modules/Data'
 import Overlayer from '../common/Overlayer'
 import PopupDialog, { SlideAnimation, DialogTitle } from 'react-native-popup-dialog';
 import UserDialog from '../common/UserDialog'
+import Modal from 'react-native-modalbox';
 
 const slideAnimation = new SlideAnimation({
   slideFrom: 'bottom',
@@ -48,23 +51,6 @@ class Post extends React.Component {
     }
   }
 
-  //頁面重整
-  reload = async (clubKey, postKey) => {
-    const { getInsidePost, navigation, syncPost, syncPostDelete } = this.props;
-    this.postOverLayar();
-    const obj = await getInsidePost(clubKey, postKey);
-    this.postOverLayar();
-    if (obj != null) {
-      //貼文同步
-      syncPost(obj);
-    }
-    else {
-      //刪除貼文同步
-      syncPostDelete(postKey);
-      navigation.goBack();
-    }
-  };
-
   //點讚
   pressFavorite = async (clubKey, postKey) => {
     const { setPostFavorite, syncPost, syncPostDelete, navigation } = this.props;
@@ -78,24 +64,27 @@ class Post extends React.Component {
     else {
       //刪除貼文同步
       syncPostDelete(postKey);
+      Alert.alert("該貼文不存在！");
       this.postOverLayar();
       navigation.goBack();
     }
   };
 
-  //刪除貼文(未完成)
+  //刪除貼文
   deletePost = async (clubKey, postKey) => {
-    const { deletingPost, setPostList, postList, navigation } = this.props;
+    const { deletingPost, navigation, syncPostDelete } = this.props;
     this.postOverLayar();
-    const obj = await deletingPost(clubKey, postKey, postList);
-    console.log(obj);
-    if (obj != null) {
-      if (obj.status == false) {
-        alert("該貼文不存在！");
-      }
-      setPostList(obj.postList);
+    const obj = await deletingPost(clubKey, postKey);
+    //刪除貼文同步
+    syncPostDelete(postKey);
+    if (obj.status) {
+      Alert.alert("成功刪除！");
+      this.postOverLayar();
     }
-    this.postOverLayar();
+    else {
+      Alert.alert("該貼文不存在！");
+      this.postOverLayar();
+    }
     navigation.goBack();
   };
 
@@ -107,6 +96,24 @@ class Post extends React.Component {
   //過門
   postOverLayar = () => {
     this.setState({ loading: !this.state.loading });
+  };
+
+  //頁面重整
+  reload = async (clubKey, postKey) => {
+    const { getInsidePost, navigation, syncPost, syncPostDelete } = this.props;
+    this.postOverLayar();
+    const obj = await getInsidePost(clubKey, postKey);
+    this.postOverLayar();
+    if (obj != null) {
+      //貼文同步
+      syncPost(obj);
+    }
+    else {
+      //刪除貼文同步
+      syncPostDelete(postKey);
+      Alert.alert("該貼文不存在！");
+      navigation.goBack();
+    }
   };
 
   //設定本頁comment
@@ -171,6 +178,16 @@ class Post extends React.Component {
                   <View style={styles.row}>
                     <Text style={styles.school}>{element.schoolName}</Text>
                     <Text style={styles.club}>{element.clubName}</Text>
+                    <View style={{ flex: 1, flexDirection: 'row' }}>
+                      <TouchableOpacity
+                        onPress={() => { this.refs.advancedPost.open() }}
+                        style={{ display: element.statusEnable ? "flex" : "none" }}>
+                        <Image
+                          style={styles.icon}
+                          source={require("../../images/columndots.2.png")}
+                        />
+                      </TouchableOpacity>
+                    </View>
                   </View>
                   <View style={styles.row}>
                     <Text style={styles.name}>{element.posterNickName}</Text>
@@ -241,35 +258,64 @@ class Post extends React.Component {
                   ]}>{element.numViews}</Text>
                 </View>
               </View>
-              <View style={{ display: element.statusEnable ? "flex" : "none" }}>
-                <Button title="編輯貼文" onPress={async () => { }} />
-                <Button
-                  title="刪除貼文"
-                  onPress={async () => {
-                    await this.deletePost(element.clubKey, element.postKey);
-                  }}
-                />
-              </View>
+              <Comment
+                comment={commentData}
+                clubKey={element.clubKey}
+                postKey={element.postKey}
+                navigation={this.props.navigation}
+                deletingComment={this.props.deletingComment}
+                editingComment={this.props.editingComment}
+                setComment={this.setComment}
+                setCommentFavorite={this.props.setCommentFavorite}
+                showUser={this.showUser.bind(this)}
+                postOverLayar={this.postOverLayar}
+                syncPost={this.props.syncPost}
+                syncPostDelete={this.props.syncPostDelete}
+              />
             </View>
-            <Comment
-              userPhotoUrl={this.props.userPhotoUrl}
-              comment={commentData}
-              clubKey={element.clubKey}
-              postKey={element.postKey}
-              navigation={this.props.navigation}
-              creatingComment={this.props.creatingComment}
-              deletingComment={this.props.deletingComment}
-              editingComment={this.props.editingComment}
-              setComment={this.setComment}
-              setCommentEditStatus={this.props.setCommentEditStatus}
-              setCommentFavorite={this.props.setCommentFavorite}
-              showUser={this.showUser.bind(this)}
-              postOverLayar={this.postOverLayar}
-              syncPost={this.props.syncPost}
-              syncPostDelete={this.props.syncPostDelete}
-            />
           </KeyboardAvoidingView>
         </ScrollView>
+        <View style={styles.textInput}>
+          <CommentInput
+            userPhotoUrl={this.props.userPhotoUrl}
+            clubKey={element.clubKey}
+            postKey={element.postKey}
+            navigation={this.props.navigation}
+            creatingComment={this.props.creatingComment}
+            postOverLayar={this.postOverLayar}
+            syncPost={this.props.syncPost}
+            syncPostDelete={this.props.syncPostDelete}
+          />
+        </View>
+
+        {/* 進階貼文 */}
+        <Modal style={{ height: 200, justifyContent: 'center', alignItems: 'center' }} position={"bottom"} ref={"advancedPost"}>
+          <Button
+            buttonStyle={styles.advancedPostBtn}
+            title="編輯貼文"
+            onPress={() => { 
+              this.refs.advancedPost.close();
+              this.refs.editPost.open();
+            }}
+          />
+          <Text></Text>
+          <Button
+            buttonStyle={styles.advancedPostBtn}
+            onPress={async () => {
+              Alert.alert('確定要刪除貼文嗎？', '', [
+                { text: '取消', onPress: () => { } },
+                { text: '確定', onPress: async () => await this.deletePost(this.state.post.clubKey, this.state.post.postKey) },
+              ]);
+            }}
+            title="刪除貼文"
+          />
+        </Modal>
+
+        {/* 編輯貼文 */}
+        <Modal style={{ height: 200, justifyContent: 'center', alignItems: 'center' }} position={"center"} ref={"editPost"}>
+          <Text>123</Text>
+        </Modal>
+
         <PopupDialog
           ref={(popupDialog) => this.popupDialog = popupDialog}
           dialogAnimation={slideAnimation}

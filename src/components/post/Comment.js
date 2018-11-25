@@ -5,47 +5,16 @@ import {
     TextInput,
     Image,
     TouchableOpacity,
-    KeyboardAvoidingView
+    Alert,
 } from "react-native";
 import { Button } from "react-native-elements";
 import styles from "../../styles/post/Comment";
+
 class Comment extends React.Component {
 
     state = {
         //更新
         oldContent: "",
-        //新增
-        newContent: "",
-        height: 0
-    };
-
-    //新增留言
-    addComment = async () => {
-        const content = this.state.newContent;
-        const {
-            clubKey,
-            postKey,
-            creatingComment,
-            postOverLayar,
-            navigation,
-            syncPost,
-            syncPostDelete
-        } = this.props;
-        postOverLayar();
-        const obj = await creatingComment(clubKey, postKey, content);
-        if (obj != null) {
-            //貼文同步
-            syncPost(obj);
-            postOverLayar();
-            //清空輸入欄
-            this.setState({ newContent: "" });
-        }
-        else {
-            //刪除貼文同步
-            syncPostDelete(postKey);
-            postOverLayar();
-            navigation.goBack();
-        }
     };
 
     //刪除留言
@@ -65,12 +34,11 @@ class Comment extends React.Component {
             //貼文同步
             syncPost(obj);
             postOverLayar();
-            //清空輸入欄
-            this.setState({ newContent: "" });
         }
         else {
             //刪除貼文同步
             syncPostDelete(postKey);
+            Alert.alert("該貼文不存在！");
             postOverLayar();
             navigation.goBack();
         }
@@ -114,12 +82,11 @@ class Comment extends React.Component {
             //貼文同步
             syncPost(obj);
             postOverLayar();
-            //清空輸入欄
-            this.setState({ newContent: "" });
         }
         else {
             //刪除貼文同步
             syncPostDelete(postKey);
+            Alert.alert("該貼文不存在！");
             postOverLayar();
             navigation.goBack();
         }
@@ -140,12 +107,11 @@ class Comment extends React.Component {
             //貼文同步
             syncPost(obj);
             postOverLayar();
-            //清空輸入欄
-            this.setState({ newContent: "" });
         }
         else {
             //刪除貼文同步
             syncPostDelete(postKey);
+            Alert.alert("該貼文不存在！");
             postOverLayar();
             navigation.goBack();
         }
@@ -168,7 +134,6 @@ class Comment extends React.Component {
                                                 resizeMode="cover" />
                                         </View>
                                     </TouchableOpacity>
-
                                     <View style={styles.columnLine}>
                                         <View style={styles.sbRow}>
                                             <View style={styles.row}>
@@ -192,7 +157,8 @@ class Comment extends React.Component {
                                                     }]}>
                                                         {element.numFavorites}</Text>
                                                 </TouchableOpacity>
-                                                <TouchableOpacity style={{ display: element.statusEnable ? "flex" : "none" }}>
+                                                <TouchableOpacity
+                                                    style={{ display: element.statusEnable ? "flex" : "none" }}>
                                                     <Image source={require('../../images/pencil.png')}
                                                         style={styles.icon} />
                                                 </TouchableOpacity>
@@ -250,40 +216,10 @@ class Comment extends React.Component {
                                         }}
                                     />
                                 </View>
-
-
                             </View>
                         ))
                     ))}
                 </View>
-                <View style={styles.rowPaddingInput}>
-                    <View style={styles.littleCircle}>
-                        <Image
-                            style={styles.littleHead}
-                            source={{ uri: this.props.userPhotoUrl }}
-                            resizeMode="cover"
-                        />
-                    </View>
-                    <View style={styles.inputViewTabBar}>
-
-                        <TextInput
-                            style={styles.textInputTabBar}
-                            placeholder='新增留言...'
-                            placeholderTextColor='rgba(102,102,102,0.7)'
-                            underlineColorAndroid={'transparent'}
-                            multiline={true}
-                            onChangeText={newContent => { this.setState({ newContent }); }}
-                            onContentSizeChange={event => { this.setState({ height: event.nativeEvent.contentSize.height }); }}
-                        />
-
-                    </View>
-                    <TouchableOpacity onPress={async () => { await this.addComment(); }}>
-                        <Image source={require('../../images/send.png')}
-                            style={styles.sendIcon} />
-                    </TouchableOpacity>
-                    <KeyboardAvoidingView behavior='padding' enabled> </KeyboardAvoidingView>
-                </View>
-
             </View>
 
         );
