@@ -292,117 +292,118 @@ class Post extends React.Component {
             />
           }
         >
-          <KeyboardAvoidingView behavior="padding">
-            <View style={styles.container}>
-              <View style={styles.rowLeft}>
-                <TouchableOpacity onPress={() => this.showUser(element.poster)}>
-                  <View style={styles.circle}>
-                    <Image
-                      source={{ uri: element.posterPhotoUrl }}
-                      //resizeMode="cover"
-                      style={styles.bigHead}
-                    />
-                  </View>
-                </TouchableOpacity>
-                <View style={styles.column}>
-                  <View style={styles.row}>
-                    <Text style={styles.school}>{element.schoolName}</Text>
-                    <Text style={styles.club}>{element.clubName}</Text>
-                    <View style={{ flex: 1, flexDirection: 'row' }}>
-                      <TouchableOpacity
-                        onPress={() => { this.refs.advancedPost.open() }}
-                        style={{ display: element.editStatus || element.deleteStatus ? "flex" : "none" }}>
-                        <Image
-                          style={styles.icon}
-                          source={require("../../images/columndots.2.png")}
-                        />
-                      </TouchableOpacity>
-                    </View>
-                  </View>
-                  <View style={styles.row}>
-                    <Text style={styles.name}>{element.posterNickName}</Text>
-                    <Text style={styles.job}>{element.posterStatusChinese}</Text>
-                  </View>
-                </View>
-              </View>
-              <View style={styles.postView}>
-                <Text style={styles.postTitle}>{element.title}</Text>
-                <Text style={styles.postDate}>{element.date}</Text>
-                <View style={styles.postTextView}>
-                  <Text style={styles.postText}>{element.content}</Text>
-                </View>
-              </View>
-              <View styles={styles.postPictureView}>
-                <ScrollView horizontal>
-                  {
-                    element.images.map((value, index) => (
-                      <View key={index}>
-                        <Image
-                          style={styles.postPicture}
-                          source={{ uri: element.images[index] }}
-                        />
-                      </View>
-                    ))
-                  }
-                </ScrollView>
-              </View>
-              <View style={[styles.sbRowLine, { marginTop: 20 }]}>
-                <View style={styles.row}>
-                  <TouchableOpacity style={{ flexDirection: 'row' }}
-                    onPress={async () =>
-                      await this.pressFavorite(element.clubKey, element.postKey)
-                    }
-                  >
-                    <Image
-                      style={styles.icon}
-                      source={element.statusFavorite
-                        ? require("../../images/images2/like-orange.png")
-                        : require("../../images/images2/like-gray.png")
-                      }
-                    />
-                    <Text style={[
-                      styles.number,
-                      { color: element.statusFavorite ? "#f6b456" : "#666666" }
-                    ]}>{element.numFavorites} </Text>
-                  </TouchableOpacity>
-                </View>
-
-                <View style={styles.row}>
+          <View style={styles.container}>
+            <View style={styles.rowLeft}>
+              <TouchableOpacity onPress={() => this.showUser(element.poster)}>
+                <View style={styles.circle}>
                   <Image
-                    style={styles.icon}
-                    source={require("../../images/message.png")}
+                    source={{ uri: element.posterPhotoUrl }}
+                    //resizeMode="cover"
+                    style={styles.bigHead}
                   />
-                  <Text style={styles.number}>{element.numComments}</Text>
+                </View>
+              </TouchableOpacity>
+              <View style={styles.column}>
+                <View style={styles.row}>
+                  <Text style={styles.school}>{element.schoolName}</Text>
+                  <Text style={styles.club}>{element.clubName}</Text>
+                  <View style={{ flex: 1, flexDirection: 'row' }}>
+                    <TouchableOpacity
+                      onPress={() => { this.refs.advancedPost.open() }}
+                      style={{ display: element.editStatus || element.deleteStatus ? "flex" : "none" }}>
+                      <Image
+                        style={styles.icon}
+                        source={require("../../images/columndots.2.png")}
+                      />
+                    </TouchableOpacity>
+                  </View>
+                </View>
+                <View style={styles.row}>
+                  <Text style={styles.name}>{element.posterNickName}</Text>
+                  <Text style={styles.job}>{element.posterStatusChinese}</Text>
+                </View>
+              </View>
+            </View>
+            <View style={styles.postView}>
+              <Text style={styles.postTitle}>{element.title}</Text>
+              <Text style={styles.postDate}>{element.date}</Text>
+              <View style={styles.postTextView}>
+                <Text style={styles.postText}>{element.content}</Text>
+              </View>
+            </View>
+            <View styles={styles.postPictureView}>
+              <ScrollView horizontal>
+                {
+                  element.images.map((value, index) => (
+                    <View key={index}>
+                      <Image
+                        style={styles.postPicture}
+                        source={{ uri: element.images[index] }}
+                      />
+                    </View>
+                  ))
+                }
+              </ScrollView>
+            </View>
+            <View style={[styles.sbRowLine, { marginTop: 20 }]}>
+              <View style={styles.row}>
+                <TouchableOpacity style={{ flexDirection: 'row' }}
+                  onPress={async () =>
+                    await this.pressFavorite(element.clubKey, element.postKey)
+                  }
+                >
                   <Image
                     style={styles.icon}
-                    source={
-                      element.statusView
-                        ? require("../../images/images2/eyes-orange.png")
-                        : require("../../images/eyes.png")
+                    source={element.statusFavorite
+                      ? require("../../images/images2/like-orange.png")
+                      : require("../../images/images2/like-gray.png")
                     }
                   />
                   <Text style={[
                     styles.number,
-                    { color: element.statusView ? "#f6b456" : "#666666" }
-                  ]}>{element.numViews}</Text>
-                </View>
+                    { color: element.statusFavorite ? "#f6b456" : "#666666" }
+                  ]}>{element.numFavorites} </Text>
+                </TouchableOpacity>
               </View>
-              <Comment
-                comment={commentData}
-                clubKey={element.clubKey}
-                postKey={element.postKey}
-                navigation={this.props.navigation}
-                deletingComment={this.props.deletingComment}
-                editingComment={this.props.editingComment}
-                setComment={this.setComment}
-                setCommentFavorite={this.props.setCommentFavorite}
-                showUser={this.showUser.bind(this)}
-                postOverLayar={this.postOverLayar}
-                syncPost={this.props.syncPost}
-                syncPostDelete={this.props.syncPostDelete}
-              />
+
+              <View style={styles.row}>
+                <Image
+                  style={styles.icon}
+                  source={require("../../images/message.png")}
+                />
+                <Text style={styles.number}>{element.numComments}</Text>
+                <Image
+                  style={styles.icon}
+                  source={
+                    element.statusView
+                      ? require("../../images/images2/eyes-orange.png")
+                      : require("../../images/eyes.png")
+                  }
+                />
+                <Text style={[
+                  styles.number,
+                  { color: element.statusView ? "#f6b456" : "#666666" }
+                ]}>{element.numViews}</Text>
+              </View>
             </View>
-          </KeyboardAvoidingView>
+            <Comment
+              comment={commentData}
+              clubKey={element.clubKey}
+              postKey={element.postKey}
+              navigation={this.props.navigation}
+              deletingComment={this.props.deletingComment}
+              editingComment={this.props.editingComment}
+              setComment={this.setComment}
+              setCommentFavorite={this.props.setCommentFavorite}
+              showUser={this.showUser.bind(this)}
+              postOverLayar={this.postOverLayar}
+              syncPost={this.props.syncPost}
+              syncPostDelete={this.props.syncPostDelete}
+            />
+          </View>
+          <View style={{ height: 70 }}>
+            <Text>  </Text>
+          </View>
         </ScrollView>
         <View style={styles.textInput}>
           <CommentInput
