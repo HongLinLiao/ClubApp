@@ -1,6 +1,7 @@
 import React from 'react'
 import { View, Text, Image, ScrollView } from 'react-native'
 import Overlayer from '../common/Overlayer'
+import { convertClubStatus } from '../../modules/Common'
 
 
 const UserDialog = ({uid, user, clubs, loading}) => {
@@ -32,17 +33,12 @@ const UserDialog = ({uid, user, clubs, loading}) => {
                             <Text style={{color: '#f6b456', lineHeight: 20, marginLeft: 20, marginRight: 20,}}>{user.aboutMe}</Text>
                         </View>
                         <View style={{flex: 1.5, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(18, 117, 209, 0.3)'}}>
-                            <ScrollView contentContainerStyle={{paddingBottom: 20}}>
+                            <ScrollView contentContainerStyle={{paddingBottom: 20}} showsVerticalScrollIndicator={false}>
                             {
                                 Object.keys(clubs).map((cid) => {
                                     const { schoolName, clubName, member } = clubs[cid]
                                     const { status } = member[uid]
-                                    let _status = ''
-                                    switch(status) {
-                                        case 'master': _status = '社長'; break
-                                        case 'supervisor': _status = '幹部'; break
-                                        case 'member': _status = '社員'; break
-                                    }
+                                    const _status = convertClubStatus(status)
                                     return (
                                         <View
                                             key={cid}
