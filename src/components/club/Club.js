@@ -83,13 +83,13 @@ class Club extends React.Component {
     this.setState({ loading: !this.state.loading });
   }
 
-  //檢查社團是否公開(蒐藏)
+  //檢查社團是否公開(收藏)
   checkTheClubOpen = (currentCid, joinClubs, likeClubs, setCurrentClub) => {
     let cid = currentCid
     if (cid) {
       const type = joinOrLikeClub(cid);
       if (type == 'LIKE') {
-        if (likeClubs[currentCid].open == false) { //蒐藏社團被設為不公開
+        if (likeClubs[currentCid].open == false) { //收藏社團被設為不公開
           let joinClubCids = Object.keys(joinClubs)
           cid = randomCid(joinClubCids)
           // this.setState({currentCid: cid})
@@ -237,7 +237,7 @@ class Club extends React.Component {
         _status = convertClubStatus(status)
       } else if (type == "LIKE") {
         clubs = likeClubs;
-        _status = "蒐藏者";
+        _status = "收藏者";
       }
 
       const { schoolName, clubName, open, member, introduction, imgUrl } = clubs[currentCid];

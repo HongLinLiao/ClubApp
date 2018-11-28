@@ -114,9 +114,10 @@ class Analysis extends React.Component {
             <View style={{flex: 1, alignItems: 'center', justifyContent:'center', backgroundColor: '#0d4273'}}>
                 {this.state.result ? 
                     (
-                        <View style={{alignSelf: 'stretch', backgroundColor: 'rgba(24, 125, 219, 0.1)', justifyContent: 'center', alignItems: 'center', padding: 10}}>
-                            <Text style={{color: 'white'}}>下拉重整</Text>
-                        </View>
+                        null
+                        // <View style={{alignSelf: 'stretch', backgroundColor: 'rgba(24, 125, 219, 0.1)', justifyContent: 'center', alignItems: 'center', padding: 10}}>
+                        //     <Text style={{color: 'white'}}>下拉重整</Text>
+                        // </View>
                     ) :
                     (
                         <Button

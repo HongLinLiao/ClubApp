@@ -74,7 +74,7 @@ class Notification extends React.Component {
           }
         />
         <View style={styles.boxView} />
-        <ListItem
+        {/* <ListItem
           title='夜間模式'
           titleStyle={{ fontSize: 18, color: '#666666', }}
           switch={{
@@ -89,7 +89,7 @@ class Notification extends React.Component {
             <View style={styles.leftIcon}>
               <Image source={require('../../images/moon.png')} style={styles.alarm} />
             </View>}
-        />
+        /> */}
 
         {
           Object.keys(clubNotificationList).map((cid) => {

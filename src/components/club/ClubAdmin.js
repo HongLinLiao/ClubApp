@@ -123,7 +123,7 @@ class ClubAdmin extends React.Component {
                     </View>
                     </ImageBackground>
 
-                    <View style={styles.adminButtonView}>
+                    {/* <View style={styles.adminButtonView}>
                         <View style={styles.adminButton}>
                             <Image source={require('../../images/contract-gray.png')}
                                 style={styles.adminIcon} />
@@ -146,7 +146,7 @@ class ClubAdmin extends React.Component {
                             </View>
                             <Text style={styles.adminText}>編輯成員</Text>
                         </View>
-                    </View>
+                    </View> */}
                     <View style={styles.titleTextView}>
                         <Text style={styles.titleText}>社團簡介</Text>
                     </View>
@@ -160,10 +160,10 @@ class ClubAdmin extends React.Component {
                             underlineColorAndroid='transparent'
                         />
                     </View>
-                    <View style={{ alignItems: 'center', justifyContent: 'center', }}>
+                    {/* <View style={{ alignItems: 'center', justifyContent: 'center', }}>
                         <Button title='文章管理' onPress={() => { }} />
                         <Button title='活動管理' onPress={() => { }} />
-                    </View>
+                    </View> */}
                 </ScrollView>
                
                 <KeyboardAvoidingView behavior="padding">
