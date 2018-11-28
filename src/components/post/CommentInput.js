@@ -5,7 +5,8 @@ import {
     TextInput,
     Image,
     TouchableOpacity,
-    KeyboardAvoidingView
+    KeyboardAvoidingView,
+    Alert
 } from "react-native";
 import { Button } from "react-native-elements";
 import styles from "../../styles/post/Comment";
@@ -40,7 +41,7 @@ class CommentInput extends React.Component {
         else {
             //刪除貼文同步
             syncPostDelete(postKey);
-            alert("該貼文不存在！");
+            Alert.alert("該貼文不存在！");
             postOverLayar();
             navigation.goBack();
         }
@@ -72,7 +73,7 @@ class CommentInput extends React.Component {
                             await this.addComment();
                         }
                         else {
-                            alert("請輸入內容！");
+                            Alert.alert("請輸入內容！");
                         }
                     }}>
                         <Image source={require('../../images/send.png')}

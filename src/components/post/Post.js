@@ -48,6 +48,7 @@ class Post extends React.Component {
     editImgStatus: false,//編輯圖片狀態
     newImg: [],//新增照片
     newImgStatus: false,//新增照片狀態
+    advancedComment: {},//進階留言
     refreshing: false,//重整
   };
 
@@ -276,6 +277,18 @@ class Post extends React.Component {
     }
   }
 
+  showAdvancedComment = (obj) => {
+    try {
+      this.advancedComment.show(() => {
+        //重置
+        this.setState({ advancedComment: obj });
+      });
+    }
+    catch (e) {
+      Alert.alert(e.toString())
+    }
+  }
+
   render() {
     const commentData = this.state.comment
     const element = JSON.parse(JSON.stringify(this.state.post));
@@ -396,6 +409,7 @@ class Post extends React.Component {
               setComment={this.setComment}
               setCommentFavorite={this.props.setCommentFavorite}
               showUser={this.showUser.bind(this)}
+              showAdvancedComment={this.showAdvancedComment.bind(this)}
               postOverLayar={this.postOverLayar}
               syncPost={this.props.syncPost}
               syncPostDelete={this.props.syncPostDelete}
@@ -585,6 +599,7 @@ class Post extends React.Component {
           {this.state.editLoading ? <Overlayer /> : null}
         </Modal>
 
+        {/* 顯示user資料 */}
         <PopupDialog
           ref={(popupDialog) => this.popupDialog = popupDialog}
           dialogAnimation={slideAnimation}
@@ -599,6 +614,17 @@ class Post extends React.Component {
             loading={this.state.loading}
           />
         </PopupDialog>
+
+        <PopupDialog
+          ref={(advancedComment) => this.advancedComment = advancedComment}
+          dialogAnimation={slideAnimation}
+          width={0.9}
+          height={0.3}
+          dialogStyle={{ borderRadius: 20 }}
+        >
+          <Text>123</Text>
+        </PopupDialog>
+
         {this.state.loading ? <Overlayer /> : null}
       </View >
     );

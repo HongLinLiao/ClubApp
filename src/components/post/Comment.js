@@ -157,7 +157,12 @@ class Comment extends React.Component {
                                                 }]}>
                                                     {element.numFavorites}</Text>
                                             </TouchableOpacity>
-                                            <TouchableOpacity onPress={() => { this.refs[element.commentKey].open(); }}
+                                            <TouchableOpacity onPress={() => {
+                                                this.props.showAdvancedComment({
+                                                    editStatus:element.editStatus,
+                                                    deleteStatus:element.deleteStatus,
+                                                });
+                                            }}
                                                 style={{ display: element.editStatus || element.deleteStatus ? "flex" : "none" }}>
                                                 <Image source={require('../../images/pencil.png')}
                                                     style={styles.icon} />
