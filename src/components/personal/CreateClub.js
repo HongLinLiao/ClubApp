@@ -25,7 +25,6 @@ class CreateClub extends React.Component {
 
     render() {
         return (
-            <KeyboardAvoidingView behavior='padding'>
                 <View style={styles.container}>
                     <Text style={styles.title}>請輸入您的社團名稱</Text>
                     <Text style={styles.Q}>學校</Text>
@@ -46,8 +45,6 @@ class CreateClub extends React.Component {
                         <Text style={styles.nextText}>下一步</Text>
                     </TouchableOpacity>
                 </View>
-            </KeyboardAvoidingView>
-            
         );
     }
 }

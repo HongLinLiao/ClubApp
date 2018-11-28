@@ -13,7 +13,7 @@ export const initPostListToReducer = (postList, navigation) => async (dispatch, 
         let newPostList = postList.slice();
         let newReducer = getState().postReducer.postList;
         const routeName = navigation.state.routeName;
-        newReducer[routeName] = newPostList
+        newReducer[routeName] = newPostList;
         dispatch(PostAction.getPostList(newReducer));
     }
     catch (error) {
@@ -105,6 +105,7 @@ export const syncPost = (data) => async (dispatch, getState) => {
                             return false;
                         }
                     });
+                    //空的
                     if (status) {
                         let setPostListFuction = getState().postReducer.setPostList[itemPostList[i]];
                         setPostListFuction(ordPostList[itemPostList[i]]);
@@ -286,7 +287,6 @@ export const syncPostDelete = (postKey) => async (dispatch, getState) => {
         if (postStatus) {
             dispatch(PostAction.getPost(ordPost));
         }
-        alert("該貼文不存在！");
     }
     catch (error) {
         console.log(error.toString());
@@ -372,11 +372,41 @@ export const createPost = (cid, postData, club) => async (dispatch) => {
     }
 }
 
+//編輯貼文
+export const editingPost = (clubKey, postKey, editData) => async (dispatch) => {
+    try {
+        const editPost = firebase.functions().httpsCallable('editPost');
+
+        if (editData.newImages != null) {
+            if (!editData.images) {
+                editData.images = [];
+            }
+            let promise = editData.newImages.map(async (value) => {
+                let response = await fetch(value);
+                let blob = await response.blob(); //轉換照片格式為blob
+                let storageRef = firebase.storage().ref('posts').child(clubKey).child(postKey).child(blob._data.name);
+                let snapshot = await storageRef.put(blob);
+                let imgUrl = await snapshot.ref.getDownloadURL();
+                editData.images.push(imgUrl);
+            })
+            await Promise.all(promise);
+            editData.newImages = null;
+            delete editData.newImages;
+        }
+
+        const response = await editPost({ clubKey: clubKey, postKey: postKey, editData: editData });
+        return response.data;
+    }
+    catch (error) {
+        console.log(error.toString());
+    }
+}
+
 //刪除貼文
-export const deletingPost = (clubKey, postKey, postList) => async (dispatch) => {
+export const deletingPost = (clubKey, postKey) => async (dispatch) => {
     try {
         const deletePost = firebase.functions().httpsCallable('deletePost');
-        const response = await deletePost({ clubKey: clubKey, postKey: postKey, postList: postList });
+        const response = await deletePost({ clubKey: clubKey, postKey: postKey });
         return response.data;
     } catch (error) {
         console.log(error.toString())

@@ -50,7 +50,7 @@ class EmailVerify extends React.Component{
     return(
   <ImageBackground
     style={styles.bf}
-    source={require('../../images/myboyfriend.jpg')}
+    source={require('../../images/backgroundImg.jpg')}
     imageStyle={{ resizeMode: 'cover' }}
   > 
     <View style={styles.container}> 

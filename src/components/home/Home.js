@@ -14,6 +14,13 @@ const slideAnimation = new SlideAnimation({
 });
 
 class Home extends React.Component {
+
+    componentWillMount() {
+        this.props.navigation.setParams({
+            homeReload: this.homeReload.bind(this)
+        })
+    }
+
     async componentDidMount() {
         const { joinClub, likeClub, initHomeClubList, initSetPostList, navigation } = this.props;
         await initSetPostList(newPostList => { this.setState({ post: newPostList }); }, navigation);

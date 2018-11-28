@@ -6,7 +6,6 @@ import {
     creatingComment,
     deletingComment,
     editingComment,
-    setCommentEditStatus,
     getInsidePost,
     deletingPost,
     setCommentFavorite,
@@ -14,6 +13,7 @@ import {
     initPostToReducer,
     syncPost,
     syncPostDelete,
+    editingPost,
 } from '../../modules/Post'
 
 class PostPage extends Component {
@@ -29,13 +29,13 @@ class PostPage extends Component {
                 creatingComment={this.props.creatingComment}
                 deletingComment={this.props.deletingComment}
                 editingComment={this.props.editingComment}
-                setCommentEditStatus={this.props.setCommentEditStatus}
                 deletingPost={this.props.deletingPost}
                 setCommentFavorite={this.props.setCommentFavorite}
                 initSetPost={this.props.initSetPost}
                 initPostToReducer={this.props.initPostToReducer}
                 syncPost={this.props.syncPost}
                 syncPostDelete={this.props.syncPostDelete}
+                editingPost={this.props.editingPost}
             />
         )
     }
@@ -51,13 +51,13 @@ const mapDispatchToProps = {
     creatingComment,
     deletingComment,
     editingComment,
-    setCommentEditStatus,
     deletingPost,
     setCommentFavorite,
     initSetPost,
     initPostToReducer,
     syncPost,
     syncPostDelete,
+    editingPost,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(PostPage);

@@ -21,7 +21,8 @@ class SelectClub extends React.Component {
     //重整動畫
     onRefresh = async () => {
         try {
-            const { homeReload, clubList } = this.props;
+            const { clubList } = this.props;
+            const { homeReload } = this.props.navigation.state.params;
             this.setState({ refreshing: true, loading: !this.state.loading });
             this.setState({ refreshing: false });
             await homeReload(clubList);
@@ -56,6 +57,7 @@ class SelectClub extends React.Component {
                                     schoolName={element.schoolName}
                                     selectStatus={element.selectStatus}
                                     clubList={newClubList}
+                                    homeReload={this.props.navigation.state.params.homeReload}
                                     setHomeClubListStatus={this.props.setHomeClubListStatus}
                                     numSelectingStatusTrue={newNumSelectingStatsTrue}
                                     parentOverLayor={this.selectOverLayor}
