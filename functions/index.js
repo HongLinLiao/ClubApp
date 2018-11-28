@@ -223,7 +223,7 @@ function () {
           let temp;
 
           for (let i = 0; i < keyList.length; i++) {
-            commentData[keyList[i]] = yield setCommentFoundations(clubKey, postKey, keyList[i], uid, commentData[keyList[i]]);
+            commentData[keyList[i]] = yield setCommentFoundations(clubKey, postKey, keyList[i], uid, commentData[keyList[i]], club);
             temp = {};
             temp[keyList[i]] = commentData[keyList[i]];
             comment.push(temp);
@@ -258,12 +258,88 @@ function () {
 //         console.log(context.auth.uid + ' : ' + error.toString());
 //     }
 // });
-//刪除貼文
+//編輯貼文
+
+exports.editPost = functions.https.onCall(
+/*#__PURE__*/
+function () {
+  var _ref7 = _asyncToGenerator(function* (data, context) {
+    try {
+      const {
+        clubKey,
+        postKey,
+        editData
+      } = data;
+      const {
+        uid
+      } = context.auth;
+      const club = yield getClubData(clubKey);
+
+      if (club) {
+        if (club.open == false) {
+          if (!club.member[uid]) {
+            return null;
+          }
+        }
+
+        let obj = {};
+        let post = yield getPostInsideData(clubKey, postKey);
+
+        if (post) {
+          yield editPostData(clubKey, postKey, editData);
+
+          for (let i = 0; i < Object.keys(editData).length; i++) {
+            post[Object.keys(editData)[i]] = editData[Object.keys(editData)[i]];
+          } //先取得貼文基本屬性
+
+
+          post = yield setPostFoundations(clubKey, postKey, uid, post, club);
+          post = yield setPostView(post, uid);
+          obj.post = post;
+        } else {
+          return null;
+        }
+
+        let commentData = yield getPostCommentData(clubKey, postKey);
+        let comment = [];
+
+        if (commentData) {
+          let keyList = Object.keys(commentData);
+          let temp;
+
+          for (let i = 0; i < keyList.length; i++) {
+            commentData[keyList[i]] = yield setCommentFoundations(clubKey, postKey, keyList[i], uid, commentData[keyList[i]], club);
+            temp = {};
+            temp[keyList[i]] = commentData[keyList[i]];
+            comment.push(temp);
+          }
+
+          comment.sort(function (a, b) {
+            let aDate = a[Object.keys(a)[0]].date;
+            let bDate = b[Object.keys(b)[0]].date;
+            return new Date(bDate) < new Date(aDate) ? -1 : 1;
+          });
+        }
+
+        obj.comment = comment;
+        return obj;
+      } else {
+        return null;
+      }
+    } catch (error) {
+      console.log(context.auth.uid + ' : ' + error.toString());
+    }
+  });
+
+  return function (_x12, _x13) {
+    return _ref7.apply(this, arguments);
+  };
+}()); //刪除貼文
 
 exports.deletePost = functions.https.onCall(
 /*#__PURE__*/
 function () {
-  var _ref7 = _asyncToGenerator(function* (data, context) {
+  var _ref8 = _asyncToGenerator(function* (data, context) {
     try {
       const {
         clubKey,
@@ -303,15 +379,15 @@ function () {
     }
   });
 
-  return function (_x12, _x13) {
-    return _ref7.apply(this, arguments);
+  return function (_x14, _x15) {
+    return _ref8.apply(this, arguments);
   };
 }()); //按貼文讚
 
 exports.setPostFavorite = functions.https.onCall(
 /*#__PURE__*/
 function () {
-  var _ref8 = _asyncToGenerator(function* (data, context) {
+  var _ref9 = _asyncToGenerator(function* (data, context) {
     try {
       const {
         clubKey,
@@ -379,7 +455,7 @@ function () {
               let temp;
 
               for (let i = 0; i < keyList.length; i++) {
-                commentData[keyList[i]] = yield setCommentFoundations(post.clubKey, post.postKey, keyList[i], uid, commentData[keyList[i]]);
+                commentData[keyList[i]] = yield setCommentFoundations(post.clubKey, post.postKey, keyList[i], uid, commentData[keyList[i]], club);
                 temp = {};
                 temp[keyList[i]] = commentData[keyList[i]];
                 comment.push(temp);
@@ -407,15 +483,15 @@ function () {
     }
   });
 
-  return function (_x14, _x15) {
-    return _ref8.apply(this, arguments);
+  return function (_x16, _x17) {
+    return _ref9.apply(this, arguments);
   };
 }()); //新增留言
 
 exports.createComment = functions.https.onCall(
 /*#__PURE__*/
 function () {
-  var _ref9 = _asyncToGenerator(function* (data, context) {
+  var _ref10 = _asyncToGenerator(function* (data, context) {
     try {
       const {
         clubKey,
@@ -449,7 +525,7 @@ function () {
             let temp;
 
             for (let i = 0; i < keyList.length; i++) {
-              commentData[keyList[i]] = yield setCommentFoundations(clubKey, postKey, keyList[i], uid, commentData[keyList[i]]);
+              commentData[keyList[i]] = yield setCommentFoundations(clubKey, postKey, keyList[i], uid, commentData[keyList[i]], club);
               temp = {};
               temp[keyList[i]] = commentData[keyList[i]];
               comment.push(temp);
@@ -475,15 +551,15 @@ function () {
     }
   });
 
-  return function (_x16, _x17) {
-    return _ref9.apply(this, arguments);
+  return function (_x18, _x19) {
+    return _ref10.apply(this, arguments);
   };
 }()); //刪除留言
 
 exports.deleteComment = functions.https.onCall(
 /*#__PURE__*/
 function () {
-  var _ref10 = _asyncToGenerator(function* (data, context) {
+  var _ref11 = _asyncToGenerator(function* (data, context) {
     try {
       const {
         clubKey,
@@ -517,7 +593,7 @@ function () {
             let temp;
 
             for (let i = 0; i < keyList.length; i++) {
-              commentData[keyList[i]] = yield setCommentFoundations(clubKey, postKey, keyList[i], uid, commentData[keyList[i]]);
+              commentData[keyList[i]] = yield setCommentFoundations(clubKey, postKey, keyList[i], uid, commentData[keyList[i]], club);
               temp = {};
               temp[keyList[i]] = commentData[keyList[i]];
               comment.push(temp);
@@ -543,15 +619,15 @@ function () {
     }
   });
 
-  return function (_x18, _x19) {
-    return _ref10.apply(this, arguments);
+  return function (_x20, _x21) {
+    return _ref11.apply(this, arguments);
   };
 }()); //編輯留言
 
 exports.editComment = functions.https.onCall(
 /*#__PURE__*/
 function () {
-  var _ref11 = _asyncToGenerator(function* (data, context) {
+  var _ref12 = _asyncToGenerator(function* (data, context) {
     try {
       const {
         clubKey,
@@ -585,7 +661,7 @@ function () {
             let temp;
 
             for (let i = 0; i < keyList.length; i++) {
-              commentData[keyList[i]] = yield setCommentFoundations(clubKey, postKey, keyList[i], uid, commentData[keyList[i]]);
+              commentData[keyList[i]] = yield setCommentFoundations(clubKey, postKey, keyList[i], uid, commentData[keyList[i]], club);
               temp = {};
               temp[keyList[i]] = commentData[keyList[i]];
               comment.push(temp);
@@ -611,15 +687,15 @@ function () {
     }
   });
 
-  return function (_x20, _x21) {
-    return _ref11.apply(this, arguments);
+  return function (_x22, _x23) {
+    return _ref12.apply(this, arguments);
   };
 }()); //按留言讚
 
 exports.setCommentFavorite = functions.https.onCall(
 /*#__PURE__*/
 function () {
-  var _ref12 = _asyncToGenerator(function* (data, context) {
+  var _ref13 = _asyncToGenerator(function* (data, context) {
     try {
       const {
         clubKey,
@@ -651,7 +727,7 @@ function () {
             let temp;
 
             for (let i = 0; i < keyList.length; i++) {
-              commentData[keyList[i]] = yield setCommentFoundations(clubKey, postKey, keyList[i], uid, commentData[keyList[i]]); //按讚處理
+              commentData[keyList[i]] = yield setCommentFoundations(clubKey, postKey, keyList[i], uid, commentData[keyList[i]], club); //按讚處理
 
               if (keyList[i] == commentKey) {
                 let updateFavorites = {}; //按讚
@@ -717,15 +793,15 @@ function () {
     }
   });
 
-  return function (_x22, _x23) {
-    return _ref12.apply(this, arguments);
+  return function (_x24, _x25) {
+    return _ref13.apply(this, arguments);
   };
 }()); //取得該社團下所有貼文
 
 const getPostFromClub =
 /*#__PURE__*/
 function () {
-  var _ref13 = _asyncToGenerator(function* (clubKey, uid, club, obj) {
+  var _ref14 = _asyncToGenerator(function* (clubKey, uid, club, obj) {
     try {
       let post = yield getPostData(clubKey);
 
@@ -745,8 +821,8 @@ function () {
     }
   });
 
-  return function getPostFromClub(_x24, _x25, _x26, _x27) {
-    return _ref13.apply(this, arguments);
+  return function getPostFromClub(_x26, _x27, _x28, _x29) {
+    return _ref14.apply(this, arguments);
   };
 }(); //傳入參數貼文列Array，將貼文加入貼文列
 
@@ -783,7 +859,7 @@ const handlePostDataToArray = (arrPost, clubKey, postKey, postData) => {
 const setPostView =
 /*#__PURE__*/
 function () {
-  var _ref14 = _asyncToGenerator(function* (post, uid) {
+  var _ref15 = _asyncToGenerator(function* (post, uid) {
     try {
       //檢查使用者是否是第一次查看
       //不是第一次看
@@ -815,8 +891,8 @@ function () {
     }
   });
 
-  return function setPostView(_x28, _x29) {
-    return _ref14.apply(this, arguments);
+  return function setPostView(_x30, _x31) {
+    return _ref15.apply(this, arguments);
   };
 }(); //處理貼文基本屬性(學校與社團名稱、key值、nickName、職位、views、favorites、編輯狀態、照片)
 
@@ -824,7 +900,7 @@ function () {
 const setPostFoundations =
 /*#__PURE__*/
 function () {
-  var _ref15 = _asyncToGenerator(function* (clubKey, postKey, uid, post, club) {
+  var _ref16 = _asyncToGenerator(function* (clubKey, postKey, uid, post, club) {
     try {
       //轉時間
       post.date = new Date(post.date).toLocaleString(); //該貼文社團與學校名稱
@@ -841,27 +917,21 @@ function () {
       } //判斷是否可編輯或刪除貼文(社長與幹部有此權限)
 
 
-      let editStatus = false;
+      post.deleteStatus = false;
+      post.editStatus = false;
 
       if (club.member[uid]) {
-        if (club.member[uid].status == "master" || club.member[uid].status == "supervisor") {
-          editStatus = true;
+        if (post.poster === uid) {
+          post.deleteStatus = true;
+          post.editStatus = true;
+        } else if (club.member[uid].status == "master" || club.member[uid].status == "supervisor") {
+          post.deleteStatus = true;
         }
-      }
-
-      if (post.poster === uid) {
-        post.statusEnable = true;
-      }
-
-      if (editStatus) {
-        post.statusEnable = true;
-      } else {
-        post.statusEnable = false;
       } //處理照片
 
 
       if (!post.images) {
-        post.images = {};
+        post.images = [];
       } //將clubKey放進attribute，否則找不到該貼文社團
 
 
@@ -879,8 +949,8 @@ function () {
     }
   });
 
-  return function setPostFoundations(_x30, _x31, _x32, _x33, _x34) {
-    return _ref15.apply(this, arguments);
+  return function setPostFoundations(_x32, _x33, _x34, _x35, _x36) {
+    return _ref16.apply(this, arguments);
   };
 }(); //處理留言基本屬性
 
@@ -888,7 +958,7 @@ function () {
 const setCommentFoundations =
 /*#__PURE__*/
 function () {
-  var _ref16 = _asyncToGenerator(function* (clubKey, postKey, commentKey, uid, comment) {
+  var _ref17 = _asyncToGenerator(function* (clubKey, postKey, commentKey, uid, comment, club) {
     try {
       //轉時間
       comment.date = new Date(comment.date).toLocaleString();
@@ -905,11 +975,20 @@ function () {
         comment.commenterPhotoUrl = userData.photoUrl;
       }
 
-      if (comment.commenter === uid) {
-        comment.statusEnable = true;
-      } else {
-        comment.statusEnable = false;
+      comment.editStatus = false;
+      comment.deleteStatus = false;
+
+      if (club.member[uid]) {
+        if (club.member[uid].status == "master" || club.member[uid].status == "supervisor") {
+          comment.deleteStatus = true;
+        }
       }
+
+      if (comment.commenter === uid) {
+        comment.editStatus = true;
+        comment.deleteStatus = true;
+      } //編輯狀態用
+
 
       comment.statusEdit = false;
       return comment;
@@ -918,8 +997,8 @@ function () {
     }
   });
 
-  return function setCommentFoundations(_x35, _x36, _x37, _x38, _x39) {
-    return _ref16.apply(this, arguments);
+  return function setCommentFoundations(_x37, _x38, _x39, _x40, _x41, _x42) {
+    return _ref17.apply(this, arguments);
   };
 }(); //產生statusView和statusFavorite
 
@@ -945,7 +1024,7 @@ const setPostViewFavoriteData = (post, uid) => {
 const getClubData =
 /*#__PURE__*/
 function () {
-  var _ref17 = _asyncToGenerator(function* (clubKey) {
+  var _ref18 = _asyncToGenerator(function* (clubKey) {
     try {
       let clubRef = yield admin.database().ref('clubs').child(clubKey).once('value');
       let club = clubRef.val();
@@ -955,8 +1034,8 @@ function () {
     }
   });
 
-  return function getClubData(_x40) {
-    return _ref17.apply(this, arguments);
+  return function getClubData(_x43) {
+    return _ref18.apply(this, arguments);
   };
 }(); //取得特定社團下所有貼文資訊
 
@@ -964,7 +1043,7 @@ function () {
 const getPostData =
 /*#__PURE__*/
 function () {
-  var _ref18 = _asyncToGenerator(function* (clubKey) {
+  var _ref19 = _asyncToGenerator(function* (clubKey) {
     try {
       let postRef = yield admin.database().ref('posts').child(clubKey).once('value');
       let post = postRef.val();
@@ -974,8 +1053,8 @@ function () {
     }
   });
 
-  return function getPostData(_x41) {
-    return _ref18.apply(this, arguments);
+  return function getPostData(_x44) {
+    return _ref19.apply(this, arguments);
   };
 }(); //取得特定貼文資訊
 
@@ -983,7 +1062,7 @@ function () {
 const getPostInsideData =
 /*#__PURE__*/
 function () {
-  var _ref19 = _asyncToGenerator(function* (clubKey, postKey) {
+  var _ref20 = _asyncToGenerator(function* (clubKey, postKey) {
     try {
       let postRef = yield admin.database().ref('posts').child(clubKey).child(postKey).once('value');
       let post = postRef.val();
@@ -993,8 +1072,8 @@ function () {
     }
   });
 
-  return function getPostInsideData(_x42, _x43) {
-    return _ref19.apply(this, arguments);
+  return function getPostInsideData(_x45, _x46) {
+    return _ref20.apply(this, arguments);
   };
 }(); //取得貼文下的留言資訊
 
@@ -1002,7 +1081,7 @@ function () {
 const getPostCommentData =
 /*#__PURE__*/
 function () {
-  var _ref20 = _asyncToGenerator(function* (clubKey, postKey) {
+  var _ref21 = _asyncToGenerator(function* (clubKey, postKey) {
     try {
       let commentRef = yield admin.database().ref('comments').child(clubKey).child(postKey).once('value');
       let data = commentRef.val();
@@ -1012,8 +1091,8 @@ function () {
     }
   });
 
-  return function getPostCommentData(_x44, _x45) {
-    return _ref20.apply(this, arguments);
+  return function getPostCommentData(_x47, _x48) {
+    return _ref21.apply(this, arguments);
   };
 }(); //取得特定使用者資訊
 
@@ -1021,7 +1100,7 @@ function () {
 const getUserData =
 /*#__PURE__*/
 function () {
-  var _ref21 = _asyncToGenerator(function* (uid) {
+  var _ref22 = _asyncToGenerator(function* (uid) {
     try {
       let userRef = yield admin.database().ref('users').child(uid).once('value');
       let user = userRef.val();
@@ -1031,8 +1110,8 @@ function () {
     }
   });
 
-  return function getUserData(_x46) {
-    return _ref21.apply(this, arguments);
+  return function getUserData(_x49) {
+    return _ref22.apply(this, arguments);
   };
 }(); //更新Post的Favorites
 
@@ -1040,7 +1119,7 @@ function () {
 const updatePostFavorites =
 /*#__PURE__*/
 function () {
-  var _ref22 = _asyncToGenerator(function* (clubKey, postKey, updateFavorites) {
+  var _ref23 = _asyncToGenerator(function* (clubKey, postKey, updateFavorites) {
     try {
       const uid = Object.keys(updateFavorites)[0];
       let favoritesRef;
@@ -1057,8 +1136,8 @@ function () {
     }
   });
 
-  return function updatePostFavorites(_x47, _x48, _x49) {
-    return _ref22.apply(this, arguments);
+  return function updatePostFavorites(_x50, _x51, _x52) {
+    return _ref23.apply(this, arguments);
   };
 }(); //更新Post的Views
 
@@ -1066,7 +1145,7 @@ function () {
 const updatePostViews =
 /*#__PURE__*/
 function () {
-  var _ref23 = _asyncToGenerator(function* (clubKey, postKey, updateViews) {
+  var _ref24 = _asyncToGenerator(function* (clubKey, postKey, updateViews) {
     try {
       const uid = Object.keys(updateViews)[0];
       const value = updateViews[uid];
@@ -1077,8 +1156,8 @@ function () {
     }
   });
 
-  return function updatePostViews(_x50, _x51, _x52) {
-    return _ref23.apply(this, arguments);
+  return function updatePostViews(_x53, _x54, _x55) {
+    return _ref24.apply(this, arguments);
   };
 }(); //新增留言
 
@@ -1086,7 +1165,7 @@ function () {
 const createCommentData =
 /*#__PURE__*/
 function () {
-  var _ref24 = _asyncToGenerator(function* (clubKey, postKey, content, uid) {
+  var _ref25 = _asyncToGenerator(function* (clubKey, postKey, content, uid) {
     try {
       const getNumRef = admin.database().ref('posts/' + clubKey + '/' + postKey + '/numComments');
       let snapShot = yield getNumRef.once('value');
@@ -1106,8 +1185,8 @@ function () {
     }
   });
 
-  return function createCommentData(_x53, _x54, _x55, _x56) {
-    return _ref24.apply(this, arguments);
+  return function createCommentData(_x56, _x57, _x58, _x59) {
+    return _ref25.apply(this, arguments);
   };
 }(); //刪除留言
 
@@ -1115,7 +1194,7 @@ function () {
 const deleteCommentData =
 /*#__PURE__*/
 function () {
-  var _ref25 = _asyncToGenerator(function* (clubKey, postKey, commentKey) {
+  var _ref26 = _asyncToGenerator(function* (clubKey, postKey, commentKey) {
     try {
       let getNumRef = admin.database().ref('posts/' + clubKey + '/' + postKey + '/numComments');
       let snapShot = yield getNumRef.once('value');
@@ -1130,8 +1209,8 @@ function () {
     }
   });
 
-  return function deleteCommentData(_x57, _x58, _x59) {
-    return _ref25.apply(this, arguments);
+  return function deleteCommentData(_x60, _x61, _x62) {
+    return _ref26.apply(this, arguments);
   };
 }(); //編輯留言
 
@@ -1139,7 +1218,7 @@ function () {
 const editCommentData =
 /*#__PURE__*/
 function () {
-  var _ref26 = _asyncToGenerator(function* (clubKey, postKey, commentKey, content) {
+  var _ref27 = _asyncToGenerator(function* (clubKey, postKey, commentKey, content) {
     try {
       if (content == '') {} else {
         let update = {};
@@ -1151,8 +1230,8 @@ function () {
     }
   });
 
-  return function editCommentData(_x60, _x61, _x62, _x63) {
-    return _ref26.apply(this, arguments);
+  return function editCommentData(_x63, _x64, _x65, _x66) {
+    return _ref27.apply(this, arguments);
   };
 }(); //更新Comment的Favorites
 
@@ -1160,7 +1239,7 @@ function () {
 const updateCommentFavorites =
 /*#__PURE__*/
 function () {
-  var _ref27 = _asyncToGenerator(function* (clubKey, postKey, commentKey, updateFavorites) {
+  var _ref28 = _asyncToGenerator(function* (clubKey, postKey, commentKey, updateFavorites) {
     try {
       const uid = Object.keys(updateFavorites)[0];
       let favoritesRef;
@@ -1177,8 +1256,33 @@ function () {
     }
   });
 
-  return function updateCommentFavorites(_x64, _x65, _x66, _x67) {
-    return _ref27.apply(this, arguments);
+  return function updateCommentFavorites(_x67, _x68, _x69, _x70) {
+    return _ref28.apply(this, arguments);
+  };
+}(); //編輯貼文
+
+
+const editPostData =
+/*#__PURE__*/
+function () {
+  var _ref29 = _asyncToGenerator(function* (clubKey, postKey, obj) {
+    try {
+      let keyList = Object.keys(obj);
+      let ref;
+
+      for (let i = 0; i < keyList.length; i++) {
+        let key = keyList[i];
+        let value = obj[key];
+        ref = admin.database().ref('posts/' + clubKey + '/' + postKey + '/' + key);
+        yield ref.set(value);
+      }
+    } catch (error) {
+      console.log(error.toString());
+    }
+  });
+
+  return function editPostData(_x71, _x72, _x73) {
+    return _ref29.apply(this, arguments);
   };
 }(); //刪除貼文
 
@@ -1186,7 +1290,7 @@ function () {
 const deletePostData =
 /*#__PURE__*/
 function () {
-  var _ref28 = _asyncToGenerator(function* (clubKey, postKey) {
+  var _ref30 = _asyncToGenerator(function* (clubKey, postKey) {
     try {
       const postRef = admin.database().ref('posts/' + clubKey + '/' + postKey);
       yield postRef.remove();
@@ -1197,8 +1301,8 @@ function () {
     }
   });
 
-  return function deletePostData(_x68, _x69) {
-    return _ref28.apply(this, arguments);
+  return function deletePostData(_x74, _x75) {
+    return _ref30.apply(this, arguments);
   };
 }(); ////////////////////////////////////////////////////////////////////////////////////
 // Common

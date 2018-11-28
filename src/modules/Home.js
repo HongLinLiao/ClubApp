@@ -1,7 +1,7 @@
 import * as HomeAction from '../actions/HomeAction'
 import { getActivityDataComplete, getUserActivities } from './Activity.js';
 import { getClubData } from './Data';
-import { initPostListToReducer,syncPost } from './Post';
+import { initPostListToReducer, syncPost } from './Post';
 import * as firebase from "firebase";
 require("firebase/functions");
 

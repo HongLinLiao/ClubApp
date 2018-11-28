@@ -166,7 +166,7 @@ exports.getPostInside = functions.https.onCall(async (data, context) => {
                 let keyList = Object.keys(commentData);
                 let temp;
                 for (let i = 0; i < keyList.length; i++) {
-                    commentData[keyList[i]] = await setCommentFoundations(clubKey, postKey, keyList[i], uid, commentData[keyList[i]]);
+                    commentData[keyList[i]] = await setCommentFoundations(clubKey, postKey, keyList[i], uid, commentData[keyList[i]], club);
                     temp = {}
                     temp[keyList[i]] = commentData[keyList[i]]
                     comment.push(temp);
@@ -199,6 +199,63 @@ exports.getPostInside = functions.https.onCall(async (data, context) => {
 //     }
 // });
 
+//編輯貼文
+exports.editPost = functions.https.onCall(async (data, context) => {
+    try {
+        const { clubKey, postKey, editData } = data;
+        const { uid } = context.auth;
+        const club = await getClubData(clubKey);
+
+        if (club) {
+            if (club.open == false) {
+                if (!club.member[uid]) {
+                    return null;
+                }
+            }
+            let obj = {};
+            let post = await getPostInsideData(clubKey, postKey);
+            if (post) {
+                await editPostData(clubKey, postKey, editData);
+                for (let i = 0; i < Object.keys(editData).length; i++) {
+                    post[Object.keys(editData)[i]] = editData[Object.keys(editData)[i]];
+                }
+                //先取得貼文基本屬性
+                post = await setPostFoundations(clubKey, postKey, uid, post, club);
+                post = await setPostView(post, uid);
+                obj.post = post;
+            }
+            else {
+                return null;
+            }
+            let commentData = await getPostCommentData(clubKey, postKey);
+            let comment = [];
+            if (commentData) {
+                let keyList = Object.keys(commentData);
+                let temp;
+                for (let i = 0; i < keyList.length; i++) {
+                    commentData[keyList[i]] = await setCommentFoundations(clubKey, postKey, keyList[i], uid, commentData[keyList[i]], club);
+                    temp = {}
+                    temp[keyList[i]] = commentData[keyList[i]]
+                    comment.push(temp);
+                }
+                comment.sort(function (a, b) {
+                    let aDate = a[Object.keys(a)[0]].date;
+                    let bDate = b[Object.keys(b)[0]].date;
+                    return new Date(bDate) < new Date(aDate) ? -1 : 1
+                })
+            }
+            obj.comment = comment;
+            return obj;
+        }
+        else {
+            return null;
+        }
+    }
+    catch (error) {
+        console.log(context.auth.uid + ' : ' + error.toString());
+    }
+});
+
 //刪除貼文
 exports.deletePost = functions.https.onCall(async (data, context) => {
     try {
@@ -226,7 +283,7 @@ exports.deletePost = functions.https.onCall(async (data, context) => {
         else {
             obj.status = false;
         }
-        if(obj.status){
+        if (obj.status) {
             await deletePostData(clubKey, postKey);
         }
         return obj;
@@ -295,7 +352,7 @@ exports.setPostFavorite = functions.https.onCall(async (data, context) => {
                         let keyList = Object.keys(commentData);
                         let temp;
                         for (let i = 0; i < keyList.length; i++) {
-                            commentData[keyList[i]] = await setCommentFoundations(post.clubKey, post.postKey, keyList[i], uid, commentData[keyList[i]]);
+                            commentData[keyList[i]] = await setCommentFoundations(post.clubKey, post.postKey, keyList[i], uid, commentData[keyList[i]], club);
                             temp = {}
                             temp[keyList[i]] = commentData[keyList[i]]
                             comment.push(temp);
@@ -352,7 +409,7 @@ exports.createComment = functions.https.onCall(async (data, context) => {
                     let keyList = Object.keys(commentData);
                     let temp;
                     for (let i = 0; i < keyList.length; i++) {
-                        commentData[keyList[i]] = await setCommentFoundations(clubKey, postKey, keyList[i], uid, commentData[keyList[i]]);
+                        commentData[keyList[i]] = await setCommentFoundations(clubKey, postKey, keyList[i], uid, commentData[keyList[i]], club);
                         temp = {}
                         temp[keyList[i]] = commentData[keyList[i]]
                         comment.push(temp);
@@ -408,7 +465,7 @@ exports.deleteComment = functions.https.onCall(async (data, context) => {
                     let keyList = Object.keys(commentData);
                     let temp;
                     for (let i = 0; i < keyList.length; i++) {
-                        commentData[keyList[i]] = await setCommentFoundations(clubKey, postKey, keyList[i], uid, commentData[keyList[i]]);
+                        commentData[keyList[i]] = await setCommentFoundations(clubKey, postKey, keyList[i], uid, commentData[keyList[i]], club);
                         temp = {}
                         temp[keyList[i]] = commentData[keyList[i]]
                         comment.push(temp);
@@ -464,7 +521,7 @@ exports.editComment = functions.https.onCall(async (data, context) => {
                     let keyList = Object.keys(commentData);
                     let temp;
                     for (let i = 0; i < keyList.length; i++) {
-                        commentData[keyList[i]] = await setCommentFoundations(clubKey, postKey, keyList[i], uid, commentData[keyList[i]]);
+                        commentData[keyList[i]] = await setCommentFoundations(clubKey, postKey, keyList[i], uid, commentData[keyList[i]], club);
                         temp = {}
                         temp[keyList[i]] = commentData[keyList[i]]
                         comment.push(temp);
@@ -519,7 +576,7 @@ exports.setCommentFavorite = functions.https.onCall(async (data, context) => {
                     let keyList = Object.keys(commentData);
                     let temp;
                     for (let i = 0; i < keyList.length; i++) {
-                        commentData[keyList[i]] = await setCommentFoundations(clubKey, postKey, keyList[i], uid, commentData[keyList[i]]);
+                        commentData[keyList[i]] = await setCommentFoundations(clubKey, postKey, keyList[i], uid, commentData[keyList[i]], club);
 
                         //按讚處理
                         if (keyList[i] == commentKey) {
@@ -690,25 +747,20 @@ const setPostFoundations = async (clubKey, postKey, uid, post, club) => {
             post.posterStatusChinese = ''
         }
         //判斷是否可編輯或刪除貼文(社長與幹部有此權限)
-        let editStatus = false;
+        post.deleteStatus = false;
+        post.editStatus = false;
         if (club.member[uid]) {
-            if (club.member[uid].status == "master" || club.member[uid].status == "supervisor") {
-                editStatus = true;
+            if (post.poster === uid) {
+                post.deleteStatus = true;
+                post.editStatus = true;
+            }
+            else if (club.member[uid].status == "master" || club.member[uid].status == "supervisor") {
+                post.deleteStatus = true;
             }
         }
-        if (post.poster === uid) {
-            post.statusEnable = true;
-        }
-        if (editStatus) {
-            post.statusEnable = true;
-        }
-        else {
-            post.statusEnable = false;
-        }
-
         //處理照片
         if (!post.images) {
-            post.images = {};
+            post.images = [];
         }
 
         //將clubKey放進attribute，否則找不到該貼文社團
@@ -728,7 +780,7 @@ const setPostFoundations = async (clubKey, postKey, uid, post, club) => {
 }
 
 //處理留言基本屬性
-const setCommentFoundations = async (clubKey, postKey, commentKey, uid, comment) => {
+const setCommentFoundations = async (clubKey, postKey, commentKey, uid, comment, club) => {
     try {
         //轉時間
         comment.date = new Date(comment.date).toLocaleString();
@@ -746,12 +798,20 @@ const setCommentFoundations = async (clubKey, postKey, commentKey, uid, comment)
             comment.commenterNickName = userData.nickName;
             comment.commenterPhotoUrl = userData.photoUrl;
         }
+        comment.editStatus = false;
+        comment.deleteStatus = false;
+
+        if (club.member[uid]) {
+            if (club.member[uid].status == "master" || club.member[uid].status == "supervisor") {
+                comment.deleteStatus = true;
+            }
+        }
         if (comment.commenter === uid) {
-            comment.statusEnable = true;
+            comment.editStatus = true;
+            comment.deleteStatus = true;
         }
-        else {
-            comment.statusEnable = false;
-        }
+
+        //編輯狀態用
         comment.statusEdit = false;
         return comment;
     }
@@ -949,6 +1009,23 @@ const updateCommentFavorites = async (clubKey, postKey, commentKey, updateFavori
     }
     catch (error) {
         throw error;
+    }
+}
+
+//編輯貼文
+const editPostData = async (clubKey, postKey, obj) => {
+    try {
+        let keyList = Object.keys(obj);
+        let ref;
+        for (let i = 0; i < keyList.length; i++) {
+            let key = keyList[i];
+            let value = obj[key];
+            ref = admin.database().ref('posts/' + clubKey + '/' + postKey + '/' + key);
+            await ref.set(value);
+        }
+    }
+    catch (error) {
+        console.log(error.toString());
     }
 }
 

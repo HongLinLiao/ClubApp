@@ -13,6 +13,7 @@ import {
     initPostToReducer,
     syncPost,
     syncPostDelete,
+    editingPost,
 } from '../../modules/Post'
 
 class PostPage extends Component {
@@ -34,6 +35,7 @@ class PostPage extends Component {
                 initPostToReducer={this.props.initPostToReducer}
                 syncPost={this.props.syncPost}
                 syncPostDelete={this.props.syncPostDelete}
+                editingPost={this.props.editingPost}
             />
         )
     }
@@ -55,6 +57,7 @@ const mapDispatchToProps = {
     initPostToReducer,
     syncPost,
     syncPostDelete,
+    editingPost,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(PostPage);

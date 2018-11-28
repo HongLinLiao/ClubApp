@@ -13,7 +13,7 @@ export const initPostListToReducer = (postList, navigation) => async (dispatch, 
         let newPostList = postList.slice();
         let newReducer = getState().postReducer.postList;
         const routeName = navigation.state.routeName;
-        newReducer[routeName] = newPostList
+        newReducer[routeName] = newPostList;
         dispatch(PostAction.getPostList(newReducer));
     }
     catch (error) {
@@ -105,6 +105,7 @@ export const syncPost = (data) => async (dispatch, getState) => {
                             return false;
                         }
                     });
+                    //空的
                     if (status) {
                         let setPostListFuction = getState().postReducer.setPostList[itemPostList[i]];
                         setPostListFuction(ordPostList[itemPostList[i]]);
@@ -348,6 +349,36 @@ export const createPost = (cid, postData, club) => async (dispatch) => {
         console.log(e)
 
         throw e
+    }
+}
+
+//編輯貼文
+export const editingPost = (clubKey, postKey, editData) => async (dispatch) => {
+    try {
+        const editPost = firebase.functions().httpsCallable('editPost');
+
+        if (editData.newImages != null) {
+            if (!editData.images) {
+                editData.images = [];
+            }
+            let promise = editData.newImages.map(async (value) => {
+                let response = await fetch(value);
+                let blob = await response.blob(); //轉換照片格式為blob
+                let storageRef = firebase.storage().ref('posts').child(clubKey).child(postKey).child(blob._data.name);
+                let snapshot = await storageRef.put(blob);
+                let imgUrl = await snapshot.ref.getDownloadURL();
+                editData.images.push(imgUrl);
+            })
+            await Promise.all(promise);
+            editData.newImages = null;
+            delete editData.newImages;
+        }
+
+        const response = await editPost({ clubKey: clubKey, postKey: postKey, editData: editData });
+        return response.data;
+    }
+    catch (error) {
+        console.log(error.toString());
     }
 }
 

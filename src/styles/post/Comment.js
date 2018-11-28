@@ -122,5 +122,13 @@ export default StyleSheet.create({
         width: 13,
         marginTop: 8
     },
+    advancedCommentBtn: {
+        backgroundColor: 'rgba(246,180,86,1)',
+        width: 250,
+        height: 45,
+        borderColor: "transparent",
+        borderWidth: 0,
+        borderRadius: 30
+    },
 
 })

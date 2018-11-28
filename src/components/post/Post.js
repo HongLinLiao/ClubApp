@@ -8,7 +8,8 @@ import {
   KeyboardAvoidingView,
   Image,
   RefreshControl,
-  Alert
+  Alert,
+  TextInput,
 } from "react-native";
 import { Button } from "react-native-elements";
 import Comment from "./Comment";
@@ -17,8 +18,9 @@ import styles from "../../styles/post/Post";
 import { getUserData, getClubData } from '../../modules/Data'
 import Overlayer from '../common/Overlayer'
 import PopupDialog, { SlideAnimation, DialogTitle } from 'react-native-popup-dialog';
-import UserDialog from '../common/UserDialog'
+import UserDialog from '../common/UserDialog';
 import Modal from 'react-native-modalbox';
+import { takePhoto, selectPhoto } from '../../modules/Common'
 
 const slideAnimation = new SlideAnimation({
   slideFrom: 'bottom',
@@ -29,15 +31,24 @@ class Post extends React.Component {
     const { initSetPost, navigation, initPostToReducer } = this.props;
     initSetPost((obj) => { this.setState({ post: obj.post, comment: obj.comment }); }, navigation);
     initPostToReducer({ post: this.props.post, comment: this.props.comment }, navigation);
-    this.setState({ post: this.props.post, comment: this.props.comment });
+    this.setState({ post: this.props.post, comment: this.props.comment, editImg: this.props.post.images });
   }
 
   state = {
     post: {},
     comment: [],
     userData: { uid: null, user: null, clubs: null },
-    loading: false,
-    refreshing: false,
+    loading: false,//貼文過門
+    editLoading: false,//編輯過門
+    editTitle: '',//編輯標題
+    editTitleStatus: false,//編輯標題狀態
+    editContent: '',//編輯內容
+    editContentStatus: false,//編輯內容狀態
+    editImg: [],//編輯圖片(預設為原始資料)
+    editImgStatus: false,//編輯圖片狀態
+    newImg: [],//新增照片
+    newImgStatus: false,//新增照片狀態
+    refreshing: false,//重整
   };
 
   //重整動畫
@@ -70,6 +81,81 @@ class Post extends React.Component {
     }
   };
 
+  //編輯貼文
+  editPost = async (clubKey, postKey) => {
+    const { editingPost, navigation, syncPostDelete, syncPost } = this.props;
+
+    let status = true;
+    if (this.state.editTitleStatus == false
+      && this.state.editContentStatus == false
+      && this.state.editImgStatus == false
+      && this.state.newImgStatus == false
+    ) {
+      status = false;
+    }
+    else {
+      if (this.state.editTitleStatus == true && this.state.editTitle == '') {
+        status = false;
+      }
+      else if (this.state.editContentStatus == true && this.state.editContent == '') {
+        status = false;
+      }
+    }
+    if (status) {
+      this.editOverLayar();
+      let newData = {};
+      if (this.state.editTitleStatus) {
+        newData.title = this.state.editTitle;
+      }
+      if (this.state.editContentStatus) {
+        newData.content = this.state.editContent;
+      }
+      //如果有新增照片，則舊的也要傳進去一起更新(陣列的壞處)
+      if (this.state.newImgStatus) {
+        newData.newImages = this.state.newImg;
+        if (this.state.editImgStatus) {
+          newData.images = this.state.editImg;
+        }
+        else {
+          newData.images = this.props.post.images;
+        }
+      }
+      else {
+        if (this.state.editImgStatus) {
+          newData.images = this.state.editImg;
+        }
+      }
+      const obj = await editingPost(clubKey, postKey, newData);
+      if (obj != null) {
+        //貼文同步
+        syncPost(obj);
+        this.setState({
+          editTitle: '',
+          editTitleStatus: false,
+          editContent: '',
+          editContentStatus: false,
+          editImg: obj.post.images,
+          editImgStatus: false,
+          newImg: [],
+          newImgStatus: false,
+        })
+        this.editOverLayar();
+        this.refs.editPost.close();
+      }
+      else {
+        //刪除貼文同步
+        syncPostDelete(postKey);
+        Alert.alert("該貼文不存在！");
+        this.editOverLayar();
+        this.refs.editPost.close();
+        navigation.goBack();
+      }
+    }
+    else {
+      Alert.alert('請輸入新內容！');
+    }
+  }
+
   //刪除貼文
   deletePost = async (clubKey, postKey) => {
     const { deletingPost, navigation, syncPostDelete } = this.props;
@@ -88,6 +174,46 @@ class Post extends React.Component {
     navigation.goBack();
   };
 
+  //開啟相機
+  handleTakePhoto = async () => {
+    try {
+      const url = await takePhoto()
+      if (url) {
+        const imagesList = [...this.state.newImg]
+        imagesList.push(url)
+        this.setState({
+          newImg: imagesList,
+          newImgStatus: true
+        })
+      } else {
+        Alert.alert('取消')
+      }
+    } catch (e) {
+      console.log(e)
+      Alert.alert('發生錯誤')
+    }
+  }
+
+  //開啟相簿
+  handleSelectPhoto = async () => {
+    try {
+      const url = await selectPhoto()
+      if (url) {
+        const imagesList = [...this.state.newImg]
+        imagesList.push(url)
+        this.setState({
+          newImg: imagesList,
+          newImgStatus: true
+        })
+      } else {
+        Alert.alert('取消')
+      }
+    } catch (e) {
+      console.log(e)
+      Alert.alert('發生錯誤')
+    }
+  }
+
   //設定本頁post
   setPost = (postData) => {
     this.setState({ post: postData });
@@ -97,6 +223,10 @@ class Post extends React.Component {
   postOverLayar = () => {
     this.setState({ loading: !this.state.loading });
   };
+
+  editOverLayar = () => {
+    this.setState({ editLoading: !this.state.editLoading });
+  }
 
   //頁面重整
   reload = async (clubKey, postKey) => {
@@ -149,7 +279,7 @@ class Post extends React.Component {
   render() {
     const commentData = this.state.comment
     const element = JSON.parse(JSON.stringify(this.state.post));
-    const { uid, user, clubs } = this.state.userData
+    const { uid, user, clubs } = this.state.userData;
 
     return (
       <View style={{ flex: 1, backgroundColor: '#ffffff' }}>
@@ -181,7 +311,7 @@ class Post extends React.Component {
                     <View style={{ flex: 1, flexDirection: 'row' }}>
                       <TouchableOpacity
                         onPress={() => { this.refs.advancedPost.open() }}
-                        style={{ display: element.statusEnable ? "flex" : "none" }}>
+                        style={{ display: element.editStatus || element.deleteStatus ? "flex" : "none" }}>
                         <Image
                           style={styles.icon}
                           source={require("../../images/columndots.2.png")}
@@ -195,7 +325,6 @@ class Post extends React.Component {
                   </View>
                 </View>
               </View>
-
               <View style={styles.postView}>
                 <Text style={styles.postTitle}>{element.title}</Text>
                 <Text style={styles.postDate}>{element.date}</Text>
@@ -203,21 +332,21 @@ class Post extends React.Component {
                   <Text style={styles.postText}>{element.content}</Text>
                 </View>
               </View>
-              <View style={styles.postPictureView} >
-                {
-                  Object.keys(element.images).map((child) => (
-                    <View key={child}>
-                      <Image
-                        style={styles.postPicture}
-                        source={{ uri: element.images[child] }}
-                      />
-                      {/* 換行用 */}
-                      <Text>  </Text>
-                    </View>
-                  ))
-                }
+              <View styles={styles.postPictureView}>
+                <ScrollView horizontal>
+                  {
+                    element.images.map((value, index) => (
+                      <View key={index}>
+                        <Image
+                          style={styles.postPicture}
+                          source={{ uri: element.images[index] }}
+                        />
+                      </View>
+                    ))
+                  }
+                </ScrollView>
               </View>
-              <View style={styles.sbRowLine}>
+              <View style={[styles.sbRowLine, { marginTop: 20 }]}>
                 <View style={styles.row}>
                   <TouchableOpacity style={{ flexDirection: 'row' }}
                     onPress={async () =>
@@ -291,16 +420,16 @@ class Post extends React.Component {
         {/* 進階貼文 */}
         <Modal style={{ height: 200, justifyContent: 'center', alignItems: 'center' }} position={"bottom"} ref={"advancedPost"}>
           <Button
-            buttonStyle={styles.advancedPostBtn}
+            buttonStyle={[styles.advancedPostBtn, { display: element.editStatus ? 'flex' : 'none' }]}
             title="編輯貼文"
-            onPress={() => { 
+            onPress={() => {
               this.refs.advancedPost.close();
               this.refs.editPost.open();
             }}
           />
           <Text></Text>
           <Button
-            buttonStyle={styles.advancedPostBtn}
+            buttonStyle={[styles.advancedPostBtn, { display: element.deleteStatus ? 'flex' : 'none' }]}
             onPress={async () => {
               Alert.alert('確定要刪除貼文嗎？', '', [
                 { text: '取消', onPress: () => { } },
@@ -312,8 +441,147 @@ class Post extends React.Component {
         </Modal>
 
         {/* 編輯貼文 */}
-        <Modal style={{ height: 200, justifyContent: 'center', alignItems: 'center' }} position={"center"} ref={"editPost"}>
-          <Text>123</Text>
+        <Modal backdropPressToClose={false} swipeToClose={false}
+          style={{ height: 550 }} position={"center"} ref={"editPost"}>
+          <ScrollView>
+            <View>
+              <View style={[styles.rowLeft, { height: 100 }]}>
+                <View style={styles.circle}>
+                  <Image
+                    source={{ uri: element.posterPhotoUrl }}
+                    //resizeMode="cover"
+                    style={styles.bigHead}
+                  />
+                </View>
+                <View style={styles.column}>
+                  <View style={styles.row}>
+                    <Text style={styles.school}>{element.schoolName}</Text>
+                    <Text style={styles.club}>{element.clubName}</Text>
+                  </View>
+                  <View style={styles.row}>
+                    <Text style={styles.name}>{element.posterNickName}</Text>
+                    <Text style={styles.job}>{element.posterStatusChinese}</Text>
+                  </View>
+                </View>
+              </View>
+              <ScrollView horizontal>
+                <View style={{ flexDirection: 'row' }}>
+                  {
+                    //原始照片(刪除用)
+                    this.state.editImg.map((uri, index) => (
+                      <TouchableOpacity
+                        onPress={() => {
+                          Alert.alert('刪除照片', '', [
+                            { text: '取消', onPress: () => { } },
+                            {
+                              text: '確定刪除', onPress: () => {
+                                let temp = this.state.editImg.slice();
+                                temp.splice(index, 1);
+                                this.setState({ editImg: temp, editImgStatus: true })
+                              }
+                            },
+                          ]);
+                        }}
+                        key={index}>
+                        <Image
+                          style={{ height: 100, width: 100 }}
+                          source={{ uri }}
+                        />
+                      </TouchableOpacity>
+                    ))
+                  }
+                  {
+                    //新增照片
+                    this.state.newImg.map((uri, index) => (
+                      <TouchableOpacity
+                        onPress={() => {
+                          Alert.alert('刪除照片', '', [
+                            { text: '取消', onPress: () => { } },
+                            {
+                              text: '確定刪除', onPress: () => {
+                                let temp = this.state.editImg.slice();
+                                temp.splice(index, 1);
+                                this.setState({ editImg: temp, editImgStatus: true })
+                              }
+                            },
+                          ]);
+                        }}
+                        key={index}>
+                        <Image
+                          style={{ height: 100, width: 100 }}
+                          source={{ uri }}
+                        />
+                      </TouchableOpacity>
+                    ))
+                  }
+                  {/* 轉黑色照片 */}
+                  <TouchableOpacity
+                    onPress={async () => {
+                      Alert.alert('選取照片', '', [
+                        { text: '相機', onPress: async () => { await this.handleTakePhoto(); } },
+                        { text: '相簿', onPress: async () => { await this.handleSelectPhoto(); } },
+                        { text: '取消', onPress: () => { } }
+                      ]);
+                    }}
+                  >
+                    <Image
+                      style={{ height: 100, width: 100 }}
+                      source={require('../../images/plus-button.png')}
+                    />
+                  </TouchableOpacity>
+                </View>
+              </ScrollView>
+              <View style={styles.postView}>
+                <TextInput
+                  defaultValue={element.title}
+                  style={styles.editPostTitleInput}
+                  underlineColorAndroid={'transparent'}
+                  onChangeText={(content) => this.setState({ editTitle: content, editTitleStatus: true })}
+                />
+                <TextInput
+                  defaultValue={element.content}
+                  style={styles.editPostContentInput}
+                  underlineColorAndroid={'transparent'}
+                  multiline={true}
+                  onChangeText={(content) => this.setState({ editContent: content, editContentStatus: true })}
+                />
+              </View>
+            </View>
+          </ScrollView>
+          <View style={[styles.textInput, { bottom: 10 }]}>
+            <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center' }}>
+              <Button
+                onPress={() => {
+                  this.setState({
+                    editTitle: '',//編輯標題
+                    editTitleStatus: false,//編輯標題狀態
+                    editContent: '',//編輯內容
+                    editContentStatus: false,//編輯內容狀態
+                    editImg: this.props.post.images,//編輯圖片(預設為原始資料)
+                    editImgStatus: false,
+                    newImg: [],//新增圖片
+                    newImgStatus: false,//新增圖片狀態
+                  })
+                  this.refs.editPost.close();
+                }}
+                buttonStyle={styles.editPostbtn}
+                title="取消"
+                titleStyle={styles.editPostbtnTxt}
+              />
+              <Button
+                onPress={async () => {
+                  Alert.alert('確定要修改貼文嗎？', '', [
+                    { text: '取消', onPress: () => { } },
+                    { text: '確定', onPress: async () => await this.editPost(element.clubKey, element.postKey) },
+                  ]);
+                }}
+                buttonStyle={styles.editPostbtn}
+                title="確定"
+                titleStyle={styles.editPostbtnTxt}
+              />
+            </View>
+          </View>
+          {this.state.editLoading ? <Overlayer /> : null}
         </Modal>
 
         <PopupDialog
@@ -331,7 +599,7 @@ class Post extends React.Component {
           />
         </PopupDialog>
         {this.state.loading ? <Overlayer /> : null}
-      </View>
+      </View >
     );
   }
 }

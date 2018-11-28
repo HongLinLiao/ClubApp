@@ -14,26 +14,30 @@ export default createStackNavigator({
 	//預設首頁
 	Home: {
 		screen: requireAppFlow(HomePage),
-		navigationOptions: ({ navigation }) => ({
-			title: 'iClubs',
-			headerBackTitle: '首頁',
-			headerTitleStyle: {
-				color: '#666666',
-				fontSize: 30,
-				fontFamily: 'Courier',
-			},
-			headerStyle: {
-				backgroundColor: '#f6b456'
-			},
-			headerRight: (
-				<TouchableOpacity onPress={() => {
-					navigation.navigate("Selecting");
-				}}>
-					<Image source={require('../images/images2/control.png')}
-						style={homeStyles.controlImage} />
-				</TouchableOpacity>
-			)
-		})
+		navigationOptions: ({ navigation }) => {
+			return {
+				title: 'iClubs',
+				headerBackTitle: '首頁',
+				headerTitleStyle: {
+					color: '#666666',
+					fontSize: 30,
+					fontFamily: 'Courier',
+				},
+				headerStyle: {
+					backgroundColor: '#f6b456'
+				},
+				headerRight: (
+					<TouchableOpacity onPress={() => {
+						if (navigation.state.params.homeReload) {
+							navigation.navigate("Selecting", { homeReload: navigation.state.params.homeReload });
+						}
+					}}>
+						<Image source={require('../images/images2/control.png')}
+							style={homeStyles.controlImage} />
+					</TouchableOpacity>
+				)
+			}
+		}
 	},
 	// 貼文內頁，返回鍵用headerLeft覆蓋默認返回
 	HomePost: {

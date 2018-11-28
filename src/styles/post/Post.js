@@ -84,12 +84,11 @@ export default StyleSheet.create({
         lineHeight: 25
     },
     postPictureView: {
-        width: '100%',
-        marginTop: 10,
-        marginBottom: 10
+        flexDirection: 'row',
+        marginTop: 30,
     },
     postPicture: {
-        width: '100%',
+        width: 300,
         height: 250
     },
     sbRowLine: {
@@ -126,6 +125,29 @@ export default StyleSheet.create({
         flexDirection: 'row',
         position: "absolute",
         bottom: 0,
-        alignItems:'stretch'
+        alignItems: 'stretch'
     },
+    editPostTitleInput: {
+        color: '#666666',
+        fontSize: 28,
+        fontWeight: 'bold',
+    },
+    editPostContentInput: {
+        color: '#666666',
+        fontSize: 20,
+        marginTop: 5,
+        height: 200,
+    },
+    editPostbtn: {
+        backgroundColor: 'rgba(246,180,86,1)',
+        width: 100,
+        height: 30,
+        borderColor: "transparent",
+        borderWidth: 0,
+        borderRadius: 30,
+    },
+    editPostbtnTxt: {
+        fontSize: 15,
+    },
+
 })

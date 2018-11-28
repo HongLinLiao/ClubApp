@@ -78,7 +78,7 @@ class Login extends React.Component{
     return(
       <ImageBackground
       style={styles.bf}
-      source={require('../../images/myboyfriend.jpg')}
+      source={require('../../images/backgroundImg.jpg')}
       imageStyle={{ resizeMode: 'cover' }}
       >
         <View style={{flex:1}}>
@@ -131,6 +131,7 @@ class Login extends React.Component{
               checked={this.state.remember}
               onPress={() => this.setState({remember: !this.state.remember})}
             /> */}
+            <Text></Text>
             <TouchableOpacity 
               style={styles.gobotton}
               onPress={() => this.handleLogin()}

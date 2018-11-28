@@ -14,7 +14,6 @@ class CommentInput extends React.Component {
 
     state = {
         content: "",
-        height: 0
     };
 
     //新增留言
@@ -49,7 +48,7 @@ class CommentInput extends React.Component {
 
     render() {
         return (
-            <View style={{flex:1}}>
+            <View style={{ flex: 1 }}>
                 <View style={styles.rowPaddingInput}>
                     <View style={styles.littleCircle}>
                         <Image
@@ -66,7 +65,6 @@ class CommentInput extends React.Component {
                             underlineColorAndroid={'transparent'}
                             multiline={true}
                             onChangeText={content => { this.setState({ content }); }}
-                            onContentSizeChange={event => { this.setState({ height: event.nativeEvent.contentSize.height }); }}
                         />
                     </View>
                     <TouchableOpacity onPress={async () => {
@@ -80,9 +78,7 @@ class CommentInput extends React.Component {
                         <Image source={require('../../images/send.png')}
                             style={styles.sendIcon} />
                     </TouchableOpacity>
-                    <KeyboardAvoidingView behavior='padding' enabled> </KeyboardAvoidingView>
                 </View>
-
             </View>
 
         );
