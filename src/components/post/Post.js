@@ -63,6 +63,24 @@ class Post extends React.Component {
     }
   }
 
+  //頁面重整
+  reload = async (clubKey, postKey) => {
+    const { getInsidePost, navigation, syncPost, syncPostDelete } = this.props;
+    this.postOverLayar();
+    const obj = await getInsidePost(clubKey, postKey);
+    this.postOverLayar();
+    if (obj != null) {
+      //貼文同步
+      syncPost(obj);
+    }
+    else {
+      //刪除貼文同步
+      syncPostDelete(postKey);
+      Alert.alert("該貼文不存在！");
+      navigation.goBack();
+    }
+  };
+
   //點讚
   pressFavorite = async (clubKey, postKey) => {
     const { setPostFavorite, syncPost, syncPostDelete, navigation } = this.props;
@@ -175,6 +193,30 @@ class Post extends React.Component {
     navigation.goBack();
   };
 
+  //刪除留言
+  deleteComment = async (clubKey, postKey, commentKey) => {
+    const {
+      deletingComment,
+      navigation,
+      syncPost,
+      syncPostDelete,
+    } = this.props;
+    this.postOverLayar();
+    const obj = await deletingComment(clubKey, postKey, commentKey);
+    if (obj != null) {
+      //貼文同步
+      syncPost(obj);
+      this.postOverLayar();
+    }
+    else {
+      //刪除貼文同步
+      syncPostDelete(postKey);
+      Alert.alert("該貼文不存在！");
+      this.postOverLayar();
+      navigation.goBack();
+    }
+  };
+
   //開啟相機
   handleTakePhoto = async () => {
     try {
@@ -229,29 +271,12 @@ class Post extends React.Component {
     this.setState({ editLoading: !this.state.editLoading });
   }
 
-  //頁面重整
-  reload = async (clubKey, postKey) => {
-    const { getInsidePost, navigation, syncPost, syncPostDelete } = this.props;
-    this.postOverLayar();
-    const obj = await getInsidePost(clubKey, postKey);
-    this.postOverLayar();
-    if (obj != null) {
-      //貼文同步
-      syncPost(obj);
-    }
-    else {
-      //刪除貼文同步
-      syncPostDelete(postKey);
-      Alert.alert("該貼文不存在！");
-      navigation.goBack();
-    }
-  };
-
   //設定本頁comment
   setComment = (commentData) => {
     this.setState({ comment: commentData });
   };
 
+  //顯示user資訊
   showUser = async (uid) => {
     try {
       this.popupDialog.show(async () => {
@@ -277,6 +302,7 @@ class Post extends React.Component {
     }
   }
 
+  //顯示留言進階選項
   showAdvancedComment = (obj) => {
     try {
       this.advancedComment.show(() => {
@@ -615,14 +641,37 @@ class Post extends React.Component {
           />
         </PopupDialog>
 
+        {/* 留言進階功能 */}
         <PopupDialog
           ref={(advancedComment) => this.advancedComment = advancedComment}
           dialogAnimation={slideAnimation}
-          width={0.9}
-          height={0.3}
-          dialogStyle={{ borderRadius: 20 }}
+          width={0.8}
+          height={0.2}
+          dialogStyle={{ borderRadius: 20, justifyContent: 'center', alignItems: 'center' }}
         >
-          <Text>123</Text>
+          <Button
+            buttonStyle={[styles.advancedPostBtn, { display: this.state.advancedComment.editStatus ? 'flex' : 'none' }]}
+            title="編輯留言"
+            onPress={() => {
+
+            }}
+          />
+          <Button
+            buttonStyle={[styles.advancedPostBtn, { marginTop: 15, display: this.state.advancedComment.deleteStatus ? 'flex' : 'none' }]}
+            onPress={async () => {
+              Alert.alert('確定要刪除留言嗎？', '', [
+                { text: '取消', onPress: () => { } },
+                {
+                  text: '確定', onPress: async () => await this.deleteComment(
+                    this.state.advancedComment.clubKey,
+                    this.state.advancedComment.postKey,
+                    this.state.advancedComment.commentKey,
+                  )
+                },
+              ]);
+            }}
+            title="刪除留言"
+          />
         </PopupDialog>
 
         {this.state.loading ? <Overlayer /> : null}
