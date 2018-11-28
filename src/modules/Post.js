@@ -328,11 +328,31 @@ export const createPost = (cid, postData, club) => async (dispatch) => {
 
         const user = firebase.auth().currentUser
         const postRef = firebase.database().ref('posts').child(cid).push()
+        const postStorageRef = firebase.storage().ref('posts').child(cid).child(postRef.key)
+        const imgUrlArray = postData.images ? [] : false
+
+        if(postData.images) {
+            const promises = Object.keys(postData.images).map(async (key) => {
+                const uri = postData.images[key]
+                const response = await fetch(uri);
+                const blob = await response.blob(); //轉換照片格式為blob
+        
+                //更新firestore
+                const imageRef = postStorageRef.child(key)
+                const snapshot = await imageRef.put(blob)
+                const imgUrl = await snapshot.ref.getDownloadURL()
+
+                imgUrlArray.push(imgUrl)
+            })
+            
+            await Promise.all(promises)
+        }
+        
 
         const post = {
             title: postData.title,
             content: postData.content,
-            images: postData.images,
+            images: imgUrlArray,
             poster: user.uid,
             date: new Date().toUTCString(),
             favorites: false,
