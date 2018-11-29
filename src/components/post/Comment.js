@@ -18,32 +18,7 @@ class Comment extends React.Component {
         oldContent: "",
     };
 
-    //刪除留言
-    deleteComment = async (commentKey) => {
-        const {
-            deletingComment,
-            clubKey,
-            postKey,
-            postOverLayar,
-            navigation,
-            syncPost,
-            syncPostDelete,
-        } = this.props;
-        postOverLayar();
-        const obj = await deletingComment(clubKey, postKey, commentKey);
-        if (obj != null) {
-            //貼文同步
-            syncPost(obj);
-            postOverLayar();
-        }
-        else {
-            //刪除貼文同步
-            syncPostDelete(postKey);
-            Alert.alert("該貼文不存在！");
-            postOverLayar();
-            navigation.goBack();
-        }
-    };
+
 
     //編輯狀態改變
     statusEditChange = async (element) => {
@@ -157,7 +132,15 @@ class Comment extends React.Component {
                                                 }]}>
                                                     {element.numFavorites}</Text>
                                             </TouchableOpacity>
-                                            <TouchableOpacity onPress={() => { this.refs[element.commentKey].open(); }}
+                                            <TouchableOpacity onPress={() => {
+                                                this.props.showAdvancedComment({
+                                                    editStatus: element.editStatus,
+                                                    deleteStatus: element.deleteStatus,
+                                                    clubKey: element.clubKey,
+                                                    postKey: element.postKey,
+                                                    commentKey: element.commentKey,
+                                                });
+                                            }}
                                                 style={{ display: element.editStatus || element.deleteStatus ? "flex" : "none" }}>
                                                 <Image source={require('../../images/pencil.png')}
                                                     style={styles.icon} />
@@ -215,28 +198,6 @@ class Comment extends React.Component {
                                     }}
                                 />
                             </View>
-                            {/* 進階留言 */}
-                            {/* <Modal style={{ height: 200, justifyContent: 'center', alignItems: 'center' }} position={"bottom"} ref={element.commentKey}>
-                                <Button
-                                    buttonStyle={[styles.advancedCommentBtn, { display: element.editStatus ? 'flex' : 'none' }]}
-                                    title="編輯留言"
-                                    onPress={() => {
-                                        this.refs[element.commentKey].close();
-                                        // this.refs.editPost.open();
-                                    }}
-                                />
-                                <Text></Text>
-                                <Button
-                                    buttonStyle={[styles.advancedCommentBtn, { display: element.deleteStatus ? 'flex' : 'none' }]}
-                                    onPress={async () => {
-                                        Alert.alert('確定要刪除貼文嗎？', '', [
-                                            { text: '取消', onPress: () => { } },
-                                            { text: '確定', onPress: async () => await this.deletePost(this.state.post.clubKey, this.state.post.postKey) },
-                                        ]);
-                                    }}
-                                    title="刪除留言"
-                                />
-                            </Modal> */}
                         </View>
                     ))
                 ))}
