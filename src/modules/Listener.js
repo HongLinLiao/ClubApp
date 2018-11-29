@@ -67,7 +67,7 @@ export const listenToClub = (clubRef) => async (dispatch, getState) => {
                     newLikeClubs[cid][childSnapshot.key] = childSnapshot.val()
                     if(childSnapshot.key == 'open') {
                         const open = childSnapshot.val()
-                        if(!open && currentCid == cid) { //蒐藏社團被關閉的時候剛好也在這個社團
+                        if(!open && currentCid == cid) { //收藏社團被關閉的時候剛好也在這個社團
                             const _cid = randomCid(Object.keys(newJoinClubs))
                             dispatch(setCurrentClub(_cid))
                         }
@@ -184,7 +184,7 @@ export const listenToUserClubsAdd = (joinClubRef, likeClubRef) => async (dispatc
             dispatch(clubAdd(childSnapshot, 'JOIN'))
         })
         
-        //監聽蒐藏社團
+        //監聽收藏社團
         likeClubRef.on('child_added', (childSnapshot) => {
             dispatch(clubAdd(childSnapshot, 'LIKE'))
         })

@@ -1,16 +1,39 @@
-import { GET_POST_DATA } from '../actions/PostAction'
+import {
+  GET_POSTLIST,
+  GET_POST,
+  GET_SETPOSTLIST,
+  GET_SETPOST
+} from '../actions/PostAction'
 
 const initialState = {
-  allPost: {}, //所有貼文
+  postList: {},//每個tab貼文列
+  post: {},//每個tab單篇貼文
+  setPostList: {},//每個tab貼文列setState
+  setPost: {},//每個tab貼文setState
 }
 
 export const postReducer = (state = initialState, action) => {
   switch (action.type) {
 
-    case GET_POST_DATA:
+    case GET_POSTLIST:
       return {
         ...state,
-        allPost: action.postData
+        postList: action.postList
+      }
+    case GET_POST:
+      return {
+        ...state,
+        post: action.post
+      }
+    case GET_SETPOSTLIST:
+      return {
+        ...state,
+        setPostList: action.setPostList
+      }
+    case GET_SETPOST:
+      return {
+        ...state,
+        setPost: action.setPost
       }
     default:
       return state

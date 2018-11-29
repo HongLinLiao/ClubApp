@@ -45,23 +45,34 @@ class Club extends React.Component {
     // const cid = randomCid(allClubCids);
     // this.props.setCurrentClub(cid);
     if (currentCid) {
-      this.clubOverLayar()
-      await this.activityReload(currentCid);
-      await this.postReload(currentCid);
-      this.clubOverLayar()
+      // this.clubOverLayar()
+      // await this.activityReload(currentCid);
+      // await this.postReload(currentCid);
+      // this.clubOverLayar()
     }
   }
 
   //重整
   onRefresh = async () => {
     try {
-      const { currentCid } = this.props;
-      this.setState({ refreshing: true });
+      const { currentCid, likeClubs, setCurrentClub } = this.props;
+      let openClubCid = null
+      if(currentCid) {
+        this.setState({ refreshing: true });
+        this.clubOverLayar();
+        await this.activityReload(currentCid);
+        await this.postReload(currentCid);
+      } else {
+        Object.keys(likeClubs).map((cid) => {
+          const { open } = likeClubs[cid]
+          if(open) openClubCid = cid
+        })
+
+        setCurrentClub(openClubCid)
+      }
+      
+      this.clubOverLayar();
       this.setState({ refreshing: false });
-      this.clubOverLayar();
-      await this.activityReload(currentCid);
-      await this.postReload(currentCid);
-      this.clubOverLayar();
     } catch (error) {
       console.log(error.toString());
     }
@@ -72,13 +83,13 @@ class Club extends React.Component {
     this.setState({ loading: !this.state.loading });
   }
 
-  //檢查社團是否公開(蒐藏)
+  //檢查社團是否公開(收藏)
   checkTheClubOpen = (currentCid, joinClubs, likeClubs, setCurrentClub) => {
     let cid = currentCid
     if (cid) {
       const type = joinOrLikeClub(cid);
       if (type == 'LIKE') {
-        if (likeClubs[currentCid].open == false) { //蒐藏社團被設為不公開
+        if (likeClubs[currentCid].open == false) { //收藏社團被設為不公開
           let joinClubCids = Object.keys(joinClubs)
           cid = randomCid(joinClubCids)
           // this.setState({currentCid: cid})
@@ -226,7 +237,7 @@ class Club extends React.Component {
         _status = convertClubStatus(status)
       } else if (type == "LIKE") {
         clubs = likeClubs;
-        status = "蒐藏者";
+        _status = "收藏者";
       }
 
       const { schoolName, clubName, open, member, introduction, imgUrl } = clubs[currentCid];
@@ -448,10 +459,10 @@ class Club extends React.Component {
               options={clubsArray}
               onSelect={async (index, rowData) => {
                 this.props.setCurrentClub(rowData.cid);
-                this.clubOverLayar()
-                await this.activityReload(rowData.cid);
-                await this.postReload(rowData.cid);
-                this.clubOverLayar()
+                // this.clubOverLayar()
+                // await this.activityReload(rowData.cid);
+                // await this.postReload(rowData.cid);
+                // this.clubOverLayar()
               }}
               renderButtonText={rowData =>
                 rowData.schoolName + "  " + rowData.clubName + " ▼"
@@ -489,14 +500,26 @@ class Club extends React.Component {
         <View
           style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
         >
-          <Text
-            style={{
-              fontSize: 18,
-              color: "#666666"
-            }}
-          >
-            沒有可以顯示的社團
-          </Text>
+          <ScrollView
+              contentContainerStyle={{flex: 1, width: '100%', alignItems: 'center', justifyContent: 'center'}}
+              showsVerticalScrollIndicator={false}
+              refreshControl={
+                <RefreshControl
+                  refreshing={this.state.refreshing}
+                  onRefresh={() => this.onRefresh()}
+                  tintColor='#f6b456'
+                />
+              }
+            >
+            <Text
+              style={{
+                fontSize: 18,
+                color: "#666666"
+              }}
+            >
+              沒有可以顯示的社團(下拉重整)
+            </Text>
+          </ScrollView>
         </View>
       );
     }

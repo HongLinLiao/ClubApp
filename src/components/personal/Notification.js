@@ -74,7 +74,7 @@ class Notification extends React.Component {
           }
         />
         <View style={styles.boxView} />
-        <ListItem
+        {/* <ListItem
           title='夜間模式'
           titleStyle={{ fontSize: 18, color: '#666666', }}
           switch={{
@@ -89,7 +89,7 @@ class Notification extends React.Component {
             <View style={styles.leftIcon}>
               <Image source={require('../../images/moon.png')} style={styles.alarm} />
             </View>}
-        />
+        /> */}
 
         {
           Object.keys(clubNotificationList).map((cid) => {
@@ -108,7 +108,7 @@ class Notification extends React.Component {
                   switch={{
                     value: item.on,
                     onValueChange: () => this.setClub(cid, !item.on),
-                    disabled: globalNotification,
+                    disabled: !globalNotification,
                     style:{ transform: [{ scaleX: 1 }, { scaleY: 1 }] },
                     onTintColor:'rgba(246,180,86,1)',
                     tintColor:'rgba(246,180,86,0.1)',

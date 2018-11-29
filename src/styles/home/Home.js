@@ -36,7 +36,9 @@ export default StyleSheet.create({
     flexDirection: "row",
     marginLeft: 5,
     marginRight: 5,
-    marginTop: 5
+    marginTop: 5,
+    paddingBottom:3,
+    paddingTop:3,
   },
   shadow: {
     shadowOffset: { width: 1, height: 1 },
@@ -79,7 +81,7 @@ export default StyleSheet.create({
   newsClubText: {
     color: "#666666",
     paddingRight: 5,
-    fontSize: 15
+    fontSize: 13
   },
   newsManagerText: {
     color: "#666666",
@@ -95,11 +97,11 @@ export default StyleSheet.create({
   },
   newsNameText: {
     color: "#666666",
-    fontSize: 23
+    fontSize: 21
   },
   newsDateText: {
     color: "#666666",
-    fontSize: 10
+    fontSize: 9
   },
 
   newsContentView: {
@@ -108,7 +110,7 @@ export default StyleSheet.create({
   },
   newsContentText: {
     color: "#666666",
-    fontSize: 15,
+    fontSize: 13,
     height: "100%",
     lineHeight: 20,
   },
@@ -126,7 +128,8 @@ export default StyleSheet.create({
     flex: 1,
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "flex-end"
+    justifyContent: "flex-end",
+    
   },
   aIcon: {
     flexDirection: "row",

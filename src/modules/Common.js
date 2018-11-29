@@ -63,7 +63,7 @@ export const changeMemberStatusToChinese = (status) => {
   }
 }
 
-//判斷社團是蒐藏還是加入
+//判斷社團是收藏還是加入
 export const joinOrLikeClub = (cid) => {
   const { joinClub, likeClub } = store.getState().userReducer
   let result = null

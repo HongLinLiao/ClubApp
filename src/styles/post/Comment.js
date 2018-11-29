@@ -18,15 +18,15 @@ export default StyleSheet.create({
         alignItems: 'flex-start',
         margin: 10,
         borderRadius: 25,
-        
+
     },
-    littleCircle:{
-        width: 50, 
-        height: 50, 
+    littleCircle: {
+        width: 50,
+        height: 50,
         //borderRadius: 80, 
-        overflow: 'hidden', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
+        overflow: 'hidden',
+        justifyContent: 'center',
+        alignItems: 'center',
         margin: 10,
     },
     columnLine: {
@@ -77,8 +77,8 @@ export default StyleSheet.create({
     sendIcon: {
         height: 22,
         width: 22,
-        marginRight: 5,
-        marginLeft: 5,
+        marginRight: 15,
+        marginLeft: 10,
         marginTop: 8
     },
     rowPaddingInput: {
@@ -86,7 +86,7 @@ export default StyleSheet.create({
         alignSelf: 'stretch',
         backgroundColor: 'rgba(246,180,86,1)',
         justifyContent: 'space-between',
-        alignItems:'center'
+        alignItems: 'center'
     },
     columnTabBar: {
         flexDirection: 'column',
@@ -102,12 +102,12 @@ export default StyleSheet.create({
         marginBottom: 7,
         paddingLeft: 10,
         paddingRight: 10,
-        flex:1
+        flex: 1
     },
     textInputTabBar: {
         alignSelf: 'stretch',
         color: '#666666',
-        flex:1
+        flex: 1
     },
     sbColumn: {
         flexDirection: 'column',
@@ -121,5 +121,14 @@ export default StyleSheet.create({
         height: 13,
         width: 13,
         marginTop: 8
-    }
+    },
+    advancedCommentBtn: {
+        backgroundColor: 'rgba(246,180,86,1)',
+        width: 250,
+        height: 45,
+        borderColor: "transparent",
+        borderWidth: 0,
+        borderRadius: 30
+    },
+
 })

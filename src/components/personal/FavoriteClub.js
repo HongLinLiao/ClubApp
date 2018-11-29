@@ -18,7 +18,7 @@ class FavoriteClub extends React.Component {
   dislike = cid => {
     Alert.alert(
       "取消收藏社團",
-      "確定要取消收藏社團(一旦取消蒐藏社團相關資料將被刪除))",
+      "確定要取消收藏社團(一旦取消收藏社團相關資料將被刪除))",
       [
         {
           text: "再思考一下",
@@ -37,7 +37,7 @@ class FavoriteClub extends React.Component {
       const { clubName, schoolName } = likeClubs[cid];
       await dislikeTheClub(cid);
 
-      Alert.alert("已取消蒐藏 " + clubName + " " + schoolName);
+      Alert.alert("已取消收藏 " + clubName + " " + schoolName);
       this.setState({ loading: false });
     } catch (e) {
       console.log(e);

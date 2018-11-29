@@ -17,12 +17,7 @@ class Activity extends React.Component {
 
     state = {
         activity: {},
-        region: {
-            latitude: 37.78825,
-            longitude: -122.4324,
-            latitudeDelta: 0.0922,
-            longitudeDelta: 0.0421,
-        },
+        region: null,
         loading: false,
         refreshing: false,
     }
@@ -128,7 +123,7 @@ class Activity extends React.Component {
     render() {
         const activityData = this.state.activity;
         const element = JSON.parse(JSON.stringify(activityData));
-        const { startDateTime, endDateTime } = element
+        const { startDateTime, endDateTime, location } = element
         const _startDateTime = convertDateFormat(startDateTime)
         const _endDateTime = convertDateFormat(endDateTime)
         return (
@@ -204,20 +199,23 @@ class Activity extends React.Component {
                         </View>
                     </View>
                     {
-                        // <View style={styles.main}>
-                        //     <MapView
-                        //         style={{ height: 250, marginLeft: 20, marginTop: 10, marginRight: 20 }}
-                        //         region={this.state.region}>
-                        //         <Marker
-                        //             coordinate={{
-                        //                 latitude: this.state.region.latitude,
-                        //                 longitude: this.state.region.longitude,
-                        //             }}
-                        //             title='你現在的位置'
-                        //             description='在此位置辦活動'
-                        //         />
-                        //     </MapView>
-                        // </View>
+                        location ? (
+                            <MapView
+                                style={{ height: 250, marginLeft: 20, marginTop: 10, marginRight: 20 }}
+                                region={location}
+                            >
+                                <Marker
+                                    coordinate={{
+                                        latitude: location.latitude,
+                                        longitude: location.longitude,
+                                        latitudeDelta: location.latitudeDelta,
+                                        longitudeDelta: location.longitudeDelta
+                                    }}
+                                    title='你現在的位置'
+                                    description='在此位置辦活動'
+                                />
+                            </MapView>
+                        ) : null
                     }
 
                     <View style={styles.main}>

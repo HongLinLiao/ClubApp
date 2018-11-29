@@ -1,6 +1,5 @@
 import React from 'react'
 import { ScrollView, Text, Alert, Image, TouchableOpacity, RefreshControl } from 'react-native'
-import { Button } from 'react-native-elements'
 import PostListElement from '../post/PostListElement'
 import styles from '../../styles/home/Home'
 import { View } from 'native-base';
@@ -15,14 +14,24 @@ const slideAnimation = new SlideAnimation({
 });
 
 class Home extends React.Component {
+
+    componentWillMount() {
+        this.props.navigation.setParams({
+            homeReload: this.homeReload.bind(this)
+        })
+    }
+
     async componentDidMount() {
-        const { joinClub, likeClub, initHomeClubList } = this.props;
+        const { joinClub, likeClub, initHomeClubList, initSetPostList, navigation } = this.props;
+        await initSetPostList(newPostList => { this.setState({ post: newPostList }); }, navigation);
+        this.setState({ loading: !this.state.loading })
         const homeClubList = await initHomeClubList(joinClub, likeClub);
+        this.setState({ loading: !this.state.loading })
         await this.homeReload(homeClubList);
     }
 
     state = {
-        post: {},
+        post: [],
         userData: { uid: null, user: null, clubs: null },
         //遮罩
         loading: false,
@@ -30,46 +39,37 @@ class Home extends React.Component {
         refreshing: false,
     }
 
+    //頁面重整
+    homeReload = async (clubList) => {
+        //開啟過門
+        this.homeOverLayor();
+        const { getHomePostReload, navigation } = this.props;
+        await getHomePostReload(clubList, navigation);
+        //關閉過門
+        this.homeOverLayor();
+    };
+
+    //重整動畫
     onRefresh = async () => {
         try {
-            const { clubList, getHomePostReload } = this.props;
+            const { clubList } = this.props;
             this.setState({ refreshing: true });
             this.setState({ refreshing: false });
-            // await getHomePostReload(clubList, newPostList => {
-            //     this.setState({ post: newPostList });
-            // });
             this.homeReload(clubList);
         } catch (error) {
             console.log(error.toString());
         }
     }
 
-    //過門
-    homeOverLayor = () => {
-        this.setState({ loading: !this.state.loading })
-    }
-
-    //頁面重整
-    homeReload = async (clubList) => {
-        //開啟過門
-        this.homeOverLayor();
-        const { getHomePostReload } = this.props;
-        await getHomePostReload(clubList, newPostList => {
-            this.setState({ post: newPostList });
-        });
-        //關閉過門
-        this.homeOverLayor();
-    };
-
     //更改postList
     setPostList = (postList) => {
         this.setState({ post: postList });
     };
 
-    //進入內頁onPress()事件，放入postList讓元件render
-    goSelectingPage = (navigation) => {
-        navigation.navigate("Selecting", { homeReload: this.homeReload });
-    };
+    //過門
+    homeOverLayor = () => {
+        this.setState({ loading: !this.state.loading })
+    }
 
     showUser = async (uid) => {
         try {
@@ -98,7 +98,7 @@ class Home extends React.Component {
     }
 
     render() {
-        const newPostList = { ...this.state.post };
+        const newPostList = JSON.parse(JSON.stringify(this.state.post));
         const { uid, user, clubs } = this.state.userData
         return (
             <View style={{ backgroundColor: "#ffffff", flex: 1 }}>
@@ -111,30 +111,25 @@ class Home extends React.Component {
                         />
                     }
                 >
-                    <Button
-                        title='selecting!'
-                        onPress={() => { this.goSelectingPage(this.props.navigation); }}
-                    />
                     <View style={styles.containView}>
                         {
-                            Object.values(newPostList).map((clubElement) => (
-                                Object.values(clubElement).map((postElement) => (
+                            newPostList.map((postElement) => (
+                                Object.values(postElement).map((post) => (
                                     <PostListElement
-                                        key={postElement.postKey}
-                                        post={postElement}
+                                        key={post.postKey}
+                                        post={post}
                                         navigation={this.props.navigation}
                                         getInsidePost={this.props.getInsidePost}
-                                        getPostComment={this.props.getPostComment}
                                         setPostFavorite={this.props.setPostFavorite}
-                                        postList={this.state.post}
-                                        setPostList={this.setPostList}
                                         showUser={this.showUser.bind(this)}
                                         parentOverLayor={this.homeOverLayor}
+                                        syncPost={this.props.syncPost}
+                                        syncPostDelete={this.props.syncPostDelete}
+                                        syncPostBack={this.props.syncPostBack}
                                     >
                                     </PostListElement>
                                 ))
                             ))
-
                         }
                     </View>
                 </ScrollView>

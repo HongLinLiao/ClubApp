@@ -40,6 +40,7 @@ const UserDialog = ({uid, user, clubs, loading}) => {
                                     let _status = ''
                                     switch(status) {
                                         case 'master': _status = '社長'; break
+                                        case 'supervisor': _status = '幹部'; break
                                         case 'member': _status = '社員'; break
                                     }
                                     return (

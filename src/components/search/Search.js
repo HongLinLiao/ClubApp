@@ -121,7 +121,7 @@ class Search extends React.Component {
   //我把listitem都刪掉了
   render() {
     return (
-      <View style={{flex: 1}}>
+      <View style={{ flex: 1 }}>
         <ScrollView style={{ backgroundColor: "#ffffff" }}>
           <View style={{ flex: 1, backgroundColor: "#ffffff" }}>
             <View style={{ flex: 1 }}>
@@ -148,7 +148,7 @@ class Search extends React.Component {
                         </View>
                         <View style={{ justifyContent: 'flex-end' }}>
                           <Text style={styles.clubStatusText}>
-                            {status.hasJoin ? '已加入' : !club.open ? '不公開' : status.hasLike ? '已收藏' : '新的社團'}
+                            {status.hasJoin ? '已加入' : !club.open ? '不公開' : status.hasLike ? '已收藏' : ''}
                           </Text>
                         </View>
                       </View>

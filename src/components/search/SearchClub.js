@@ -40,10 +40,10 @@ class SearchClub extends React.Component {
       hasJoin,
       hasLike: hasJoin ? hasJoin : hasLike
     });
-    this.clubOverLayar();
-    await this.activityReload(navigation.state.params.club.cid);
-    await this.postReload(navigation.state.params.club.cid);
-    this.clubOverLayar();
+    // this.clubOverLayar();
+    // await this.activityReload(navigation.state.params.club.cid);
+    // await this.postReload(navigation.state.params.club.cid);
+    // this.clubOverLayar();
   }
 
   //重整
@@ -51,10 +51,10 @@ class SearchClub extends React.Component {
     try {
       this.setState({ refreshing: true });
       this.setState({ refreshing: false });
-      this.clubOverLayar();
-      await this.activityReload(this.props.navigation.state.params.club.cid);
-      await this.postReload(this.props.navigation.state.params.club.cid);
-      this.clubOverLayar();
+      // this.clubOverLayar();
+      // await this.activityReload(this.props.navigation.state.params.club.cid);
+      // await this.postReload(this.props.navigation.state.params.club.cid);
+      // this.clubOverLayar();
     } catch (error) {
       console.log(error.toString());
     }
@@ -150,7 +150,7 @@ class SearchClub extends React.Component {
 
       this.setState({ loading: false, hasLike: true });
 
-      Alert.alert("已成功蒐藏!");
+      Alert.alert("已成功收藏!");
     } catch (e) {
       Alert.alert(e.toString());
     }
@@ -238,7 +238,7 @@ class SearchClub extends React.Component {
                               { color: hasLike ? "#f6b456" : "#0d4273" }
                             ]}
                           >
-                            {hasLike ? "已蒐藏" : "蒐藏社團"}
+                            {hasLike ? "已收藏" : "收藏社團"}
                           </Text>
                         </TouchableOpacity>
                       </View>

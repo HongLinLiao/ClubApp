@@ -115,6 +115,7 @@ export default StyleSheet.create({
     //borderRadius: 100,
   },
   clubSummaryView: {
+    paddingTop:15,
     paddingLeft: 30,
     paddingRight: 30
   },
