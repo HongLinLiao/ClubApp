@@ -26,13 +26,13 @@ export default createStackNavigator({
   Activity: {
     screen: ActivityPage,
     navigationOptions: ({ navigation }) => ({
-			headerTitleStyle: {
-				color: '#666666',
-				fontSize: 18,
-				fontFamily: 'Courier',
-			},
-			headerStyle: {
-				backgroundColor: '#f6b456'
+      headerTitleStyle: {
+        color: '#666666',
+        fontSize: 18,
+        fontFamily: 'Courier',
+      },
+      headerStyle: {
+        backgroundColor: '#f6b456'
       },
       headerBackImage: (
         <TouchableOpacity onPress={() => navigation.goBack()}>
@@ -40,27 +40,34 @@ export default createStackNavigator({
             style={{ width: 25, height: 25 }} />
         </TouchableOpacity>
       ),
-		})
+    })
   },
 
-  Post: {
+  ClubPost: {
     screen: PostPage,
     navigationOptions: ({ navigation }) => ({
-			headerTitleStyle: {
-				color: '#666666',
-				fontSize: 25,
-				fontFamily: 'Courier',
-			},
-			headerStyle: {
-				backgroundColor: '#f6b456'
+      headerTitleStyle: {
+        color: '#666666',
+        fontSize: 25,
+        fontFamily: 'Courier',
       },
-      headerBackImage: (
-        <TouchableOpacity onPress={() => navigation.goBack()}>
+      headerStyle: {
+        backgroundColor: '#f6b456'
+      },
+      headerLeft: (
+        <TouchableOpacity onPress={async () => {
+          const syncPostBack = navigation.state.params.syncPostBack;
+          const routeName = navigation.state.routeName;
+          await syncPostBack(routeName);
+          navigation.goBack();
+        }}
+          style={{ flexDirection: 'row' }}
+        >
           <Image source={require('../images/images2/arrowLeftBlue.png')}
             style={{ width: 25, height: 25 }} />
         </TouchableOpacity>
-      ),
-		})
+      )
+    })
   },
 
   AddPost: {

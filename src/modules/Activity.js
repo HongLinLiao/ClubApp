@@ -201,6 +201,7 @@ export const createActivity = (cid, activityData, club) => async (dispatch) => {
             editDate: new Date().toUTCString(),
             views: false,
             favorites: false,
+            keeps: false
         }
 
         await activityRef.set(activity)

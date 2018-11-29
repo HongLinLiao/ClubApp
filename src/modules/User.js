@@ -55,7 +55,7 @@ export const getAllUserData = (user) => async (dispatch) => {
       console.log(clubsData)
       console.log(allClubCids)
       console.log(_randomCid)
-      
+
       dispatch(SettingAction.setAllSetting(settingData))
       dispatch(ClubAction.setCurrentClub(_randomCid))
       dispatch(ClubAction.setAllClubData(clubsData))
@@ -111,7 +111,7 @@ export const getUserStateToRedux = async () => {
     const user = firebase.auth().currentUser
     const userRef = firebase.database().ref('users').child(user.uid)
     const userShot = await userRef.once('value')
-    const { nickName, password, loginType, aboutMe, joinClub, likeClub } = userShot.val()
+    const { nickName, password, loginType, aboutMe, joinClub, likeClub, activities } = userShot.val()
 
     let userData = {
       user: { ...user },
@@ -121,6 +121,7 @@ export const getUserStateToRedux = async () => {
       aboutMe: aboutMe || '',
       joinClub: joinClub ? joinClub : {},
       likeClub: likeClub ? likeClub : {},
+      activities: activities || {},
     }
 
     return userData
@@ -178,7 +179,7 @@ export const setUserStateToDB = async (userState) => {
       DB_userState = { ...DB_userState, aboutMe: userState.aboutMe }
 
     if (userState.photoUrl)
-      DB_userState = { ...DB_userState, photoUrl: userState.photoUrl}
+      DB_userState = { ...DB_userState, photoUrl: userState.photoUrl }
 
     await userRef.update(DB_userState)
 
@@ -208,6 +209,7 @@ export const createUserInDatabase = async (user, userInfo) => {
       aboutMe: false,
       joinClub: false,
       likeClub: false,
+      activities: false,
     })
 
     //userReducer新增

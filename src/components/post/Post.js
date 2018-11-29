@@ -39,7 +39,8 @@ class Post extends React.Component {
     comment: [],
     userData: { uid: null, user: null, clubs: null },
     loading: false,//貼文過門
-    editLoading: false,//編輯過門
+    editPostLoading: false,//編輯貼文過門
+    editCommentLoading: false,//編輯留言過門,
     editTitle: '',//編輯標題
     editTitleStatus: false,//編輯標題狀態
     editContent: '',//編輯內容
@@ -49,6 +50,7 @@ class Post extends React.Component {
     newImg: [],//新增照片
     newImgStatus: false,//新增照片狀態
     advancedComment: {},//進階留言
+    tempInput: '',//編輯留言暫存
     refreshing: false,//重整
   };
 
@@ -121,7 +123,7 @@ class Post extends React.Component {
       }
     }
     if (status) {
-      this.editOverLayar();
+      this.editPostOverLayar();
       let newData = {};
       if (this.state.editTitleStatus) {
         newData.title = this.state.editTitle;
@@ -158,14 +160,14 @@ class Post extends React.Component {
           newImg: [],
           newImgStatus: false,
         })
-        this.editOverLayar();
+        this.editPostOverLayar();
         this.refs.editPost.close();
       }
       else {
         //刪除貼文同步
         syncPostDelete(postKey);
         Alert.alert("該貼文不存在！");
-        this.editOverLayar();
+        this.editPostOverLayar();
         this.refs.editPost.close();
         navigation.goBack();
       }
@@ -191,6 +193,33 @@ class Post extends React.Component {
       this.postOverLayar();
     }
     navigation.goBack();
+  };
+
+  //編輯留言
+  editComment = async (clubKey, postKey, commentKey) => {
+    const content = this.state.tempInput;
+    const {
+      editingComment,
+      navigation,
+      syncPost,
+      syncPostDelete
+    } = this.props;
+    this.editCommentOverLayar();
+    const obj = await editingComment(clubKey, postKey, commentKey, content);
+    if (obj != null) {
+      //貼文同步
+      syncPost(obj);
+      this.editCommentOverLayar();
+      this.editCommentDialog.dismiss();
+    }
+    else {
+      //刪除貼文同步
+      syncPostDelete(postKey);
+      Alert.alert("該貼文不存在！");
+      this.editCommentOverLayar();
+      this.editCommentDialog.dismiss();
+      navigation.goBack();
+    }
   };
 
   //刪除留言
@@ -267,8 +296,12 @@ class Post extends React.Component {
     this.setState({ loading: !this.state.loading });
   };
 
-  editOverLayar = () => {
-    this.setState({ editLoading: !this.state.editLoading });
+  editPostOverLayar = () => {
+    this.setState({ editPostLoading: !this.state.editPostLoading });
+  }
+
+  editCommentOverLayar = () => {
+    this.setState({ editCommentLoading: !this.state.editCommentLoading });
   }
 
   //設定本頁comment
@@ -430,9 +463,6 @@ class Post extends React.Component {
               clubKey={element.clubKey}
               postKey={element.postKey}
               navigation={this.props.navigation}
-              deletingComment={this.props.deletingComment}
-              editingComment={this.props.editingComment}
-              setComment={this.setComment}
               setCommentFavorite={this.props.setCommentFavorite}
               showUser={this.showUser.bind(this)}
               showAdvancedComment={this.showAdvancedComment.bind(this)}
@@ -474,7 +504,12 @@ class Post extends React.Component {
             onPress={async () => {
               Alert.alert('確定要刪除貼文嗎？', '', [
                 { text: '取消', onPress: () => { } },
-                { text: '確定', onPress: async () => await this.deletePost(this.state.post.clubKey, this.state.post.postKey) },
+                {
+                  text: '確定', onPress: async () => {
+                    this.refs.advancedPost.close();
+                    await this.deletePost(this.state.post.clubKey, this.state.post.postKey)
+                  }
+                },
               ]);
             }}
             title="刪除貼文"
@@ -622,7 +657,7 @@ class Post extends React.Component {
               />
             </View>
           </View>
-          {this.state.editLoading ? <Overlayer /> : null}
+          {this.state.editPostLoading ? <Overlayer /> : null}
         </Modal>
 
         {/* 顯示user資料 */}
@@ -653,7 +688,8 @@ class Post extends React.Component {
             buttonStyle={[styles.advancedPostBtn, { display: this.state.advancedComment.editStatus ? 'flex' : 'none' }]}
             title="編輯留言"
             onPress={() => {
-
+              this.advancedComment.dismiss();
+              this.editCommentDialog.show();
             }}
           />
           <Button
@@ -662,16 +698,61 @@ class Post extends React.Component {
               Alert.alert('確定要刪除留言嗎？', '', [
                 { text: '取消', onPress: () => { } },
                 {
-                  text: '確定', onPress: async () => await this.deleteComment(
-                    this.state.advancedComment.clubKey,
-                    this.state.advancedComment.postKey,
-                    this.state.advancedComment.commentKey,
-                  )
+                  text: '確定', onPress: async () => {
+                    this.advancedComment.dismiss();
+                    await this.deleteComment(
+                      this.state.advancedComment.clubKey,
+                      this.state.advancedComment.postKey,
+                      this.state.advancedComment.commentKey,
+                    )
+                  }
                 },
               ]);
             }}
             title="刪除留言"
           />
+        </PopupDialog>
+
+        {/* 留言編輯功能 */}
+        <PopupDialog
+          ref={(editCommentDialog) => this.editCommentDialog = editCommentDialog}
+          dialogAnimation={slideAnimation}
+          width={0.8}
+          height={0.4}
+          dialogStyle={{ borderRadius: 20, justifyContent: 'center', alignItems: 'center' }}
+        >
+          <View style={{ width: 200 }}>
+            <View style={{ height: 200, backgroundColor: '#FFDDAA', borderRadius: 20 }}>
+              <TextInput
+                ref={(editCommentContent) => { this.editCommentContent = editCommentContent }}
+                underlineColorAndroid={'transparent'}
+                onChangeText={tempInput => { this.setState({ tempInput }); }}
+                defaultValue={this.state.advancedComment.content}
+                multiline={true}
+                style={styles.editCommentInput}
+              />
+            </View>
+            <View style={{ flexDirection: 'row', marginTop: 20, justifyContent: 'space-around' }}>
+              <Button
+                title={'取消'}
+                buttonStyle={styles.editCommentbtn}
+                onPress={() => {
+                  this.editCommentDialog.dismiss();
+                  this.setState({ tempInput: '' });
+                }}
+                titleStyle={{ fontSize: 15 }}
+              />
+              <Button
+                title={'確定'}
+                buttonStyle={styles.editCommentbtn}
+                titleStyle={{ fontSize: 15 }}
+                onPress={async () => {
+                  await this.editComment(this.state.advancedComment.clubKey, this.state.advancedComment.postKey, this.state.advancedComment.commentKey);
+                }}
+              />
+            </View>
+          </View>
+          {this.state.editCommentLoading ? <Overlayer /> : null}
         </PopupDialog>
 
         {this.state.loading ? <Overlayer /> : null}

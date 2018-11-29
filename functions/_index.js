@@ -137,6 +137,39 @@ exports.getHomePost = functions.https.onCall(async (data, context) => {
     }
 });
 
+//取得社團文章
+exports.getClubPost = functions.https.onCall(async (data, context) => {
+    try {
+        const uid = context.auth.uid;
+        const clubKey = data;
+        //回傳物件
+        let obj = {
+            postListArr: []
+        };
+        let status = false;
+        let club = await getClubData(clubKey);
+        if (club) {
+            //社團有無開放
+            if (club.open == true) {
+                status = true;
+            }
+            else if (club.open == false) {
+                //是否為社員
+                if (club.member[uid]) {
+                    status = true;
+                }
+            }
+            if (status) {
+                obj = await getPostFromClub(clubKey, uid, club, obj);
+            }
+            return obj;
+        }
+    }
+    catch (error) {
+        console.log(context.auth.uid + ' : ' + error.toString());
+    }
+});
+
 //進入貼文內頁
 exports.getPostInside = functions.https.onCall(async (data, context) => {
     try {
@@ -174,7 +207,7 @@ exports.getPostInside = functions.https.onCall(async (data, context) => {
                 comment.sort(function (a, b) {
                     let aDate = a[Object.keys(a)[0]].date;
                     let bDate = b[Object.keys(b)[0]].date;
-                    return new Date(bDate) < new Date(aDate) ? -1 : 1
+                    return new Date(bDate) > new Date(aDate) ? -1 : 1
                 })
             }
             obj.comment = comment;
@@ -241,7 +274,7 @@ exports.editPost = functions.https.onCall(async (data, context) => {
                 comment.sort(function (a, b) {
                     let aDate = a[Object.keys(a)[0]].date;
                     let bDate = b[Object.keys(b)[0]].date;
-                    return new Date(bDate) < new Date(aDate) ? -1 : 1
+                    return new Date(bDate) > new Date(aDate) ? -1 : 1
                 })
             }
             obj.comment = comment;
@@ -360,7 +393,7 @@ exports.setPostFavorite = functions.https.onCall(async (data, context) => {
                         comment.sort(function (a, b) {
                             let aDate = a[Object.keys(a)[0]].date;
                             let bDate = b[Object.keys(b)[0]].date;
-                            return new Date(bDate) < new Date(aDate) ? -1 : 1
+                            return new Date(bDate) > new Date(aDate) ? -1 : 1
                         })
                     }
                     obj.comment = comment;
@@ -417,7 +450,7 @@ exports.createComment = functions.https.onCall(async (data, context) => {
                     comment.sort(function (a, b) {
                         let aDate = a[Object.keys(a)[0]].date;
                         let bDate = b[Object.keys(b)[0]].date;
-                        return new Date(bDate) < new Date(aDate) ? -1 : 1
+                        return new Date(bDate) > new Date(aDate) ? -1 : 1
                     })
                 }
                 obj.comment = comment;
@@ -473,7 +506,7 @@ exports.deleteComment = functions.https.onCall(async (data, context) => {
                     comment.sort(function (a, b) {
                         let aDate = a[Object.keys(a)[0]].date;
                         let bDate = b[Object.keys(b)[0]].date;
-                        return new Date(bDate) < new Date(aDate) ? -1 : 1
+                        return new Date(bDate) > new Date(aDate) ? -1 : 1
                     })
                 }
                 obj.comment = comment;
@@ -529,7 +562,7 @@ exports.editComment = functions.https.onCall(async (data, context) => {
                     comment.sort(function (a, b) {
                         let aDate = a[Object.keys(a)[0]].date;
                         let bDate = b[Object.keys(b)[0]].date;
-                        return new Date(bDate) < new Date(aDate) ? -1 : 1
+                        return new Date(bDate) > new Date(aDate) ? -1 : 1
                     })
                 }
                 obj.comment = comment;
@@ -626,7 +659,7 @@ exports.setCommentFavorite = functions.https.onCall(async (data, context) => {
                     comment.sort(function (a, b) {
                         let aDate = a[Object.keys(a)[0]].date;
                         let bDate = b[Object.keys(b)[0]].date;
-                        return new Date(bDate) < new Date(aDate) ? -1 : 1
+                        return new Date(bDate) > new Date(aDate) ? -1 : 1
                     })
                 }
                 obj.comment = comment;

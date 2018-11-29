@@ -56,7 +56,7 @@ export const getHomePostReload = (clubList, navigation) => async (dispatch, getS
     }
 }
 
-//活動列重整（未知）
+//活動列重整
 export const getHomeActivityReload = (activityReload) => async (dispatch) => {
     try {
         const keepList = await getUserActivities();

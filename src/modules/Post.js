@@ -61,7 +61,7 @@ export const initSetPost = (setPost, navigation) => async (dispatch, getState) =
 export const initSetPostList = (setPostList, navigation) => async (dispatch, getState) => {
     try {
         let setPostListInReducer = getState().postReducer.setPostList;
-        let newObjct = JSON.parse(JSON.stringify(setPostListInReducer));
+        let newObjct = Object.assign({}, setPostListInReducer);
         const routeName = navigation.state.routeName;
         newObjct[routeName] = setPostList;
         dispatch(PostAction.getSetPostList(newObjct));
@@ -84,56 +84,72 @@ export const syncPost = (data) => async (dispatch, getState) => {
         let status = false;
         //如果是陣列，表示更動的來源是重整
         if (Array.isArray(data)) {
-            data.map((child) => {
-                let postKey = Object.keys(child)[0];
-
-                //更新貼文列
-                //需要查詢的route
+            if (data.length == 0) {
                 let itemPostList = Object.keys(ordPostList);
-                //跑查詢的route裡是否具有要更動的貼文
+                //空的再設成空的，解決首頁篩遠後是空的清不完的問題
                 for (let i = 0; i < itemPostList.length; i++) {
-                    let result = ordPostList[itemPostList[i]].some(function (value, index, array) {
-                        if (Object.keys(value)[0] == postKey) {
-                            //更改貼文列
-                            ordPostList[itemPostList[i]][index][postKey] = child[postKey];
-                            //代表有改變要寫進route 頁面
-                            status = true;
-                            postListStatus = true;
-                            return true;
-                        }
-                        else {
-                            return false;
-                        }
-                    });
+                    if (ordPostList[itemPostList[i]].length == 0) {
+                        status = true;
+                    }
                     //空的
                     if (status) {
                         let setPostListFuction = getState().postReducer.setPostList[itemPostList[i]];
                         setPostListFuction(ordPostList[itemPostList[i]]);
-                        console.log(postKey + ': ' + itemPostList[i] + '已同步');
                     }
                 };
+            }
+            else {
+                data.map((child) => {
+                    let postKey = Object.keys(child)[0];
 
-                //更新貼文
-                //需要查詢的route
-                let itemPost = Object.keys(ordPost);
-                let keyList;
-                //跑查詢的route是某具有要更動的貼文
-                for (let j = 0; j < itemPost.length; j++) {
-                    keyList = Object.keys(ordPost[itemPost[j]]);
-                    for (let z = 0; z < keyList.length; z++) {
-                        if (keyList[z] == postKey) {
-                            //更改內容
-                            ordPost[itemPost[j]][keyList[z]]['post'] = child[postKey];
-                            //寫進頁面
-                            let setPostFuction = getState().postReducer.setPost[itemPost[j]];
-                            setPostFuction(ordPost[itemPost[j]][keyList[z]]);
-                            postStatus = true;
-                            console.log(postKey + ': ' + itemPost[j] + '已同步');
-                            break;
+                    //更新貼文列
+                    //需要查詢的route
+                    let itemPostList = Object.keys(ordPostList);
+                    //跑查詢的route裡是否具有要更動的貼文
+                    for (let i = 0; i < itemPostList.length; i++) {
+                        let result = ordPostList[itemPostList[i]].some(function (value, index, array) {
+                            if (Object.keys(value)[0] == postKey) {
+                                //更改貼文列
+                                ordPostList[itemPostList[i]][index][postKey] = child[postKey];
+                                //代表有改變要寫進route 頁面
+                                status = true;
+                                postListStatus = true;
+                                return true;
+                            }
+                            else {
+                                return false;
+                            }
+                        });
+                        //空的
+                        if (status) {
+                            let setPostListFuction = getState().postReducer.setPostList[itemPostList[i]];
+                            setPostListFuction(ordPostList[itemPostList[i]]);
+                            console.log(postKey + ': ' + itemPostList[i] + '已同步');
+                        }
+                    };
+
+                    //更新貼文
+                    //需要查詢的route
+                    let itemPost = Object.keys(ordPost);
+                    let keyList;
+                    //跑查詢的route是某具有要更動的貼文
+                    for (let j = 0; j < itemPost.length; j++) {
+                        keyList = Object.keys(ordPost[itemPost[j]]);
+                        for (let z = 0; z < keyList.length; z++) {
+                            if (keyList[z] == postKey) {
+                                //更改內容
+                                ordPost[itemPost[j]][keyList[z]]['post'] = child[postKey];
+                                //寫進頁面
+                                let setPostFuction = getState().postReducer.setPost[itemPost[j]];
+                                setPostFuction(ordPost[itemPost[j]][keyList[z]]);
+                                postStatus = true;
+                                console.log(postKey + ': ' + itemPost[j] + '已同步');
+                                break;
+                            }
                         }
                     }
-                }
-            });
+                });
+            }
         }
         //其餘來源是物件，表示更動來源是貼文動作
         else {
@@ -321,6 +337,23 @@ export const syncPostBack = (routeName) => async (dispatch, getState) => {
 // 貼文
 //********************************************************************************
 
+//取得社團貼文
+export const getClubPostReload = (clubKey, navigation) => async (dispatch) => {
+    try {
+        const getClubPost = firebase.functions().httpsCallable('getClubPost');
+        const response = await getClubPost(clubKey);
+        if (response.data.postListArr) {
+            //丟進reducer
+            dispatch(initPostListToReducer(response.data.postListArr, navigation));
+            //檢查同步
+            dispatch(syncPost(response.data.postListArr))
+        }
+    }
+    catch (error) {
+        console.log(error.toString());
+    }
+}
+
 //新增貼文
 export const createPost = (cid, postData, club) => async (dispatch) => {
     try {
@@ -331,12 +364,12 @@ export const createPost = (cid, postData, club) => async (dispatch) => {
         const postStorageRef = firebase.storage().ref('posts').child(cid).child(postRef.key)
         const imgUrlArray = postData.images ? [] : false
 
-        if(postData.images) {
+        if (postData.images) {
             const promises = Object.keys(postData.images).map(async (key) => {
                 const uri = postData.images[key]
                 const response = await fetch(uri);
                 const blob = await response.blob(); //轉換照片格式為blob
-        
+
                 //更新firestore
                 const imageRef = postStorageRef.child(key)
                 const snapshot = await imageRef.put(blob)
@@ -344,10 +377,10 @@ export const createPost = (cid, postData, club) => async (dispatch) => {
 
                 imgUrlArray.push(imgUrl)
             })
-            
+
             await Promise.all(promises)
         }
-        
+
 
         const post = {
             title: postData.title,

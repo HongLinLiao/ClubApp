@@ -13,7 +13,6 @@ import {
 import Expo from 'expo'
 import ModalDropdown from 'react-native-modal-dropdown';
 import { randomCid } from '../../modules/Club'
-import { getPostKeyListFromClubKey } from '../../modules/Post'
 import PostListElement from '../post/PostListElement'
 import { joinOrLikeClub, convertClubStatus } from '../../modules/Common'
 import { getUserData, getClubData } from '../../modules/Data'
@@ -28,8 +27,8 @@ const slideAnimation = new SlideAnimation({
 
 class Club extends React.Component {
   state = {
+    post: [],
     activity: {},
-    post: {},
     userData: { _uid: null, _user: null, _clubs: null },
     loading: false,
     currentCid: null,
@@ -38,17 +37,18 @@ class Club extends React.Component {
   };
 
   async componentWillMount() {
-    const { joinClubs, likeClubs, currentCid } = this.props;
+    const { joinClubs, likeClubs, currentCid, initSetPostList, navigation } = this.props;
     // const _likeClubs = filterOpenClub(likeClubs)
     // let allClubCids = Object.keys(joinClubs).concat(Object.keys(_likeClubs));
 
     // const cid = randomCid(allClubCids);
     // this.props.setCurrentClub(cid);
     if (currentCid) {
-      // this.clubOverLayar()
-      // await this.activityReload(currentCid);
-      // await this.postReload(currentCid);
-      // this.clubOverLayar()
+      this.clubOverLayar()
+      await initSetPostList(newPostList => { this.setState({ post: newPostList }); }, navigation);
+      await this.postReload(currentCid)
+      await this.activityReload(currentCid);
+      this.clubOverLayar()
     }
   }
 
@@ -57,7 +57,7 @@ class Club extends React.Component {
     try {
       const { currentCid, likeClubs, setCurrentClub } = this.props;
       let openClubCid = null
-      if(currentCid) {
+      if (currentCid) {
         this.setState({ refreshing: true });
         this.clubOverLayar();
         await this.activityReload(currentCid);
@@ -65,12 +65,12 @@ class Club extends React.Component {
       } else {
         Object.keys(likeClubs).map((cid) => {
           const { open } = likeClubs[cid]
-          if(open) openClubCid = cid
+          if (open) openClubCid = cid
         })
 
         setCurrentClub(openClubCid)
       }
-      
+
       this.clubOverLayar();
       this.setState({ refreshing: false });
     } catch (error) {
@@ -78,10 +78,11 @@ class Club extends React.Component {
     }
   }
 
-  //過門
-  clubOverLayar = () => {
-    this.setState({ loading: !this.state.loading });
-  }
+  //貼文重整
+  postReload = async (clubKey) => {
+    const { getClubPostReload, navigation } = this.props;
+    await getClubPostReload(clubKey, navigation);
+  };
 
   //檢查社團是否公開(收藏)
   checkTheClubOpen = (currentCid, joinClubs, likeClubs, setCurrentClub) => {
@@ -109,7 +110,6 @@ class Club extends React.Component {
   activityReload = async (clubKey) => {
     const { getActivityDataFromClubKey } = this.props;
     const activityData = await getActivityDataFromClubKey(clubKey);
-    console.log(activityData);
     if (activityData != null) {
       this.setState({ activity: activityData });
     }
@@ -118,6 +118,7 @@ class Club extends React.Component {
       //navigation back?
     }
   };
+
   //進入活動內頁
   insideActivity = async (activity) => {
     const { getInsideActivity, navigation } = this.props;
@@ -140,17 +141,6 @@ class Club extends React.Component {
   //更改activityList
   setActivityList = (activityList) => {
     this.setState({ activity: activityList });
-  };
-  //貼文重整
-  postReload = async (clubKey) => {
-    const { getPostDataComplete } = this.props;
-    const postKey = await getPostKeyListFromClubKey(clubKey);
-    const postData = await getPostDataComplete(postKey);
-    this.setState({ post: postData });
-  };
-  //更改postList
-  setPostList = (postList) => {
-    this.setState({ post: postList });
   };
 
   generateClubsArray = () => {
@@ -210,20 +200,22 @@ class Club extends React.Component {
         }
 
         userData._user = user
-        console.log(userData)
-
         this.setState({ userData, loading: false })
       });
     } catch (e) {
       Alert.alert(e.toString())
     }
+  }
 
+  //過門
+  clubOverLayar = () => {
+    this.setState({ loading: !this.state.loading });
   }
 
 
   render() {
     if (this.props.currentCid) {
-      const newPostList = { ...this.state.post };
+      const newPostList = this.state.post.slice();
       const newActivityList = { ...this.state.activity };
       const { user, joinClubs, likeClubs, currentCid } = this.props;
       const { _uid, _user, _clubs } = this.state.userData
@@ -324,17 +316,17 @@ class Club extends React.Component {
                     }
                   >
                     <View style={styles.adminButton}>
-                    {
-                      status == 'member' ? 
-                        <Image
-                          source={require('../../images/idea-gray.png')}
-                          style={styles.adminIcon}
-                        /> :
-                        <Image 
-                          source={require('../../images/idea.png')}
-                          style={styles.adminIcon}
-                        />
-                    }
+                      {
+                        status == 'member' ?
+                          <Image
+                            source={require('../../images/idea-gray.png')}
+                            style={styles.adminIcon}
+                          /> :
+                          <Image
+                            source={require('../../images/idea.png')}
+                            style={styles.adminIcon}
+                          />
+                      }
                       <Text style={styles.adminText}>舉辦活動</Text>
                     </View>
                   </TouchableOpacity>
@@ -345,7 +337,7 @@ class Club extends React.Component {
                   >
                     <View style={styles.adminButton}>
                       {
-                        status == 'master' ? 
+                        status == 'master' ?
                           <Image
                             source={require("../../images/images2/manager.png")}
                             style={styles.adminIcon}
@@ -407,7 +399,7 @@ class Club extends React.Component {
                         </TouchableOpacity>
                       ))
                     ))}
-                    <TouchableOpacity
+                    {/* <TouchableOpacity
                       style={styles.moreView}
                       onPress={() => { }}
                     >
@@ -416,7 +408,7 @@ class Club extends React.Component {
                         source={require("../../images/images2/arrowRight.png")}
                         style={styles.arrow}
                       />
-                    </TouchableOpacity>
+                    </TouchableOpacity> */}
                   </View>
                 </ScrollView>
               </View>
@@ -425,28 +417,30 @@ class Club extends React.Component {
                 <View style={styles.titleTextView}>
                   <Text style={styles.titleText}>最新文章</Text>
                 </View>
-                {Object.values(newPostList).map((clubElement) => (
-                  Object.values(clubElement).map((postElement) => (
-                    <PostListElement
-                      key={postElement.postKey}
-                      post={postElement}
-                      navigation={this.props.navigation}
-                      getInsidePost={this.props.getInsidePost}
-                      getPostComment={this.props.getPostComment}
-                      setPostFavorite={this.props.setPostFavorite}
-                      postList={this.state.post}
-                      setPostList={this.setPostList}
-                      showUser={this.showUser.bind(this)}
-                      parentOverLayor={this.clubOverLayar}
-                    />
+                {
+                  newPostList.map((postElement) => (
+                    Object.values(postElement).map((post) => (
+                      <PostListElement
+                        key={post.postKey}
+                        post={post}
+                        navigation={this.props.navigation}
+                        getInsidePost={this.props.getInsidePost}
+                        setPostFavorite={this.props.setPostFavorite}
+                        showUser={this.showUser.bind(this)}
+                        parentOverLayor={this.clubOverLayar}
+                        syncPost={this.props.syncPost}
+                        syncPostDelete={this.props.syncPostDelete}
+                        syncPostBack={this.props.syncPostBack}
+                      >
+                      </PostListElement>
+                    ))
                   ))
-                )
-                )}
-                <View style={styles.moreView}>
+                }
+                {/* <View style={styles.moreView}>
                   <TouchableOpacity onPress={() => { }}>
                     <Text style={styles.moreText}>查看更多</Text>
                   </TouchableOpacity>
-                </View>
+                </View> */}
               </View>
             </ScrollView>
 
@@ -459,10 +453,10 @@ class Club extends React.Component {
               options={clubsArray}
               onSelect={async (index, rowData) => {
                 this.props.setCurrentClub(rowData.cid);
-                // this.clubOverLayar()
-                // await this.activityReload(rowData.cid);
-                // await this.postReload(rowData.cid);
-                // this.clubOverLayar()
+                this.clubOverLayar()
+                await this.activityReload(rowData.cid);
+                await this.postReload(rowData.cid);
+                this.clubOverLayar()
               }}
               renderButtonText={rowData =>
                 rowData.schoolName + "  " + rowData.clubName + " ▼"
@@ -490,7 +484,6 @@ class Club extends React.Component {
               clubs={_clubs}
               loading={this.state.loading}
             />
-            
           </PopupDialog>
           {this.state.loading ? <Overlayer /> : null}
         </View>
@@ -501,16 +494,16 @@ class Club extends React.Component {
           style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
         >
           <ScrollView
-              contentContainerStyle={{flex: 1, width: '100%', alignItems: 'center', justifyContent: 'center'}}
-              showsVerticalScrollIndicator={false}
-              refreshControl={
-                <RefreshControl
-                  refreshing={this.state.refreshing}
-                  onRefresh={() => this.onRefresh()}
-                  tintColor='#f6b456'
-                />
-              }
-            >
+            contentContainerStyle={{ flex: 1, width: '100%', alignItems: 'center', justifyContent: 'center' }}
+            showsVerticalScrollIndicator={false}
+            refreshControl={
+              <RefreshControl
+                refreshing={this.state.refreshing}
+                onRefresh={() => this.onRefresh()}
+                tintColor='#f6b456'
+              />
+            }
+          >
             <Text
               style={{
                 fontSize: 18,

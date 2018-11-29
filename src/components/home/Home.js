@@ -23,10 +23,10 @@ class Home extends React.Component {
 
     async componentDidMount() {
         const { joinClub, likeClub, initHomeClubList, initSetPostList, navigation } = this.props;
+        this.homeOverLayor();
         await initSetPostList(newPostList => { this.setState({ post: newPostList }); }, navigation);
-        this.setState({ loading: !this.state.loading })
         const homeClubList = await initHomeClubList(joinClub, likeClub);
-        this.setState({ loading: !this.state.loading })
+        this.homeOverLayor();
         await this.homeReload(homeClubList);
     }
 
@@ -61,11 +61,6 @@ class Home extends React.Component {
         }
     }
 
-    //更改postList
-    setPostList = (postList) => {
-        this.setState({ post: postList });
-    };
-
     //過門
     homeOverLayor = () => {
         this.setState({ loading: !this.state.loading })
@@ -98,7 +93,7 @@ class Home extends React.Component {
     }
 
     render() {
-        const newPostList = JSON.parse(JSON.stringify(this.state.post));
+        const newPostList = this.state.post.slice();
         const { uid, user, clubs } = this.state.userData
         return (
             <View style={{ backgroundColor: "#ffffff", flex: 1 }}>

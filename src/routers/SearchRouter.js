@@ -1,6 +1,6 @@
 import { createStackNavigator } from "react-navigation";
 import SearchPage from "../containers/search/SearchPage";
-import { TextInput, StyleSheet, Image,TouchableOpacity } from "react-native";
+import { TextInput, StyleSheet, Image, TouchableOpacity } from "react-native";
 import SearchClubPage from "../containers/search/SearchClubPage";
 import PostPage from "../containers/club/PostPage";
 import ActivityPage from '../containers/club/ActivityPage'
@@ -69,8 +69,31 @@ export default createStackNavigator({
   Activity: {
     screen: ActivityPage,
   },
-  Post: {
+  ClubPost: {
     screen: PostPage,
+    navigationOptions: ({ navigation }) => ({
+      headerTitleStyle: {
+        color: '#666666',
+        fontSize: 25,
+        fontFamily: 'Courier',
+      },
+      headerStyle: {
+        backgroundColor: '#f6b456'
+      },
+      headerLeft: (
+        <TouchableOpacity onPress={async () => {
+          const syncPostBack = navigation.state.params.syncPostBack;
+          const routeName = navigation.state.routeName;
+          await syncPostBack(routeName);
+          navigation.goBack();
+        }}
+          style={{ flexDirection: 'row' }}
+        >
+          <Image source={require('../images/images2/arrowLeftBlue.png')}
+            style={{ width: 25, height: 25 }} />
+        </TouchableOpacity>
+      )
+    })
   },
 
 

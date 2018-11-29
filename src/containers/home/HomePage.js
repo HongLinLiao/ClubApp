@@ -12,15 +12,11 @@ const mapStateToProps = ({ homeReducer, userReducer }) => ({
 })
 
 const mapDispatchToProps = {
-    //初始化clubKey
-    initHomeClubList,
-    //homeReducer重抓資料
-    getHomePostReload,
-    //取得單一貼文資料
-    getInsidePost,
-    //按讚
-    setPostFavorite,
-    //同步貼文
+    initHomeClubList,//初始化clubKey
+    getHomePostReload,//取得首頁貼文
+    getInsidePost,//進入貼文內頁
+    setPostFavorite,//貼文按讚
+    //同步貼文類
     initSetPostList,
     syncPost,
     syncPostDelete,
