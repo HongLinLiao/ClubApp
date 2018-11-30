@@ -472,7 +472,9 @@ function () {
 
           if (userData) {
             let title = `${userData.nickName}說你的貼文讚！`;
-            yield notifyToUser({}, title, null);
+            let userList = {};
+            userList[post.poster] = true;
+            yield notifyToUser(userList, title, null);
           }
 
           obj.post = post;
@@ -807,6 +809,14 @@ function () {
                   }
 
                 yield updateCommentFavorites(clubKey, postKey, commentKey, updateFavorites);
+                const userData = yield getUserData(commentData[commentKey].commenter);
+
+                if (userData) {
+                  let title = `${userData.nickName}說你的留言讚！`;
+                  let userList = {};
+                  userList[commentData[commentKey].commenter] = true;
+                  yield notifyToUser(userList, title, null);
+                }
               }
 
               temp = {};
@@ -1153,6 +1163,19 @@ function () {
           const nightMode = nightModeNotification ? hours >= 21 : false;
 
           if (expoToken && globalNotification && !nightMode) {
+            // if (body) {
+            //     messages.push({
+            //         "to": expoToken,
+            //         title,
+            //         body
+            //     })
+            // }
+            // else {
+            //     messages.push({
+            //         "to": expoToken,
+            //         title,
+            //     })
+            // }
             messages.push({
               "to": expoToken,
               title,

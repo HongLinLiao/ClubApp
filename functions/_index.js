@@ -356,7 +356,9 @@ exports.setPostFavorite = functions.https.onCall(async (data, context) => {
                 const userData = await getUserData(uid);
                 if (userData) {
                     let title = `${userData.nickName}說你的貼文讚！`;
-                    await notifyToUser({}, title, null);
+                    let userList = {};
+                    userList[post.poster] = true
+                    await notifyToUser(userList, title, null);
                 }
                 obj.post = post;
                 if (commentStatus) {
@@ -642,6 +644,13 @@ exports.setCommentFavorite = functions.https.onCall(async (data, context) => {
                                 }
                             }
                             await updateCommentFavorites(clubKey, postKey, commentKey, updateFavorites);
+                            const userData = await getUserData(commentData[commentKey].commenter);
+                            if (userData) {
+                                let title = `${userData.nickName}說你的留言讚！`;
+                                let userList = {};
+                                userList[commentData[commentKey].commenter] = true
+                                await notifyToUser(userList, title, null);
+                            }
                         }
                         temp = {}
                         temp[keyList[i]] = commentData[keyList[i]]
@@ -936,6 +945,19 @@ const notifyToUser = async (userList, title, body) => {
             const nightMode = nightModeNotification ? (hours >= 21) : false
 
             if (expoToken && globalNotification && !nightMode) {
+                // if (body) {
+                //     messages.push({
+                //         "to": expoToken,
+                //         title,
+                //         body
+                //     })
+                // }
+                // else {
+                //     messages.push({
+                //         "to": expoToken,
+                //         title,
+                //     })
+                // }
                 messages.push({
                     "to": expoToken,
                     title,
