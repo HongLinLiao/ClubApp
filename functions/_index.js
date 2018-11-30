@@ -13,77 +13,67 @@ exports.helloWorld = functions.https.onRequest((request, response) => {
 });
 
 exports.sendPushNotificationToAll = functions.https.onCall(async (data, context) => {
+    try {
+        const messages = []
 
-    const messages = []
-
-    const usersSnapshot = await admin.database().ref('users').orderByKey().once('value')
-    usersSnapshot.forEach((childSnapshot) => {
-        const { expoToken } = childSnapshot.val()
-        if (expoToken) {
-            messages.push({
-                "to": expoToken,
-                "body": data
-            })
-        }
-    })
-
-    await fetch('https://exp.host/--/api/v2/push/send', {
-        method: "POST",
-        headers: {
-            "Accept": "application/json",
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(messages)
-    })
-
+        const usersSnapshot = await admin.database().ref('users').orderByKey().once('value')
+        usersSnapshot.forEach((childSnapshot) => {
+            const { expoToken } = childSnapshot.val()
+            if (expoToken) {
+                messages.push({
+                    "to": expoToken,
+                    "body": data
+                })
+            }
+        })
+        await expoSend(messages);
+    }
+    catch (error) {
+        console.log(context.auth.uid + ' : ' + error.toString());
+    }
 })
 
 //發通知給社團成員
 exports.notifyToClubMember = functions.https.onCall(async (data, context) => {
+    try {
+        const uids = {}
+        const messages = []
+        const { cid, title, body } = data
 
-    const uids = {}
-    const messages = []
-    const { cid, title, body } = data
+        const memberSnapshot = await admin.database().ref('clubs').child(cid).child('member').once('value')
+        memberSnapshot.forEach((childSnapshot) => {
+            const uid = childSnapshot.key
+            uids[uid] = true
+        })
 
-    const memberSnapshot = await admin.database().ref('clubs').child(cid).child('member').once('value')
-    memberSnapshot.forEach((childSnapshot) => {
-        const uid = childSnapshot.key
-        uids[uid] = true
-    })
+        const promises = Object.keys(uids).map(async (uid) => {
+            const userRef = admin.database().ref('users').child(uid)
+            const settingRef = admin.database().ref('userSettings').child(uid)
 
-    const promises = Object.keys(uids).map(async (uid) => {
-        const userRef = admin.database().ref('users').child(uid)
-        const settingRef = admin.database().ref('userSettings').child(uid)
+            const userSnapshot = await userRef.once('value')
+            const settingSnapshot = await settingRef.once('value')
 
-        const userSnapshot = await userRef.once('value')
-        const settingSnapshot = await settingRef.once('value')
+            const { expoToken } = userSnapshot.val()
+            const { globalNotification, clubNotificationList, nightModeNotification } = settingSnapshot.val()
+            const hours = new Date().getHours()
+            const nightMode = nightModeNotification ? (hours >= 21) : false
 
-        const { expoToken } = userSnapshot.val()
-        const { globalNotification, clubNotificationList, nightModeNotification } = settingSnapshot.val()
-        const hours = new Date().getHours()
-        const nightMode = nightModeNotification ? (hours >= 21) : false
+            if (expoToken && globalNotification && clubNotificationList[cid].on && !nightMode) {
+                messages.push({
+                    "to": expoToken,
+                    title,
+                    body
+                })
+            }
+        })
 
-        if (expoToken && globalNotification && clubNotificationList[cid].on && !nightMode) {
-            messages.push({
-                "to": expoToken,
-                title,
-                body
-            })
-        }
-    })
+        await Promise.all(promises)
 
-    await Promise.all(promises)
-
-    await fetch('https://exp.host/--/api/v2/push/send', {
-
-        method: "POST",
-        headers: {
-            "Accept": "application/json",
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(messages)
-    })
-
+        await expoSend(messages);
+    }
+    catch (error) {
+        console.log(context.auth.uid + ' : ' + error.toString());
+    }
 })
 
 exports.getUser = functions.https.onRequest(async (request, response) => {
@@ -96,7 +86,6 @@ exports.getUser = functions.https.onRequest(async (request, response) => {
         response.send('你不要給我亂用!')
     }
 });
-
 
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -218,19 +207,6 @@ exports.getPostInside = functions.https.onCall(async (data, context) => {
         console.log(context.auth.uid + ' : ' + error.toString());
     }
 });
-
-//新增貼文
-// exports.createPost = functions.https.onCall(async(data, context)=>{
-//     try{
-//         const { clubKey, postKey } = data;
-//         const { uid } = context.auth;
-//         const club = await getClubData(clubKey);
-
-//     }
-//     catch(error){
-//         console.log(context.auth.uid + ' : ' + error.toString());
-//     }
-// });
 
 //編輯貼文
 exports.editPost = functions.https.onCall(async (data, context) => {
@@ -377,6 +353,11 @@ exports.setPostFavorite = functions.https.onCall(async (data, context) => {
                 }
                 //更改firebasePostFavorites
                 await updatePostFavorites(post.clubKey, post.postKey, updateFavorites);
+                const userData = await getUserData(uid);
+                if (userData) {
+                    let title = `${userData.nickName}說你的貼文讚！`;
+                    await notifyToUser({}, title, null);
+                }
                 obj.post = post;
                 if (commentStatus) {
                     let commentData = await getPostCommentData(post.clubKey, post.postKey);
@@ -430,7 +411,17 @@ exports.createComment = functions.https.onCall(async (data, context) => {
             let post = await getPostInsideData(clubKey, postKey);
             if (post) {
                 let obj = {};
+                //寫進資料庫
                 await createCommentData(clubKey, postKey, content, uid);
+
+                //發通知給參與者
+                const userData = await getUserData(uid);
+                if (userData) {
+                    let title = `${userData.nickName}回應了${club.schoolName}${club.clubName}的貼文`;
+                    let body = `${content}`;
+                    await notifyToPostParticipants(clubKey, postKey, post, title, body);
+                }
+
                 post.numComments = post.numComments + 1;
                 post = await setPostFoundations(clubKey, postKey, uid, post, club);
                 post = await setPostView(post, uid);
@@ -869,6 +860,109 @@ const setPostViewFavoriteData = (post, uid) => {
         else
             post.statusFavorite = false;
         return post;
+    }
+    catch (error) {
+        throw error;
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////////
+// 通知
+////////////////////////////////////////////////////////////////////////////////////
+
+//發通知給貼文參與者(發文者與留言參與者)（不採用社團提醒）
+const notifyToPostParticipants = async (clubKey, postKey, post, title, body) => {
+    try {
+        let userList = {};
+        let tempUser;
+        let messages = [];
+
+        //取得已留言者
+        const commentSnapshot = await admin.database().ref('comments').child(clubKey).child(postKey).once('value');
+        commentSnapshot.forEach((childSnapshot) => {
+            Object.keys(childSnapshot).map((value) => {
+                if (childSnapshot[value].commenter) {
+                    tempUser = childSnapshot[value].commenter;
+                    userList[tempUser] = true;
+                }
+            });
+        });
+
+        //取得貼文者
+        userList[post.poster] = true;
+
+        const promises = Object.keys(userList).map(async (uid) => {
+            const userRef = admin.database().ref('users').child(uid);
+            const userSnapshot = await userRef.once('value');
+            const { expoToken } = userSnapshot.val();
+            const settingRef = admin.database().ref('userSettings').child(uid);
+            const settingSnapshot = await settingRef.once('value');
+            const { globalNotification, clubNotificationList, nightModeNotification } = settingSnapshot.val();
+
+            const hours = new Date().getHours()
+            const nightMode = nightModeNotification ? (hours >= 21) : false
+
+            if (expoToken && globalNotification && !nightMode) {
+                messages.push({
+                    "to": expoToken,
+                    title,
+                    body,
+                })
+            }
+        });
+        await Promise.all(promises);
+
+        await expoSend(messages);
+    }
+    catch (error) {
+        throw error;
+    }
+};
+
+//發通知給使用者（可多人，物件傳入）(不採用社團提醒)
+const notifyToUser = async (userList, title, body) => {
+    try {
+        let messages = [];
+
+        const promises = Object.keys(userList).map(async (uid) => {
+            const userRef = admin.database().ref('users').child(uid);
+            const userSnapshot = await userRef.once('value');
+            const { expoToken } = userSnapshot.val();
+            const settingRef = admin.database().ref('userSettings').child(uid);
+            const settingSnapshot = await settingRef.once('value');
+            const { globalNotification, clubNotificationList, nightModeNotification } = settingSnapshot.val();
+
+            const hours = new Date().getHours()
+            const nightMode = nightModeNotification ? (hours >= 21) : false
+
+            if (expoToken && globalNotification && !nightMode) {
+                messages.push({
+                    "to": expoToken,
+                    title,
+                    body
+                })
+            }
+        });
+        await Promise.all(promises);
+
+        await expoSend(messages);
+    }
+    catch (error) {
+        throw error;
+    }
+};
+
+//expoSendApi
+const expoSend = async (messages) => {
+    try {
+        await fetch('https://exp.host/--/api/v2/push/send', {
+            method: "POST",
+            headers: {
+                "Accept": "application/json",
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(messages)
+        })
     }
     catch (error) {
         throw error;

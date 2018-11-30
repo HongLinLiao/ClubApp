@@ -22,28 +22,25 @@ exports.sendPushNotificationToAll = functions.https.onCall(
 /*#__PURE__*/
 function () {
   var _ref = _asyncToGenerator(function* (data, context) {
-    const messages = [];
-    const usersSnapshot = yield admin.database().ref('users').orderByKey().once('value');
-    usersSnapshot.forEach(childSnapshot => {
-      const {
-        expoToken
-      } = childSnapshot.val();
+    try {
+      const messages = [];
+      const usersSnapshot = yield admin.database().ref('users').orderByKey().once('value');
+      usersSnapshot.forEach(childSnapshot => {
+        const {
+          expoToken
+        } = childSnapshot.val();
 
-      if (expoToken) {
-        messages.push({
-          "to": expoToken,
-          "body": data
-        });
-      }
-    });
-    yield fetch('https://exp.host/--/api/v2/push/send', {
-      method: "POST",
-      headers: {
-        "Accept": "application/json",
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(messages)
-    });
+        if (expoToken) {
+          messages.push({
+            "to": expoToken,
+            "body": data
+          });
+        }
+      });
+      yield expoSend(messages);
+    } catch (error) {
+      console.log(context.auth.uid + ' : ' + error.toString());
+    }
   });
 
   return function (_x, _x2) {
@@ -55,59 +52,56 @@ exports.notifyToClubMember = functions.https.onCall(
 /*#__PURE__*/
 function () {
   var _ref2 = _asyncToGenerator(function* (data, context) {
-    const uids = {};
-    const messages = [];
-    const {
-      cid,
-      title,
-      body
-    } = data;
-    const memberSnapshot = yield admin.database().ref('clubs').child(cid).child('member').once('value');
-    memberSnapshot.forEach(childSnapshot => {
-      const uid = childSnapshot.key;
-      uids[uid] = true;
-    });
-    const promises = Object.keys(uids).map(
-    /*#__PURE__*/
-    function () {
-      var _ref3 = _asyncToGenerator(function* (uid) {
-        const userRef = admin.database().ref('users').child(uid);
-        const settingRef = admin.database().ref('userSettings').child(uid);
-        const userSnapshot = yield userRef.once('value');
-        const settingSnapshot = yield settingRef.once('value');
-        const {
-          expoToken
-        } = userSnapshot.val();
-        const {
-          globalNotification,
-          clubNotificationList,
-          nightModeNotification
-        } = settingSnapshot.val();
-        const hours = new Date().getHours();
-        const nightMode = nightModeNotification ? hours >= 21 : false;
-
-        if (expoToken && globalNotification && clubNotificationList[cid].on && !nightMode) {
-          messages.push({
-            "to": expoToken,
-            title,
-            body
-          });
-        }
+    try {
+      const uids = {};
+      const messages = [];
+      const {
+        cid,
+        title,
+        body
+      } = data;
+      const memberSnapshot = yield admin.database().ref('clubs').child(cid).child('member').once('value');
+      memberSnapshot.forEach(childSnapshot => {
+        const uid = childSnapshot.key;
+        uids[uid] = true;
       });
+      const promises = Object.keys(uids).map(
+      /*#__PURE__*/
+      function () {
+        var _ref3 = _asyncToGenerator(function* (uid) {
+          const userRef = admin.database().ref('users').child(uid);
+          const settingRef = admin.database().ref('userSettings').child(uid);
+          const userSnapshot = yield userRef.once('value');
+          const settingSnapshot = yield settingRef.once('value');
+          const {
+            expoToken
+          } = userSnapshot.val();
+          const {
+            globalNotification,
+            clubNotificationList,
+            nightModeNotification
+          } = settingSnapshot.val();
+          const hours = new Date().getHours();
+          const nightMode = nightModeNotification ? hours >= 21 : false;
 
-      return function (_x5) {
-        return _ref3.apply(this, arguments);
-      };
-    }());
-    yield Promise.all(promises);
-    yield fetch('https://exp.host/--/api/v2/push/send', {
-      method: "POST",
-      headers: {
-        "Accept": "application/json",
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(messages)
-    });
+          if (expoToken && globalNotification && clubNotificationList[cid].on && !nightMode) {
+            messages.push({
+              "to": expoToken,
+              title,
+              body
+            });
+          }
+        });
+
+        return function (_x5) {
+          return _ref3.apply(this, arguments);
+        };
+      }());
+      yield Promise.all(promises);
+      yield expoSend(messages);
+    } catch (error) {
+      console.log(context.auth.uid + ' : ' + error.toString());
+    }
   });
 
   return function (_x3, _x4) {
@@ -288,18 +282,7 @@ function () {
   return function (_x12, _x13) {
     return _ref7.apply(this, arguments);
   };
-}()); //新增貼文
-// exports.createPost = functions.https.onCall(async(data, context)=>{
-//     try{
-//         const { clubKey, postKey } = data;
-//         const { uid } = context.auth;
-//         const club = await getClubData(clubKey);
-//     }
-//     catch(error){
-//         console.log(context.auth.uid + ' : ' + error.toString());
-//     }
-// });
-//編輯貼文
+}()); //編輯貼文
 
 exports.editPost = functions.https.onCall(
 /*#__PURE__*/
@@ -485,6 +468,13 @@ function () {
 
 
           yield updatePostFavorites(post.clubKey, post.postKey, updateFavorites);
+          const userData = yield getUserData(uid);
+
+          if (userData) {
+            let title = `${userData.nickName}說你的貼文讚！`;
+            yield notifyToUser({}, title, null);
+          }
+
           obj.post = post;
 
           if (commentStatus) {
@@ -552,8 +542,18 @@ function () {
         let post = yield getPostInsideData(clubKey, postKey);
 
         if (post) {
-          let obj = {};
-          yield createCommentData(clubKey, postKey, content, uid);
+          let obj = {}; //寫進資料庫
+
+          yield createCommentData(clubKey, postKey, content, uid); //發通知給參與者
+
+          const userData = yield getUserData(uid);
+
+          if (userData) {
+            let title = `${userData.nickName}回應了${club.schoolName}${club.clubName}的貼文`;
+            let body = `${content}`;
+            yield notifyToPostParticipants(clubKey, postKey, post, title, body);
+          }
+
           post.numComments = post.numComments + 1;
           post = yield setPostFoundations(clubKey, postKey, uid, post, club);
           post = yield setPostView(post, uid);
@@ -1057,6 +1057,149 @@ const setPostViewFavoriteData = (post, uid) => {
     throw error;
   }
 }; ////////////////////////////////////////////////////////////////////////////////////
+// 通知
+////////////////////////////////////////////////////////////////////////////////////
+//發通知給貼文參與者(發文者與留言參與者)（不採用社團提醒）
+
+
+const notifyToPostParticipants =
+/*#__PURE__*/
+function () {
+  var _ref19 = _asyncToGenerator(function* (clubKey, postKey, post, title, body) {
+    try {
+      let userList = {};
+      let tempUser;
+      let messages = []; //取得已留言者
+
+      const commentSnapshot = yield admin.database().ref('comments').child(clubKey).child(postKey).once('value');
+      commentSnapshot.forEach(childSnapshot => {
+        Object.keys(childSnapshot).map(value => {
+          if (childSnapshot[value].commenter) {
+            tempUser = childSnapshot[value].commenter;
+            userList[tempUser] = true;
+          }
+        });
+      }); //取得貼文者
+
+      userList[post.poster] = true;
+      const promises = Object.keys(userList).map(
+      /*#__PURE__*/
+      function () {
+        var _ref20 = _asyncToGenerator(function* (uid) {
+          const userRef = admin.database().ref('users').child(uid);
+          const userSnapshot = yield userRef.once('value');
+          const {
+            expoToken
+          } = userSnapshot.val();
+          const settingRef = admin.database().ref('userSettings').child(uid);
+          const settingSnapshot = yield settingRef.once('value');
+          const {
+            globalNotification,
+            clubNotificationList,
+            nightModeNotification
+          } = settingSnapshot.val();
+          const hours = new Date().getHours();
+          const nightMode = nightModeNotification ? hours >= 21 : false;
+
+          if (expoToken && globalNotification && !nightMode) {
+            messages.push({
+              "to": expoToken,
+              title,
+              body
+            });
+          }
+        });
+
+        return function (_x50) {
+          return _ref20.apply(this, arguments);
+        };
+      }());
+      yield Promise.all(promises);
+      yield expoSend(messages);
+    } catch (error) {
+      throw error;
+    }
+  });
+
+  return function notifyToPostParticipants(_x45, _x46, _x47, _x48, _x49) {
+    return _ref19.apply(this, arguments);
+  };
+}(); //發通知給使用者（可多人，物件傳入）(不採用社團提醒)
+
+
+const notifyToUser =
+/*#__PURE__*/
+function () {
+  var _ref21 = _asyncToGenerator(function* (userList, title, body) {
+    try {
+      let messages = [];
+      const promises = Object.keys(userList).map(
+      /*#__PURE__*/
+      function () {
+        var _ref22 = _asyncToGenerator(function* (uid) {
+          const userRef = admin.database().ref('users').child(uid);
+          const userSnapshot = yield userRef.once('value');
+          const {
+            expoToken
+          } = userSnapshot.val();
+          const settingRef = admin.database().ref('userSettings').child(uid);
+          const settingSnapshot = yield settingRef.once('value');
+          const {
+            globalNotification,
+            clubNotificationList,
+            nightModeNotification
+          } = settingSnapshot.val();
+          const hours = new Date().getHours();
+          const nightMode = nightModeNotification ? hours >= 21 : false;
+
+          if (expoToken && globalNotification && !nightMode) {
+            messages.push({
+              "to": expoToken,
+              title,
+              body
+            });
+          }
+        });
+
+        return function (_x54) {
+          return _ref22.apply(this, arguments);
+        };
+      }());
+      yield Promise.all(promises);
+      yield expoSend(messages);
+    } catch (error) {
+      throw error;
+    }
+  });
+
+  return function notifyToUser(_x51, _x52, _x53) {
+    return _ref21.apply(this, arguments);
+  };
+}(); //expoSendApi
+
+
+const expoSend =
+/*#__PURE__*/
+function () {
+  var _ref23 = _asyncToGenerator(function* (messages) {
+    try {
+      yield fetch('https://exp.host/--/api/v2/push/send', {
+        method: "POST",
+        headers: {
+          "Accept": "application/json",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(messages)
+      });
+    } catch (error) {
+      throw error;
+    }
+  });
+
+  return function expoSend(_x55) {
+    return _ref23.apply(this, arguments);
+  };
+}(); ////////////////////////////////////////////////////////////////////////////////////
 // Realtime Database
 ////////////////////////////////////////////////////////////////////////////////////
 //取得特定社團資訊
@@ -1065,7 +1208,7 @@ const setPostViewFavoriteData = (post, uid) => {
 const getClubData =
 /*#__PURE__*/
 function () {
-  var _ref19 = _asyncToGenerator(function* (clubKey) {
+  var _ref24 = _asyncToGenerator(function* (clubKey) {
     try {
       let clubRef = yield admin.database().ref('clubs').child(clubKey).once('value');
       let club = clubRef.val();
@@ -1075,8 +1218,8 @@ function () {
     }
   });
 
-  return function getClubData(_x45) {
-    return _ref19.apply(this, arguments);
+  return function getClubData(_x56) {
+    return _ref24.apply(this, arguments);
   };
 }(); //取得特定社團下所有貼文資訊
 
@@ -1084,7 +1227,7 @@ function () {
 const getPostData =
 /*#__PURE__*/
 function () {
-  var _ref20 = _asyncToGenerator(function* (clubKey) {
+  var _ref25 = _asyncToGenerator(function* (clubKey) {
     try {
       let postRef = yield admin.database().ref('posts').child(clubKey).once('value');
       let post = postRef.val();
@@ -1094,8 +1237,8 @@ function () {
     }
   });
 
-  return function getPostData(_x46) {
-    return _ref20.apply(this, arguments);
+  return function getPostData(_x57) {
+    return _ref25.apply(this, arguments);
   };
 }(); //取得特定貼文資訊
 
@@ -1103,7 +1246,7 @@ function () {
 const getPostInsideData =
 /*#__PURE__*/
 function () {
-  var _ref21 = _asyncToGenerator(function* (clubKey, postKey) {
+  var _ref26 = _asyncToGenerator(function* (clubKey, postKey) {
     try {
       let postRef = yield admin.database().ref('posts').child(clubKey).child(postKey).once('value');
       let post = postRef.val();
@@ -1113,8 +1256,8 @@ function () {
     }
   });
 
-  return function getPostInsideData(_x47, _x48) {
-    return _ref21.apply(this, arguments);
+  return function getPostInsideData(_x58, _x59) {
+    return _ref26.apply(this, arguments);
   };
 }(); //取得貼文下的留言資訊
 
@@ -1122,7 +1265,7 @@ function () {
 const getPostCommentData =
 /*#__PURE__*/
 function () {
-  var _ref22 = _asyncToGenerator(function* (clubKey, postKey) {
+  var _ref27 = _asyncToGenerator(function* (clubKey, postKey) {
     try {
       let commentRef = yield admin.database().ref('comments').child(clubKey).child(postKey).once('value');
       let data = commentRef.val();
@@ -1132,8 +1275,8 @@ function () {
     }
   });
 
-  return function getPostCommentData(_x49, _x50) {
-    return _ref22.apply(this, arguments);
+  return function getPostCommentData(_x60, _x61) {
+    return _ref27.apply(this, arguments);
   };
 }(); //取得特定使用者資訊
 
@@ -1141,7 +1284,7 @@ function () {
 const getUserData =
 /*#__PURE__*/
 function () {
-  var _ref23 = _asyncToGenerator(function* (uid) {
+  var _ref28 = _asyncToGenerator(function* (uid) {
     try {
       let userRef = yield admin.database().ref('users').child(uid).once('value');
       let user = userRef.val();
@@ -1151,8 +1294,8 @@ function () {
     }
   });
 
-  return function getUserData(_x51) {
-    return _ref23.apply(this, arguments);
+  return function getUserData(_x62) {
+    return _ref28.apply(this, arguments);
   };
 }(); //更新Post的Favorites
 
@@ -1160,7 +1303,7 @@ function () {
 const updatePostFavorites =
 /*#__PURE__*/
 function () {
-  var _ref24 = _asyncToGenerator(function* (clubKey, postKey, updateFavorites) {
+  var _ref29 = _asyncToGenerator(function* (clubKey, postKey, updateFavorites) {
     try {
       const uid = Object.keys(updateFavorites)[0];
       let favoritesRef;
@@ -1177,8 +1320,8 @@ function () {
     }
   });
 
-  return function updatePostFavorites(_x52, _x53, _x54) {
-    return _ref24.apply(this, arguments);
+  return function updatePostFavorites(_x63, _x64, _x65) {
+    return _ref29.apply(this, arguments);
   };
 }(); //更新Post的Views
 
@@ -1186,7 +1329,7 @@ function () {
 const updatePostViews =
 /*#__PURE__*/
 function () {
-  var _ref25 = _asyncToGenerator(function* (clubKey, postKey, updateViews) {
+  var _ref30 = _asyncToGenerator(function* (clubKey, postKey, updateViews) {
     try {
       const uid = Object.keys(updateViews)[0];
       const value = updateViews[uid];
@@ -1197,8 +1340,8 @@ function () {
     }
   });
 
-  return function updatePostViews(_x55, _x56, _x57) {
-    return _ref25.apply(this, arguments);
+  return function updatePostViews(_x66, _x67, _x68) {
+    return _ref30.apply(this, arguments);
   };
 }(); //新增留言
 
@@ -1206,7 +1349,7 @@ function () {
 const createCommentData =
 /*#__PURE__*/
 function () {
-  var _ref26 = _asyncToGenerator(function* (clubKey, postKey, content, uid) {
+  var _ref31 = _asyncToGenerator(function* (clubKey, postKey, content, uid) {
     try {
       const getNumRef = admin.database().ref('posts/' + clubKey + '/' + postKey + '/numComments');
       let snapShot = yield getNumRef.once('value');
@@ -1226,8 +1369,8 @@ function () {
     }
   });
 
-  return function createCommentData(_x58, _x59, _x60, _x61) {
-    return _ref26.apply(this, arguments);
+  return function createCommentData(_x69, _x70, _x71, _x72) {
+    return _ref31.apply(this, arguments);
   };
 }(); //刪除留言
 
@@ -1235,7 +1378,7 @@ function () {
 const deleteCommentData =
 /*#__PURE__*/
 function () {
-  var _ref27 = _asyncToGenerator(function* (clubKey, postKey, commentKey) {
+  var _ref32 = _asyncToGenerator(function* (clubKey, postKey, commentKey) {
     try {
       let getNumRef = admin.database().ref('posts/' + clubKey + '/' + postKey + '/numComments');
       let snapShot = yield getNumRef.once('value');
@@ -1250,8 +1393,8 @@ function () {
     }
   });
 
-  return function deleteCommentData(_x62, _x63, _x64) {
-    return _ref27.apply(this, arguments);
+  return function deleteCommentData(_x73, _x74, _x75) {
+    return _ref32.apply(this, arguments);
   };
 }(); //編輯留言
 
@@ -1259,7 +1402,7 @@ function () {
 const editCommentData =
 /*#__PURE__*/
 function () {
-  var _ref28 = _asyncToGenerator(function* (clubKey, postKey, commentKey, content) {
+  var _ref33 = _asyncToGenerator(function* (clubKey, postKey, commentKey, content) {
     try {
       if (content == '') {} else {
         let update = {};
@@ -1271,8 +1414,8 @@ function () {
     }
   });
 
-  return function editCommentData(_x65, _x66, _x67, _x68) {
-    return _ref28.apply(this, arguments);
+  return function editCommentData(_x76, _x77, _x78, _x79) {
+    return _ref33.apply(this, arguments);
   };
 }(); //更新Comment的Favorites
 
@@ -1280,7 +1423,7 @@ function () {
 const updateCommentFavorites =
 /*#__PURE__*/
 function () {
-  var _ref29 = _asyncToGenerator(function* (clubKey, postKey, commentKey, updateFavorites) {
+  var _ref34 = _asyncToGenerator(function* (clubKey, postKey, commentKey, updateFavorites) {
     try {
       const uid = Object.keys(updateFavorites)[0];
       let favoritesRef;
@@ -1297,8 +1440,8 @@ function () {
     }
   });
 
-  return function updateCommentFavorites(_x69, _x70, _x71, _x72) {
-    return _ref29.apply(this, arguments);
+  return function updateCommentFavorites(_x80, _x81, _x82, _x83) {
+    return _ref34.apply(this, arguments);
   };
 }(); //編輯貼文
 
@@ -1306,7 +1449,7 @@ function () {
 const editPostData =
 /*#__PURE__*/
 function () {
-  var _ref30 = _asyncToGenerator(function* (clubKey, postKey, obj) {
+  var _ref35 = _asyncToGenerator(function* (clubKey, postKey, obj) {
     try {
       let keyList = Object.keys(obj);
       let ref;
@@ -1322,8 +1465,8 @@ function () {
     }
   });
 
-  return function editPostData(_x73, _x74, _x75) {
-    return _ref30.apply(this, arguments);
+  return function editPostData(_x84, _x85, _x86) {
+    return _ref35.apply(this, arguments);
   };
 }(); //刪除貼文
 
@@ -1331,7 +1474,7 @@ function () {
 const deletePostData =
 /*#__PURE__*/
 function () {
-  var _ref31 = _asyncToGenerator(function* (clubKey, postKey) {
+  var _ref36 = _asyncToGenerator(function* (clubKey, postKey) {
     try {
       const postRef = admin.database().ref('posts/' + clubKey + '/' + postKey);
       yield postRef.remove();
@@ -1342,8 +1485,8 @@ function () {
     }
   });
 
-  return function deletePostData(_x76, _x77) {
-    return _ref31.apply(this, arguments);
+  return function deletePostData(_x87, _x88) {
+    return _ref36.apply(this, arguments);
   };
 }(); ////////////////////////////////////////////////////////////////////////////////////
 // Common
