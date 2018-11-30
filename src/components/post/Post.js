@@ -724,7 +724,7 @@ class Post extends React.Component {
           <View style={{ width: 200 }}>
             <View style={{ height: 200, backgroundColor: '#FFDDAA', borderRadius: 20 }}>
               <TextInput
-                ref={(textInput) => { this.textInput = textInput }}
+                ref={(editCommentContent) => { this.editCommentContent = editCommentContent }}
                 underlineColorAndroid={'transparent'}
                 onChangeText={tempInput => { this.setState({ tempInput }); }}
                 defaultValue={this.state.advancedComment.content}
@@ -739,10 +739,6 @@ class Post extends React.Component {
                 onPress={() => {
                   this.editCommentDialog.dismiss();
                   this.setState({ tempInput: '' });
-                  this.textInput.setNativeProps({ text: ' ' });
-                  setTimeout(() => {
-                    this.textInput.setNativeProps({ text: this.state.advancedComment.content });
-                  });
                 }}
                 titleStyle={{ fontSize: 15 }}
               />

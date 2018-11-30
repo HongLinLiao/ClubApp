@@ -35,10 +35,10 @@ const PostListElement = ({
     parentOverLayor()
     const obj = await getInsidePost(post.clubKey, post.postKey);
     if (obj != null) {
+      parentOverLayor();
       //貼文同步
       syncPost(obj);
-      parentOverLayor();
-      const routeName = navigation.state.routeName + "Post"
+      const routeName = navigation.state.routeName + "Post";
       navigation.navigate(routeName, {
         post: obj.post,
         comment: obj.comment,

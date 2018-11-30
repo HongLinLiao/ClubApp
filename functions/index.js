@@ -37,7 +37,10 @@ function () {
           });
         }
       });
-      yield expoSend(messages);
+
+      if (messages.length > 0) {
+        yield expoSend(messages);
+      }
     } catch (error) {
       console.log(context.auth.uid + ' : ' + error.toString());
     }
@@ -98,7 +101,10 @@ function () {
         };
       }());
       yield Promise.all(promises);
-      yield expoSend(messages);
+
+      if (messages.length > 0) {
+        yield expoSend(messages);
+      }
     } catch (error) {
       console.log(context.auth.uid + ' : ' + error.toString());
     }
@@ -1125,7 +1131,10 @@ function () {
         };
       }());
       yield Promise.all(promises);
-      yield expoSend(messages);
+
+      if (messages.length > 0) {
+        yield expoSend(messages);
+      }
     } catch (error) {
       throw error;
     }
@@ -1163,24 +1172,18 @@ function () {
           const nightMode = nightModeNotification ? hours >= 21 : false;
 
           if (expoToken && globalNotification && !nightMode) {
-            // if (body) {
-            //     messages.push({
-            //         "to": expoToken,
-            //         title,
-            //         body
-            //     })
-            // }
-            // else {
-            //     messages.push({
-            //         "to": expoToken,
-            //         title,
-            //     })
-            // }
-            messages.push({
-              "to": expoToken,
-              title,
-              body
-            });
+            if (body) {
+              messages.push({
+                "to": expoToken,
+                title,
+                body
+              });
+            } else {
+              messages.push({
+                "to": expoToken,
+                title
+              });
+            }
           }
         });
 
@@ -1189,7 +1192,10 @@ function () {
         };
       }());
       yield Promise.all(promises);
-      yield expoSend(messages);
+
+      if (messages.length > 0) {
+        yield expoSend(messages);
+      }
     } catch (error) {
       throw error;
     }

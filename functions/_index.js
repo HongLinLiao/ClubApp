@@ -26,7 +26,9 @@ exports.sendPushNotificationToAll = functions.https.onCall(async (data, context)
                 })
             }
         })
-        await expoSend(messages);
+        if (messages.length > 0) {
+            await expoSend(messages);
+        }
     }
     catch (error) {
         console.log(context.auth.uid + ' : ' + error.toString());
@@ -68,8 +70,10 @@ exports.notifyToClubMember = functions.https.onCall(async (data, context) => {
         })
 
         await Promise.all(promises)
+        if (messages.length > 0) {
+            await expoSend(messages);
+        }
 
-        await expoSend(messages);
     }
     catch (error) {
         console.log(context.auth.uid + ' : ' + error.toString());
@@ -921,7 +925,9 @@ const notifyToPostParticipants = async (clubKey, postKey, post, title, body) => 
         });
         await Promise.all(promises);
 
-        await expoSend(messages);
+        if (messages.length > 0) {
+            await expoSend(messages);
+        }
     }
     catch (error) {
         throw error;
@@ -945,29 +951,26 @@ const notifyToUser = async (userList, title, body) => {
             const nightMode = nightModeNotification ? (hours >= 21) : false
 
             if (expoToken && globalNotification && !nightMode) {
-                // if (body) {
-                //     messages.push({
-                //         "to": expoToken,
-                //         title,
-                //         body
-                //     })
-                // }
-                // else {
-                //     messages.push({
-                //         "to": expoToken,
-                //         title,
-                //     })
-                // }
-                messages.push({
-                    "to": expoToken,
-                    title,
-                    body
-                })
+                if (body) {
+                    messages.push({
+                        "to": expoToken,
+                        title,
+                        body
+                    })
+                }
+                else {
+                    messages.push({
+                        "to": expoToken,
+                        title,
+                    })
+                }
             }
         });
         await Promise.all(promises);
 
-        await expoSend(messages);
+        if (messages.length > 0) {
+            await expoSend(messages);
+        }
     }
     catch (error) {
         throw error;
