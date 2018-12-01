@@ -77,7 +77,10 @@ class Post extends React.Component {
     }
     else {
       //刪除貼文同步
-      syncPostDelete(postKey);
+      await syncPostDelete(postKey);
+      const syncPostBack = navigation.state.params.syncPostBack;
+      const routeName = navigation.state.routeName;
+      await syncPostBack(routeName);
       Alert.alert("該貼文不存在！");
       navigation.goBack();
     }
@@ -96,6 +99,9 @@ class Post extends React.Component {
     else {
       //刪除貼文同步
       syncPostDelete(postKey);
+      const syncPostBack = navigation.state.params.syncPostBack;
+      const routeName = navigation.state.routeName;
+      await syncPostBack(routeName);
       Alert.alert("該貼文不存在！");
       this.postOverLayar();
       navigation.goBack();
@@ -166,6 +172,9 @@ class Post extends React.Component {
       else {
         //刪除貼文同步
         syncPostDelete(postKey);
+        const syncPostBack = navigation.state.params.syncPostBack;
+        const routeName = navigation.state.routeName;
+        await syncPostBack(routeName);
         Alert.alert("該貼文不存在！");
         this.editPostOverLayar();
         this.refs.editPost.close();
@@ -192,6 +201,9 @@ class Post extends React.Component {
       Alert.alert("該貼文不存在！");
       this.postOverLayar();
     }
+    const syncPostBack = navigation.state.params.syncPostBack;
+    const routeName = navigation.state.routeName;
+    await syncPostBack(routeName);
     navigation.goBack();
   };
 
@@ -215,6 +227,9 @@ class Post extends React.Component {
     else {
       //刪除貼文同步
       syncPostDelete(postKey);
+      const syncPostBack = navigation.state.params.syncPostBack;
+      const routeName = navigation.state.routeName;
+      await syncPostBack(routeName);
       Alert.alert("該貼文不存在！");
       this.editCommentOverLayar();
       this.editCommentDialog.dismiss();
@@ -240,6 +255,9 @@ class Post extends React.Component {
     else {
       //刪除貼文同步
       syncPostDelete(postKey);
+      const syncPostBack = navigation.state.params.syncPostBack;
+      const routeName = navigation.state.routeName;
+      await syncPostBack(routeName);
       Alert.alert("該貼文不存在！");
       this.postOverLayar();
       navigation.goBack();
@@ -286,11 +304,6 @@ class Post extends React.Component {
     }
   }
 
-  //設定本頁post
-  setPost = (postData) => {
-    this.setState({ post: postData });
-  };
-
   //過門
   postOverLayar = () => {
     this.setState({ loading: !this.state.loading });
@@ -303,11 +316,6 @@ class Post extends React.Component {
   editCommentOverLayar = () => {
     this.setState({ editCommentLoading: !this.state.editCommentLoading });
   }
-
-  //設定本頁comment
-  setComment = (commentData) => {
-    this.setState({ comment: commentData });
-  };
 
   //顯示user資訊
   showUser = async (uid) => {

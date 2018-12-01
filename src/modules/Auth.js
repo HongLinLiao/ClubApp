@@ -3,6 +3,7 @@ import * as CommonAction from '../actions/CommonAction'
 import * as UserAction from '../actions/UserAction'
 import * as ClubAction from '../actions/ClubAction'
 import * as SettingAction from '../actions/SettingAction'
+import * as PostAction from '../actions/PostAction'
 import * as firebase from "firebase"
 import Expo from 'expo'
 import { Alert } from 'react-native'
@@ -300,6 +301,7 @@ export const signOut = () => async (dispatch) => {
     await firebase.database().ref('users').child(uid).update({expoToken: false}) //避免同一個手幾有多個expoToken
     await firebase.auth().signOut()
     dispatch(UserAction.clearUser())
+    dispatch(PostAction.clearPost())
 
     setTimeout(
       () => dispatch(CommonAction.setLoadingState(false)), //進入等待狀態

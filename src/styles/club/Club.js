@@ -103,10 +103,15 @@ export default StyleSheet.create({
     alignItems: "center",
     padding: 5
   },
-  adminText: {
+  adminOpenText: {
     fontSize: 12,
     padding: 5,
-    color: "#666666"
+    color: "#696969"
+  },
+  adminCloseText: {
+    fontSize: 12,
+    padding: 5,
+    color: "#DCDCDC"
   },
   adminIcon: {
     width: 35,

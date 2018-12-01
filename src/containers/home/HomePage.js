@@ -1,14 +1,23 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { initHomeClubList, getHomePostReload } from '../../modules/Home'
-import { getInsidePost, setPostFavorite, initSetPostList, syncPost, syncPostDelete,syncPostBack } from '../../modules/Post'
+import {
+    getInsidePost,
+    setPostFavorite,
+    initSetPostList,
+    syncPost,
+    syncPostDelete,
+    syncPostBack
+} from '../../modules/Post'
+import { syncSearchActivityBack } from '../../modules/Activity'
 import Home from '../../components/home/Home'
 
 const mapStateToProps = ({ homeReducer, userReducer }) => ({
     joinClub: userReducer.joinClub,
     likeClub: userReducer.likeClub,
     postList: homeReducer.postList,
-    clubList: homeReducer.clubList
+    clubList: homeReducer.clubList,
+    user: userReducer.user,
 })
 
 const mapDispatchToProps = {
@@ -21,6 +30,8 @@ const mapDispatchToProps = {
     syncPost,
     syncPostDelete,
     syncPostBack,
+    //清掉活動返回state
+    syncSearchActivityBack
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Home);

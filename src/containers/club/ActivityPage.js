@@ -5,6 +5,10 @@ import {
     setActivityFavorite,
     setActivityKeep,
     getInsideActivity,
+    initSetActivity,
+    initActivityToReducer,
+    syncActivity,
+    syncActivityDelete,
 } from '../../modules/Activity'
 
 class ActivityPage extends Component {
@@ -12,12 +16,14 @@ class ActivityPage extends Component {
         return (
             <Activity
                 activity={this.props.navigation.state.params.activity}
-                setActivityList={this.props.navigation.state.params.setActivityList}
-                activityList={this.props.navigation.state.params.activityList}
                 navigation={this.props.navigation}
                 setActivityFavorite={this.props.setActivityFavorite}
                 setActivityKeep={this.props.setActivityKeep}
                 getInsideActivity={this.props.getInsideActivity}
+                initSetActivity={this.props.initSetActivity}
+                initActivityToReducer={this.props.initActivityToReducer}
+                syncActivity={this.props.syncActivity}
+                syncActivityDelete={this.props.syncActivityDelete}
             />
         )
     }
@@ -31,6 +37,10 @@ const mapDispatchToProps = {
     setActivityFavorite,
     setActivityKeep,
     getInsideActivity,
+    initSetActivity,
+    initActivityToReducer,
+    syncActivity,
+    syncActivityDelete,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(ActivityPage);

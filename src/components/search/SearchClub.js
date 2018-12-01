@@ -30,7 +30,7 @@ const slideAnimation = new SlideAnimation({
 
 class SearchClub extends React.Component {
   state = {
-    activity: {},
+    activity: [],
     post: [],
     userData: { _uid: null, _user: null, _clubs: null },
     loading: false,
@@ -40,7 +40,7 @@ class SearchClub extends React.Component {
   };
 
   async componentWillMount() {
-    const { navigation, initSetPostList } = this.props;
+    const { navigation, initSetPostList, initSetActivityList } = this.props;
     const { hasJoin, hasLike } = navigation.state.params.status;
     this.setState({
       hasJoin,
@@ -48,6 +48,7 @@ class SearchClub extends React.Component {
     });
     this.clubOverLayar();
     await initSetPostList(newPostList => { this.setState({ post: newPostList }); }, navigation);
+    await initSetActivityList(newActivityList => { this.setState({ activity: newActivityList }); }, navigation);
     await this.activityReload(navigation.state.params.club.cid);
     await this.postReload(navigation.state.params.club.cid);
     this.clubOverLayar();
@@ -67,51 +68,67 @@ class SearchClub extends React.Component {
     }
   }
 
-  //過門
-  clubOverLayar = () => {
-    this.setState({ loading: !this.state.loading });
-  }
-
-  //活動重整
-  activityReload = async (clubKey) => {
-    const { getActivityDataFromClubKey } = this.props;
-    const activityData = await getActivityDataFromClubKey(clubKey);
-    if (activityData != null) {
-      this.setState({ activity: activityData });
-    }
-    else {
-      //不公開社團，只收藏，處理
-      //navigation back?
-    }
-  };
-  //進入活動內頁
-  insideActivity = async (activity) => {
-    const { getInsideActivity, navigation } = this.props;
-    this.clubOverLayar();
-    const activityData = await getInsideActivity(activity.clubKey, activity.activityKey);
-    this.clubOverLayar();
-    if (activityData != null) {
-      //放進List
-      const newActivityList = JSON.parse(JSON.stringify(this.state.activity));
-      newActivityList[activityData.clubKey][activityData.activityKey] = activityData;
-      this.setState({ activity: newActivityList });
-
-      navigation.navigate('Activity', {
-        activity: activityData,
-        setActivityList: this.setActivityList,
-        activityList: newActivityList,
-      });
-    }
-  };
-  //更改activityList
-  setActivityList = (activityList) => {
-    this.setState({ activity: activityList });
-  };
   //貼文重整
   postReload = async (clubKey) => {
     const { getClubPostReload, navigation } = this.props;
     await getClubPostReload(clubKey, navigation);
   };
+
+  //活動重整
+  activityReload = async (clubKey) => {
+    const { getClubActivityReload, navigation } = this.props;
+    await getClubActivityReload(clubKey, navigation);
+  };
+
+  //進入活動內頁
+  insideActivity = async (activity) => {
+    const { getInsideActivity, syncActivity, navigation, syncActivityDelete, syncActivityBack } = this.props;
+    this.clubOverLayar()
+    const obj = await getInsideActivity(activity.clubKey, activity.activityKey);
+    if (obj != null) {
+      //活動同步
+      syncActivity(obj);
+      this.clubOverLayar();
+      let routeName;
+      if (navigation.state.routeName == 'Stories') {
+        routeName = 'HomeActivity'
+      }
+      else if (navigation.state.routeName == 'SearchClub') {
+        routeName = 'SearchActivity'
+      }
+      else {
+        routeName = navigation.state.routeName + "Activity";
+      }
+      navigation.navigate(routeName, {
+        activity: obj.activity,
+        syncActivityBack: syncActivityBack
+      });
+    }
+    else {
+      //刪除活動同步
+      syncActivityDelete(activity.activityKey);
+      Alert.alert("該活動不存在！");
+      this.clubOverLayar();
+    }
+  };
+
+
+  //活動按讚
+  pressActivityFavorite = async (activity) => {
+    const { setActivityFavorite, syncActivity, syncActivityDelete } = this.props;
+    this.clubOverLayar();
+    let obj = await setActivityFavorite(activity.clubKey, activity.activityKey);
+    if (obj != null) {
+      //活動同步
+      syncActivity(obj);
+    }
+    else {
+      //刪除活動同步
+      syncActivityDelete(activity.activityKey);
+      alert("該活動不存在！");
+    }
+    this.clubOverLayar();
+  }
 
   askToAddLike = () => {
     Alert.alert(
@@ -181,6 +198,11 @@ class SearchClub extends React.Component {
     }
   }
 
+  //過門
+  clubOverLayar = () => {
+    this.setState({ loading: !this.state.loading });
+  }
+
   render() {
     const { user, navigation } = this.props;
     const { hasJoin, hasLike } = this.state;
@@ -189,7 +211,7 @@ class SearchClub extends React.Component {
     const { _uid, _user, _clubs } = this.state.userData
     const numberOfMember = Object.keys(member).length;
     const newPostList = this.state.post.slice();
-    const newActivityList = { ...this.state.activity };
+    const newActivityList = this.state.activity.slice();
 
     return (
       <View style={{ flex: 1, backgroundColor: "#ffffff" }}>
@@ -287,35 +309,43 @@ class SearchClub extends React.Component {
               </View>
               <ScrollView horizontal>
                 <View style={{ flexDirection: "row" }}>
-                  {Object.values(newActivityList).map((clubElement) => (
-                    Object.values(clubElement).map((activityElement) => (
-                      <TouchableOpacity
-                        key={activityElement.activityKey}
-                        onPress={async () => { await this.insideActivity(activityElement) }}
-                      >
-                        <ImageBackground
-                          source={{ uri: activityElement.photo }}
-                          style={styles.clubActivity}
-                          imageStyle={styles.borderRadius30}
-                        >
-                          <View style={styles.heartView}>
-                            <Text style={styles.heartText}>{activityElement.numFavorites}</Text>
-                            <Image
-                              source={require("../../images/images2/like.png")}
-                              style={styles.likeIcon}
-                            />
-                          </View>
-                        </ImageBackground>
-                      </TouchableOpacity>
+                  {
+                    newActivityList.map((activityElement) => (
+                      Object.values(activityElement).map((activity) => (
+                        !activity.open ? null :
+                          (
+                            <TouchableOpacity
+                              key={activity.activityKey}
+                              onPress={async () => { await this.insideActivity(activity) }}
+                            >
+                              <ImageBackground
+                                source={{ uri: activity.photo }}
+                                style={styles.clubActivity}
+                                imageStyle={styles.borderRadius30}
+                              >
+                                <View style={styles.heartView}>
+                                  <TouchableOpacity style={styles.heartView}
+                                    onPress={async () => { await this.pressActivityFavorite(activity); }}>
+                                    <Image
+                                      style={styles.likeIcon}
+                                      source={activity.statusFavorite ? require("../../images/like-orange.png") : require("../../images/like-gray.png")}
+                                    />
+                                    <Text style={styles.heartText}> {activity.numFavorites}</Text>
+                                  </TouchableOpacity>
+                                </View>
+                              </ImageBackground>
+                            </TouchableOpacity>
+                          )
+                      ))
                     ))
-                  ))}
-                  <TouchableOpacity style={styles.moreView} onPress={() => { }}>
+                  }
+                  {/* <TouchableOpacity style={styles.moreView} onPress={() => { }}>
                     <Text style={styles.moreText}>更多</Text>
                     <Image
                       source={require("../../images/images2/arrowRight.png")}
                       style={styles.arrow}
                     />
-                  </TouchableOpacity>
+                  </TouchableOpacity> */}
                 </View>
               </ScrollView>
             </View>
@@ -343,11 +373,11 @@ class SearchClub extends React.Component {
                   ))
                 ))
               }
-              <View style={styles.moreView}>
+              {/* <View style={styles.moreView}>
                 <TouchableOpacity onPress={() => { }}>
                   <Text style={styles.moreText}>查看更多</Text>
                 </TouchableOpacity>
-              </View>
+              </View> */}
             </View>
           </ScrollView>
         </View>

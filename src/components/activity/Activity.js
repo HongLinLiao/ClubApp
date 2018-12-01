@@ -1,17 +1,20 @@
 import React from 'react';
-import { View, Text, ScrollView, TouchableOpacity, KeyboardAvoidingView, Image, RefreshControl } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Image, RefreshControl, Alert } from 'react-native';
 import { Button } from 'react-native-elements';
 import styles from '../../styles/club/Activities'
 import MapView, { Marker } from 'react-native-maps'
 import { showLocation } from 'react-native-map-link'
 import { Location, DangerZone } from 'expo'
 import Overlayer from '../common/Overlayer'
-import { convertDateFormat } from '../../modules/Common'
+import Modal from 'react-native-modalbox';
 
 class Activity extends React.Component {
 
     //寫入本地State
     async componentWillMount() {
+        const { initSetActivity, navigation, initActivityToReducer } = this.props;
+        initSetActivity((obj) => { this.setState({ activity: obj.activity }); }, navigation);
+        initActivityToReducer({ activity: this.props.activity }, navigation);
         this.setState({ activity: this.props.activity });
     }
 
@@ -32,6 +35,49 @@ class Activity extends React.Component {
         }
     }
 
+    //頁面重整
+    reload = async (clubKey, activityKey) => {
+        const { getInsideActivity, navigation, syncActivity, syncActivityDelete } = this.props;
+        this.activityOverLayar();
+        const obj = await getInsideActivity(clubKey, activityKey);
+        this.activityOverLayar();
+        if (obj != null) {
+            //貼文同步
+            syncActivity(obj);
+        }
+        else {
+            //刪除貼文同步
+            syncActivityDelete(activityKey);
+            const syncActivityBack = navigation.state.params.syncActivityBack;
+            const routeName = navigation.state.routeName;
+            await syncActivityBack(routeName);
+            Alert.alert("該活動不存在！");
+            navigation.goBack();
+        }
+    };
+
+    //點讚
+    pressFavorite = async (clubKey, activityKey) => {
+        const { setActivityFavorite, syncActivity, syncActivityDelete, navigation } = this.props;
+        this.activityOverLayar();
+        let obj = await setActivityFavorite(clubKey, activityKey);
+        if (obj != null) {
+            //活動同步
+            syncActivity(obj);
+            this.activityOverLayar();
+        }
+        else {
+            //刪除活動同步
+            syncActivityDelete(activityKey);
+            const syncActivityBack = navigation.state.params.syncActivityBack;
+            const routeName = navigation.state.routeName;
+            await syncActivityBack(routeName);
+            Alert.alert("該貼文不存在！");
+            this.activityOverLayar();
+            navigation.goBack();
+        }
+    };
+
     getUserLocation = async () => {
         let location = await Location.getCurrentPositionAsync();
 
@@ -44,31 +90,6 @@ class Activity extends React.Component {
             }
         })
     }
-
-    //過門
-    activityOverLayar = () => {
-        this.setState({ loading: !this.state.loading });
-    }
-
-    //設定本頁activity
-    setActivity = (activityData) => {
-        this.setState({ activity: activityData });
-    };
-
-    //點讚
-    pressFavorite = async (clubKey, activityKey) => {
-        const { setActivityFavorite, activityList, setActivityList } = this.props;
-        this.activityOverLayar();
-        const activityData = await setActivityFavorite(clubKey, activityKey);
-        this.activityOverLayar();
-        if (activityData != null) {
-            //放進activityList
-            const newActivityList = JSON.parse(JSON.stringify(activityList));
-            newActivityList[activityData.clubKey][activityData.activityKey] = activityData;
-            setActivityList(newActivityList);
-            this.setState({ activity: activityData });
-        }
-    };
 
     open = async () => {
         let location = await Location.getCurrentPositionAsync();
@@ -84,48 +105,40 @@ class Activity extends React.Component {
             app: 'google-maps'  // optionally specify specific app to use
         })
     }
+
     //點擊收藏
     pressKeep = async (activity) => {
-        const { setActivityKeep, activityList, setActivityList } = this.props;
+        const { setActivityKeep, syncActivity, syncActivityDelete, navigation } = this.props;
         this.activityOverLayar();
-        const activityData = await setActivityKeep(activity.clubKey, activity.activityKey);
-        this.activityOverLayar();
-        if (activityData != null) {
-            //放進activityList
-            const newActivityList = JSON.parse(JSON.stringify(activityList));
-            newActivityList[activityData.clubKey][activityData.activityKey] = activityData;
-            setActivityList(newActivityList);
-            this.setState({ activity: activityData });
+        let obj = await setActivityKeep(activity.clubKey, activity.activityKey);
+        if (obj != null) {
+            //活動同步
+            syncActivity(obj);
+            this.activityOverLayar();
+        }
+        else {
+            //刪除活動同步
+            syncActivityDelete(activityKey);
+            const syncActivityBack = navigation.state.params.syncActivityBack;
+            const routeName = navigation.state.routeName;
+            await syncActivityBack(routeName);
+            Alert.alert("該貼文不存在！");
+            this.activityOverLayar();
+            navigation.goBack();
         }
     }
 
-    //頁面重整
-    reload = async (clubKey, activityKey) => {
-        const { getInsideActivity, navigation, activityList, setActivityList } = this.props;
-        this.activityOverLayar();
-        const newActivity = await getInsideActivity(clubKey, activityKey);
-        this.activityOverLayar();
-        const newActivityList = JSON.parse(JSON.stringify(activityList));
-        if (newActivity == null) {
-            newActivityList[clubKey][activityKey] = null;
-            delete newActivityList[clubKey][activityKey];
-            setActivityList(newActivityList);
-            navigation.goBack();
-        } else {
-            newActivityList[clubKey][activityKey] = newActivity;
-            setActivityList(newActivityList);
-            this.setState({ activity: newActivity });
-        }
-    };
+    //過門
+    activityOverLayar = () => {
+        this.setState({ loading: !this.state.loading });
+    }
 
 
 
     render() {
-        const activityData = this.state.activity;
-        const element = JSON.parse(JSON.stringify(activityData));
-        const { startDateTime, endDateTime, location } = element
-        const _startDateTime = convertDateFormat(startDateTime)
-        const _endDateTime = convertDateFormat(endDateTime)
+        const element = JSON.parse(JSON.stringify(this.state.activity));
+        const { location } = element
+
         return (
             <View style={[styles.container]}>
                 <ScrollView
@@ -151,8 +164,6 @@ class Activity extends React.Component {
                                 <Text style={styles.schoolText}>{element.schoolName}    {element.clubName}</Text>
                                 <TouchableOpacity onPress={async () =>
                                     await this.pressKeep(element)}>
-
-
                                     <Image
                                         style={styles.collect}
                                         source={element.statusKeep ? require("../../images/bookmark-yellow.png") : require("../../images/bookmark-gray.png")}
@@ -173,8 +184,6 @@ class Activity extends React.Component {
                                             styles.number,
                                             { color: element.statusFavorite ? "#f6b456" : "#666666" }]}>{element.numFavorites}</Text>
                                 </TouchableOpacity>
-
-
                             </View>
                         </View>
 
@@ -182,9 +191,9 @@ class Activity extends React.Component {
                             <View style={styles.summaryTextView}>
                                 <Image source={require('../../images/calendar.png')}
                                     style={styles.icon} />
-                                <Text style={[styles.summaryText, style = { marginRight: 1 }]}>{_startDateTime}</Text>
+                                <Text style={[styles.summaryText, style = { marginRight: 1 }]}>{element.startDateTime}</Text>
                                 <Text style={styles.toText}>~</Text>
-                                <Text style={[styles.summaryText, style = { marginLeft: 1 }]}>{_endDateTime}</Text>
+                                <Text style={[styles.summaryText, style = { marginLeft: 1 }]}>{element.endDateTime}</Text>
                             </View>
                             <View style={styles.summaryTextView}>
                                 <Image source={require('../../images/coin.png')}
@@ -234,6 +243,34 @@ class Activity extends React.Component {
                     </View>
 
                 </ScrollView>
+
+                {/* 進階活動 */}
+                <Modal style={{ height: 200, justifyContent: 'center', alignItems: 'center' }} position={"bottom"} ref={"advancedActivity"}>
+                    <Button
+                        buttonStyle={[styles.advancedActivityBtn, { display: element.editStatus ? 'flex' : 'none' }]}
+                        title="編輯活動"
+                        onPress={() => {
+                            // this.refs.advancedPost.close();
+                            // this.refs.editPost.open();
+                        }}
+                    />
+                    <Text></Text>
+                    <Button
+                        buttonStyle={[styles.advancedActivityBtn, { display: element.deleteStatus ? 'flex' : 'none' }]}
+                        onPress={async () => {
+                            Alert.alert('確定要刪除活動嗎？', '', [
+                                { text: '取消', onPress: () => { } },
+                                {
+                                    text: '確定', onPress: async () => {
+                                        this.refs.advancedActivity.close();
+                                        // await this.deletePost(this.state.post.clubKey, this.state.post.postKey)
+                                    }
+                                },
+                            ]);
+                        }}
+                        title="刪除活動"
+                    />
+                </Modal>
                 {this.state.loading ? <Overlayer /> : null}
             </View>
         )

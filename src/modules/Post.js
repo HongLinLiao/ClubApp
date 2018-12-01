@@ -43,7 +43,7 @@ export const initPostToReducer = (obj, navigation) => async (dispatch, getState)
     }
 }
 
-//init:放setPost進postReducer,(第三個變數控制是否刪除)
+//init:放setPost進postReducer
 export const initSetPost = (setPost, navigation) => async (dispatch, getState) => {
     try {
         let setPostInReducer = getState().postReducer.setPost;
@@ -326,6 +326,30 @@ export const syncPostBack = (routeName) => async (dispatch, getState) => {
             newReducer[routeName] = null;
             delete newReducer[routeName];
             dispatch(PostAction.getPost(newReducer));
+        }
+    }
+    catch (error) {
+        console.log(error.toString());
+    }
+}
+
+//custom function：搜尋社團返回搜尋頁 清除setState
+export const syncSearchPostBack = (routeName) => async (dispatch, getState) => {
+    try {
+        let setPostListInReducer = getState().postReducer.setPostList;
+        let newObjct = Object.assign({}, setPostListInReducer);
+        if (newObjct[routeName]) {
+            newObjct[routeName] = null;
+            delete newObjct[routeName];
+            dispatch(PostAction.getSetPostList(newObjct));
+        }
+
+        let postList = getState().postReducer.postList;
+        let newReducer = JSON.parse(JSON.stringify(postList));
+        if (newReducer[routeName]) {
+            newReducer[routeName] = null;
+            delete newReducer[routeName];
+            dispatch(PostAction.getPostList(newReducer));
         }
     }
     catch (error) {

@@ -13,6 +13,8 @@ export const GET_POSTLIST = 'GET_POSTLIST'//放進貼文列
 export const GET_POST = 'GET_POST'//放進貼文
 export const GET_SETPOSTLIST = 'GET_SETPOSTLIST'//放進每個tab設定貼文列
 export const GET_SETPOST = 'GET_SETPOST'//放進每個tab設定貼文
+//清空reducer
+export const CLEAR_POST = 'CLEAR_POST'
 
 /*
 |-----------------------------------------------
@@ -49,4 +51,8 @@ export const getSetPostList = (setPostList) => ({
 export const getSetPost = (setPost) => ({
   type: GET_SETPOST,
   setPost
+})
+//清空reducer
+export const clearPost = () => ({
+  type: CLEAR_POST,
 })

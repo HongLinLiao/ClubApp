@@ -13,6 +13,7 @@ import {
 } from 'react-native'
 import styles from "../../styles/club/ClubAdmin";
 import Overlayer from '../common/Overlayer'
+import { convertClubStatus } from '../../modules/Common';
 
 
 class ClubAdmin extends React.Component {
@@ -85,6 +86,7 @@ class ClubAdmin extends React.Component {
         const { imgUrl, schoolName, clubName, open, member, introduction } = joinClubs[currentCid]
         const numberOfMember = Object.keys(member).length
         const status = member[user.uid].status
+        let statusChinese = convertClubStatus(status);
         return (
             <View style={styles.container}>
                 <ScrollView>
@@ -117,7 +119,7 @@ class ClubAdmin extends React.Component {
                         </View>
                         <Text style={styles.numberext}>
                           你的身分：
-                          {status}
+                          {statusChinese}
                         </Text>
                       </View>
                     </View>
