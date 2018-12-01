@@ -103,3 +103,23 @@ export const convertDateFormat = (dateTime) => {
 
   return `${date} ${hours}:${minutes}`
 }
+
+
+export const handleAuthError = (error) => {
+  switch(error.code) {
+    case "auth/invalid-email":
+      return "信箱格式不正確!"
+    case "auth/user-not-found":
+      return "使用者不存在!"
+    case "auth/wrong-password":
+      return "密碼錯誤!"
+    case "auth/email-already-in-use":
+      return "帳號已有人使用!"
+    case "auth/weak-password":
+      return "密碼需至少6個字！"
+    case "auth/account-exists-with-different-credential":
+      return "信箱已被註冊使用！"
+    default:
+      return error.message
+  }
+}

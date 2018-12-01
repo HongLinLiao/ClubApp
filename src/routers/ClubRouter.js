@@ -8,6 +8,8 @@ import ClubAdminPage from '../containers/club/ClubAdminPage'
 import ClubMemberPage from '../containers/club/ClubMemberPage'
 import SearchPlacePage from '../containers/club/SearchPlacePage'
 import MemberManagePage from '../containers/club/MemberManagePage'
+import CreateClubPage from '../containers/personal/CreateClubPage'
+
 
 import React from 'react'
 import { Button, TouchableOpacity, Image, Text } from 'react-native'

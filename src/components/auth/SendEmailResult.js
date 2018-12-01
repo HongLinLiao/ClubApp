@@ -4,7 +4,8 @@ import {
   View,
   KeyboardAvoidingView,
   TouchableOpacity,
-  ImageBackground
+  ImageBackground,
+  Alert
 } from 'react-native';
 
 import styles from '../../styles/auth/SendEmailResult'

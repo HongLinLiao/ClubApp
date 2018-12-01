@@ -287,5 +287,17 @@ export default StyleSheet.create({
   },
   joinAndLikeText: {
     fontSize: 16
+  },
+  createClubBtn: {
+    position: 'absolute',
+    top: 20,
+    right: 20,
+    backgroundColor: "rgba(246, 180, 86, 0.8)",
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    opacity: 0.6,
+    justifyContent: 'center',
+    alignItems: 'center'
   }
 });

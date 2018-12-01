@@ -33,7 +33,6 @@ import { listenToAllClubs, listenToUser, listenToUserSetting } from './Listener'
 const signInSuccess = (action, user, password, loginType) => async (dispatch) => {
 
   try {
-    await registerForPushNotificationsAsync(user) //紀錄expoToken
     const userRef = firebase.database().ref('users').child(user.uid)
     const settingRef = firebase.database().ref('userSettings').child(user.uid)
 
@@ -59,6 +58,9 @@ const signInSuccess = (action, user, password, loginType) => async (dispatch) =>
     } else {
       settingData = await createUserSettingInDB()
     }
+
+    //紀錄expoToken
+    await registerForPushNotificationsAsync(user) 
 
     //使用者相關社團資料
     clubsData = await getAllClubData()
@@ -157,7 +159,6 @@ export const signInWithFacebook = () => async (dispatch) => {
     // dispatch(CommonAction.setLoadingState(false)) //結束等待狀態
 
     console.log(error.toString())
-
     throw error
 
   }
@@ -190,7 +191,7 @@ export const signInWithGoogle = () => async (dispatch) => {
     dispatch(AuthAction.signWithGoogleFail(error.toString()))
 
     console.log(error.toString())
-
+    console.log(error.code)
     throw error
   }
 
@@ -210,7 +211,7 @@ export const sendVerifiedMail = () => async (dispatch) => {
 
     Alert.alert("驗證信已發送！")
 
-    console.log(error.toString())
+    throw error
   }
 
 }
@@ -285,8 +286,7 @@ export const sendResetMail = (email) => async (dispatch) => {
 
   } catch (error) {
     dispatch(AuthAction.sendResetEmailFail(error.toString()))
-
-    console.log(error.toString())
+    throw error
   }
 
 }

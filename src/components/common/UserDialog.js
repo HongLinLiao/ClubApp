@@ -16,10 +16,7 @@ const UserDialog = ({uid, user, clubs, loading}) => {
                         backgroundColor: '#f6b456',
                     }}>
                         <View style={{  width: 100, height: 100, borderRadius: 50, overflow: 'hidden', justifyContent: 'center', alignItems: 'center', margin: 10}}>
-                            { user.photoUrl ? 
-                                <Image source={{uri: user.photoUrl}} resizeMode='cover' style={{ width: 100, height: 100, }}/> : 
-                                <Image source={require('../../images/man-user.png')} resizeMode='contain' style={{width: 100, height: 100, borderRadius: 50}}/>
-                            }
+                            <Image source={{ uri: user.photoUrl }} resizeMode='cover' style={{ width: 100, height: 100, }}/> 
                         </View>
                         <View>
                             <Text style={{fontSize: 25, fontWeight: 'bold', color: '#0d4273'}}>{user.nickName}</Text>

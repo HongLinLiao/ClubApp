@@ -58,8 +58,7 @@ class Club extends React.Component {
       const { currentCid, likeClubs, setCurrentClub } = this.props;
       let openClubCid = null
       if(currentCid) {
-        this.setState({ refreshing: true });
-        this.clubOverLayar();
+        this.setState({ refreshing: true, loading: true });
         await this.activityReload(currentCid);
         await this.postReload(currentCid);
       } else {
@@ -71,8 +70,7 @@ class Club extends React.Component {
         setCurrentClub(openClubCid)
       }
       
-      this.clubOverLayar();
-      this.setState({ refreshing: false });
+      this.setState({ refreshing: false, loading: false });
     } catch (error) {
       console.log(error.toString());
     }
@@ -277,6 +275,9 @@ class Club extends React.Component {
                     resizeMode="cover"
                     style={styles.clubBackground}
                   >
+                    <TouchableOpacity style={styles.createClubBtn} onPress={() => this.props.navigation.navigate('CreateClub')}>
+                      <Image source={require('../../images/add-group.png')} style={{ width: 40, height: 40 }} />
+                    </TouchableOpacity>
                     <View style={styles.clubInfoView}>
                       <View style={styles.clubLeftTextView}>
                         <Text style={styles.schoolText}>{schoolName}</Text>

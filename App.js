@@ -11,7 +11,6 @@ import { getAllUserData } from './src/modules/User'
 import createRootRouter from './src/routers/Router'
 import { Spinner } from './src/components/common/Spinner'
 import { setLoadingState } from './src/actions/CommonAction'
-import { registerForPushNotificationsAsync } from './src/modules/App'
 
 
 export const store = createStore(rootReducer, {}, applyMiddleware(thunk, logger))
@@ -35,7 +34,6 @@ export default class App extends React.Component {
       if(this.state.loading) { //初次載入App
 
         if(user) {
-          await registerForPushNotificationsAsync(user)
           store.dispatch(getAllUserData(user))
         }
         else {
