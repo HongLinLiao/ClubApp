@@ -53,16 +53,6 @@ export const takePhoto = async () => {
   }
 }
 
-//轉換職位status轉換成中文
-export const changeMemberStatusToChinese = (status) => {
-  if(status==='master'){
-    return '社長';
-  }
-  else{
-    return '社員';
-  }
-}
-
 //判斷社團是收藏還是加入
 export const joinOrLikeClub = (cid) => {
   const { joinClub, likeClub } = store.getState().userReducer

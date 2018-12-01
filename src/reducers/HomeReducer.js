@@ -1,10 +1,6 @@
 import {
     GET_HOME_CLUBLIST_SUCCESS,
     GET_HOME_CLUBLIST_FAILURE,
-    GET_HOME_POSTLIST_SUCCESS,
-    GET_HOME_POSTLIST_FAILURE,
-    GET_HOME_ACTIVITYLIST_SUCCESS,
-    GET_HOME_ACTIVITYLIST_FAILURE,
     SET_HOME_CLUBLIST_STATUS_SUCCESS,
     SET_HOME_CLUBLIST_STATUS_FAILURE,
 } from '../actions/HomeAction'
@@ -15,10 +11,6 @@ import {
 
 const initialState = {
     clubList: {},//社團列表（控制篩選bool
-    postList: {},//貼文列
-    activityList: {},//首頁活動動態
-
-
     numSelectingStatusTrue: null, //計算clubList中有幾個是true
     message: null,//錯誤訊息
 }
@@ -33,28 +25,6 @@ export const homeReducer = (state = initialState, action) => {
                 numSelectingStatusTrue: action.numSelectingStatusTrue
             }
         case GET_HOME_CLUBLIST_FAILURE:
-            return {
-                ...state,
-                message: action.message
-            }
-        //取得首頁貼文列表
-        case GET_HOME_POSTLIST_SUCCESS:
-            return {
-                ...state,
-                postList: action.postList
-            }
-        case GET_HOME_POSTLIST_FAILURE:
-            return {
-                ...state,
-                message: action.message
-            }
-        //取得首頁活動列表
-        case GET_HOME_ACTIVITYLIST_SUCCESS:
-            return {
-                ...state,
-                activityList: action.activityList
-            }
-        case GET_HOME_ACTIVITYLIST_FAILURE:
             return {
                 ...state,
                 message: action.message

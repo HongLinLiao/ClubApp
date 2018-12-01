@@ -18,15 +18,21 @@ import Expo from "expo";
 import ModalDropdown from "react-native-modal-dropdown";
 import { randomCid, getClubMemberData } from "../../modules/Club";
 import Overlayer from "../common/Overlayer";
+import { getUserData, getClubData } from '../../modules/Data'
 import PostListElement from "../post/PostListElement";
-import { getPostKeyListFromClubKey } from "../../modules/Post";
 import styles from "../../styles/club/Club";
+import PopupDialog, { SlideAnimation } from 'react-native-popup-dialog';
+import UserDialog from '../common/UserDialog'
+
+const slideAnimation = new SlideAnimation({
+  slideFrom: 'bottom',
+});
 
 class SearchClub extends React.Component {
   state = {
-    activity: {},
-    post: {},
-    postKey: {},
+    activity: [],
+    post: [],
+    userData: { _uid: null, _user: null, _clubs: null },
     loading: false,
     hasJoin: false,
     hasLike: false,
@@ -34,16 +40,18 @@ class SearchClub extends React.Component {
   };
 
   async componentWillMount() {
-    const { navigation } = this.props;
+    const { navigation, initSetPostList, initSetActivityList } = this.props;
     const { hasJoin, hasLike } = navigation.state.params.status;
     this.setState({
       hasJoin,
       hasLike: hasJoin ? hasJoin : hasLike
     });
-    // this.clubOverLayar();
-    // await this.activityReload(navigation.state.params.club.cid);
-    // await this.postReload(navigation.state.params.club.cid);
-    // this.clubOverLayar();
+    this.clubOverLayar();
+    await initSetPostList(newPostList => { this.setState({ post: newPostList }); }, navigation);
+    await initSetActivityList(newActivityList => { this.setState({ activity: newActivityList }); }, navigation);
+    await this.activityReload(navigation.state.params.club.cid);
+    await this.postReload(navigation.state.params.club.cid);
+    this.clubOverLayar();
   }
 
   //重整
@@ -51,66 +59,76 @@ class SearchClub extends React.Component {
     try {
       this.setState({ refreshing: true });
       this.setState({ refreshing: false });
-      // this.clubOverLayar();
-      // await this.activityReload(this.props.navigation.state.params.club.cid);
-      // await this.postReload(this.props.navigation.state.params.club.cid);
-      // this.clubOverLayar();
+      this.clubOverLayar();
+      await this.activityReload(this.props.navigation.state.params.club.cid);
+      await this.postReload(this.props.navigation.state.params.club.cid);
+      this.clubOverLayar();
     } catch (error) {
       console.log(error.toString());
     }
   }
 
-  //過門
-  clubOverLayar = () => {
-    this.setState({ loading: !this.state.loading });
-  }
+  //貼文重整
+  postReload = async (clubKey) => {
+    const { getClubPostReload, navigation } = this.props;
+    await getClubPostReload(clubKey, navigation);
+  };
 
   //活動重整
   activityReload = async (clubKey) => {
-    const { getActivityDataFromClubKey } = this.props;
-    const activityData = await getActivityDataFromClubKey(clubKey);
-    if (activityData != null) {
-      this.setState({ activity: activityData });
-    }
-    else {
-      //不公開社團，只收藏，處理
-      //navigation back?
-    }
+    const { getClubActivityReload, navigation } = this.props;
+    await getClubActivityReload(clubKey, navigation);
   };
+
   //進入活動內頁
   insideActivity = async (activity) => {
-    const { getInsideActivity, navigation } = this.props;
-    this.clubOverLayar();
-    const activityData = await getInsideActivity(activity.clubKey, activity.activityKey);
-    this.clubOverLayar();
-    if (activityData != null) {
-      //放進List
-      const newActivityList = JSON.parse(JSON.stringify(this.state.activity));
-      newActivityList[activityData.clubKey][activityData.activityKey] = activityData;
-      this.setState({ activity: newActivityList });
-
-      navigation.navigate('Activity', {
-        activity: activityData,
-        setActivityList: this.setActivityList,
-        activityList: newActivityList,
+    const { getInsideActivity, syncActivity, navigation, syncActivityDelete, syncActivityBack } = this.props;
+    this.clubOverLayar()
+    const obj = await getInsideActivity(activity.clubKey, activity.activityKey);
+    if (obj != null) {
+      //活動同步
+      syncActivity(obj);
+      this.clubOverLayar();
+      let routeName;
+      if (navigation.state.routeName == 'Stories') {
+        routeName = 'HomeActivity'
+      }
+      else if (navigation.state.routeName == 'SearchClub') {
+        routeName = 'SearchActivity'
+      }
+      else {
+        routeName = navigation.state.routeName + "Activity";
+      }
+      navigation.navigate(routeName, {
+        activity: obj.activity,
+        syncActivityBack: syncActivityBack
       });
     }
+    else {
+      //刪除活動同步
+      syncActivityDelete(activity.activityKey);
+      Alert.alert("該活動不存在！");
+      this.clubOverLayar();
+    }
   };
-  //更改activityList
-  setActivityList = (activityList) => {
-    this.setState({ activity: activityList });
-  };
-  //貼文重整
-  postReload = async clubKey => {
-    const { getPostDataComplete } = this.props;
-    const postKey = await getPostKeyListFromClubKey(clubKey);
-    const postData = await getPostDataComplete(postKey);
-    this.setState({ postKey: postKey, post: postData });
-  };
-  //更改postList
-  setPostList = postList => {
-    this.setState({ post: postList });
-  };
+
+
+  //活動按讚
+  pressActivityFavorite = async (activity) => {
+    const { setActivityFavorite, syncActivity, syncActivityDelete } = this.props;
+    this.clubOverLayar();
+    let obj = await setActivityFavorite(activity.clubKey, activity.activityKey);
+    if (obj != null) {
+      //活動同步
+      syncActivity(obj);
+    }
+    else {
+      //刪除活動同步
+      syncActivityDelete(activity.activityKey);
+      alert("該活動不存在！");
+    }
+    this.clubOverLayar();
+  }
 
   askToAddLike = () => {
     Alert.alert(
@@ -124,7 +142,7 @@ class SearchClub extends React.Component {
     );
   };
 
-  addLike = () => {};
+  addLike = () => { };
 
   handleJoinClub = async cid => {
     try {
@@ -156,95 +174,125 @@ class SearchClub extends React.Component {
     }
   };
 
+  showUser = async (_uid) => {
+    try {
+      this.popupDialog.show(async () => {
+        this.setState({ loading: true, userData: { _uid: null, _user: null, _clubs: null } })
+        const userData = { _uid, _user: {}, _clubs: {} }
+        const user = await getUserData(_uid)
+
+        if (user.joinClub) {
+          const promises = Object.keys(user.joinClub).map(async (cid) => {
+            const club = await getClubData(cid)
+            userData._clubs[cid] = club
+          })
+
+          await Promise.all(promises)
+        }
+
+        userData._user = user
+        this.setState({ userData, loading: false })
+      });
+    } catch (e) {
+      Alert.alert(e.toString())
+    }
+  }
+
+  //過門
+  clubOverLayar = () => {
+    this.setState({ loading: !this.state.loading });
+  }
+
   render() {
     const { user, navigation } = this.props;
     const { hasJoin, hasLike } = this.state;
     const { club } = navigation.state.params;
     const { schoolName, clubName, open, member, introduction, imgUrl } = club;
+    const { _uid, _user, _clubs } = this.state.userData
     const numberOfMember = Object.keys(member).length;
-    const newPostList = { ...this.state.post };
-    const newActivityList = { ...this.state.activity };
+    const newPostList = this.state.post.slice();
+    const newActivityList = this.state.activity.slice();
 
     return (
       <View style={{ flex: 1, backgroundColor: "#ffffff" }}>
         <View style={{ flex: 1 }}>
           <ScrollView
-          refreshControl={
-            <RefreshControl
-              refreshing={this.state.refreshing}
-              onRefresh={() => this.onRefresh()}
-              tintColor='#f6b456'
-            />
-          }
+            refreshControl={
+              <RefreshControl
+                refreshing={this.state.refreshing}
+                onRefresh={() => this.onRefresh()}
+                tintColor='#f6b456'
+              />
+            }
           >
             <View style={{ height: 400 }}>
               <View
                 style={{ position: "absolute", height: 400, width: "100%" }}
               >
-                
 
-                  <ImageBackground//可以了
+
+                <ImageBackground//可以了
                   source={{ uri: imgUrl ? imgUrl : 'https://upload.wikimedia.org/wikipedia/en/d/d3/No-picture.jpg' }}
                   resizeMode="cover"
                   style={styles.clubBackground}
                 >
 
 
-                    <View style={styles.clubInfoView}>
-                      <View style={styles.clubTextView}>
-                        <View style={styles.clubLeftTextView}>
-                          <Text style={styles.schoolText}>{schoolName}</Text>
-                          <Text style={styles.clubTopNameText}>{clubName}</Text>
-                        </View>
-                        <View style={styles.clubRightTextView}>
-                          <Text style={styles.numberext}>
-                            {open ? "公開" : "非公開"}
-                          </Text>
-                          <Text style={styles.numberext}>
-                            {numberOfMember}
-                            位成員
-                          </Text>
-                        </View>
+                  <View style={styles.clubInfoView}>
+                    <View style={styles.clubTextView}>
+                      <View style={styles.clubLeftTextView}>
+                        <Text style={styles.schoolText}>{schoolName}</Text>
+                        <Text style={styles.clubTopNameText}>{clubName}</Text>
                       </View>
-                      <View style={styles.joinAndLikeView}>
-                        <TouchableOpacity
-                          style={[
-                            styles.joinAndLikeTouch,
-                            { backgroundColor: hasJoin ? "#0d4273" : "#f6b456" }
-                          ]}
-                          disabled={hasJoin}
-                          onPress={() => this.handleJoinClub(club.cid)}
-                        >
-                          <Text
-                            style={[
-                              styles.joinAndLikeText,
-                              { color: hasJoin ? "#f6b456" : "#0d4273" }
-                            ]}
-                          >
-                            {hasJoin ? "已加入" : "加入社團"}
+                      <View style={styles.clubRightTextView}>
+                        <Text style={styles.numberext}>
+                          {open ? "公開" : "非公開"}
+                        </Text>
+                        <Text style={styles.numberext}>
+                          {numberOfMember}
+                          位成員
                           </Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                          style={[
-                            styles.joinAndLikeTouch,
-                            { backgroundColor: hasLike ? "#0d4273" : "#f6b456" }
-                          ]}
-                          disabled={hasLike}
-                          onPress={() => this.handleLikeTheClub(club.cid)}
-                        >
-                          <Text
-                            style={[
-                              styles.joinAndLikeText,
-                              { color: hasLike ? "#f6b456" : "#0d4273" }
-                            ]}
-                          >
-                            {hasLike ? "已收藏" : "收藏社團"}
-                          </Text>
-                        </TouchableOpacity>
                       </View>
                     </View>
-                  </ImageBackground>
-                
+                    <View style={styles.joinAndLikeView}>
+                      <TouchableOpacity
+                        style={[
+                          styles.joinAndLikeTouch,
+                          { backgroundColor: hasJoin ? "#0d4273" : "#f6b456" }
+                        ]}
+                        disabled={hasJoin}
+                        onPress={() => this.handleJoinClub(club.cid)}
+                      >
+                        <Text
+                          style={[
+                            styles.joinAndLikeText,
+                            { color: hasJoin ? "#f6b456" : "#0d4273" }
+                          ]}
+                        >
+                          {hasJoin ? "已加入" : "加入社團"}
+                        </Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={[
+                          styles.joinAndLikeTouch,
+                          { backgroundColor: hasLike ? "#0d4273" : "#f6b456" }
+                        ]}
+                        disabled={hasLike}
+                        onPress={() => this.handleLikeTheClub(club.cid)}
+                      >
+                        <Text
+                          style={[
+                            styles.joinAndLikeText,
+                            { color: hasLike ? "#f6b456" : "#0d4273" }
+                          ]}
+                        >
+                          {hasLike ? "已收藏" : "收藏社團"}
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                </ImageBackground>
+
               </View>
             </View>
 
@@ -261,35 +309,43 @@ class SearchClub extends React.Component {
               </View>
               <ScrollView horizontal>
                 <View style={{ flexDirection: "row" }}>
-                {Object.values(newActivityList).map((clubElement) => (
-                      Object.values(clubElement).map((activityElement) => (
-                        <TouchableOpacity
-                          key={activityElement.activityKey}
-                          onPress={async () => { await this.insideActivity(activityElement) }}
-                        >
-                          <ImageBackground
-                            source={{uri:activityElement.photo}}
-                            style={styles.clubActivity}
-                            imageStyle={styles.borderRadius30}
-                          >
-                            <View style={styles.heartView}>
-                              <Text style={styles.heartText}>{activityElement.numFavorites}</Text>
-                              <Image
-                                source={require("../../images/images2/like.png")}
-                                style={styles.likeIcon}
-                              />
-                            </View>
-                          </ImageBackground>
-                        </TouchableOpacity>
+                  {
+                    newActivityList.map((activityElement) => (
+                      Object.values(activityElement).map((activity) => (
+                        !activity.open ? null :
+                          (
+                            <TouchableOpacity
+                              key={activity.activityKey}
+                              onPress={async () => { await this.insideActivity(activity) }}
+                            >
+                              <ImageBackground
+                                source={{ uri: activity.photo }}
+                                style={styles.clubActivity}
+                                imageStyle={styles.borderRadius30}
+                              >
+                                <View style={styles.heartView}>
+                                  <TouchableOpacity style={styles.heartView}
+                                    onPress={async () => { await this.pressActivityFavorite(activity); }}>
+                                    <Image
+                                      style={styles.likeIcon}
+                                      source={activity.statusFavorite ? require("../../images/like-orange.png") : require("../../images/like-gray.png")}
+                                    />
+                                    <Text style={styles.heartText}> {activity.numFavorites}</Text>
+                                  </TouchableOpacity>
+                                </View>
+                              </ImageBackground>
+                            </TouchableOpacity>
+                          )
                       ))
-                    ))}
-                  <TouchableOpacity style={styles.moreView} onPress={() => {}}>
+                    ))
+                  }
+                  {/* <TouchableOpacity style={styles.moreView} onPress={() => { }}>
                     <Text style={styles.moreText}>更多</Text>
                     <Image
                       source={require("../../images/images2/arrowRight.png")}
                       style={styles.arrow}
                     />
-                  </TouchableOpacity>
+                  </TouchableOpacity> */}
                 </View>
               </ScrollView>
             </View>
@@ -298,29 +354,47 @@ class SearchClub extends React.Component {
               <View style={styles.titleTextView}>
                 <Text style={styles.titleText}>最新文章</Text>
               </View>
-              {Object.values(newPostList).map(clubElement =>
-                Object.values(clubElement).map(postElement => (
-                  <PostListElement
-                    key={postElement.postKey}
-                    post={postElement}
-                    navigation={this.props.navigation}
-                    getInsidePost={this.props.getInsidePost}
-                    getPostComment={this.props.getPostComment}
-                    setPostFavorite={this.props.setPostFavorite}
-                    postList={this.state.post}
-                    setPostList={this.setPostList}
-                    parentOverLayor={this.clubOverLayar}
-                  />
+              {
+                newPostList.map((postElement) => (
+                  Object.values(postElement).map((post) => (
+                    <PostListElement
+                      key={post.postKey}
+                      post={post}
+                      navigation={this.props.navigation}
+                      getInsidePost={this.props.getInsidePost}
+                      setPostFavorite={this.props.setPostFavorite}
+                      showUser={this.showUser.bind(this)}
+                      parentOverLayor={this.clubOverLayar}
+                      syncPost={this.props.syncPost}
+                      syncPostDelete={this.props.syncPostDelete}
+                      syncPostBack={this.props.syncPostBack}
+                    >
+                    </PostListElement>
+                  ))
                 ))
-              )}
-              <View style={styles.moreView}>
-                <TouchableOpacity onPress={() => {}}>
+              }
+              {/* <View style={styles.moreView}>
+                <TouchableOpacity onPress={() => { }}>
                   <Text style={styles.moreText}>查看更多</Text>
                 </TouchableOpacity>
-              </View>
+              </View> */}
             </View>
           </ScrollView>
         </View>
+        <PopupDialog
+          ref={(popupDialog) => this.popupDialog = popupDialog}
+          dialogAnimation={slideAnimation}
+          width={0.7}
+          height={0.7}
+          dialogStyle={{ borderRadius: 20 }}
+        >
+          <UserDialog
+            uid={_uid}
+            user={_user}
+            clubs={_clubs}
+            loading={this.state.loading}
+          />
+        </PopupDialog>
         {this.state.loading ? <Overlayer /> : null}
       </View>
     );

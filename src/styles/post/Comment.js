@@ -68,11 +68,13 @@ export default StyleSheet.create({
         height: 20,
         width: 20
     },
-    comment: {
-        color: '#666666',
-        fontSize: 14,
+    contentView: {
         marginTop: 5,
         marginBottom: 5
+    },
+    contentText: {
+        color: '#666666',
+        fontSize: 14,
     },
     sendIcon: {
         height: 22,

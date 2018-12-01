@@ -93,11 +93,24 @@ export default createStackNavigator({
 			},
 			headerStyle: {
 				backgroundColor: '#f6b456'
-			}
+			},
+			headerLeft: (
+				<TouchableOpacity onPress={async () => {
+					const syncSearchActivityBack = navigation.state.params.syncSearchActivityBack;
+					const routeName = navigation.state.routeName;
+					await syncSearchActivityBack(routeName);
+					navigation.goBack();
+				}}
+					style={{ flexDirection: 'row' }}
+				>
+					<Image source={require('../images/images2/arrowLeftBlue.png')}
+						style={{ width: 25, height: 25 }} />
+				</TouchableOpacity>
+			)
 		})
 	},
 	// 動態貼文內頁，從Club匯入
-	Activity: {
+	HomeActivity: {
 		screen: requireAppFlow(ActivityPage),
 		navigationOptions: ({ navigation }) => ({
 			headerTitleStyle: {
@@ -107,8 +120,21 @@ export default createStackNavigator({
 			},
 			headerStyle: {
 				backgroundColor: '#f6b456'
-			}
-		})
+			},
+			headerLeft: (
+				<TouchableOpacity onPress={async () => {
+					const syncActivityBack = navigation.state.params.syncActivityBack;
+					const routeName = navigation.state.routeName;
+					await syncActivityBack(routeName);
+					navigation.goBack();
+				}}
+					style={{ flexDirection: 'row' }}
+				>
+					<Image source={require('../images/images2/arrowLeftBlue.png')}
+						style={{ width: 25, height: 25 }} />
+				</TouchableOpacity>
+			)
+		}),
 	},
 },
 	{
