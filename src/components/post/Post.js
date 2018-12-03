@@ -566,8 +566,8 @@ class Post extends React.Component {
                     }}
                   >
                     <Image
-                      style={{ height: 100, width: 100 }}
-                      source={require('../../images/plus-button.png')}
+                      style={{ height: 50, width: 50,margin:25 }}
+                      source={require('../../images/plus-button-gray.png')}
                     />
                   </TouchableOpacity>
                 </View>
