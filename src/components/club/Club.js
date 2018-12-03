@@ -44,10 +44,10 @@ class Club extends React.Component {
 
     // const cid = randomCid(allClubCids);
     // this.props.setCurrentClub(cid);
+    await initSetPostList(newPostList => { this.setState({ post: newPostList }); }, navigation);
+    await initSetActivityList(newActivityList => { this.setState({ activity: newActivityList }); }, navigation);
     if (currentCid) {
       this.clubOverLayar()
-      await initSetPostList(newPostList => { this.setState({ post: newPostList }); }, navigation);
-      await initSetActivityList(newActivityList => { this.setState({ activity: newActivityList }); }, navigation);
       await this.postReload(currentCid)
       await this.activityReload(currentCid);
       this.clubOverLayar()
