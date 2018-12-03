@@ -387,22 +387,25 @@ class Post extends React.Component {
                 <View style={styles.row}>
                   <Text style={styles.school}>{element.schoolName}</Text>
                   <Text style={styles.club}>{element.clubName}</Text>
-                  <View style={{ flex: 1, flexDirection: 'row' }}>
-                    <TouchableOpacity
-                      onPress={() => { this.refs.advancedPost.open() }}
-                      style={{ display: element.editStatus || element.deleteStatus ? "flex" : "none" }}>
-                      <Image
-                        style={styles.icon}
-                        source={require("../../images/columndots.2.png")}
-                      />
-                    </TouchableOpacity>
                   </View>
-                </View>
+                 
+                
                 <View style={styles.row}>
                   <Text style={styles.name}>{element.posterNickName}</Text>
                   <Text style={styles.job}>{element.posterStatusChinese}</Text>
                 </View>
               </View>
+              <View style={styles.row2}>
+              <TouchableOpacity
+                onPress={() => { this.refs.advancedPost.open() }}
+                style={{ display: element.editStatus || element.deleteStatus ? "flex" : "none" }}>
+
+                <Image
+                  style={styles.icon}
+                  source={require("../../images/columndots.2.png")}
+                />
+              </TouchableOpacity>
+            </View>
             </View>
             <View style={styles.postView}>
               <Text style={styles.postTitle}>{element.title}</Text>
@@ -609,7 +612,7 @@ class Post extends React.Component {
                     }}
                   >
                     <Image
-                      style={{ height: 50, width: 50,margin:25 }}
+                      style={{ height: 50, width: 50, margin: 25 }}
                       source={require('../../images/plus-button-gray.png')}
                     />
                   </TouchableOpacity>
