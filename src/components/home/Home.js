@@ -134,11 +134,18 @@ class Home extends React.Component {
                                 style={{ height: 50, width: 50 }} />
                             <View style={{ marginLeft: 10 }}>
                                 <Text style={{ color: "#666666", fontSize: 15 }}>嗨 {nickName}</Text>
-                                <Text style={{ color: "#666666", fontSize: 15 }}>你的社團目前沒有任何貼文可以顯示唷</Text>
-                                <Text style={{ color: "#666666", fontSize: 15 }}>試試去搜尋喜歡的社團或是往下拉重整頁面</Text>
+                                <Text style={{ color: "#666666", fontSize: 15 }}>你的社團目前沒有貼文可以顯示唷</Text>
+                                <Text style={{ color: "#666666", fontSize: 15 }}>試試往下拉重整或是去搜尋喜歡的社團</Text>
                             </View>
                         </View>
                     </ScrollView>
+                    <TouchableOpacity style={styles.star}
+                        onPress={() => { this.props.navigation.navigate('Stories', { syncSearchActivityBack: this.props.syncSearchActivityBack }); }}>
+                        <View style={styles.starButtonView}>
+                            <Image source={require('../../images/images2/star.png')}
+                                style={styles.starImage} />
+                        </View>
+                    </TouchableOpacity>
                     {this.state.loading ? <Overlayer /> : null}
                 </View>
             )

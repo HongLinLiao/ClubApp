@@ -1,4 +1,3 @@
-//這頁應該是沒啥問題了
 import React from "react";
 import {
   View,
@@ -155,7 +154,7 @@ class Post extends React.Component {
       const obj = await editingPost(clubKey, postKey, newData);
       if (obj != null) {
         //貼文同步
-        syncPost(obj);
+        await syncPost(obj);
         this.setState({
           editTitle: '',
           editTitleStatus: false,
@@ -171,7 +170,7 @@ class Post extends React.Component {
       }
       else {
         //刪除貼文同步
-        syncPostDelete(postKey);
+        await syncPostDelete(postKey);
         const syncPostBack = navigation.state.params.syncPostBack;
         const routeName = navigation.state.routeName;
         await syncPostBack(routeName);
@@ -387,21 +386,25 @@ class Post extends React.Component {
                 <View style={styles.row}>
                   <Text style={styles.school}>{element.schoolName}</Text>
                   <Text style={styles.club}>{element.clubName}</Text>
-                  <View style={{ flex: 1, flexDirection: 'row' }}>
-                    <TouchableOpacity
-                      onPress={() => { this.refs.advancedPost.open() }}
-                      style={{ display: element.editStatus || element.deleteStatus ? "flex" : "none" }}>
-                      <Image
-                        style={styles.icon}
-                        source={require("../../images/columndots.2.png")}
-                      />
-                    </TouchableOpacity>
-                  </View>
                 </View>
+
+
                 <View style={styles.row}>
                   <Text style={styles.name}>{element.posterNickName}</Text>
                   <Text style={styles.job}>{element.posterStatusChinese}</Text>
                 </View>
+              </View>
+
+              <View style={[styles.row2, { padding: 8 }]}>
+                <TouchableOpacity
+                  onPress={() => { this.refs.advancedPost.open() }}
+                  style={{ display: element.editStatus || element.deleteStatus ? "flex" : "none" }}>
+
+                  <Image
+                    style={styles.icon}
+                    source={require("../../images/more.png")}
+                  />
+                </TouchableOpacity>
               </View>
             </View>
             <View style={styles.postView}>
@@ -426,7 +429,7 @@ class Post extends React.Component {
               </ScrollView>
             </View>
             <View style={[styles.sbRowLine, { marginTop: 20 }]}>
-              <View style={styles.row}>
+              <View style={[styles.row,]}>
                 <TouchableOpacity style={{ flexDirection: 'row' }}
                   onPress={async () =>
                     await this.pressFavorite(element.clubKey, element.postKey)
@@ -446,7 +449,7 @@ class Post extends React.Component {
                 </TouchableOpacity>
               </View>
 
-              <View style={styles.row}>
+              <View style={[styles.row, { justifyContent: 'flex-end' }]}>
                 <Image
                   style={styles.icon}
                   source={require("../../images/message.png")}

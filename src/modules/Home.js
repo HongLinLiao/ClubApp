@@ -163,7 +163,7 @@ export const getClubListForSelecting = async (allClub) => {
 export const determinToSearch = (clubList, postArr, navigation) => {
     try {
         if (Object.keys(clubList).length == 0) {
-            alert('您目前未有已加入或收藏的社團，看看我們推薦給您的社團！');
+            alert('你目前還沒有加入或收藏社團，看看我們推薦給你的社團！');
             //換頁處理
             navigation.navigate("Search");
         }

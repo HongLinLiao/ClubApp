@@ -1,6 +1,7 @@
 import * as firebase from "firebase"
 import { sendPostNotification } from './Api'
 import * as PostAction from '../actions/PostAction'
+import { convertDateFormat } from './Common'
 require("firebase/functions");
 
 //********************************************************************************
@@ -101,6 +102,8 @@ export const syncPost = (data) => async (dispatch, getState) => {
             else {
                 data.map((child) => {
                     let postKey = Object.keys(child)[0];
+                    //轉日期
+                    child[postKey].date = convertDateFormat(child[postKey].date);
 
                     //更新貼文列
                     //需要查詢的route
@@ -155,7 +158,8 @@ export const syncPost = (data) => async (dispatch, getState) => {
         else {
             if (Object.keys(data).length >= 1) {
                 let postKey = data.post.postKey;
-
+                //轉日期
+                data.post.date = convertDateFormat(data.post.date);
                 //更新貼文列
                 //需要查詢的route
                 let itemPostList = Object.keys(ordPostList);
@@ -189,6 +193,8 @@ export const syncPost = (data) => async (dispatch, getState) => {
                     //跑查詢的route是某具有要更動的貼文
                     for (let j = 0; j < itemPost.length; j++) {
                         keyList = Object.keys(ordPost[itemPost[j]]);
+                        //轉日期
+                        data.comment.date = convertDateFormat(data.comment.date);
                         for (let z = 0; z < keyList.length; z++) {
                             if (keyList[z] == postKey) {
                                 //更改內容

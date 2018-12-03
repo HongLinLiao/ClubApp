@@ -10,6 +10,7 @@ import {
     updateActivityViews,
     updateActivityKeeps,
 } from './Data'
+import { convertDateFormat } from './Common'
 import { sendActivityNotification } from './Api'
 
 
@@ -111,7 +112,10 @@ export const syncActivity = (data) => async (dispatch, getState) => {
             else {
                 data.map((child) => {
                     let activityKey = Object.keys(child)[0];
-
+                    //轉日期
+                    child[activityKey].editDate = convertDateFormat(child[activityKey].editDate);
+                    child[activityKey].startDateTime = convertDateFormat(child[activityKey].startDateTime);
+                    child[activityKey].endDateTime = convertDateFormat(child[activityKey].endDateTime);
                     //更新活動列
                     //需要查詢的route
                     let itemActivityList = Object.keys(ordActivityList);
@@ -165,13 +169,16 @@ export const syncActivity = (data) => async (dispatch, getState) => {
         else {
             if (Object.keys(data).length >= 1) {
                 let activityKey = data.activity.activityKey;
-
                 //更新活動列
                 //需要查詢的route
                 let itemActivityList = Object.keys(ordActivityList);
                 //跑查詢的route裡是否具有要更動的活動
                 for (let i = 0; i < itemActivityList.length; i++) {
                     let result = ordActivityList[itemActivityList[i]].some(function (value, index, array) {
+                        //轉日期
+                        data.activity.editDate = convertDateFormat(data.activity.editDate);
+                        data.activity.startDateTime = convertDateFormat(data.activity.startDateTime);
+                        data.activity.endDateTime = convertDateFormat(data.activity.endDateTime);
                         if (Object.keys(value)[0] == activityKey) {
                             //更改活動列
                             ordActivityList[itemActivityList[i]][index][activityKey] = data.activity;
@@ -199,6 +206,10 @@ export const syncActivity = (data) => async (dispatch, getState) => {
                 for (let j = 0; j < itemActivity.length; j++) {
                     keyList = Object.keys(ordActivity[itemActivity[j]]);
                     for (let z = 0; z < keyList.length; z++) {
+                        //轉日期
+                        data.activity.editDate = convertDateFormat(data.activity.editDate);
+                        data.activity.startDateTime = convertDateFormat(data.activity.startDateTime);
+                        data.activity.endDateTime = convertDateFormat(data.activity.endDateTime);
                         if (keyList[z] == activityKey) {
                             //更改內容
                             ordActivity[itemActivity[j]][keyList[z]]['activity'] = data.activity;
@@ -346,6 +357,58 @@ export const syncSearchActivityBack = (routeName) => async (dispatch, getState) 
 //活動
 //********************************************************************************
 
+//建立一個新活動
+export const createActivity = (cid, activityData, club) => async (dispatch) => {
+    try {
+        dispatch(ActivityAction.createAcitvityRequest())
+
+        const user = firebase.auth().currentUser
+        const activityRef = firebase.database().ref('activities').child(cid).push()
+        const activityStorageRef = firebase.storage().ref('activities').child(cid).child(activityRef.key).child('photo')
+
+        //更新firestore
+        const response = await fetch(activityData.photo);
+        const blob = await response.blob(); //轉換照片格式為blob
+        const snapshot = await activityStorageRef.put(blob)
+        const photoUrl = await snapshot.ref.getDownloadURL()
+
+        //發活動者自己要收藏
+        let userSelfKeep = {};
+        userSelfKeep[user.uid] = true
+        const activity = {
+            title: activityData.title,
+            location: activityData.location || false,
+            place: activityData.place,
+            price: parseInt(activityData.price),
+            content: activityData.content,
+            remarks: activityData.remarks,
+            photo: photoUrl,
+            poster: user.uid,
+            open: activityData.open,
+            startDateTime: new Date(activityData.startDateTime).toUTCString(),
+            endDateTime: new Date(activityData.endDateTime).toUTCString(),
+            editDate: new Date().toUTCString(),
+            views: false,
+            favorites: false,
+            keeps: userSelfKeep,
+            joins: false
+        }
+        await activityRef.set(activity)
+
+        let posterRef = firebase.database().ref('users').child(user.uid).child('activities').child(cid).child(activityRef.key);
+        await posterRef.set(true);
+
+        await sendActivityNotification(cid, activity, club)
+
+    } catch (e) {
+
+        console.log(e)
+
+        throw e
+
+    }
+}
+
 //取得社團活動
 export const getClubActivityReload = (clubKey, navigation) => async (dispatch) => {
     try {
@@ -363,6 +426,28 @@ export const getClubActivityReload = (clubKey, navigation) => async (dispatch) =
     }
 }
 
+//編輯活動
+export const editingActivity = (clubKey, activityKey, editData) => async (dispatch) => {
+    try {
+        const editActivity = firebase.functions().httpsCallable('editActivity');
+
+        if (editData.photo) {
+            let response = await fetch(editData.photo);
+            let blob = await response.blob(); //轉換照片格式為blob
+            let storageRef = firebase.storage().ref('activities').child(clubKey).child(activityKey).child(blob._data.name);
+            let snapshot = await storageRef.put(blob);
+            let imgUrl = await snapshot.ref.getDownloadURL();
+            editData.photo = imgUrl;
+        }
+
+        const response = await editActivity({ clubKey: clubKey, activityKey: activityKey, editData: editData });
+        return response.data;
+    }
+    catch (error) {
+        console.log(error.toString());
+    }
+}
+
 //進入內頁
 export const getInsideActivity = (clubKey, activityKey) => async (dispatch, getState) => {
     try {
@@ -372,6 +457,30 @@ export const getInsideActivity = (clubKey, activityKey) => async (dispatch, getS
     }
     catch (error) {
         console.log(error.toString);
+    }
+}
+
+//刪除活動
+export const deletingActivity = (clubKey, activityKey) => async (dispatch, getState) => {
+    try {
+        const deleteActivity = firebase.functions().httpsCallable('deleteActivity');
+        const response = await deleteActivity({ clubKey: clubKey, activityKey: activityKey });
+        return response.data;
+    }
+    catch (error) {
+        console.log(error.toString());
+    }
+}
+
+//參加
+export const setActivityJoin = (clubKey, activityKey) => async (dispatch, getState) => {
+    try {
+        const setActivityJoin = firebase.functions().httpsCallable('setActivityJoin');
+        const response = await setActivityJoin({ clubKey: clubKey, activityKey: activityKey });
+        return response.data;
+    }
+    catch (error) {
+        console.log(error.toString());
     }
 }
 
@@ -396,169 +505,5 @@ export const setActivityFavorite = (clubKey, activityKey) => async (dispatch, ge
     }
     catch (error) {
         console.log(error.toString());
-    }
-}
-
-//********************************************************************************
-// Get Data
-//********************************************************************************
-
-//取得user收藏的活動 x
-export const getUserActivities = async () => {
-    const uid = firebase.auth().currentUser.uid;
-    const keepList = await getUserActivityKeeps(uid);
-    if (keepList != null) {
-        return keepList;
-    }
-    else {
-        return null;
-    }
-}
-
-//用activityKeyArray進firebase抓新資料 x
-export const getActivityDataComplete = (activityKeeps) => async (dispatch, getState) => {
-    try {
-        let activityData;
-        const activityReducer = getState().activityReducer.allActivity;
-        // 新物件: activityReducer
-        const newActivityReducer = JSON.parse(JSON.stringify(activityReducer));
-
-        // 回傳物件
-        const objPost = {};
-        var i, j;
-        const clubList = Object.keys(activityKeeps);
-        for (i = 0; i < clubList.length; i++) {
-            const clubKey = clubList[i];
-
-            const club = await getClubData(clubKey);
-            // console.log('open:' + club.open);
-            if (!club.open) {
-                const { uid } = firebase.auth().currentUser;
-                if (!club.member[uid]) {
-                    // console.log('不是成員');
-                    return null;
-                }
-                // console.log('是成員');
-            }
-            const activityList = Object.keys(activityKeeps[clubKey]);
-            for (j = 0; j < activityList.length; j++) {
-                const activityKey = activityList[j];
-                activityData = await getInsideActivityData(clubKey, activityKey);
-                if (activityData != null) {
-                    //活動基本屬性
-                    activityData = await setActivityFoundations(clubKey, activityKey, activityData, club, activityKeeps);
-                    newActivityReducer = handleActivityDataToReducer(newActivityReducer, clubKey, activityKey, activityData);
-                    if (activityData.open) {
-                        objPost = handleActivityDataToObject(objPost, clubKey, activityKey, activityData);
-                    }
-                }
-            }
-        }
-        dispatch(ActivityAction.getActivityData(newActivityReducer));
-        return objPost;
-    }
-    catch (error) {
-        console.log(error.toString());
-    }
-}
-
-//用clubKey取得社團下所有活動
-export const getActivityDataFromClubKey = (clubKey) => async (dispatch, getState) => {
-    try {
-        const club = await getClubData(clubKey);
-        const user = firebase.auth().currentUser;
-        console.log('open:' + club.open);
-        if (!club.open) {
-            if (!club.member[user.uid]) {
-                alert('Activity is not exist!');
-                console.log('不是成員');
-                return null;
-            }
-            console.log('是成員');
-        }
-        let objPost = {};
-        let activityKey;
-        const activityData = await getActivityData(clubKey);
-        if (activityData) {
-            activityKey = Object.keys(activityData);
-        }
-        else {
-            return {};
-        }
-
-        const activityReducer = getState().activityReducer.allActivity;
-        // 新物件: activityReducer
-        const newActivityReducer = JSON.parse(JSON.stringify(activityReducer));
-
-        if (activityKey.length > 0) {
-            let i;
-            const keepList = await getUserActivities();
-            if (keepList == null) {
-                keepList = {};
-            }
-            for (i = 0; i < activityKey.length; i++) {
-                activityData[activityKey[i]] = await setActivityFoundations(clubKey, activityKey[i], activityData[activityKey[i]], club, keepList);
-                newActivityReducer = handleActivityDataToReducer(newActivityReducer, clubKey, activityKey[i], activityData[activityKey[i]]);
-                if (activityData[activityKey[i]].open) {
-                    objPost = handleActivityDataToObject(objPost, clubKey, activityKey[i], activityData[activityKey[i]]);
-                }
-            }
-            dispatch(ActivityAction.getActivityData(newActivityReducer));
-        }
-        return objPost;
-    }
-    catch (error) {
-        console.log(error.toString());
-    }
-}
-
-
-//********************************************************************************
-// 活動
-//********************************************************************************
-
-//建立一個新活動
-export const createActivity = (cid, activityData, club) => async (dispatch) => {
-    try {
-        dispatch(ActivityAction.createAcitvityRequest())
-
-        const user = firebase.auth().currentUser
-        const activityRef = firebase.database().ref('activities').child(cid).push()
-        const activityStorageRef = firebase.storage().ref('activities').child(cid).child(activityRef.key).child('photo')
-
-        //更新firestore
-        const response = await fetch(activityData.photo);
-        const blob = await response.blob(); //轉換照片格式為blob
-        const snapshot = await activityStorageRef.put(blob)
-        const photoUrl = await snapshot.ref.getDownloadURL()
-
-        const activity = {
-            title: activityData.title,
-            location: activityData.location || false,
-            place: activityData.place,
-            price: parseInt(activityData.price),
-            content: activityData.content,
-            remarks: activityData.remarks,
-            photo: photoUrl,
-            poster: user.uid,
-            open: activityData.open,
-            startDateTime: new Date(activityData.startDateTime).toUTCString(),
-            endDateTime: new Date(activityData.endDateTime).toUTCString(),
-            editDate: new Date().toUTCString(),
-            views: false,
-            favorites: false,
-            keeps: false
-        }
-
-        await activityRef.set(activity)
-
-        await sendActivityNotification(cid, activity, club)
-
-    } catch (e) {
-
-        console.log(e)
-
-        throw e
-
     }
 }

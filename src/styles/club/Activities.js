@@ -5,12 +5,11 @@ export default StyleSheet.create({
 
   container: {
     flex: 1,
-    backgroundColor:'#ffffff',
+    backgroundColor: '#ffffff',
 
   },
   main: {
     flex: 1,
-
   },
   headView: {
     height: 45,
@@ -44,18 +43,13 @@ export default StyleSheet.create({
   },
   collect: {
     //backgroundColor:'#666666',
-    height:25,
+    height: 25,
     width: 25,
-    marginTop: 20,
-    marginRight: 20,
-
   },
   titleLikesView: {
     height: 18,
     width: 18,
     marginRight: 3,
-
-
   },
   clubText: {
     fontSize: 15,
@@ -107,7 +101,6 @@ export default StyleSheet.create({
     color: '#666666',
 
   },
-
   mapView: {
     flex: 1,
     //borderWidth:1,
@@ -166,6 +159,22 @@ export default StyleSheet.create({
     flexDirection: 'row',
     marginTop: 12,
   },
+  advancedView: {
+    height: 65,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-around',
+    borderBottomColor: 'rgba(102, 102, 102, 0.25)',
+    borderBottomWidth: 1,
+    borderTopColor: 'rgba(102, 102, 102, 0.25)',
+    borderTopWidth: 1,
+    marginLeft: 20,
+    marginRight: 20,
+  },
+  advancedViewText:{
+    marginTop: 3,
+    fontSize: 13
+  },
   advancedActivityBtn: {
     backgroundColor: 'rgba(246,180,86,1)',
     width: 250,
@@ -173,5 +182,6 @@ export default StyleSheet.create({
     borderColor: "transparent",
     borderWidth: 0,
     borderRadius: 30
-},
+  },
+
 });
