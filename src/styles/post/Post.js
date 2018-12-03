@@ -149,5 +149,19 @@ export default StyleSheet.create({
     editPostbtnTxt: {
         fontSize: 15,
     },
+    editCommentbtn: {
+        backgroundColor: 'rgba(246,180,86,1)',
+        width: 80,
+        height: 35,
+        borderColor: "transparent",
+        borderWidth: 0,
+        borderRadius: 20,
+    },
+    editCommentInput:{
+        marginTop:10,
+        marginBottom:10,
+        marginRight:10,
+        marginLeft:10
+    }
 
 })

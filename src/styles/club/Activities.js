@@ -93,7 +93,6 @@ export default StyleSheet.create({
     alignItems: 'center',
   },
   icon: {
-
     height: 18,
     width: 18,
     marginLeft: 5,
@@ -162,16 +161,17 @@ export default StyleSheet.create({
     fontSize: 10,
     marginRight: 15,
     marginTop: 10,
-
-
-
   },
   like: {
     flexDirection: 'row',
     marginTop: 12,
-
-
-
-
   },
+  advancedActivityBtn: {
+    backgroundColor: 'rgba(246,180,86,1)',
+    width: 250,
+    height: 45,
+    borderColor: "transparent",
+    borderWidth: 0,
+    borderRadius: 30
+},
 });

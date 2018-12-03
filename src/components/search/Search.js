@@ -97,7 +97,12 @@ class Search extends React.Component {
         setCurrentClub(club.cid);
         this.props.navigation.navigate("ClubRouter");
       } else {
-        this.props.navigation.push("SearchClub", { club, status });
+        this.props.navigation.push("SearchClub", {
+          club,
+          status,
+          syncSearchPostBack: this.props.syncSearchPostBack,
+          syncSearchActivityBack: this.props.syncSearchActivityBack,
+        });
       }
     } catch (e) { }
   };
@@ -133,7 +138,12 @@ class Search extends React.Component {
                     key={club.cid}
                     disabled={status.hasJoin ? false : !club.open}
                     onPress={() =>
-                      this.props.navigation.push("SearchClub", { club, status })
+                      this.props.navigation.push("SearchClub", {
+                        club,
+                        status,
+                        syncSearchPostBack: this.props.syncSearchPostBack,
+                        syncSearchActivityBack: this.props.syncSearchActivityBack,
+                      })
                     }
                   >
                     <View style={styles.card}>

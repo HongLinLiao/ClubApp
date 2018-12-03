@@ -2,7 +2,8 @@ import {
   GET_POSTLIST,
   GET_POST,
   GET_SETPOSTLIST,
-  GET_SETPOST
+  GET_SETPOST,
+  CLEAR_POST
 } from '../actions/PostAction'
 
 const initialState = {
@@ -14,7 +15,6 @@ const initialState = {
 
 export const postReducer = (state = initialState, action) => {
   switch (action.type) {
-
     case GET_POSTLIST:
       return {
         ...state,
@@ -35,6 +35,8 @@ export const postReducer = (state = initialState, action) => {
         ...state,
         setPost: action.setPost
       }
+    case CLEAR_POST:
+      return initialState
     default:
       return state
   }

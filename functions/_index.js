@@ -13,77 +13,71 @@ exports.helloWorld = functions.https.onRequest((request, response) => {
 });
 
 exports.sendPushNotificationToAll = functions.https.onCall(async (data, context) => {
+    try {
+        const messages = []
 
-    const messages = []
-
-    const usersSnapshot = await admin.database().ref('users').orderByKey().once('value')
-    usersSnapshot.forEach((childSnapshot) => {
-        const { expoToken } = childSnapshot.val()
-        if (expoToken) {
-            messages.push({
-                "to": expoToken,
-                "body": data
-            })
+        const usersSnapshot = await admin.database().ref('users').orderByKey().once('value')
+        usersSnapshot.forEach((childSnapshot) => {
+            const { expoToken } = childSnapshot.val()
+            if (expoToken) {
+                messages.push({
+                    "to": expoToken,
+                    "body": data
+                })
+            }
+        })
+        if (messages.length > 0) {
+            await expoSend(messages);
         }
-    })
-
-    await fetch('https://exp.host/--/api/v2/push/send', {
-        method: "POST",
-        headers: {
-            "Accept": "application/json",
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(messages)
-    })
-
+    }
+    catch (error) {
+        console.log(context.auth.uid + ' : ' + error.toString());
+    }
 })
 
 //發通知給社團成員
 exports.notifyToClubMember = functions.https.onCall(async (data, context) => {
+    try {
+        const uids = {}
+        const messages = []
+        const { cid, title, body } = data
 
-    const uids = {}
-    const messages = []
-    const { cid, title, body } = data
+        const memberSnapshot = await admin.database().ref('clubs').child(cid).child('member').once('value')
+        memberSnapshot.forEach((childSnapshot) => {
+            const uid = childSnapshot.key
+            uids[uid] = true
+        })
 
-    const memberSnapshot = await admin.database().ref('clubs').child(cid).child('member').once('value')
-    memberSnapshot.forEach((childSnapshot) => {
-        const uid = childSnapshot.key
-        uids[uid] = true
-    })
+        const promises = Object.keys(uids).map(async (uid) => {
+            const userRef = admin.database().ref('users').child(uid)
+            const settingRef = admin.database().ref('userSettings').child(uid)
 
-    const promises = Object.keys(uids).map(async (uid) => {
-        const userRef = admin.database().ref('users').child(uid)
-        const settingRef = admin.database().ref('userSettings').child(uid)
+            const userSnapshot = await userRef.once('value')
+            const settingSnapshot = await settingRef.once('value')
 
-        const userSnapshot = await userRef.once('value')
-        const settingSnapshot = await settingRef.once('value')
+            const { expoToken } = userSnapshot.val()
+            const { globalNotification, clubNotificationList, nightModeNotification } = settingSnapshot.val()
+            const hours = new Date().getHours()
+            const nightMode = nightModeNotification ? (hours >= 21) : false
 
-        const { expoToken } = userSnapshot.val()
-        const { globalNotification, clubNotificationList, nightModeNotification } = settingSnapshot.val()
-        const hours = new Date().getHours()
-        const nightMode = nightModeNotification ? (hours >= 21) : false
+            if (expoToken && globalNotification && clubNotificationList[cid].on && !nightMode) {
+                messages.push({
+                    "to": expoToken,
+                    title,
+                    body
+                })
+            }
+        })
 
-        if (expoToken && globalNotification && clubNotificationList[cid].on && !nightMode) {
-            messages.push({
-                "to": expoToken,
-                title,
-                body
-            })
+        await Promise.all(promises)
+        if (messages.length > 0) {
+            await expoSend(messages);
         }
-    })
 
-    await Promise.all(promises)
-
-    await fetch('https://exp.host/--/api/v2/push/send', {
-
-        method: "POST",
-        headers: {
-            "Accept": "application/json",
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(messages)
-    })
-
+    }
+    catch (error) {
+        console.log(context.auth.uid + ' : ' + error.toString());
+    }
 })
 
 exports.getUser = functions.https.onRequest(async (request, response) => {
@@ -96,7 +90,6 @@ exports.getUser = functions.https.onRequest(async (request, response) => {
         response.send('你不要給我亂用!')
     }
 });
-
 
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -131,6 +124,39 @@ exports.getHomePost = functions.https.onCall(async (data, context) => {
             }
         }
         return obj;
+    }
+    catch (error) {
+        console.log(context.auth.uid + ' : ' + error.toString());
+    }
+});
+
+//取得社團文章
+exports.getClubPost = functions.https.onCall(async (data, context) => {
+    try {
+        const uid = context.auth.uid;
+        const clubKey = data;
+        //回傳物件
+        let obj = {
+            postListArr: []
+        };
+        let status = false;
+        let club = await getClubData(clubKey);
+        if (club) {
+            //社團有無開放
+            if (club.open == true) {
+                status = true;
+            }
+            else if (club.open == false) {
+                //是否為社員
+                if (club.member[uid]) {
+                    status = true;
+                }
+            }
+            if (status) {
+                obj = await getPostFromClub(clubKey, uid, club, obj);
+            }
+            return obj;
+        }
     }
     catch (error) {
         console.log(context.auth.uid + ' : ' + error.toString());
@@ -174,7 +200,7 @@ exports.getPostInside = functions.https.onCall(async (data, context) => {
                 comment.sort(function (a, b) {
                     let aDate = a[Object.keys(a)[0]].date;
                     let bDate = b[Object.keys(b)[0]].date;
-                    return new Date(bDate) < new Date(aDate) ? -1 : 1
+                    return new Date(bDate) > new Date(aDate) ? -1 : 1
                 })
             }
             obj.comment = comment;
@@ -185,19 +211,6 @@ exports.getPostInside = functions.https.onCall(async (data, context) => {
         console.log(context.auth.uid + ' : ' + error.toString());
     }
 });
-
-//新增貼文
-// exports.createPost = functions.https.onCall(async(data, context)=>{
-//     try{
-//         const { clubKey, postKey } = data;
-//         const { uid } = context.auth;
-//         const club = await getClubData(clubKey);
-
-//     }
-//     catch(error){
-//         console.log(context.auth.uid + ' : ' + error.toString());
-//     }
-// });
 
 //編輯貼文
 exports.editPost = functions.https.onCall(async (data, context) => {
@@ -241,7 +254,7 @@ exports.editPost = functions.https.onCall(async (data, context) => {
                 comment.sort(function (a, b) {
                     let aDate = a[Object.keys(a)[0]].date;
                     let bDate = b[Object.keys(b)[0]].date;
-                    return new Date(bDate) < new Date(aDate) ? -1 : 1
+                    return new Date(bDate) > new Date(aDate) ? -1 : 1
                 })
             }
             obj.comment = comment;
@@ -299,6 +312,7 @@ exports.setPostFavorite = functions.https.onCall(async (data, context) => {
         const { clubKey, postKey, commentStatus } = data;
         const uid = context.auth.uid;
         const club = await getClubData(clubKey);
+        let notifyStatus = false;
         if (club) {
             if (club.open == false) {
                 if (!club.member[uid]) {
@@ -324,6 +338,7 @@ exports.setPostFavorite = functions.https.onCall(async (data, context) => {
                     post.numFavorites = post.numFavorites + 1;
                     post.favorites[uid] = true;
                     updateFavorites[uid] = true;
+                    notifyStatus = true;
                 }
                 //取消讚
                 else if (post.statusFavorite == true) {
@@ -344,6 +359,15 @@ exports.setPostFavorite = functions.https.onCall(async (data, context) => {
                 }
                 //更改firebasePostFavorites
                 await updatePostFavorites(post.clubKey, post.postKey, updateFavorites);
+                if (notifyStatus) {
+                    const userData = await getUserData(uid);
+                    if (userData) {
+                        let title = `${userData.nickName} 說你在 ${post.schoolName}${post.clubName} 的貼文讚！`;
+                        let userList = {};
+                        userList[post.poster] = true
+                        await notifyToUser(userList, title, null);
+                    }
+                }
                 obj.post = post;
                 if (commentStatus) {
                     let commentData = await getPostCommentData(post.clubKey, post.postKey);
@@ -360,7 +384,7 @@ exports.setPostFavorite = functions.https.onCall(async (data, context) => {
                         comment.sort(function (a, b) {
                             let aDate = a[Object.keys(a)[0]].date;
                             let bDate = b[Object.keys(b)[0]].date;
-                            return new Date(bDate) < new Date(aDate) ? -1 : 1
+                            return new Date(bDate) > new Date(aDate) ? -1 : 1
                         })
                     }
                     obj.comment = comment;
@@ -397,7 +421,17 @@ exports.createComment = functions.https.onCall(async (data, context) => {
             let post = await getPostInsideData(clubKey, postKey);
             if (post) {
                 let obj = {};
+                //寫進資料庫
                 await createCommentData(clubKey, postKey, content, uid);
+
+                //發通知給參與者
+                const userData = await getUserData(uid);
+                if (userData) {
+                    let title = `${userData.nickName} 回應了你在 ${club.schoolName}${club.clubName} 的貼文！`;
+                    let body = `${content.length > 15 ? content.substring(1, 15) : content}`;
+                    await notifyToPostParticipants(clubKey, postKey, post, title, body);
+                }
+
                 post.numComments = post.numComments + 1;
                 post = await setPostFoundations(clubKey, postKey, uid, post, club);
                 post = await setPostView(post, uid);
@@ -417,7 +451,7 @@ exports.createComment = functions.https.onCall(async (data, context) => {
                     comment.sort(function (a, b) {
                         let aDate = a[Object.keys(a)[0]].date;
                         let bDate = b[Object.keys(b)[0]].date;
-                        return new Date(bDate) < new Date(aDate) ? -1 : 1
+                        return new Date(bDate) > new Date(aDate) ? -1 : 1
                     })
                 }
                 obj.comment = comment;
@@ -473,7 +507,7 @@ exports.deleteComment = functions.https.onCall(async (data, context) => {
                     comment.sort(function (a, b) {
                         let aDate = a[Object.keys(a)[0]].date;
                         let bDate = b[Object.keys(b)[0]].date;
-                        return new Date(bDate) < new Date(aDate) ? -1 : 1
+                        return new Date(bDate) > new Date(aDate) ? -1 : 1
                     })
                 }
                 obj.comment = comment;
@@ -529,7 +563,7 @@ exports.editComment = functions.https.onCall(async (data, context) => {
                     comment.sort(function (a, b) {
                         let aDate = a[Object.keys(a)[0]].date;
                         let bDate = b[Object.keys(b)[0]].date;
-                        return new Date(bDate) < new Date(aDate) ? -1 : 1
+                        return new Date(bDate) > new Date(aDate) ? -1 : 1
                     })
                 }
                 obj.comment = comment;
@@ -553,6 +587,7 @@ exports.setCommentFavorite = functions.https.onCall(async (data, context) => {
     try {
         const { clubKey, postKey, commentKey } = data;
         const uid = context.auth.uid;
+        let notifyStatus = false;
 
         const club = await getClubData(clubKey);
         if (club) {
@@ -618,6 +653,15 @@ exports.setCommentFavorite = functions.https.onCall(async (data, context) => {
                                 }
                             }
                             await updateCommentFavorites(clubKey, postKey, commentKey, updateFavorites);
+                            if (notifyStatus) {
+                                const userData = await getUserData(commentData[commentKey].commenter);
+                                if (userData) {
+                                    let title = `${userData.nickName} 說你在 ${post.schoolName}${post.clubName} 留言讚！`;
+                                    let userList = {};
+                                    userList[commentData[commentKey].commenter] = true
+                                    await notifyToUser(userList, title, null);
+                                }
+                            }
                         }
                         temp = {}
                         temp[keyList[i]] = commentData[keyList[i]]
@@ -626,7 +670,7 @@ exports.setCommentFavorite = functions.https.onCall(async (data, context) => {
                     comment.sort(function (a, b) {
                         let aDate = a[Object.keys(a)[0]].date;
                         let bDate = b[Object.keys(b)[0]].date;
-                        return new Date(bDate) < new Date(aDate) ? -1 : 1
+                        return new Date(bDate) > new Date(aDate) ? -1 : 1
                     })
                 }
                 obj.comment = comment;
@@ -843,6 +887,589 @@ const setPostViewFavoriteData = (post, uid) => {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
+// 活動 只要活動open=false，就要去篩選是否是社團會員
+////////////////////////////////////////////////////////////////////////////////////
+
+//取得使用者收藏的活動
+exports.getUserActivity = functions.https.onCall(async (data, context) => {
+    try {
+        const uid = context.auth.uid;
+        let activity = [];
+
+        //取得使用者活動列表
+        let allActivity = await getUserActivityData(uid);
+        if (allActivity) {
+            let clubList = Object.keys(allActivity);
+
+            for (let i = 0; i < clubList.length; i++) {
+                let clubKey = clubList[i];
+                const club = await getClubData(clubKey);
+                //查看社團是否開放
+                if (club) {
+                    let activityList = Object.keys(allActivity[clubList[i]]);
+                    for (let j = 0; j < activityList.length; j++) {
+                        let activityKey = activityList[j];
+                        let activityData = await getActivityInsideData(clubKey, activityKey);
+                        if (activityData) {
+                            if (!activityData.open) {
+                                if (!club.member[uid]) {
+                                    continue;
+                                }
+                            }
+                            //取得基本屬性
+                            activityData = await setActivityFoundations(clubKey, activityKey, uid, activityData, club);
+                            //設定觀看
+                            // activityData = await setActivityView(activityData, uid);
+                            activity = handleActivityDataToArray(activity, clubKey, activityKey, activityData)
+                        }
+                    }
+                }
+                else {
+                    continue;
+                }
+            }
+        }
+        return activity;
+    }
+    catch (error) {
+        console.log(context.auth.uid + ' : ' + error.toString());
+    }
+});
+
+//取得社團下的活動（不管活動有沒有open都會顯示）
+exports.getClubActivity = functions.https.onCall(async (data, context) => {
+    try {
+        const clubKey = data;
+        const uid = context.auth.uid;
+        let activity = [];
+
+        const club = await getClubData(clubKey);
+        if (club) {
+            //取得社團下的活動
+            let allActivity = await getClubActivityData(clubKey);
+            if (allActivity) {
+                let activityList = Object.keys(allActivity);
+                for (let i = 0; i < activityList.length; i++) {
+                    let activityKey = activityList[i];
+                    let nextActivity = await setActivityFoundations(clubKey, activityKey, uid, allActivity[activityKey], club);
+                    activity = handleActivityDataToArray(activity, clubKey, activityKey, nextActivity)
+                }
+            }
+        }
+        return activity;
+    }
+    catch (error) {
+        console.log(context.auth.uid + ' : ' + error.toString());
+    }
+});
+
+//進入活動內頁
+exports.getActivityInside = functions.https.onCall(async (data, context) => {
+    try {
+        const { clubKey, activityKey } = data;
+        const { uid } = context.auth;
+        const club = await getClubData(clubKey);
+        let obj = {};
+        if (club) {
+            let activityData = await getActivityInsideData(clubKey, activityKey);
+            if (activityData) {
+                if (!activityData.open) {
+                    if (!club.member[uid]) {
+                        return null;
+                    }
+                }
+                //取得基本屬性
+                activityData = await setActivityFoundations(clubKey, activityKey, uid, activityData, club);
+                //設定觀看
+                activityData = await setActivityView(activityData, uid);
+                obj.activity = activityData;
+                return obj;
+            }
+        }
+        else {
+            return null;
+        }
+    }
+    catch (error) {
+        console.log(context.auth.uid + ' : ' + error.toString());
+    }
+});
+
+//收藏活動
+exports.setActivityKeep = functions.https.onCall(async (data, context) => {
+    try {
+        const { clubKey, activityKey } = data;
+        const uid = context.auth.uid;
+        const club = await getClubData(clubKey);
+
+        if (club) {
+            let activity = await getActivityInsideData(clubKey, activityKey);
+            if (!activity) {
+                return null;
+            }
+            else {
+                if (activity.open == false) {
+                    if (!club.open) {
+                        if (!club.member[user.uid]) {
+                            return null;
+                        }
+                    }
+                }
+                //回傳物件
+                let obj = {};
+                //先取得貼文基本屬性
+                activity = await setActivityFoundations(clubKey, activityKey, uid, activity, club);
+                let updateKeeps = {};
+                //收藏
+                if (activity.statusKeep == false) {
+                    activity.statusKeep = !activity.statusKeep;
+                    //牽扯到物件形狀
+                    //沒其他使用者收藏
+                    if (activity.numKeeps == 0) {
+                        activity.numKeeps = activity.numKeeps + 1;
+                        activity.keeps = {};
+                        activity.keeps[uid] = true;
+                        updateKeeps[uid] = true;
+                    }
+                    //有其他使用者收藏
+                    else {
+                        activity.numKeeps = activity.numKeeps + 1;
+                        activity.keeps[uid] = true;
+                        updateKeeps[uid] = true;
+                    }
+                }
+                //取消收藏
+                else {
+                    activity.statusKeep = !activity.statusKeep;
+                    //牽扯到物件形狀
+                    //沒其他使用者收藏
+                    if (activity.numKeeps == 1) {
+                        activity.numKeeps = activity.numKeeps - 1;
+                        delete activity.keeps[uid];
+                        updateKeeps[uid] = false;
+                    }
+                    //有其他使用者按過讚
+                    //設為null寫進firebase會自動消失
+                    else {
+                        activity.numKeeps = activity.numKeeps - 1;
+                        delete activity.keeps[uid];
+                        updateKeeps[uid] = null;
+                    }
+                }
+                //更改firebasePostFavorites
+                await updateActivityKeeps(activity.clubKey, activity.activityKey, updateKeeps);
+                await setUserKeep(activity.clubKey, activity.activityKey, uid);
+                obj.activity = activity
+                return obj;
+            }
+        }
+        else {
+            return null;
+        }
+    }
+    catch (error) {
+        console.log(context.auth.uid + ' : ' + error.toString());
+    }
+});
+
+//按活動讚
+exports.setActivityFavorite = functions.https.onCall(async (data, context) => {
+    try {
+        const { clubKey, activityKey } = data;
+        const uid = context.auth.uid;
+        const club = await getClubData(clubKey);
+        let notifyStatus = false;
+
+        if (club) {
+            let activity = await getActivityInsideData(clubKey, activityKey);
+            if (!activity) {
+                return null;
+            }
+            else {
+                if (activity.open == false) {
+                    if (!club.open) {
+                        if (!club.member[user.uid]) {
+                            return null;
+                        }
+                    }
+                }
+                //回傳物件
+                let obj = {};
+                //先取得貼文基本屬性
+                activity = await setActivityFoundations(clubKey, activityKey, uid, activity, club);
+                let updateFavorites = {};
+                //按讚處理
+                //按讚
+                if (activity.statusFavorite == false) {
+                    activity.statusFavorite = !activity.statusFavorite;
+                    //牽扯到物件形狀
+                    //沒其他使用者按過讚
+                    if (activity.numFavorites == 0) {
+                        activity.numFavorites = activity.numFavorites + 1;
+                        activity.favorites = {};
+                        activity.favorites[uid] = true;
+                        updateFavorites[uid] = true;
+                    }
+                    //有其他使用者按過讚
+                    else {
+                        activity.numFavorites = activity.numFavorites + 1;
+                        activity.favorites[uid] = true;
+                        updateFavorites[uid] = true;
+                    }
+                    notifyStatus = true;
+                }
+                //取消讚
+                else {
+                    activity.statusFavorite = !activity.statusFavorite;
+                    //牽扯到物件形狀
+                    //沒其他使用者按過讚
+                    if (activity.numFavorites == 1) {
+                        activity.numFavorites = activity.numFavorites - 1;
+                        delete activity.favorites[uid];
+                        updateFavorites[uid] = false;
+                    }
+                    //有其他使用者按過讚
+                    //設為null寫進firebase會自動消失
+                    else {
+                        activity.numFavorites = activity.numFavorites - 1;
+                        delete activity.favorites[uid];
+                        updateFavorites[uid] = null;
+                    }
+                }
+                //更改firebasePostFavorites
+                await updateActivityFavorites(activity.clubKey, activity.activityKey, updateFavorites);
+
+                if (notifyStatus) {
+                    const userData = await getUserData(uid);
+                    if (userData) {
+                        let title = `${userData.nickName} 說你在 ${activity.schoolName}${activity.clubName} 的活動讚！`;
+                        let userList = {};
+                        userList[activity.poster] = true
+                        await notifyToUser(userList, title, null);
+                    }
+                }
+                obj.activity = activity
+                return obj;
+            }
+        }
+        else {
+            return null;
+        }
+    }
+    catch (error) {
+        console.log(context.auth.uid + ' : ' + error.toString());
+    }
+});
+
+//傳入參數貼文列Array，將活動加入活動列
+const handleActivityDataToArray = (arrActivity, clubKey, activityKey, activityData) => {
+    try {
+        //拷貝陣列
+        let newObjActivity = arrActivity.slice();
+        let newActivityData = {}
+        newActivityData[activityKey] = activityData;
+        newObjActivity.push(newActivityData);
+        // //重複
+        // for (var i = 0; i < newObjPost.length; i++) {
+        //     for (var j = i + 1; j < newObjPost.length; j++) {
+        //         let preKey = Object.keys(newObjPost[i])[0];
+        //         let nextKey = Object.keys(newObjPost[j])[0];
+        //         if (preKey == nextKey)
+        //             newObjPost.splice(i, 1);
+        //     }
+        // }
+        //排序
+        newObjActivity.sort(function (a, b) {
+            let aDate = a[Object.keys(a)[0]].startDateTime;
+            let bDate = b[Object.keys(b)[0]].startDateTime;
+            return new Date(bDate) < new Date(aDate) ? -1 : 1
+        })
+        return newObjActivity;
+    }
+    catch (error) {
+        throw error;
+    }
+}
+
+//處理活動基本屬性
+const setActivityFoundations = async (clubKey, activityKey, uid, activity, club) => {
+    try {
+        //處理活動是否有收藏
+        if (activity.keeps) {
+            if (activity.keeps[uid]) {
+                activity.statusKeep = true;
+            }
+            else {
+                activity.statusKeep = false;
+            }
+        }
+        else {
+            activity.statusKeep = false;
+        }
+        //該活動社團與學校名稱
+        activity.clubName = club.clubName;
+        activity.schoolName = club.schoolName;
+        //處理poster職位名稱
+        if (club.member[activity.poster]) {
+            activity.posterStatus = club.member[activity.poster].status;
+            activity.posterStatusChinese = changeMemberStatusToChinese(activity.posterStatus);
+        }
+        else {
+            activity.posterStatusChinese = '';
+            activity.posterStatus = '';
+        }
+
+        //將activityKey放進attribute，否則找不到該活動社團
+        activity.clubKey = clubKey;
+        activity.activityKey = activityKey;
+
+        //處理User
+        let userData = await getUserData(activity.poster);
+        activity.posterNickName = userData.nickName;
+        activity.posterPhotoUrl = userData.photoUrl;
+
+        //轉時間
+        activity.editDate = new Date(activity.editDate).toLocaleString();
+        activity.startDateTime = new Date(activity.startDateTime).toLocaleString();
+        activity.endDateTime = new Date(activity.endDateTime).toLocaleString();
+
+        //判斷是否可編輯或刪除貼文(社長與幹部有此權限)
+        activity.deleteStatus = false;
+        activity.editStatus = false;
+        if (club.member[uid]) {
+            if (activity.poster === uid) {
+                activity.deleteStatus = true;
+                activity.editStatus = true;
+            }
+            else if (club.member[uid].status == "master" || club.member[uid].status == "supervisor") {
+                activity.deleteStatus = true;
+            }
+        }
+        activity = setActivityViewFavoriteData(activity, uid);
+        return activity;
+    }
+    catch (error) {
+        throw error;
+    }
+}
+
+//產生statusView和statusFavorite和statusKeep
+const setActivityViewFavoriteData = (activity, uid) => {
+    try {
+        //views與favorite數量
+        activity.numViews = Object.keys(activity.views).length;
+        activity.numFavorites = Object.keys(activity.favorites).length;
+        activity.numKeeps = Object.keys(activity.keeps).length;
+        //該使用者是否有按讚與觀看與收藏
+        if (activity.views[uid] == true)
+            activity.statusView = true;
+        else
+            activity.statusView = false;
+        if (activity.favorites[uid] == true)
+            activity.statusFavorite = true;
+        else
+            activity.statusFavorite = false;
+        if (activity.keeps[uid] == true)
+            activity.statusKeep = true;
+        else
+            activity.statusKeep = false;
+        return activity;
+    }
+    catch (error) {
+        throw error;
+    }
+}
+
+//更改使用者活動收藏
+const setUserKeep = async (clubKey, activityKey, uid) => {
+    try {
+        let userData = await getUserData(uid);
+        let updateActivity = {};
+        if (userData) {
+            //有收藏活動
+            if (userData.activities) {
+                //有此社團的活動
+                if (userData.activities[clubKey]) {
+                    //有這個活動 (取消收藏)
+                    if (userData.activities[clubKey][activityKey]) {
+                        updateActivity[uid] = null
+                        await updateUserKeeps(clubKey, activityKey, updateActivity);
+                    }
+                    //沒有這個活動
+                    else {
+                        updateActivity[uid] = true
+                        await updateUserKeeps(clubKey, activityKey, updateActivity);
+                    }
+                }
+                //沒有此社團的活動
+                else {
+                    updateActivity[uid] = true
+                    await updateUserKeeps(clubKey, activityKey, updateActivity);
+                }
+            }
+            //沒收藏活動
+            else {
+                updateActivity[uid] = true
+                await updateUserKeeps(clubKey, activityKey, updateActivity);
+            }
+        }
+    }
+    catch (error) {
+        throw error;
+    }
+}
+
+//活動觀看
+const setActivityView = async (activity, uid) => {
+    try {
+        //檢查使用者是否是第一次查看
+        //不是第一次看
+        if (activity.views[uid] == true) {
+        }
+        //是第一次看
+        else {
+            let updateViews = {};
+            //沒有其他使用者看過
+            if (Object.keys(activity.views).length == 0) {
+                activity.numViews = activity.numViews + 1;
+                activity.views = {};
+                activity.views[uid] = true;
+                activity.statusView = true;
+                updateViews[uid] = true;
+            }
+            //有其他使用者看過
+            else {
+                activity.numViews = activity.numViews + 1;
+                activity.views[uid] = true;
+                activity.statusView = true;
+                updateViews[uid] = true;
+            }
+            //寫進資料庫
+            await updateActivityViews(activity.clubKey, activity.activityKey, updateViews);
+        }
+        return activity;
+    }
+    catch (error) {
+        throw error;
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////////
+// 通知
+////////////////////////////////////////////////////////////////////////////////////
+
+//發通知給貼文參與者(發文者與留言參與者)（不採用社團提醒）
+const notifyToPostParticipants = async (clubKey, postKey, post, title, body) => {
+    try {
+        let userList = {};
+        let tempUser;
+        let messages = [];
+
+        //取得已留言者
+        const commentSnapshot = await admin.database().ref('comments').child(clubKey).child(postKey).once('value');
+        commentSnapshot.forEach((childSnapshot) => {
+            Object.keys(childSnapshot).map((value) => {
+                if (childSnapshot[value].commenter) {
+                    tempUser = childSnapshot[value].commenter;
+                    userList[tempUser] = true;
+                }
+            });
+        });
+
+        //取得貼文者
+        userList[post.poster] = true;
+
+        const promises = Object.keys(userList).map(async (uid) => {
+            const userRef = admin.database().ref('users').child(uid);
+            const userSnapshot = await userRef.once('value');
+            const { expoToken } = userSnapshot.val();
+            const settingRef = admin.database().ref('userSettings').child(uid);
+            const settingSnapshot = await settingRef.once('value');
+            const { globalNotification, clubNotificationList, nightModeNotification } = settingSnapshot.val();
+
+            const hours = new Date().getHours()
+            const nightMode = nightModeNotification ? (hours >= 21) : false
+
+            if (expoToken && globalNotification && !nightMode) {
+                messages.push({
+                    "to": expoToken,
+                    title,
+                    body,
+                })
+            }
+        });
+        await Promise.all(promises);
+
+        if (messages.length > 0) {
+            await expoSend(messages);
+        }
+    }
+    catch (error) {
+        throw error;
+    }
+};
+
+//發通知給使用者（可多人，物件傳入）(不採用社團提醒)
+const notifyToUser = async (userList, title, body) => {
+    try {
+        let messages = [];
+
+        const promises = Object.keys(userList).map(async (uid) => {
+            const userRef = admin.database().ref('users').child(uid);
+            const userSnapshot = await userRef.once('value');
+            const { expoToken } = userSnapshot.val();
+            const settingRef = admin.database().ref('userSettings').child(uid);
+            const settingSnapshot = await settingRef.once('value');
+            const { globalNotification, clubNotificationList, nightModeNotification } = settingSnapshot.val();
+
+            const hours = new Date().getHours()
+            const nightMode = nightModeNotification ? (hours >= 21) : false
+
+            if (expoToken && globalNotification && !nightMode) {
+                if (body) {
+                    messages.push({
+                        "to": expoToken,
+                        title,
+                        body
+                    })
+                }
+                else {
+                    messages.push({
+                        "to": expoToken,
+                        title,
+                    })
+                }
+            }
+        });
+        await Promise.all(promises);
+
+        if (messages.length > 0) {
+            await expoSend(messages);
+        }
+    }
+    catch (error) {
+        throw error;
+    }
+};
+
+//expoSendApi
+const expoSend = async (messages) => {
+    try {
+        await fetch('https://exp.host/--/api/v2/push/send', {
+            method: "POST",
+            headers: {
+                "Accept": "application/json",
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(messages)
+        })
+    }
+    catch (error) {
+        throw error;
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////////
 // Realtime Database
 ////////////////////////////////////////////////////////////////////////////////////
 
@@ -1036,6 +1663,105 @@ const deletePostData = async (clubKey, postKey) => {
         await postRef.remove();
         const commentRef = admin.database().ref('comments/' + clubKey + '/' + postKey);
         await commentRef.remove();
+    }
+    catch (error) {
+        throw error;
+    }
+}
+
+//取得使用者收藏的活動
+const getUserActivityData = async (uid) => {
+    try {
+        let userRef = await admin.database().ref('users').child(uid).child('activities').once('value');
+        let activityList = userRef.val();
+        return activityList;
+    }
+    catch (error) {
+        throw error;
+    }
+}
+
+//取得社團活動
+const getClubActivityData = async (clubKey) => {
+    try {
+        let activityRef = await admin.database().ref('activities').child(clubKey).once('value');
+        let activity = activityRef.val();
+        return activity;
+    }
+    catch (error) {
+        throw error;
+    }
+}
+
+//取得特定活動資訊
+const getActivityInsideData = async (clubKey, activityKey) => {
+    try {
+        let activityRef = await admin.database().ref('activities').child(clubKey).child(activityKey).once('value');
+        let activity = activityRef.val();
+        return activity;
+    }
+    catch (error) {
+        throw error;
+    }
+}
+
+//設定活動觀看
+const updateActivityViews = async (clubKey, activityKey, updateViews) => {
+    const uid = Object.keys(updateViews)[0];
+    const viewsRef = admin.database().ref('activities/' + clubKey + '/' + activityKey + '/views/' + uid);
+    await viewsRef.set(updateViews[uid])
+}
+
+//更新Activity的Favorites
+const updateActivityFavorites = async (clubKey, activityKey, updateFavorites) => {
+    try {
+        const uid = Object.keys(updateFavorites)[0];
+        let favoritesRef;
+        if (updateFavorites[uid] == false) {
+            favoritesRef = admin.database().ref('activities/' + clubKey + '/' + activityKey + '/favorites');
+        }
+        else {
+            favoritesRef = admin.database().ref('activities/' + clubKey + '/' + activityKey + '/favorites/' + uid);
+        }
+        await favoritesRef.set(updateFavorites[uid]);
+    }
+    catch (error) {
+        throw error;
+    }
+}
+
+//更新Activity的Keeps
+const updateActivityKeeps = async (clubKey, activityKey, updateKeeps) => {
+    try {
+        const uid = Object.keys(updateKeeps)[0];
+        let keepRef;
+        if (updateKeeps[uid] == false) {
+            keepRef = admin.database().ref('activities/' + clubKey + '/' + activityKey + '/keeps');
+        }
+        else {
+            keepRef = admin.database().ref('activities/' + clubKey + '/' + activityKey + '/keeps/' + uid);
+        }
+        await keepRef.set(updateKeeps[uid]);
+    }
+    catch (error) {
+        throw error;
+    }
+}
+
+//更新user的activities
+const updateUserKeeps = async (clubKey, activityKey, updateKeeps) => {
+    try {
+        const uid = Object.keys(updateKeeps)[0];
+        console.log('hah');
+        console.log(updateKeeps);
+        let keepRef;
+        if (updateKeeps[uid] == false) {
+            keepRef = admin.database().ref('users/' + uid + '/activities/');
+        }
+        else {
+            keepRef = admin.database().ref('users/' + uid + '/activities/' + clubKey + '/' + activityKey);
+        }
+        await keepRef.set(updateKeeps[uid]);
     }
     catch (error) {
         throw error;

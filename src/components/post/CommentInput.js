@@ -36,7 +36,11 @@ class CommentInput extends React.Component {
             syncPost(obj);
             postOverLayar();
             //清空輸入欄
-            // this.setState({ content: "" });
+            this.setState({ content: '' });
+            this.textInput.setNativeProps({ text: ' ' });
+            setTimeout(() => {
+                this.textInput.setNativeProps({ text: '' });
+            });
         }
         else {
             //刪除貼文同步
@@ -60,6 +64,7 @@ class CommentInput extends React.Component {
                     </View>
                     <View style={styles.inputViewTabBar}>
                         <TextInput
+                            ref={(textInput) => { this.textInput = textInput }}
                             style={styles.textInputTabBar}
                             placeholder='新增留言...'
                             placeholderTextColor='rgba(102,102,102,0.7)'

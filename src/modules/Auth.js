@@ -3,6 +3,7 @@ import * as CommonAction from '../actions/CommonAction'
 import * as UserAction from '../actions/UserAction'
 import * as ClubAction from '../actions/ClubAction'
 import * as SettingAction from '../actions/SettingAction'
+import * as PostAction from '../actions/PostAction'
 import * as firebase from "firebase"
 import Expo from 'expo'
 import { Alert } from 'react-native'
@@ -33,7 +34,6 @@ import { listenToAllClubs, listenToUser, listenToUserSetting } from './Listener'
 const signInSuccess = (action, user, password, loginType) => async (dispatch) => {
 
   try {
-    await registerForPushNotificationsAsync(user) //紀錄expoToken
     const userRef = firebase.database().ref('users').child(user.uid)
     const settingRef = firebase.database().ref('userSettings').child(user.uid)
 
@@ -59,6 +59,9 @@ const signInSuccess = (action, user, password, loginType) => async (dispatch) =>
     } else {
       settingData = await createUserSettingInDB()
     }
+
+    //紀錄expoToken
+    await registerForPushNotificationsAsync(user) 
 
     //使用者相關社團資料
     clubsData = await getAllClubData()
@@ -157,7 +160,6 @@ export const signInWithFacebook = () => async (dispatch) => {
     // dispatch(CommonAction.setLoadingState(false)) //結束等待狀態
 
     console.log(error.toString())
-
     throw error
 
   }
@@ -190,7 +192,7 @@ export const signInWithGoogle = () => async (dispatch) => {
     dispatch(AuthAction.signWithGoogleFail(error.toString()))
 
     console.log(error.toString())
-
+    console.log(error.code)
     throw error
   }
 
@@ -210,7 +212,7 @@ export const sendVerifiedMail = () => async (dispatch) => {
 
     Alert.alert("驗證信已發送！")
 
-    console.log(error.toString())
+    throw error
   }
 
 }
@@ -285,8 +287,7 @@ export const sendResetMail = (email) => async (dispatch) => {
 
   } catch (error) {
     dispatch(AuthAction.sendResetEmailFail(error.toString()))
-
-    console.log(error.toString())
+    throw error
   }
 
 }
@@ -300,6 +301,7 @@ export const signOut = () => async (dispatch) => {
     await firebase.database().ref('users').child(uid).update({expoToken: false}) //避免同一個手幾有多個expoToken
     await firebase.auth().signOut()
     dispatch(UserAction.clearUser())
+    dispatch(PostAction.clearPost())
 
     setTimeout(
       () => dispatch(CommonAction.setLoadingState(false)), //進入等待狀態

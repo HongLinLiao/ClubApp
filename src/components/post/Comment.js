@@ -13,61 +13,6 @@ import Modal from 'react-native-modalbox';
 
 class Comment extends React.Component {
 
-    state = {
-        //更新
-        oldContent: "",
-    };
-
-
-
-    //編輯狀態改變
-    statusEditChange = async (element) => {
-        const { setComment } = this.props;
-        let newCommentList = this.props.comment.slice();
-        let result = newCommentList.some(function (value, index, array) {
-            if (Object.keys(value)[0] == element.commentKey) {
-                newCommentList[index][element.commentKey].statusEdit = !newCommentList[index][element.commentKey].statusEdit;
-                return true;
-            }
-            else {
-                return false;
-            }
-        });
-        //放進comment
-        setComment(newCommentList);
-        this.setState({
-            oldContent: ""
-        });
-    };
-
-    //編輯留言完成
-    editComment = async (commentKey) => {
-        const content = this.state.oldContent;
-        const {
-            editingComment,
-            clubKey,
-            postKey,
-            postOverLayar,
-            navigation,
-            syncPost,
-            syncPostDelete
-        } = this.props;
-        postOverLayar();
-        const obj = await editingComment(clubKey, postKey, commentKey, content);
-        if (obj != null) {
-            //貼文同步
-            syncPost(obj);
-            postOverLayar();
-        }
-        else {
-            //刪除貼文同步
-            syncPostDelete(postKey);
-            Alert.alert("該貼文不存在！");
-            postOverLayar();
-            navigation.goBack();
-        }
-    };
-
     //留言按讚
     pressFavorite = async (clubKey, postKey, commentKey) => {
         const {
@@ -139,6 +84,7 @@ class Comment extends React.Component {
                                                     clubKey: element.clubKey,
                                                     postKey: element.postKey,
                                                     commentKey: element.commentKey,
+                                                    content: element.content
                                                 });
                                             }}
                                                 style={{ display: element.editStatus || element.deleteStatus ? "flex" : "none" }}>
@@ -147,15 +93,11 @@ class Comment extends React.Component {
                                             </TouchableOpacity>
                                         </View>
                                     </View>
-                                    <Text style={styles.littleName}>{element.date}</Text>
-                                    <View style={{ flex: 1 }}>
-                                        <TextInput
-                                            style={styles.comment}
-                                            value={element.content}
-                                            editable={element.statusEdit}
-                                            multiline={true}
-                                            onChangeText={oldContent => { this.setState({ oldContent }); }}
-                                        />
+                                    <View style={[styles.contentView, { flex: 1 }]}>
+                                        <Text style={styles.littleName}>{element.date}</Text>
+                                    </View>
+                                    <View style={[styles.contentView, { flex: 1 }]}>
+                                        <Text style={styles.contentText}>{element.content}</Text>
                                     </View>
                                 </View>
                             </View>
@@ -183,19 +125,6 @@ class Comment extends React.Component {
                                     }
                                     title="編輯留言"
                                     onPress={() => this.statusEditChange(element)}
-                                />
-                                <Button
-                                    disabled={
-                                        element.statusEnable
-                                            ? element.statusEdit
-                                                ? element.statusEdit
-                                                : element.statusEdit
-                                            : !element.statusEnable
-                                    }
-                                    title="刪除留言"
-                                    onPress={async () => {
-                                        await this.deleteComment(element.commentKey);
-                                    }}
                                 />
                             </View>
                         </View>

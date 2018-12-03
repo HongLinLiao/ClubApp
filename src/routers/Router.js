@@ -84,8 +84,10 @@ const MainRouter = createBottomTabNavigator(
                           (routeName == "HomePost") ||
                           (routeName == "ClubPost") ||
                           (routeName == "SearchPost") ||
+                          (routeName == "HomeActivity") ||
+                          (routeName == "ClubActivity") ||
+                          (routeName == "SearchActivity") ||
                           (routeName == "CreateClub") ||
-                          (routeName == "Activity") ||
                           (routeName == "SearchClub")
                         ),
         animationEnabled: true,

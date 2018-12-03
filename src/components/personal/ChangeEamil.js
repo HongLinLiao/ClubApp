@@ -62,8 +62,9 @@ class ChangeEamil extends React.Component {
             </View>
             </View>
             <TouchableOpacity 
-            onPress={() => this.handleChangeEmail(this.state.newEmail, this.state.password)}
-            style={styles.buttonView}>
+              onPress={() => this.handleChangeEmail(this.state.newEmail, this.state.password)}
+              style={styles.buttonView}
+            >
                 <Text style={styles.button}>確認</Text>
             </TouchableOpacity>
 
