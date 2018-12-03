@@ -239,7 +239,8 @@ class AddActivity extends React.Component {
         const { status } = member[user.uid]
 
         return (
-            <View style={styles.container}>
+            <KeyboardAvoidingView style={styles.container} behavior="position" keyboardVerticalOffset={64}  enabled>
+
 
                 <ScrollView>
                     <TouchableOpacity style={styles.image} onPress={this.pickPicture}>
@@ -380,6 +381,7 @@ class AddActivity extends React.Component {
                         </View>
 
                     </View>
+
                 </ScrollView>
                 <DateTimePicker
                     isVisible={this.state.showDatePicker}
@@ -400,10 +402,10 @@ class AddActivity extends React.Component {
 
                 </PopupDialog>
                 {loading ? <Overlayer /> : null}
-                <KeyboardAvoidingView behavior='padding'>
-                </KeyboardAvoidingView>
 
-            </View>
+
+
+            </KeyboardAvoidingView>
         );
     }
 

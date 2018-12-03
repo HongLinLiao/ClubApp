@@ -362,6 +362,7 @@ class Post extends React.Component {
     const { uid, user, clubs } = this.state.userData;
 
     return (
+
       <View style={{ flex: 1, backgroundColor: '#ffffff' }}>
         <ScrollView
           refreshControl={
@@ -396,7 +397,7 @@ class Post extends React.Component {
                 </View>
               </View>
 
-              <View style={[styles.row2 ,{ padding: 8 }]}>
+              <View style={[styles.row2, { padding: 8 }]}>
                 <TouchableOpacity
                   onPress={() => { this.refs.advancedPost.open() }}
                   style={{ display: element.editStatus || element.deleteStatus ? "flex" : "none" }}>
@@ -450,7 +451,7 @@ class Post extends React.Component {
                 </TouchableOpacity>
               </View>
 
-              <View style={[styles.row,{justifyContent: 'flex-end'}]}>
+              <View style={[styles.row, { justifyContent: 'flex-end' }]}>
                 <Image
                   style={styles.icon}
                   source={require("../../images/message.png")}
@@ -768,9 +769,12 @@ class Post extends React.Component {
         </PopupDialog>
 
         {this.state.loading ? <Overlayer /> : null}
-      </View >
+      </View>
+
     );
+
   }
 }
+
 
 export default Post;
