@@ -19,7 +19,7 @@ export default StyleSheet.create({
         //alignItems: 'flex-end',
         flex:1,
         //marginRight:10,
-        padding: 8,
+        //padding: 8,
         //marginLeft:90,
         //borderWidth:1,
         //borderColor:'red',
