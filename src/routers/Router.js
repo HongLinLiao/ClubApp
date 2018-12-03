@@ -80,7 +80,15 @@ const MainRouter = createBottomTabNavigator(
                           (routeName == "AddActivity") || 
                           (routeName == "ClubAdmin") ||
                           (routeName == "ClubMember") ||
-                          (routeName == "MemberManage")
+                          (routeName == "MemberManage") ||
+                          (routeName == "HomePost") ||
+                          (routeName == "ClubPost") ||
+                          (routeName == "SearchPost") ||
+                          (routeName == "HomeActivity") ||
+                          (routeName == "ClubActivity") ||
+                          (routeName == "SearchActivity") ||
+                          (routeName == "CreateClub") ||
+                          (routeName == "SearchClub")
                         ),
         animationEnabled: true,
         swipeEnabled: true

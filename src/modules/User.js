@@ -6,6 +6,7 @@ import * as firebase from "firebase"
 import { selectPhoto } from './Common'
 import { getAllClubData, filterOpenClub, randomCid } from './Club'
 import { listenToAllClubs, listenToUser, listenToUserSetting } from './Listener'
+import { registerForPushNotificationsAsync } from './App'
 
 import {
   initHomeClubList,
@@ -37,6 +38,9 @@ export const getAllUserData = (user) => async (dispatch) => {
 
     if (userShot.val()) { //不是第一次登入才進入
 
+      //紀錄使用者token
+      await registerForPushNotificationsAsync(user)
+      
       //使用者基本資料
       userData = await getUserStateToRedux()
 
@@ -55,7 +59,7 @@ export const getAllUserData = (user) => async (dispatch) => {
       console.log(clubsData)
       console.log(allClubCids)
       console.log(_randomCid)
-      
+
       dispatch(SettingAction.setAllSetting(settingData))
       dispatch(ClubAction.setCurrentClub(_randomCid))
       dispatch(ClubAction.setAllClubData(clubsData))
@@ -66,6 +70,7 @@ export const getAllUserData = (user) => async (dispatch) => {
       // dispatch(listenToAllClubs())
 
       // dispatch(CommonAction.setClubListen(true))
+
     } else { //有使用者帳號但資料庫沒user資料
       dispatch(CommonAction.setLoadingState(false)) //沒有使用者停止等待畫面
     }
@@ -111,7 +116,7 @@ export const getUserStateToRedux = async () => {
     const user = firebase.auth().currentUser
     const userRef = firebase.database().ref('users').child(user.uid)
     const userShot = await userRef.once('value')
-    const { nickName, password, loginType, aboutMe, joinClub, likeClub } = userShot.val()
+    const { nickName, password, loginType, aboutMe, joinClub, likeClub, activities } = userShot.val()
 
     let userData = {
       user: { ...user },
@@ -121,6 +126,7 @@ export const getUserStateToRedux = async () => {
       aboutMe: aboutMe || '',
       joinClub: joinClub ? joinClub : {},
       likeClub: likeClub ? likeClub : {},
+      activities: activities || {},
     }
 
     return userData
@@ -178,7 +184,7 @@ export const setUserStateToDB = async (userState) => {
       DB_userState = { ...DB_userState, aboutMe: userState.aboutMe }
 
     if (userState.photoUrl)
-      DB_userState = { ...DB_userState, photoUrl: userState.photoUrl}
+      DB_userState = { ...DB_userState, photoUrl: userState.photoUrl }
 
     await userRef.update(DB_userState)
 
@@ -197,6 +203,9 @@ export const createUserInDatabase = async (user, userInfo) => {
   try {
     const userRef = firebase.database().ref('users').child(user.uid)
 
+    if(!user.photoURL) {
+      await user.updateProfile({ photoURL: "https://firebasestorage.googleapis.com/v0/b/clubapp-f9473.appspot.com/o/common%2Fuser.png?alt=media&token=682c4814-bdef-418a-85d7-279c4c756a1e" })
+    }
 
     //資料庫新增
     await userRef.set({
@@ -204,10 +213,11 @@ export const createUserInDatabase = async (user, userInfo) => {
       password: userInfo.password,
       nickName: user.displayName,
       loginType: userInfo.loginType,
-      photoUrl: user.photoURL ? user.photoURL : false,
+      photoUrl: user.photoURL,
       aboutMe: false,
       joinClub: false,
       likeClub: false,
+      activities: false,
     })
 
     //userReducer新增
@@ -312,7 +322,9 @@ export const changePhoto = () => async (dispatch) => {
       await userRef.update({ photoUrl: uploadUrl })
 
       dispatch(UserAction.updateUser({ ...user }))
-    }
+
+      return true
+    } else return false
 
   } catch (error) {
     console.log(error.toString())

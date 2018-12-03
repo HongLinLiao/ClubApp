@@ -18,10 +18,7 @@ class Profile extends React.Component {
             <View style={styles.container}>
                 <View style={styles.one}>
                 <View style={styles.circle}>
-                    {user.photoURL ?
-                        <Image style={styles.person} source={{ uri: user.photoURL }} resizeMode='contain' /> :
-                        <Image style={styles.person} source={require('../../images/man-user.png')} resizeMode='contain' />
-                    }
+                    <Image style={styles.person} source={{ uri: user.photoURL }} resizeMode='contain' />
                 </View>
                     <Text style={styles.name}>{user.displayName}</Text>
                     <View style={styles.rowx}>
@@ -32,7 +29,7 @@ class Profile extends React.Component {
                 </View>
 
                 <View style={styles.aboutMe}>
-                    <Text style={styles.aboutMeText}>{aboutMe}</Text>
+                    <Text style={styles.aboutMeText}>{aboutMe ? aboutMe : '來加點自我介紹吧～'}</Text>
                 </View>
 
                 <View style={styles.three}>

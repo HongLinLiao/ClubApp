@@ -83,7 +83,7 @@ class AddActivity extends React.Component {
 
     setPlace = async (place_id) => {
         try {
-            this.setState({loading: true, showMap: true})
+            this.setState({ loading: true, showMap: true })
             const result = await geocodingPlaceId(place_id)
             const { formatted_address, geometry } = result.results[0]
             const { location } = geometry
@@ -103,7 +103,7 @@ class AddActivity extends React.Component {
 
             this.popupDialog.dismiss()
 
-        } catch(e) {
+        } catch (e) {
             Alert.alert(e.toString())
         }
     }
@@ -214,7 +214,8 @@ class AddActivity extends React.Component {
 
             this.setState({ loading: true })
             await createActivity(currentCid, activityData, joinClubs[currentCid])
-
+            const refresh = this.props.navigation.state.params.onRefresh;
+            await refresh(currentCid);
             Alert.alert('活動已新增！')
             this.props.navigation.popToTop()
 
@@ -238,29 +239,29 @@ class AddActivity extends React.Component {
         const { status } = member[user.uid]
 
         return (
-            <View style={styles.container}>
-                
+            <KeyboardAvoidingView style={styles.container} behavior="position" keyboardVerticalOffset={64} enabled>
+
                 <ScrollView>
-                        <TouchableOpacity style={styles.image} onPress={this.pickPicture}>
-                            {
-                                this.state.photo ?
-                                    <Image source={{ uri: this.state.photo }} 
-                                        resizeMode='cover' style={{ height: 300, width: '100%' }}
-                                    />
-                                    : (
-                                        <View>
-                                            <Text style={[styles.title,style={}]}>新增活動照片</Text>
-                                            <Image source={require('../../images/graycamera.png')}
-                                                style={[styles.graycamera,style={marginLeft:32,marginRight:20,marginTop:20,marginBottom:20}]}
-                                            />
-                                            <Text style={[styles.bigText,style={marginLeft:15}]}>由本機上傳</Text>
-                                        </View>
-                                    )
-    
-                            } 
-                        </TouchableOpacity>
-                        
-  
+                    <TouchableOpacity style={styles.image} onPress={this.pickPicture}>
+                        {
+                            this.state.photo ?
+                                <Image source={{ uri: this.state.photo }}
+                                    resizeMode='cover' style={{ height: 300, width: '100%' }}
+                                />
+                                : (
+                                    <View>
+                                        <Text style={[styles.title, style = {}]}>新增活動照片</Text>
+                                        <Image source={require('../../images/graycamera.png')}
+                                            style={[styles.graycamera, style = { marginLeft: 32, marginRight: 20, marginTop: 20, marginBottom: 20 }]}
+                                        />
+                                        <Text style={[styles.bigText, style = { marginLeft: 15 }]}>由本機上傳</Text>
+                                    </View>
+                                )
+
+                        }
+                    </TouchableOpacity>
+
+
                     <View style={styles.line}></View>
 
                     <View style={styles.main}>
@@ -275,7 +276,7 @@ class AddActivity extends React.Component {
                                     onChangeText={title => this.setState({ title })}
                                 />
                             </View>
-                            <View style={[styles.row,{ flex:1,paddingTop: 10}]}>
+                            <View style={[styles.row, { flex: 1, paddingTop: 10 }]}>
                                 <Image source={require('../../images/calendar.png')}
                                     style={styles.calendarIcon} />
                                 <View style={styles.littleTextView}>
@@ -284,7 +285,7 @@ class AddActivity extends React.Component {
                                     </TouchableOpacity>
                                 </View>
                             </View>
-                            <View style={[styles.row,{ flex:1,paddingTop: 10}]}>
+                            <View style={[styles.row, { flex: 1, paddingTop: 10 }]}>
                                 <Text style={styles.toText}>~</Text>
                                 <View style={styles.littleTextView}>
                                     <TouchableOpacity onPress={() => this.setState({ showDatePicker: true, datePickerId: 1 })}>
@@ -293,7 +294,7 @@ class AddActivity extends React.Component {
                                 </View>
                             </View>
                         </View>
-                        <View style={[styles.row,{flex:1,paddingTop: 10}]}>
+                        <View style={[styles.row, { flex: 1, paddingTop: 10 }]}>
                             <Image source={require('../../images/coin.png')}
                                 style={styles.calendarIcon} />
                             <View style={styles.littleTextView}>
@@ -307,7 +308,7 @@ class AddActivity extends React.Component {
                                 />
                             </View>
                         </View>
-                        <View style={[styles.row, {flex:1}]}>
+                        <View style={[styles.row, { flex: 1 }]}>
                             <Image source={require('../../images/place.png')}
                                 style={styles.calendarIcon} />
                             <View style={styles.littleTextView}>
@@ -321,9 +322,9 @@ class AddActivity extends React.Component {
                                 />
                             </View>
                         </View>
-                        <View style={[styles.row, {flex:1 ,paddingTop: 10}]}>
-                            <TouchableOpacity style={{flexDirection: 'row', alignItems: 'center'}} onPress={() => this.popupDialog.show()}>
-                                <Text style={{color: '#0d4273', marginRight: 5}}>搜尋地點</Text>
+                        <View style={[styles.row, { flex: 1, paddingTop: 10 }]}>
+                            <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center' }} onPress={() => this.popupDialog.show()}>
+                                <Text style={{ color: '#0d4273', marginRight: 5 }}>搜尋地點</Text>
                                 <Image source={require('../../images/search.png')} style={styles.searchIcon} />
                             </TouchableOpacity>
                         </View>
@@ -332,7 +333,6 @@ class AddActivity extends React.Component {
                                 <MapView
                                     style={{ height: 250, marginLeft: 20, marginTop: 10, marginRight: 20 }}
                                     region={this.state.region}
-                                    mapType={this.state.mapType}
                                 >
                                     <Marker
                                         coordinate={{
@@ -347,7 +347,7 @@ class AddActivity extends React.Component {
                                 </MapView>
                             ) : null
                         }
-                        
+
 
                         <View style={{ padding: 30 }}>
                             <Text style={styles.title}>活動內容</Text>
@@ -386,18 +386,15 @@ class AddActivity extends React.Component {
                     dialogAnimation={slideAnimation}
                     width={0.9}
                     height={0.7}
-                    dialogStyle={{ borderRadius: 10}}
+                    dialogStyle={{ borderRadius: 10 }}
                 >
                     <PlaceDialog
                         setPlace={this.setPlace.bind(this)}
                     />
-                    
+
                 </PopupDialog>
                 {loading ? <Overlayer /> : null}
-                <KeyboardAvoidingView behavior='padding'>
-                </KeyboardAvoidingView>
-
-            </View>
+            </KeyboardAvoidingView>
         );
     }
 

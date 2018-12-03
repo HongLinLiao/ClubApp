@@ -11,7 +11,7 @@ import {
     Keyboard,
     Alert
 } from 'react-native';
-import { takePhoto, selectPhoto } from '../../modules/Common'
+import { takePhoto, selectPhoto, convertClubStatus } from '../../modules/Common'
 import Overlayer from '../common/Overlayer'
 import styles from '../../styles/club/AddPost'
 
@@ -66,6 +66,8 @@ class AddPost extends React.Component {
             const { title, content, images } = this.state
             const postData = { title, content, images }
             await createPost(currentCid, postData, joinClubs[currentCid])
+            const refresh = this.props.navigation.state.params.onRefresh;
+            await refresh(currentCid);
             Alert.alert('貼文發佈成功！')
             this.props.navigation.popToTop()
         } catch (e) {
@@ -132,6 +134,7 @@ class AddPost extends React.Component {
         const { user, joinClubs, currentCid } = this.props
         const { schoolName, clubName, member } = joinClubs[currentCid]
         const status = member[user.uid].status
+        const _status = convertClubStatus(status)
         return (
             <View style={styles.container}>
                 <ScrollView style={{ width: '100%' }}>
@@ -145,7 +148,7 @@ class AddPost extends React.Component {
                             </View>
                             <View style={styles.row}>
                                 <Text style={styles.name}>{user.displayName}</Text>
-                                <Text style={styles.job}>{status}</Text>
+                                <Text style={styles.job}>{_status}</Text>
                             </View>
                         </View>
                     </View>

@@ -43,7 +43,11 @@ class ClubMember extends React.Component {
             this.setState({ loading: true })
             const { currentCid, joinClubs, navigation } = nextProps
             if(this.state.currentCid == currentCid) {
-                const memberData = await getClubMemberData(joinClubs[currentCid].member) 
+                const _memberData = await getClubMemberData(joinClubs[currentCid].member)
+                console.log(_memberData)
+                const memberData = this.sortMember(_memberData, joinClubs, currentCid)
+
+                console.log(memberData)
                 this.setState({ memberData, currentCid, joinClubs, loading: false })
             } else {
                 this.popupDialog.dismiss()
@@ -85,12 +89,40 @@ class ClubMember extends React.Component {
         try {
             this.setState({ loading: true })
             const { currentCid, joinClubs } = this.props
-            const memberData = await getClubMemberData(joinClubs[currentCid].member)
+            const _memberData = await getClubMemberData(joinClubs[currentCid].member)
+            const memberData = this.sortMember(_memberData, joinClubs, currentCid)
             this.setState({ memberData, currentCid, joinClubs, loading: false })
 
         } catch (e) {
             Alert.alert(e.toString())
         }
+    }
+
+    sortMember = (memberData, joinClubs, currentCid) => {
+        const master = []
+        const supervisor = []
+        const _member = []
+        const nothing = []
+        const { member } = joinClubs[currentCid]
+        Object.keys(memberData).map((uid) => {
+            const { status } = member[uid]
+            switch(status) {
+                case 'master':
+                    master.push({uid, ...memberData[uid]})
+                    break;
+                case 'supervisor':
+                    supervisor.push({uid, ...memberData[uid]})
+                    break;
+                case 'member':
+                    _member.push({uid, ...memberData[uid]})
+                    break;
+                default:
+                    nothing.push({uid,...memberData[uid]})
+            }
+        })
+
+        const memberArray = master.concat(supervisor, _member, nothing)
+        return memberArray
     }
 
     showUser = async (uid) => {
@@ -122,7 +154,8 @@ class ClubMember extends React.Component {
     }
 
     filterStatusPermission = (uid) => {
-        const { user, joinClubs, currentCid } = this.props
+        const { user } = this.props
+        const { joinClubs, currentCid } = this.state
         const status = joinClubs[currentCid].member[user.uid].status //目前使用者職位
         const _status = joinClubs[currentCid].member[uid].status //社團成員職位
         let canChangeStatus = false
@@ -152,28 +185,33 @@ class ClubMember extends React.Component {
 
     render() {
         const { currentCid, joinClubs } = this.state
-        const memberData = this.state.memberData || {}
+        const memberData = this.state.memberData || []
         const member = joinClubs ? joinClubs[currentCid].member : {}
         const { uid, user, clubs } = this.state.userData
+
+        console.log(memberData)
         
         return (
             <View style={{flex: 1}}>
                 <ScrollView>
                     {
-                        Object.keys(memberData).map((_uid, index) => {
-                            const { photoUrl, nickName, } = memberData[_uid]
-                            const status = member[_uid].status
+                        memberData.map((_user, index) => {
+                            const { photoUrl, nickName } = _user
+                            console.log(member[_user.uid].status);
+                            const status = member[_user.uid].status
+                            console.log(status);
                             const _status = convertClubStatus(status) //職位轉成中文
-                            const { canChangeStatus, canKickMember } = this.filterStatusPermission(_uid) //過濾每個人的權限
+                            console.log(_status);
+                            const { canChangeStatus, canKickMember } = this.filterStatusPermission(_user.uid) //過濾每個人的權限
                             return (
-                                <TouchableOpacity key={_uid} disabled={!canChangeStatus} onPress={() => this.props.navigation.push('MemberManage', {uid: _uid, userData: memberData[_uid]})}>
+                                <TouchableOpacity key={_user.uid} disabled={!canChangeStatus} onPress={() => this.props.navigation.push('MemberManage', {uid: _user.uid, userData: _user})}>
 
                                     <ListItem
-                                        key={_uid}
+                                        key={_user.uid}
                                         leftAvatar={{
-                                            source: { uri: photoUrl ? photoUrl : 'https://image.freepik.com/free-icon/man-dark-avatar_318-9118.jpg' },
+                                            source: { uri: photoUrl },
                                             size: 'medium',
-                                            onPress: () => this.showUser(_uid)
+                                            onPress: () => this.showUser(_user.uid)
                                         }}
 
                                         title={
@@ -186,7 +224,7 @@ class ClubMember extends React.Component {
                                             canKickMember ?
                                                 <TouchableOpacity
                                                     style={styles.button}
-                                                    onPress={() => this.askToKick(_uid, nickName)}
+                                                    onPress={() => this.askToKick(_user.uid, nickName)}
                                                 >
                                                     <Text style={[styles.buttonText]}>確定退出</Text>
                                                 </TouchableOpacity> : null

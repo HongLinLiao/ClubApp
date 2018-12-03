@@ -44,9 +44,9 @@ class AdvancedSetting extends React.Component {
                     </TouchableOpacity>
                 </View>
 
-                <View style={styles.boxView}>
+                {/* <View style={styles.boxView}>
                     <Text style={styles.boxText}>關於我們</Text>  
-                </View>
+                </View> */}
             </View>   
         </View> 
         );

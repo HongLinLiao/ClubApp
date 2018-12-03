@@ -6,11 +6,14 @@ import {  Text,
   TouchableOpacity,
   ImageBackground,
   Image,
-  Alert
+  Alert,
+  StyleSheet,
+  Keyboard
 } from 'react-native';
 import { CheckBox }  from 'react-native-elements'
 import styles from '../../styles/auth/Login'
 import Overlayer from '../common/Overlayer'
+import { handleAuthError } from '../../modules/Common'
 
 
 class Login extends React.Component{
@@ -24,6 +27,7 @@ class Login extends React.Component{
     password: '',
     remember: false,
     loading: false,
+    texting: false,
     emailBgColor: 'rgba(255,255,255,0.4)',
     pswBgColor:'rgba(255,255,255,0.4)',
     // goBgColor:'rgba(255,255,255,0)',
@@ -41,10 +45,10 @@ class Login extends React.Component{
     } catch(e) {
 
       this.setState({ loading: false })
-      Alert.alert(e.toString())
+      const message = handleAuthError(e)
+      Alert.alert(message)
     }
     
-      
   }
 
   handleFacebook = async () => {
@@ -55,7 +59,11 @@ class Login extends React.Component{
 
     } catch(e) {
       this.setState({ loading: false })
-      Alert.alert(e.toString())
+      if(e.message != '取消登入') {
+        const message = handleAuthError(e)
+        Alert.alert(message)
+      }
+      
     }
     
   }
@@ -68,7 +76,10 @@ class Login extends React.Component{
 
     } catch(e) {
       this.setState({ loading: false })
-      Alert.alert(e.toString())
+      if(e.code != 'GOOGLE_ERROR') {
+        const message = handleAuthError(e)
+        Alert.alert(message)
+      }
 
     }
     
@@ -78,7 +89,7 @@ class Login extends React.Component{
     return(
       <ImageBackground
       style={styles.bf}
-      source={require('../../images/myboyfriend.jpg')}
+      source={require('../../images/backgroundImg.jpg')}
       imageStyle={{ resizeMode: 'cover' }}
       >
         <View style={{flex:1}}>
@@ -97,8 +108,8 @@ class Login extends React.Component{
                 style={ styles.textInput }
                 underlineColorAndroid={'transparent'}
                 onChangeText={(email) => this.setState({email})}
-                onFocus={()=> this.setState(  {emailBgColor: 'rgba(170,170,170,0.3)'} )}
-                onBlur={()=> this.setState(  {emailBgColor: 'rgba(255,255,255,0.4)'} )}
+                onFocus={()=> this.setState({emailBgColor: 'rgba(170,170,170,0.3)', texting: true})}
+                onBlur={()=> this.setState({emailBgColor: 'rgba(255,255,255,0.4)'})}
               />      
             </View>
 
@@ -112,12 +123,12 @@ class Login extends React.Component{
                 style={styles.textInput}
                 underlineColorAndroid={'transparent'}
                 onChangeText={(password) => this.setState({password})}
-                onFocus={()=> this.setState(  {pswBgColor: 'rgba(170,170,170,0.3)'} )}
+                onFocus={()=> this.setState({pswBgColor: 'rgba(170,170,170,0.3)', texting: true})}
                 onBlur={()=> this.setState(  {pswBgColor: 'rgba(255,255,255,0.4)'} )}
               />         
             </View>
 
-            <CheckBox
+            {/* <CheckBox
               center
               title='記住我'
               containerStyle={[styles.checkContainer]}
@@ -130,9 +141,8 @@ class Login extends React.Component{
                             />}
               checked={this.state.remember}
               onPress={() => this.setState({remember: !this.state.remember})}
-            
-
-            />
+            /> */}
+            <Text></Text>
             <TouchableOpacity 
               style={styles.gobotton}
               onPress={() => this.handleLogin()}
@@ -146,18 +156,14 @@ class Login extends React.Component{
               <TouchableOpacity 
                 style={styles.fbBotton}
                 onPress={() => this.handleFacebook()}
-               
-                
               >
                 <Image style={styles.fbIcon}
                   source={require('../../images/facebook.png')}/>
                 <Text style={styles.fbText}>Facebook</Text>
               </TouchableOpacity>
               <TouchableOpacity 
-               style={styles.gmailBotton}
-               onPress={() => this.handleGoogle()}
-              
-              
+                style={styles.gmailBotton}
+                onPress={() => this.handleGoogle()}
               >
                 <Image style={styles.gmailIcon}
                   source={require('../../images/google.png')}/>
@@ -182,6 +188,16 @@ class Login extends React.Component{
                 </KeyboardAvoidingView>
               </View>      
         </View>
+        {
+          this.state.texting ?
+              <TouchableOpacity style={[StyleSheet.absoluteFill]}
+                  onPress={() => {
+                      Keyboard.dismiss()
+                      this.setState({ texting: false })
+                  }}
+              >
+              </TouchableOpacity> : null
+        }
         {this.state.loading ? <Overlayer /> : null }
       </ImageBackground>    
     );

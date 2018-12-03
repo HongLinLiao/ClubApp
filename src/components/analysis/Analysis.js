@@ -108,19 +108,23 @@ class Analysis extends React.Component {
     }
 
     render() {
+        const {  joinClub, likeClub } = this.props
+        const clubNum = Object.keys(joinClub).length + Object.keys(likeClub).length
         return (
             <View style={{flex: 1, alignItems: 'center', justifyContent:'center', backgroundColor: '#0d4273'}}>
                 {this.state.result ? 
                     (
-                        <View style={{alignSelf: 'stretch', backgroundColor: 'rgba(24, 125, 219, 0.1)', justifyContent: 'center', alignItems: 'center', padding: 10}}>
-                            <Text style={{color: 'white'}}>下拉重整</Text>
-                        </View>
+                        null
+                        // <View style={{alignSelf: 'stretch', backgroundColor: 'rgba(24, 125, 219, 0.1)', justifyContent: 'center', alignItems: 'center', padding: 10}}>
+                        //     <Text style={{color: 'white'}}>下拉重整</Text>
+                        // </View>
                     ) :
                     (
                         <Button
                             icon={<Image source={require('../../images/bars-chart.png')} />}
+                            disabled={clubNum == 0}
                             iconRight
-                            title='點擊統計'
+                            title={clubNum == 0 ? '你沒有任何社團' : '點擊統計'}
                             titleStyle={{ fontWeight: "700", color: '#0d4273' }}
                             buttonStyle={{ paddingRight: 15 ,paddingLeft: 10, paddingTop: 5, paddingBottom: 5, backgroundColor: 'rgba(246, 180, 86, 0.75)', }}
                             onPress={() => this.searchData()} 

@@ -1,6 +1,5 @@
 import React from 'react'
 import { ScrollView, Text, Alert, Image, TouchableOpacity, RefreshControl } from 'react-native'
-import { Button } from 'react-native-elements'
 import PostListElement from '../post/PostListElement'
 import styles from '../../styles/home/Home'
 import { View } from 'native-base';
@@ -9,20 +8,31 @@ import Overlayer from '../common/Overlayer'
 import PopupDialog, { SlideAnimation, DialogTitle } from 'react-native-popup-dialog';
 import UserDialog from '../common/UserDialog'
 
-
 const slideAnimation = new SlideAnimation({
     slideFrom: 'bottom',
 });
 
 class Home extends React.Component {
+
+    componentWillMount() {
+        this.props.navigation.setParams({
+            homeReload: this.homeReload.bind(this)
+        })
+        this.homeOverLayor();
+    }
+
     async componentDidMount() {
-        const { joinClub, likeClub, initHomeClubList } = this.props;
+        const { joinClub, likeClub, initHomeClubList, initSetPostList, navigation } = this.props;
+        await initSetPostList(newPostList => { this.setState({ post: newPostList }); }, navigation);
         const homeClubList = await initHomeClubList(joinClub, likeClub);
+        this.homeOverLayor();
         await this.homeReload(homeClubList);
+        this.setState({ init: false });
     }
 
     state = {
-        post: {},
+        init: true,
+        post: [],
         userData: { uid: null, user: null, clubs: null },
         //遮罩
         loading: false,
@@ -30,14 +40,22 @@ class Home extends React.Component {
         refreshing: false,
     }
 
+    //頁面重整
+    homeReload = async (clubList) => {
+        //開啟過門
+        this.homeOverLayor();
+        const { getHomePostReload, navigation } = this.props;
+        await getHomePostReload(clubList, navigation);
+        //關閉過門
+        this.homeOverLayor();
+    };
+
+    //重整動畫
     onRefresh = async () => {
         try {
-            const { clubList, getHomePostReload } = this.props;
+            const { clubList } = this.props;
             this.setState({ refreshing: true });
             this.setState({ refreshing: false });
-            // await getHomePostReload(clubList, newPostList => {
-            //     this.setState({ post: newPostList });
-            // });
             this.homeReload(clubList);
         } catch (error) {
             console.log(error.toString());
@@ -48,28 +66,6 @@ class Home extends React.Component {
     homeOverLayor = () => {
         this.setState({ loading: !this.state.loading })
     }
-
-    //頁面重整
-    homeReload = async (clubList) => {
-        //開啟過門
-        this.homeOverLayor();
-        const { getHomePostReload } = this.props;
-        await getHomePostReload(clubList, newPostList => {
-            this.setState({ post: newPostList });
-        });
-        //關閉過門
-        this.homeOverLayor();
-    };
-
-    //更改postList
-    setPostList = (postList) => {
-        this.setState({ post: postList });
-    };
-
-    //進入內頁onPress()事件，放入postList讓元件render
-    goSelectingPage = (navigation) => {
-        navigation.navigate("Selecting", { homeReload: this.homeReload });
-    };
 
     showUser = async (uid) => {
         try {
@@ -98,70 +94,121 @@ class Home extends React.Component {
     }
 
     render() {
-        const newPostList = { ...this.state.post };
-        const { uid, user, clubs } = this.state.userData
-        return (
-            <View style={{ backgroundColor: "#ffffff", flex: 1 }}>
-                <ScrollView
-                    refreshControl={
-                        <RefreshControl
-                            refreshing={this.state.refreshing}
-                            onRefresh={() => this.onRefresh()}
-                            tintColor='#f6b456'
-                        />
-                    }
-                >
-                    <Button
-                        title='selecting!'
-                        onPress={() => { this.goSelectingPage(this.props.navigation); }}
-                    />
-                    <View style={styles.containView}>
-                        {
-                            Object.values(newPostList).map((clubElement) => (
-                                Object.values(clubElement).map((postElement) => (
-                                    <PostListElement
-                                        key={postElement.postKey}
-                                        post={postElement}
-                                        navigation={this.props.navigation}
-                                        getInsidePost={this.props.getInsidePost}
-                                        getPostComment={this.props.getPostComment}
-                                        setPostFavorite={this.props.setPostFavorite}
-                                        postList={this.state.post}
-                                        setPostList={this.setPostList}
-                                        showUser={this.showUser.bind(this)}
-                                        parentOverLayor={this.homeOverLayor}
-                                    >
-                                    </PostListElement>
-                                ))
-                            ))
+        const newPostList = this.state.post.slice();
+        const { uid, user, clubs } = this.state.userData;
+        let nickName;
+        if (this.props.user) {
+            if (this.props.user.displayName) {
+                nickName = this.props.user.displayName;
+            }
+            else {
+                nickName = "";
+            }
+        }
+        else {
+            nickName = "";
+        }
 
+        if (this.state.init) {
+            return (
+                <View style={{ flex: 1 }}>
+                    {this.state.loading ? <Overlayer /> : null}
+                </View>
+            );
+        }
+        else if (this.state.post.length == 0) {
+            return (
+                <View style={{ backgroundColor: "#ffffff", flex: 1, justifyContent: "center", alignItems: "center" }}>
+                    <ScrollView
+                        contentContainerStyle={{ flex: 1, width: '100%', alignItems: 'center', justifyContent: 'center' }}
+                        showsVerticalScrollIndicator={false}
+                        refreshControl={
+                            <RefreshControl
+                                refreshing={this.state.refreshing}
+                                onRefresh={() => this.onRefresh()}
+                                tintColor='#f6b456' />
                         }
-                    </View>
-                </ScrollView>
-                <PopupDialog
-                    ref={(popupDialog) => this.popupDialog = popupDialog}
-                    dialogAnimation={slideAnimation}
-                    width={0.7}
-                    height={0.7}
-                    dialogStyle={{ borderRadius: 20 }}
-                >
-                    <UserDialog
-                        uid={uid}
-                        user={user}
-                        clubs={clubs}
-                        loading={this.state.loading}
-                    />
-                </PopupDialog>
-                {this.state.loading ? <Overlayer /> : null}
-                <TouchableOpacity style={styles.star}
-                    onPress={() => { this.props.navigation.navigate('Stories'); }}>
-                    <View style={styles.starButtonView}>
-                        <Image source={require('../../images/images2/star.png')}
-                            style={styles.starImage} />
-                    </View>
-                </TouchableOpacity>
-            </View>
-        );
+                    >
+                        <View style={{ flexDirection: 'row' }}>
+                            <Image source={require('../../images/notification.png')}
+                                style={{ height: 50, width: 50 }} />
+                            <View style={{ marginLeft: 10 }}>
+                                <Text style={{ color: "#666666", fontSize: 15 }}>嗨 {nickName}</Text>
+                                <Text style={{ color: "#666666", fontSize: 15 }}>你的社團目前沒有貼文可以顯示唷</Text>
+                                <Text style={{ color: "#666666", fontSize: 15 }}>試試往下拉重整或是去搜尋喜歡的社團</Text>
+                            </View>
+                        </View>
+                    </ScrollView>
+                    <TouchableOpacity style={styles.star}
+                        onPress={() => { this.props.navigation.navigate('Stories', { syncSearchActivityBack: this.props.syncSearchActivityBack }); }}>
+                        <View style={styles.starButtonView}>
+                            <Image source={require('../../images/images2/star.png')}
+                                style={styles.starImage} />
+                        </View>
+                    </TouchableOpacity>
+                    {this.state.loading ? <Overlayer /> : null}
+                </View>
+            )
+        }
+        else {
+            return (
+                <View style={{ backgroundColor: "#ffffff", flex: 1 }}>
+                    <ScrollView
+                        refreshControl={
+                            <RefreshControl
+                                refreshing={this.state.refreshing}
+                                onRefresh={() => this.onRefresh()}
+                                tintColor='#f6b456'
+                            />
+                        }
+                    >
+                        <View style={styles.containView}>
+                            {
+                                newPostList.map((postElement) => (
+                                    Object.values(postElement).map((post) => (
+                                        <PostListElement
+                                            key={post.postKey}
+                                            post={post}
+                                            navigation={this.props.navigation}
+                                            getInsidePost={this.props.getInsidePost}
+                                            setPostFavorite={this.props.setPostFavorite}
+                                            showUser={this.showUser.bind(this)}
+                                            parentOverLayor={this.homeOverLayor}
+                                            syncPost={this.props.syncPost}
+                                            syncPostDelete={this.props.syncPostDelete}
+                                            syncPostBack={this.props.syncPostBack}
+                                        >
+                                        </PostListElement>
+                                    ))
+                                ))
+                            }
+                        </View>
+                    </ScrollView>
+                    <TouchableOpacity style={styles.star}
+                        onPress={() => { this.props.navigation.navigate('Stories', { syncSearchActivityBack: this.props.syncSearchActivityBack }); }}>
+                        <View style={styles.starButtonView}>
+                            <Image source={require('../../images/images2/star.png')}
+                                style={styles.starImage} />
+                        </View>
+                    </TouchableOpacity>
+                    <PopupDialog
+                        ref={(popupDialog) => this.popupDialog = popupDialog}
+                        dialogAnimation={slideAnimation}
+                        width={0.7}
+                        height={0.7}
+                        dialogStyle={{ borderRadius: 20 }}
+                    >
+                        <UserDialog
+                            uid={uid}
+                            user={user}
+                            clubs={clubs}
+                            loading={this.state.loading}
+                        />
+                    </PopupDialog>
+                    {this.state.loading ? <Overlayer /> : null}
+                </View>
+            );
+        }
     }
 }
 

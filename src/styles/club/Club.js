@@ -103,10 +103,15 @@ export default StyleSheet.create({
     alignItems: "center",
     padding: 5
   },
-  adminText: {
+  adminOpenText: {
     fontSize: 12,
     padding: 5,
-    color: "#666666"
+    color: "#696969"
+  },
+  adminCloseText: {
+    fontSize: 12,
+    padding: 5,
+    color: "#DCDCDC"
   },
   adminIcon: {
     width: 35,
@@ -115,6 +120,7 @@ export default StyleSheet.create({
     //borderRadius: 100,
   },
   clubSummaryView: {
+    paddingTop:15,
     paddingLeft: 30,
     paddingRight: 30
   },
@@ -286,5 +292,17 @@ export default StyleSheet.create({
   },
   joinAndLikeText: {
     fontSize: 16
+  },
+  createClubBtn: {
+    position: 'absolute',
+    top: 20,
+    right: 20,
+    backgroundColor: "rgba(246, 180, 86, 0.8)",
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    opacity: 0.6,
+    justifyContent: 'center',
+    alignItems: 'center'
   }
 });

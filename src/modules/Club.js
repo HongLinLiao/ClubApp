@@ -390,7 +390,7 @@ export const quitTheClub = (cid) => async (dispatch, getState) => {
 
 }
 
-//蒐藏社團
+//收藏社團
 export const likeTheClub = (cid) => async (dispatch, getState) => {
   try {
     const { uid } = firebase.auth().currentUser

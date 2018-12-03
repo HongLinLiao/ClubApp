@@ -219,8 +219,6 @@ export const deleteComment = async (clubKey, postKey, commentKey) => {
 
     commentRef = firebase.database().ref('comments/' + clubKey + '/' + postKey + '/' + commentKey)
     await commentRef.set(null);
-
-
 }
 
 //編輯留言
