@@ -10,7 +10,7 @@ container: {
 },
 row: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-end',
 },
 rowLeft: {
     flexDirection: 'row',

@@ -41,8 +41,8 @@ export default  StyleSheet.create({
     },
     textArea:{
         flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'flex-start',
+        alignItems: 'flex-end',
+        justifyContent: 'flex-end',
     },
     school: {
         fontSize: 15,
@@ -51,7 +51,7 @@ export default  StyleSheet.create({
         color: 'rgba(102,102,102,1)'
     },
     club: {
-        fontSize: 20,
+        fontSize: 18,
         color: 'rgba(102,102,102,1)'
     },
     checkContainer: {
