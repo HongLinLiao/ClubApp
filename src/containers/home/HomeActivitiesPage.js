@@ -2,13 +2,14 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import HomeActivities from '../../components/home/HomeActivities'
 import { getHomeActivityReload } from '../../modules/Home'
-import { getInsideActivity, setActivityFavorite, initSetActivityList, syncActivity, syncActivityDelete,syncActivityBack } from '../../modules/Activity'
+import { getInsideActivity, setActivityFavorite, initSetActivityList, syncActivity, syncActivityDelete, syncActivityBack } from '../../modules/Activity'
 
 
 class HomeActivitiesPage extends Component {
     render() {
         return (
             <HomeActivities
+                user={this.props.user}
                 navigation={this.props.navigation}
                 getHomeActivityReload={this.props.getHomeActivityReload}
                 getInsideActivity={this.props.getInsideActivity}
@@ -22,8 +23,8 @@ class HomeActivitiesPage extends Component {
     }
 }
 
-const mapStateToProps = ({ homeReducer }) => ({
-   
+const mapStateToProps = ({ userReducer }) => ({
+    user: userReducer.user,
 })
 
 const mapDispatchToProps = {

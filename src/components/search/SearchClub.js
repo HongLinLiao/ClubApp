@@ -150,6 +150,11 @@ class SearchClub extends React.Component {
 
       await this.props.joinTheClub(cid);
 
+      const { syncSearchActivityBack, syncSearchPostBack } = this.props.navigation.state.params;
+
+      await syncSearchActivityBack(this.props.navigation.state.routeName);
+      await syncSearchPostBack(this.props.navigation.state.routeName);
+
       this.props.navigation.popToTop();
 
       this.setState({ loading: false });

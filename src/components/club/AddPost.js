@@ -66,6 +66,8 @@ class AddPost extends React.Component {
             const { title, content, images } = this.state
             const postData = { title, content, images }
             await createPost(currentCid, postData, joinClubs[currentCid])
+            const refresh = this.props.navigation.state.params.onRefresh;
+            await refresh(currentCid);
             Alert.alert('貼文發佈成功！')
             this.props.navigation.popToTop()
         } catch (e) {

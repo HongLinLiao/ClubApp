@@ -1,4 +1,3 @@
-//這頁應該是沒啥問題了
 import React from "react";
 import {
   View,
@@ -155,7 +154,7 @@ class Post extends React.Component {
       const obj = await editingPost(clubKey, postKey, newData);
       if (obj != null) {
         //貼文同步
-        syncPost(obj);
+        await syncPost(obj);
         this.setState({
           editTitle: '',
           editTitleStatus: false,
@@ -171,7 +170,7 @@ class Post extends React.Component {
       }
       else {
         //刪除貼文同步
-        syncPostDelete(postKey);
+        await syncPostDelete(postKey);
         const syncPostBack = navigation.state.params.syncPostBack;
         const routeName = navigation.state.routeName;
         await syncPostBack(routeName);
@@ -404,7 +403,7 @@ class Post extends React.Component {
 
                   <Image
                     style={styles.icon}
-                    source={require("../../images/columndots.2.png")}
+                    source={require("../../images/more.png")}
                   />
                 </TouchableOpacity>
               </View>

@@ -6,7 +6,8 @@ import {
     Image,
     TouchableOpacity,
     KeyboardAvoidingView,
-    Alert
+    Alert,
+    ScrollView
 } from "react-native";
 import { Button } from "react-native-elements";
 import styles from "../../styles/post/Comment";
@@ -53,7 +54,9 @@ class CommentInput extends React.Component {
 
     render() {
         return (
-            <View style={{ flex: 1 }}>
+            <KeyboardAvoidingView style={{ flex: 1 }} keyboardVerticalOffset={64} behavior="position" enabled>
+            <ScrollView>
+
                 <View style={styles.rowPaddingInput}>
                     <View style={styles.littleCircle}>
                         <Image
@@ -84,9 +87,11 @@ class CommentInput extends React.Component {
                         <Image source={require('../../images/send.png')}
                             style={styles.sendIcon} />
                     </TouchableOpacity>
-                </View>
-            </View>
+                    </View>
+                </ScrollView>
+                
 
+            </KeyboardAvoidingView>
         );
     }
 }

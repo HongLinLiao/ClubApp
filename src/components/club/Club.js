@@ -44,10 +44,10 @@ class Club extends React.Component {
 
     // const cid = randomCid(allClubCids);
     // this.props.setCurrentClub(cid);
+    await initSetPostList(newPostList => { this.setState({ post: newPostList }); }, navigation);
+    await initSetActivityList(newActivityList => { this.setState({ activity: newActivityList }); }, navigation);
     if (currentCid) {
       this.clubOverLayar()
-      await initSetPostList(newPostList => { this.setState({ post: newPostList }); }, navigation);
-      await initSetActivityList(newActivityList => { this.setState({ activity: newActivityList }); }, navigation);
       await this.postReload(currentCid)
       await this.activityReload(currentCid);
       this.clubOverLayar()
@@ -59,7 +59,7 @@ class Club extends React.Component {
     try {
       const { currentCid, likeClubs, setCurrentClub } = this.props;
       let openClubCid = null
-      if(currentCid) {
+      if (currentCid) {
         this.setState({ refreshing: true, loading: true });
         await this.activityReload(currentCid);
         await this.postReload(currentCid);
@@ -71,7 +71,7 @@ class Club extends React.Component {
 
         setCurrentClub(openClubCid)
       }
-      
+
       this.setState({ refreshing: false, loading: false });
     } catch (error) {
       console.log(error.toString());
@@ -317,7 +317,7 @@ class Club extends React.Component {
               {type == "JOIN" ? (
                 <View style={styles.adminButtonView}>
                   <TouchableOpacity
-                    onPress={() => this.props.navigation.push("AddPost", {})}
+                    onPress={() => this.props.navigation.push("AddPost", { onRefresh: this.onRefresh })}
                   >
                     <View style={styles.adminButton}>
                       <Image
@@ -332,7 +332,7 @@ class Club extends React.Component {
                   <TouchableOpacity
                     disabled={status == 'member'}
                     onPress={() =>
-                      this.props.navigation.push("AddActivity", {})
+                      this.props.navigation.push("AddActivity", { onRefresh: this.onRefresh })
                     }
                   >
                     <View style={styles.adminButton}>

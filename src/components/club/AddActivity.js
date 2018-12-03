@@ -215,7 +215,8 @@ class AddActivity extends React.Component {
 
             this.setState({ loading: true })
             await createActivity(currentCid, activityData, joinClubs[currentCid])
-
+            const refresh = this.props.navigation.state.params.onRefresh;
+            await refresh(currentCid);
             Alert.alert('活動已新增！')
             this.props.navigation.popToTop()
 
@@ -239,9 +240,7 @@ class AddActivity extends React.Component {
         const { status } = member[user.uid]
 
         return (
-            <KeyboardAvoidingView style={styles.container} behavior="position" keyboardVerticalOffset={64}  enabled>
-
-
+            <KeyboardAvoidingView style={styles.container} behavior="position" keyboardVerticalOffset={64} enabled>
                 <ScrollView>
                     <TouchableOpacity style={styles.image} onPress={this.pickPicture}>
                         {
@@ -402,9 +401,12 @@ class AddActivity extends React.Component {
 
                 </PopupDialog>
                 {loading ? <Overlayer /> : null}
+<<<<<<< HEAD
 
 
 
+=======
+>>>>>>> 91eec07bd2d4be5747d0b5a22c9ebe0c1541cbad
             </KeyboardAvoidingView>
         );
     }
