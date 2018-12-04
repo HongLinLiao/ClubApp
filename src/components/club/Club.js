@@ -113,8 +113,6 @@ class Club extends React.Component {
     this.clubOverLayar()
     const obj = await getInsideActivity(activity.clubKey, activity.activityKey);
     if (obj != null) {
-      //活動同步
-      syncActivity(obj);
       this.clubOverLayar();
       let routeName;
       if (navigation.state.routeName == 'Stories') {

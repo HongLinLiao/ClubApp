@@ -27,9 +27,11 @@ const slideAnimation = new SlideAnimation({
 class Post extends React.Component {
   //寫入本地State
   componentWillMount() {
-    const { initSetPost, navigation, initPostToReducer } = this.props;
+    const { initSetPost, navigation, initPostToReducer,syncPost } = this.props;
     initSetPost((obj) => { this.setState({ post: obj.post, comment: obj.comment }); }, navigation);
     initPostToReducer({ post: this.props.post, comment: this.props.comment }, navigation);
+    //貼文同步
+    syncPost({post: this.props.post, comment: this.props.comment});
     this.setState({ post: this.props.post, comment: this.props.comment, editImg: this.props.post.images });
   }
 

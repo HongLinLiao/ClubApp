@@ -22,9 +22,11 @@ class Activity extends React.Component {
 
     //寫入本地State
     async componentWillMount() {
-        const { initSetActivity, navigation, initActivityToReducer } = this.props;
+        const { initSetActivity, navigation, initActivityToReducer, syncActivity } = this.props;
         initSetActivity((obj) => { this.setState({ activity: obj.activity }); }, navigation);
         initActivityToReducer({ activity: this.props.activity }, navigation);
+        //活動同步
+        syncActivity({ activity: this.props.activity });
         this.setState({
             activity: this.props.activity,
             title: this.props.activity.title,
@@ -392,7 +394,6 @@ class Activity extends React.Component {
         const dateArray = this.getDateTime()
         const element = JSON.parse(JSON.stringify(this.state.activity));
         const { location } = element
-        const editData = this.state;
 
         return (
 
@@ -573,7 +574,7 @@ class Activity extends React.Component {
                                 }}
                             >
                                 <Image
-                                    source={{ uri: editData.newImg }}
+                                    source={{ uri: element.photo }}
                                     resizeMode='cover'
                                     style={{ height: 200, width: '100%' }} />
                             </TouchableOpacity>
@@ -582,7 +583,7 @@ class Activity extends React.Component {
                         <View style={{ flexDirection: 'row', width: '100%' }}>
                             <Text style={{ fontSize: 15, color: '#666666', marginTop: 13, marginLeft: 10, }}>名稱: </Text>
                             <TextInput
-                                defaultValue={editData.title}
+                                defaultValue={element.title}
                                 style={{ fontSize: 22, fontWeight: 'bold', marginTop: 7, marginBottom: 7, color: '#666666', width: '80%', borderBottomWidth: 0.5, borderColor: 'rgba(102,102,102,0.5)' }}
                                 underlineColorAndroid={'transparent'}
                                 onChangeText={(content) => this.setState({ title: content })}
@@ -595,7 +596,7 @@ class Activity extends React.Component {
                                 onTintColor={'rgba(246,180,86,1)'}
                                 tintColor={'rgba(246,180,86,0.1)'}
                                 thumbTintColor={'white'}
-                                value={editData.open}
+                                value={element.open}
                                 onValueChange={() => this.setState({ open: !this.state.open })}
                             />
                         </View>
@@ -619,7 +620,7 @@ class Activity extends React.Component {
                         <View style={{ flexDirection: 'row', width: '100%' }}>
                             <Text style={{ fontSize: 15, color: '#666666', marginTop: 13, marginLeft: 10 }}>金額: </Text>
                             <TextInput
-                                defaultValue={editData.price.toString()}
+                                defaultValue={element.price.toString()}
                                 style={{ fontSize: 20, marginTop: 8, color: '#666666', width: '80%', borderBottomWidth: 0.5, borderColor: 'rgba(102,102,102,0.5)' }}
                                 underlineColorAndroid='transparent'
                                 keyboardType='numeric'
@@ -630,7 +631,7 @@ class Activity extends React.Component {
                         <View style={{ flexDirection: 'row', width: '100%' }}>
                             <Text style={{ fontSize: 15, color: '#666666', marginTop: 13, marginLeft: 10, }}>位置: </Text>
                             <TextInput
-                                defaultValue={editData.place}
+                                defaultValue={element.place}
                                 style={{ fontSize: 20, marginTop: 8, color: '#666666', width: '70%' }}
                                 underlineColorAndroid='transparent'
                                 onChangeText={place => this.setState({ place: place })}
@@ -668,7 +669,7 @@ class Activity extends React.Component {
                         <View style={{ width: '100%' }}>
                             <Text style={{ fontSize: 15, color: '#666666', marginTop: 13, marginLeft: 10, }}>內容</Text>
                             <TextInput
-                                defaultValue={editData.content}
+                                defaultValue={element.content}
                                 multiline={true}
                                 style={{ fontSize: 15, marginTop: 5, color: '#666666', marginLeft: 10, marginRight: 10, borderBottomWidth: 0.5, borderColor: 'rgba(102,102,102,0.5)', }}
                                 underlineColorAndroid='transparent'
@@ -679,7 +680,7 @@ class Activity extends React.Component {
                         <View style={{ width: '100%' }}>
                             <Text style={{ fontSize: 15, color: '#666666', marginTop: 13, marginLeft: 10, }}>備註</Text>
                             <TextInput
-                                defaultValue={editData.remarks}
+                                defaultValue={element.remarks}
                                 multiline={true}
                                 style={{ fontSize: 15, marginTop: 5, color: '#666666', marginLeft: 10, marginRight: 10, borderBottomWidth: 0.5, borderColor: 'rgba(102,102,102,0.5)', }}
                                 underlineColorAndroid='transparent'
