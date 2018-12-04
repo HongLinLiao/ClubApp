@@ -463,14 +463,16 @@ class Activity extends React.Component {
                                 </View>
                             </TouchableOpacity>
                             <TouchableOpacity onPress={async () => {
-                                this.refs.advancedActivity.open();
+                                if (element.editStatus || element.deleteStatus) {
+                                    this.refs.advancedActivity.open();
+                                }
                             }}>
                                 <View>
                                     <Image
                                         style={styles.collect}
-                                        source={require("../../images/setting-gray.png")}
+                                        source={element.editStatus || element.deleteStatus ? require("../../images/setting-gray.png") : require("../../images/setting-light.png")}
                                     />
-                                    <Text style={[styles.advancedViewText, { color: "#666666" }]}>設定</Text>
+                                    <Text style={[styles.advancedViewText, { color: element.editStatus || element.deleteStatus ? "#666666" : "#DEDEDE" }]}>設定</Text>
                                 </View>
                             </TouchableOpacity>
                         </View>
