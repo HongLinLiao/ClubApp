@@ -9,7 +9,7 @@ export default createStackNavigator({
 	Analysis: {
 		screen: AnalysisPage,
 		navigationOptions: ({ navigation }) => ({
-			title: '社團分析',
+			title: '社團統計',
 			headerBackTitle:'上一頁',
 			headerBackTitleStyle:{
 				color:'#0d4273'},
