@@ -43,7 +43,7 @@ export const getAllUserData = (user) => async (dispatch) => {
 
       //紀錄使用者時區
       await recordUserTimeZone(user)
-      
+
       //使用者基本資料
       userData = await getUserStateToRedux()
 
@@ -150,12 +150,14 @@ export const getUserSettingToRedux = async () => {
     const user = firebase.auth().currentUser
     const settingRef = firebase.database().ref('userSettings').child(user.uid)
     const settingShot = await settingRef.once('value')
-    const { globalNotification, nightModeNotification, clubNotificationList } = settingShot.val()
+    const { globalNotification, nightModeNotification, clubNotificationList, nightModeStart, nightModeEnd } = settingShot.val()
 
     let settingData = {
       globalNotification,
       nightModeNotification,
       clubNotificationList: clubNotificationList ? clubNotificationList : {},
+      nightModeStart,
+      nightModeEnd,
     }
 
     return settingData
@@ -206,7 +208,7 @@ export const createUserInDatabase = async (user, userInfo) => {
   try {
     const userRef = firebase.database().ref('users').child(user.uid)
 
-    if(!user.photoURL) {
+    if (!user.photoURL) {
       await user.updateProfile({ photoURL: "https://firebasestorage.googleapis.com/v0/b/clubapp-f9473.appspot.com/o/common%2Fuser.png?alt=media&token=682c4814-bdef-418a-85d7-279c4c756a1e" })
     }
 
@@ -266,7 +268,9 @@ export const createUserSettingInDB = async () => {
     let settingData = {
       globalNotification: true,
       nightModeNotification: false,
-      clubNotificationList: clubNotificationList ? clubNotificationList : {}
+      clubNotificationList: clubNotificationList ? clubNotificationList : {},
+      nightModeStart: 22,
+      nightModeEnd: 8,
     }
 
     await settingRef.set(settingData)

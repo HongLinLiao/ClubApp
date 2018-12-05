@@ -55,10 +55,16 @@ exports.notifyToClubMember = functions.https.onCall(async (data, context) => {
             const userSnapshot = await userRef.once('value')
             const settingSnapshot = await settingRef.once('value')
 
-            const { expoToken } = userSnapshot.val()
-            const { globalNotification, clubNotificationList, nightModeNotification } = settingSnapshot.val()
-            const hours = new Date().getHours()
-            const nightMode = nightModeNotification ? (hours >= 21) : false
+            const { expoToken,timezoneOffset } = userSnapshot.val()
+            const { globalNotification, clubNotificationList, nightModeNotification,nightModeStart, nightModeEnd } = settingSnapshot.val()
+
+            let nightMode;
+            if(nightModeNotification){
+                nightMode = convertZoneTime(nightModeStart, nightModeEnd, timezoneOffset);
+            }
+            else{
+                nightMode = false;
+            }
 
             if (expoToken && globalNotification && clubNotificationList[cid].on && !nightMode) {
                 messages.push({
@@ -1565,12 +1571,15 @@ const notifyToPostParticipants = async (clubKey, postKey, post, title, body) => 
             const { expoToken, timezoneOffset } = userSnapshot.val();
             const settingRef = admin.database().ref('userSettings').child(uid);
             const settingSnapshot = await settingRef.once('value');
-            const { globalNotification, clubNotificationList, nightModeNotification } = settingSnapshot.val();
+            const { globalNotification, clubNotificationList, nightModeNotification, nightModeStart, nightModeEnd } = settingSnapshot.val();
 
-            convertZoneTime(timezoneOffset);
-
-
-            const nightMode = nightModeNotification ? (hours >= 21) : false
+            let nightMode;
+            if(nightModeNotification){
+                nightMode = convertZoneTime(nightModeStart, nightModeEnd, timezoneOffset);
+            }
+            else{
+                nightMode = false;
+            }
 
             if (expoToken && globalNotification && !nightMode) {
                 messages.push({
@@ -1599,13 +1608,18 @@ const notifyToUser = async (userList, title, body) => {
         const promises = Object.keys(userList).map(async (uid) => {
             const userRef = admin.database().ref('users').child(uid);
             const userSnapshot = await userRef.once('value');
-            const { expoToken } = userSnapshot.val();
+            const { expoToken,timezoneOffset } = userSnapshot.val();
             const settingRef = admin.database().ref('userSettings').child(uid);
             const settingSnapshot = await settingRef.once('value');
-            const { globalNotification, clubNotificationList, nightModeNotification } = settingSnapshot.val();
+            const { globalNotification, clubNotificationList, nightModeNotification,nightModeStart, nightModeEnd } = settingSnapshot.val();
 
-            const hours = new Date().getHours()
-            const nightMode = nightModeNotification ? (hours >= 21) : false
+            let nightMode;
+            if(nightModeNotification){
+                nightMode = convertZoneTime(nightModeStart, nightModeEnd, timezoneOffset);
+            }
+            else{
+                nightMode = false;
+            }
 
             if (expoToken && globalNotification && !nightMode) {
                 if (body) {
@@ -1652,21 +1666,37 @@ const expoSend = async (messages) => {
 }
 
 //轉換時區
-const convertZoneTime = (timeZone) => {
+const convertZoneTime = (start, end, timeZone) => {
     try {
-        let hours, mins, intH;
-
         if (timeZone != false) {
-            hours = new Date().getHours();
-            mins = new Date().getMinutes();
+            let dbHour = new Date().getHours();
+            let dbMin = new Date().getMinutes();
 
-            mins = mins + timeZone;
-            intH = parseInt(mins / 60);//小時差
-            
+            let dbAllMin = dbHour * 60 + dbMin; //資料庫時區全部轉分鐘
+            let standardAllMin = dbAllMin + new Date().getTimezoneOffset(); //轉成標準時間
 
-
+            let localAllMin = standardAllMin + timeZone; //當地標準時間分鐘數分鐘數
+            let localHour;
+            //同一天
+            if (localAllMin >= 0) {
+                localHour = localAllMin / 60;
+            }
+            //慢一天
+            else {
+                localHour = (1440 + localAllMin) / 60;
+            }
+            if(start==24){
+                start = 0;
+            }
+            if(end==24){
+                end = 0;
+            }
+            console.log(localHour);
+            return true;
         }
-
+        else {
+            return true; //沒timeZone照發文
+        }
     }
     catch (error) {
         throw error;

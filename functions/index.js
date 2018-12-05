@@ -77,15 +77,23 @@ function () {
           const userSnapshot = yield userRef.once('value');
           const settingSnapshot = yield settingRef.once('value');
           const {
-            expoToken
+            expoToken,
+            timezoneOffset
           } = userSnapshot.val();
           const {
             globalNotification,
             clubNotificationList,
-            nightModeNotification
+            nightModeNotification,
+            nightModeStart,
+            nightModeEnd
           } = settingSnapshot.val();
-          const hours = new Date().getHours();
-          const nightMode = nightModeNotification ? hours >= 21 : false;
+          let nightMode;
+
+          if (nightModeNotification) {
+            nightMode = convertZoneTime(nightModeStart, nightModeEnd, timezoneOffset);
+          } else {
+            nightMode = false;
+          }
 
           if (expoToken && globalNotification && clubNotificationList[cid].on && !nightMode) {
             messages.push({
@@ -1839,17 +1847,25 @@ function () {
           const userRef = admin.database().ref('users').child(uid);
           const userSnapshot = yield userRef.once('value');
           const {
-            expoToken
+            expoToken,
+            timezoneOffset
           } = userSnapshot.val();
           const settingRef = admin.database().ref('userSettings').child(uid);
           const settingSnapshot = yield settingRef.once('value');
           const {
             globalNotification,
             clubNotificationList,
-            nightModeNotification
+            nightModeNotification,
+            nightModeStart,
+            nightModeEnd
           } = settingSnapshot.val();
-          const hours = new Date().getHours();
-          const nightMode = nightModeNotification ? hours >= 21 : false;
+          let nightMode;
+
+          if (nightModeNotification) {
+            nightMode = convertZoneTime(nightModeStart, nightModeEnd, timezoneOffset);
+          } else {
+            nightMode = false;
+          }
 
           if (expoToken && globalNotification && !nightMode) {
             messages.push({
@@ -1893,17 +1909,25 @@ function () {
           const userRef = admin.database().ref('users').child(uid);
           const userSnapshot = yield userRef.once('value');
           const {
-            expoToken
+            expoToken,
+            timezoneOffset
           } = userSnapshot.val();
           const settingRef = admin.database().ref('userSettings').child(uid);
           const settingSnapshot = yield settingRef.once('value');
           const {
             globalNotification,
             clubNotificationList,
-            nightModeNotification
+            nightModeNotification,
+            nightModeStart,
+            nightModeEnd
           } = settingSnapshot.val();
-          const hours = new Date().getHours();
-          const nightMode = nightModeNotification ? hours >= 21 : false;
+          let nightMode;
+
+          if (nightModeNotification) {
+            nightMode = convertZoneTime(nightModeStart, nightModeEnd, timezoneOffset);
+          } else {
+            nightMode = false;
+          }
 
           if (expoToken && globalNotification && !nightMode) {
             if (body) {
@@ -1962,7 +1986,46 @@ function () {
   return function expoSend(_x81) {
     return _ref34.apply(this, arguments);
   };
-}(); ////////////////////////////////////////////////////////////////////////////////////
+}(); //轉換時區
+
+
+const convertZoneTime = (start, end, timeZone) => {
+  try {
+    if (timeZone != false) {
+      let dbHour = new Date().getHours();
+      let dbMin = new Date().getMinutes();
+      let dbAllMin = dbHour * 60 + dbMin; //資料庫時區全部轉分鐘
+
+      let standardAllMin = dbAllMin + new Date().getTimezoneOffset(); //轉成標準時間
+
+      let localAllMin = standardAllMin + timeZone; //當地標準時間分鐘數分鐘數
+
+      let localHour; //同一天
+
+      if (localAllMin >= 0) {
+        localHour = localAllMin / 60;
+      } //慢一天
+      else {
+          localHour = (1440 + localAllMin) / 60;
+        }
+
+      if (start == 24) {
+        start = 0;
+      }
+
+      if (end == 24) {
+        end = 0;
+      }
+
+      console.log(localHour);
+      return true;
+    } else {
+      return true; //沒timeZone照發文
+    }
+  } catch (error) {
+    throw error;
+  }
+}; ////////////////////////////////////////////////////////////////////////////////////
 // Realtime Database
 ////////////////////////////////////////////////////////////////////////////////////
 //取得特定社團資訊
