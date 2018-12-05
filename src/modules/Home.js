@@ -1,7 +1,7 @@
 import * as HomeAction from '../actions/HomeAction'
-import { getActivityDataComplete, getUserActivities } from './Activity.js';
-import { getClubData } from './Data';
 import { initPostListToReducer, syncPost } from './Post';
+import { initActivityListToReducer, syncActivity } from './Activity';
+import { getClubData } from './Data';
 import * as firebase from "firebase";
 require("firebase/functions");
 
@@ -57,21 +57,21 @@ export const getHomePostReload = (clubList, navigation) => async (dispatch, getS
 }
 
 //活動列重整
-export const getHomeActivityReload = (activityReload) => async (dispatch) => {
+export const getHomeActivityReload = (navigation) => async (dispatch, getState) => {
     try {
-        const keepList = await getUserActivities();
-        if (keepList) {
-            dispatch(HomeAction.getHomeActivityListSuccess(keepList));
-            const newActivityList = await dispatch(getActivityDataComplete(keepList));
-            activityReload(newActivityList);
+        const getUserActivity = firebase.functions().httpsCallable('getUserActivity');
+        const response = await getUserActivity();
+        if (response.data) {
+            //丟進reducer
+            dispatch(initActivityListToReducer(response.data, navigation));
+            //檢查同步
+            dispatch(syncActivity(response.data))
         }
-        else {
-            alert('You have not keep any activity!');
-            console.log('You have not keep any activity!');
+        else{
+            alert('你還沒有收藏活動唷!');
         }
     }
     catch (error) {
-        dispatch(HomeAction.getHomeActivityListFailure(error.toString()))
         console.log(error.toStirng());
     }
 }
@@ -163,16 +163,13 @@ export const getClubListForSelecting = async (allClub) => {
 export const determinToSearch = (clubList, postArr, navigation) => {
     try {
         if (Object.keys(clubList).length == 0) {
-            alert('您目前未有已加入或收藏的社團！');
+            alert('你目前還沒有加入或收藏社團，看看我們推薦給你的社團！');
             //換頁處理
             navigation.navigate("Search");
         }
         else {
             if (postArr.length == 0) {
-                alert('您的社團目前未存在任何文章！');
-            }
-            else {
-                console.log('pass!');
+                // alert('您的社團目前未存在任何文章！');
             }
         }
     }

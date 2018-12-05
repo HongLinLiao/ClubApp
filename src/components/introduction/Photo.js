@@ -35,10 +35,7 @@ class Photo extends React.Component {
     return(
       <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
         <View style={{  width: 200, height: 200, borderRadius: 100, overflow: 'hidden', justifyContent: 'center', alignItems: 'center', margin: 10}}>
-          { user.photoURL ? 
-            <Image source={{uri: user.photoURL}} resizeMode='cover' style={{ width: 200, height: 200, }}/> : 
-            <Image source={require('../../images/man-user.png')} resizeMode='contain' style={{height: 200, borderRadius: 100}}/>
-          }
+            <Image source={{uri: user.photoURL}} resizeMode='cover' style={{ width: 200, height: 200, }}/>
         </View>
         <Button title='選擇照片' onPress={() => this.handleChangePhoto()} />
         <Button title={this.state.setting ? '確定' : '稍後設定'} onPress={() => this.props.setUserFirstLgoin(false)}/>

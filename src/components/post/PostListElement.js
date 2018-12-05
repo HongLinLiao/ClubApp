@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, TouchableOpacity, Image } from "react-native";
+import { View, Text, TouchableOpacity, Image, Alert } from "react-native";
 import styles from "../../styles/home/Home";
 
 const PostListElement = ({
@@ -35,10 +35,14 @@ const PostListElement = ({
     parentOverLayor()
     const obj = await getInsidePost(post.clubKey, post.postKey);
     if (obj != null) {
-      //貼文同步
-      syncPost(obj);
       parentOverLayor();
-      const routeName = navigation.state.routeName + "Post"
+      let routeName;
+      if (navigation.state.routeName == 'SearchClub') {
+        routeName = 'SearchPost';
+      }
+      else {
+        routeName = navigation.state.routeName + "Post";
+      }
       navigation.navigate(routeName, {
         post: obj.post,
         comment: obj.comment,
@@ -48,7 +52,7 @@ const PostListElement = ({
     else {
       //刪除貼文同步
       syncPostDelete(post.postKey);
-      alert("該貼文不存在！");
+      Alert.alert("該貼文不存在！");
       parentOverLayor();
     }
   }

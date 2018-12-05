@@ -12,8 +12,13 @@ import {
     syncPostBack,
 } from '../../modules/Post'
 import {
-    getActivityDataFromClubKey,
+    getClubActivityReload,
     getInsideActivity,
+    setActivityFavorite,
+    initSetActivityList,
+    syncActivity,
+    syncActivityDelete,
+    syncActivityBack
 } from '../../modules/Activity'
 
 
@@ -37,8 +42,13 @@ const mapDispatchToProps = {
     syncPostDelete,
     syncPostBack,
     //活動類
-    getActivityDataFromClubKey,
+    getClubActivityReload,
     getInsideActivity,
+    setActivityFavorite,
+    initSetActivityList,
+    syncActivity,
+    syncActivityDelete,
+    syncActivityBack,
 }
 
 

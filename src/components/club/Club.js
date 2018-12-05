@@ -8,6 +8,7 @@ import {
   StatusBar,
   ImageBackground,
   RefreshControl,
+  Alert,
 } from 'react-native'
 
 import Expo from 'expo'
@@ -28,7 +29,7 @@ const slideAnimation = new SlideAnimation({
 class Club extends React.Component {
   state = {
     post: [],
-    activity: {},
+    activity: [],
     userData: { _uid: null, _user: null, _clubs: null },
     loading: false,
     currentCid: null,
@@ -37,15 +38,16 @@ class Club extends React.Component {
   };
 
   async componentWillMount() {
-    const { joinClubs, likeClubs, currentCid, initSetPostList, navigation } = this.props;
+    const { joinClubs, likeClubs, currentCid, initSetPostList, initSetActivityList, navigation } = this.props;
     // const _likeClubs = filterOpenClub(likeClubs)
     // let allClubCids = Object.keys(joinClubs).concat(Object.keys(_likeClubs));
 
     // const cid = randomCid(allClubCids);
     // this.props.setCurrentClub(cid);
+    await initSetPostList(newPostList => { this.setState({ post: newPostList }); }, navigation);
+    await initSetActivityList(newActivityList => { this.setState({ activity: newActivityList }); }, navigation);
     if (currentCid) {
       this.clubOverLayar()
-      await initSetPostList(newPostList => { this.setState({ post: newPostList }); }, navigation);
       await this.postReload(currentCid)
       await this.activityReload(currentCid);
       this.clubOverLayar()
@@ -58,8 +60,7 @@ class Club extends React.Component {
       const { currentCid, likeClubs, setCurrentClub } = this.props;
       let openClubCid = null
       if (currentCid) {
-        this.setState({ refreshing: true });
-        this.clubOverLayar();
+        this.setState({ refreshing: true, loading: true });
         await this.activityReload(currentCid);
         await this.postReload(currentCid);
       } else {
@@ -71,8 +72,7 @@ class Club extends React.Component {
         setCurrentClub(openClubCid)
       }
 
-      this.clubOverLayar();
-      this.setState({ refreshing: false });
+      this.setState({ refreshing: false, loading: false });
     } catch (error) {
       console.log(error.toString());
     }
@@ -83,6 +83,58 @@ class Club extends React.Component {
     const { getClubPostReload, navigation } = this.props;
     await getClubPostReload(clubKey, navigation);
   };
+
+  //活動重整
+  activityReload = async (clubKey) => {
+    const { getClubActivityReload, navigation } = this.props;
+    await getClubActivityReload(clubKey, navigation);
+  };
+
+  //活動按讚
+  pressActivityFavorite = async (activity) => {
+    const { setActivityFavorite, syncActivity, syncActivityDelete } = this.props;
+    this.clubOverLayar();
+    let obj = await setActivityFavorite(activity.clubKey, activity.activityKey);
+    if (obj != null) {
+      //活動同步
+      syncActivity(obj);
+    }
+    else {
+      //刪除活動同步
+      syncActivityDelete(activity.activityKey);
+      alert("該活動不存在！");
+    }
+    this.clubOverLayar();
+  }
+
+  //進入活動內頁
+  insideActivity = async (activity) => {
+    const { getInsideActivity, syncActivity, navigation, syncActivityDelete } = this.props;
+    this.clubOverLayar()
+    const obj = await getInsideActivity(activity.clubKey, activity.activityKey);
+    if (obj != null) {
+      this.clubOverLayar();
+      let routeName;
+      if (navigation.state.routeName == 'Stories') {
+        routeName = 'HomeActivity'
+      }
+      else {
+        routeName = navigation.state.routeName + "Activity";
+      }
+      navigation.navigate(routeName, {
+        activity: obj.activity,
+        syncActivityBack: this.props.syncActivityBack
+      });
+    }
+    else {
+      //刪除活動同步
+      syncActivityDelete(activity.activityKey);
+      Alert.alert("該活動不存在！");
+      this.clubOverLayar();
+    }
+  };
+
+
 
   //檢查社團是否公開(收藏)
   checkTheClubOpen = (currentCid, joinClubs, likeClubs, setCurrentClub) => {
@@ -105,43 +157,6 @@ class Club extends React.Component {
 
     return cid
   }
-
-  //活動重整
-  activityReload = async (clubKey) => {
-    const { getActivityDataFromClubKey } = this.props;
-    const activityData = await getActivityDataFromClubKey(clubKey);
-    if (activityData != null) {
-      this.setState({ activity: activityData });
-    }
-    else {
-      //不公開社團，只收藏，處理
-      //navigation back?
-    }
-  };
-
-  //進入活動內頁
-  insideActivity = async (activity) => {
-    const { getInsideActivity, navigation } = this.props;
-    this.clubOverLayar();
-    const activityData = await getInsideActivity(activity.clubKey, activity.activityKey);
-    this.clubOverLayar();
-    if (activityData != null) {
-      //放進List
-      const newActivityList = JSON.parse(JSON.stringify(this.state.activity));
-      newActivityList[activityData.clubKey][activityData.activityKey] = activityData;
-      this.setState({ activity: newActivityList });
-
-      navigation.navigate('Activity', {
-        activity: activityData,
-        setActivityList: this.setActivityList,
-        activityList: newActivityList,
-      });
-    }
-  };
-  //更改activityList
-  setActivityList = (activityList) => {
-    this.setState({ activity: activityList });
-  };
 
   generateClubsArray = () => {
     const { joinClubs, likeClubs } = this.props;
@@ -216,7 +231,7 @@ class Club extends React.Component {
   render() {
     if (this.props.currentCid) {
       const newPostList = this.state.post.slice();
-      const newActivityList = { ...this.state.activity };
+      const newActivityList = this.state.activity.slice();
       const { user, joinClubs, likeClubs, currentCid } = this.props;
       const { _uid, _user, _clubs } = this.state.userData
       let type = joinOrLikeClub(currentCid);
@@ -269,6 +284,9 @@ class Club extends React.Component {
                     resizeMode="cover"
                     style={styles.clubBackground}
                   >
+                    <TouchableOpacity style={styles.createClubBtn} onPress={() => this.props.navigation.navigate('CreateClub')}>
+                      <Image source={require('../../images/add-group.png')} style={{ width: 40, height: 40 }} />
+                    </TouchableOpacity>
                     <View style={styles.clubInfoView}>
                       <View style={styles.clubLeftTextView}>
                         <Text style={styles.schoolText}>{schoolName}</Text>
@@ -297,7 +315,7 @@ class Club extends React.Component {
               {type == "JOIN" ? (
                 <View style={styles.adminButtonView}>
                   <TouchableOpacity
-                    onPress={() => this.props.navigation.push("AddPost", {})}
+                    onPress={() => this.props.navigation.push("AddPost", { onRefresh: this.onRefresh })}
                   >
                     <View style={styles.adminButton}>
                       <Image
@@ -305,14 +323,14 @@ class Club extends React.Component {
                         style={styles.adminIcon}
                       />
 
-                      <Text style={styles.adminText}>發佈文章</Text>
+                      <Text style={styles.adminOpenText}>發佈文章</Text>
                     </View>
                   </TouchableOpacity>
 
                   <TouchableOpacity
                     disabled={status == 'member'}
                     onPress={() =>
-                      this.props.navigation.push("AddActivity", {})
+                      this.props.navigation.push("AddActivity", { onRefresh: this.onRefresh })
                     }
                   >
                     <View style={styles.adminButton}>
@@ -327,7 +345,7 @@ class Club extends React.Component {
                             style={styles.adminIcon}
                           />
                       }
-                      <Text style={styles.adminText}>舉辦活動</Text>
+                      <Text style={status == 'member' ? styles.adminCloseText : styles.adminOpenText}>舉辦活動</Text>
                     </View>
                   </TouchableOpacity>
 
@@ -347,7 +365,7 @@ class Club extends React.Component {
                             style={styles.adminIcon}
                           />
                       }
-                      <Text style={styles.adminText}>管理者模式</Text>
+                      <Text style={status == 'master' ? styles.adminOpenText : styles.adminCloseText}>管理者模式</Text>
                     </View>
                   </TouchableOpacity>
 
@@ -359,7 +377,7 @@ class Club extends React.Component {
                           style={styles.adminIcon}
                         />
                       </View>
-                      <Text style={styles.adminText}>{status == 'member' ? '查看成員' : '成員管理'}</Text>
+                      <Text style={styles.adminOpenText}>{status == 'member' ? '查看成員' : '成員管理'}</Text>
                     </View>
                   </TouchableOpacity>
                 </View>
@@ -377,28 +395,33 @@ class Club extends React.Component {
                 </View>
                 <ScrollView horizontal>
                   <View style={{ flexDirection: "row" }}>
-                    {Object.values(newActivityList).map((clubElement) => (
-                      Object.values(clubElement).map((activityElement) => (
-                        <TouchableOpacity
-                          key={activityElement.activityKey}
-                          onPress={async () => { await this.insideActivity(activityElement) }}
-                        >
-                          <ImageBackground
-                            source={{ uri: activityElement.photo }}
-                            style={styles.clubActivity}
-                            imageStyle={styles.borderRadius30}
+                    {
+                      newActivityList.map((activityElement) => (
+                        Object.values(activityElement).map((activity) => (
+                          <TouchableOpacity
+                            key={activity.activityKey}
+                            onPress={async () => { await this.insideActivity(activity) }}
                           >
-                            <View style={styles.heartView}>
-                              <Text style={styles.heartText}>{activityElement.numFavorites}</Text>
-                              <Image
-                                source={require("../../images/images2/like.png")}
-                                style={styles.likeIcon}
-                              />
-                            </View>
-                          </ImageBackground>
-                        </TouchableOpacity>
+                            <ImageBackground
+                              source={{ uri: activity.photo }}
+                              style={styles.clubActivity}
+                              imageStyle={styles.borderRadius30}
+                            >
+                              <View style={styles.heartView}>
+                                <TouchableOpacity style={styles.heartView}
+                                  onPress={async () => { await this.pressActivityFavorite(activity); }}>
+                                  <Image
+                                    style={styles.likeIcon}
+                                    source={activity.statusFavorite ? require("../../images/like-orange.png") : require("../../images/like-gray.png")}
+                                  />
+                                  <Text style={styles.heartText}> {activity.numFavorites}</Text>
+                                </TouchableOpacity>
+                              </View>
+                            </ImageBackground>
+                          </TouchableOpacity>
+                        ))
                       ))
-                    ))}
+                    }
                     {/* <TouchableOpacity
                       style={styles.moreView}
                       onPress={() => { }}

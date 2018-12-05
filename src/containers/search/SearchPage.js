@@ -2,6 +2,8 @@ import React from 'react'
 import { connect } from 'react-redux';
 import Search from '../../components/search/Search'
 import { joinTheClub, likeTheClub } from '../../modules/Club'
+import { syncSearchActivityBack } from '../../modules/Activity'
+import { syncSearchPostBack } from '../../modules/Post'
 import { setCurrentClub } from '../../actions/ClubAction'
 
 const mapStateToProps = ({ userReducer, clubReducer }) => ({
@@ -17,6 +19,8 @@ const mapDispatchToProps = {
     joinTheClub,
     likeTheClub,
     setCurrentClub,
+    syncSearchActivityBack,
+    syncSearchPostBack,
 }
 
 

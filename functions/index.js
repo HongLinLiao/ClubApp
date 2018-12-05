@@ -37,7 +37,10 @@ function () {
           });
         }
       });
-      yield expoSend(messages);
+
+      if (messages.length > 0) {
+        yield expoSend(messages);
+      }
     } catch (error) {
       console.log(context.auth.uid + ' : ' + error.toString());
     }
@@ -98,7 +101,10 @@ function () {
         };
       }());
       yield Promise.all(promises);
-      yield expoSend(messages);
+
+      if (messages.length > 0) {
+        yield expoSend(messages);
+      }
     } catch (error) {
       console.log(context.auth.uid + ' : ' + error.toString());
     }
@@ -420,6 +426,7 @@ function () {
       } = data;
       const uid = context.auth.uid;
       const club = yield getClubData(clubKey);
+      let notifyStatus = false;
 
       if (club) {
         if (club.open == false) {
@@ -448,6 +455,7 @@ function () {
             post.numFavorites = post.numFavorites + 1;
             post.favorites[uid] = true;
             updateFavorites[uid] = true;
+            notifyStatus = true;
           } //取消讚
           else if (post.statusFavorite == true) {
               post.statusFavorite = !post.statusFavorite; //牽扯到物件形狀
@@ -468,11 +476,16 @@ function () {
 
 
           yield updatePostFavorites(post.clubKey, post.postKey, updateFavorites);
-          const userData = yield getUserData(uid);
 
-          if (userData) {
-            let title = `${userData.nickName}說你的貼文讚！`;
-            yield notifyToUser({}, title, null);
+          if (notifyStatus) {
+            const userData = yield getUserData(uid);
+
+            if (userData) {
+              let title = `${userData.nickName} 說你在 ${post.schoolName}${post.clubName} 的貼文讚！`;
+              let userList = {};
+              userList[post.poster] = true;
+              yield notifyToUser(userList, title, null);
+            }
           }
 
           obj.post = post;
@@ -549,8 +562,8 @@ function () {
           const userData = yield getUserData(uid);
 
           if (userData) {
-            let title = `${userData.nickName}回應了${club.schoolName}${club.clubName}的貼文`;
-            let body = `${content}`;
+            let title = `${userData.nickName} 回應了你在 ${club.schoolName}${club.clubName} 的貼文！`;
+            let body = `${content.length > 15 ? content.substring(1, 15) : content}`;
             yield notifyToPostParticipants(clubKey, postKey, post, title, body);
           }
 
@@ -744,6 +757,7 @@ function () {
         commentKey
       } = data;
       const uid = context.auth.uid;
+      let notifyStatus = false;
       const club = yield getClubData(clubKey);
 
       if (club) {
@@ -782,11 +796,13 @@ function () {
                     commentData[commentKey].favorites = {};
                     commentData[commentKey].favorites[uid] = true;
                     updateFavorites[uid] = true;
+                    notifyStatus = true;
                   } //有其他使用者按過讚
                   else {
                       commentData[commentKey].numFavorites = commentData[commentKey].numFavorites + 1;
                       commentData[commentKey].favorites[uid] = true;
                       updateFavorites[uid] = true;
+                      notifyStatus = true;
                     }
                 } //取消讚
                 else {
@@ -807,6 +823,17 @@ function () {
                   }
 
                 yield updateCommentFavorites(clubKey, postKey, commentKey, updateFavorites);
+
+                if (notifyStatus) {
+                  const userData = yield getUserData(commentData[commentKey].commenter);
+
+                  if (userData) {
+                    let title = `${userData.nickName} 說你在 ${post.schoolName}${post.clubName} 留言讚！`;
+                    let userList = {};
+                    userList[commentData[commentKey].commenter] = true;
+                    yield notifyToUser(userList, title, null);
+                  }
+                }
               }
 
               temp = {};
@@ -943,9 +970,7 @@ const setPostFoundations =
 function () {
   var _ref17 = _asyncToGenerator(function* (clubKey, postKey, uid, post, club) {
     try {
-      //轉時間
-      post.date = new Date(post.date).toLocaleString(); //該貼文社團與學校名稱
-
+      //該貼文社團與學校名稱
       post.clubName = club.clubName;
       post.schoolName = club.schoolName; //處理poster職位名稱
 
@@ -1001,8 +1026,6 @@ const setCommentFoundations =
 function () {
   var _ref18 = _asyncToGenerator(function* (clubKey, postKey, commentKey, uid, comment, club) {
     try {
-      //轉時間
-      comment.date = new Date(comment.date).toLocaleString();
       comment.clubKey = clubKey;
       comment.postKey = postKey;
       comment.commentKey = commentKey;
@@ -1057,6 +1080,733 @@ const setPostViewFavoriteData = (post, uid) => {
     throw error;
   }
 }; ////////////////////////////////////////////////////////////////////////////////////
+// 活動 只要活動open=false，就要去篩選是否是社團會員
+////////////////////////////////////////////////////////////////////////////////////
+//取得使用者收藏的活動
+
+
+exports.getUserActivity = functions.https.onCall(
+/*#__PURE__*/
+function () {
+  var _ref19 = _asyncToGenerator(function* (data, context) {
+    try {
+      const uid = context.auth.uid;
+      let activity = []; //取得使用者活動列表
+
+      let allActivity = yield getUserActivityData(uid);
+
+      if (allActivity) {
+        let clubList = Object.keys(allActivity);
+
+        for (let i = 0; i < clubList.length; i++) {
+          let clubKey = clubList[i];
+          const club = yield getClubData(clubKey); //查看社團是否開放
+
+          if (club) {
+            let activityList = Object.keys(allActivity[clubList[i]]);
+
+            for (let j = 0; j < activityList.length; j++) {
+              let activityKey = activityList[j];
+              let activityData = yield getActivityInsideData(clubKey, activityKey);
+
+              if (activityData) {
+                if (!activityData.open) {
+                  if (!club.member[uid]) {
+                    continue;
+                  }
+                } //取得基本屬性
+
+
+                activityData = yield setActivityFoundations(clubKey, activityKey, uid, activityData, club); //設定觀看
+                // activityData = await setActivityView(activityData, uid);
+
+                activity = handleActivityDataToArray(activity, clubKey, activityKey, activityData);
+              }
+            }
+          } else {
+            continue;
+          }
+        }
+      }
+
+      return activity;
+    } catch (error) {
+      console.log(context.auth.uid + ' : ' + error.toString());
+    }
+  });
+
+  return function (_x45, _x46) {
+    return _ref19.apply(this, arguments);
+  };
+}()); //取得社團下的活動（不管活動有沒有open都會顯示）
+
+exports.getClubActivity = functions.https.onCall(
+/*#__PURE__*/
+function () {
+  var _ref20 = _asyncToGenerator(function* (data, context) {
+    try {
+      const clubKey = data;
+      const uid = context.auth.uid;
+      let activity = [];
+      const club = yield getClubData(clubKey);
+
+      if (club) {
+        //取得社團下的活動
+        let allActivity = yield getClubActivityData(clubKey);
+
+        if (allActivity) {
+          let activityList = Object.keys(allActivity);
+
+          for (let i = 0; i < activityList.length; i++) {
+            let activityKey = activityList[i];
+            let nextActivity = yield setActivityFoundations(clubKey, activityKey, uid, allActivity[activityKey], club);
+            activity = handleActivityDataToArray(activity, clubKey, activityKey, nextActivity);
+          }
+        }
+      }
+
+      return activity;
+    } catch (error) {
+      console.log(context.auth.uid + ' : ' + error.toString());
+    }
+  });
+
+  return function (_x47, _x48) {
+    return _ref20.apply(this, arguments);
+  };
+}()); //進入活動內頁
+
+exports.getActivityInside = functions.https.onCall(
+/*#__PURE__*/
+function () {
+  var _ref21 = _asyncToGenerator(function* (data, context) {
+    try {
+      const {
+        clubKey,
+        activityKey
+      } = data;
+      const {
+        uid
+      } = context.auth;
+      const club = yield getClubData(clubKey);
+      let obj = {};
+
+      if (club) {
+        let activityData = yield getActivityInsideData(clubKey, activityKey);
+
+        if (activityData) {
+          if (!activityData.open) {
+            if (!club.member[uid]) {
+              return null;
+            }
+          } //取得基本屬性
+
+
+          activityData = yield setActivityFoundations(clubKey, activityKey, uid, activityData, club); //設定觀看
+
+          activityData = yield setActivityView(activityData, uid);
+          obj.activity = activityData;
+          return obj;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      console.log(context.auth.uid + ' : ' + error.toString());
+    }
+  });
+
+  return function (_x49, _x50) {
+    return _ref21.apply(this, arguments);
+  };
+}()); //編輯活動
+
+exports.editActivity = functions.https.onCall(
+/*#__PURE__*/
+function () {
+  var _ref22 = _asyncToGenerator(function* (data, context) {
+    try {
+      const {
+        clubKey,
+        activityKey,
+        editData
+      } = data;
+      const {
+        uid
+      } = context.auth;
+      const club = yield getClubData(clubKey);
+      let activity, status;
+
+      if (club) {
+        if (club.open == false) {
+          if (!club.member[uid]) {
+            status = false;
+          }
+        }
+
+        activity = yield getActivityInsideData(clubKey, activityKey);
+
+        if (!activity) {
+          status = false;
+        } else {
+          if (activity.poster == uid) {
+            status = true;
+          }
+        }
+      } else {
+        status = false;
+      }
+
+      if (status == true) {
+        yield editActivityData(clubKey, activityKey, editData); //取得基本屬性
+
+        activity = yield setActivityFoundations(clubKey, activityKey, uid, activity, club);
+        let obj = {};
+        Object.keys(editData).map(key => {
+          activity[key] = editData[key];
+        });
+        obj.activity = activity;
+        return obj;
+      } else if (status == false) {
+        return null;
+      }
+    } catch (error) {
+      console.log(context.auth.uid + ' : ' + error.toString());
+    }
+  });
+
+  return function (_x51, _x52) {
+    return _ref22.apply(this, arguments);
+  };
+}()); //刪除活動
+
+exports.deleteActivity = functions.https.onCall(
+/*#__PURE__*/
+function () {
+  var _ref23 = _asyncToGenerator(function* (data, context) {
+    try {
+      const {
+        clubKey,
+        activityKey
+      } = data;
+      const uid = context.auth.uid;
+      const club = yield getClubData(clubKey);
+      let activity;
+      let status;
+      let obj = {};
+
+      if (club) {
+        if (!club.member[uid]) {
+          status = false;
+        } else {
+          activity = yield getActivityInsideData(clubKey, activityKey);
+
+          if (!activity) {
+            status = false;
+          } else {
+            if (club.member[uid].status == "master" || club.member[uid].status == "supervisor") {
+              status = true;
+            } else {
+              if (activity.poster == uid) {
+                status = true;
+              }
+            }
+          }
+        }
+      } else {
+        status = false;
+      }
+
+      if (status == true) {
+        yield deleteActivityData(clubKey, activityKey, activity);
+      }
+
+      obj.status = status;
+      return obj;
+    } catch (error) {
+      console.log(context.auth.uid + ' : ' + error.toString());
+    }
+  });
+
+  return function (_x53, _x54) {
+    return _ref23.apply(this, arguments);
+  };
+}()); //收藏活動
+
+exports.setActivityKeep = functions.https.onCall(
+/*#__PURE__*/
+function () {
+  var _ref24 = _asyncToGenerator(function* (data, context) {
+    try {
+      const {
+        clubKey,
+        activityKey
+      } = data;
+      const uid = context.auth.uid;
+      const club = yield getClubData(clubKey);
+
+      if (club) {
+        let activity = yield getActivityInsideData(clubKey, activityKey);
+
+        if (!activity) {
+          return null;
+        } else {
+          if (activity.open == false) {
+            if (!club.open) {
+              if (!club.member[uid]) {
+                return null;
+              }
+            }
+          } //回傳物件
+
+
+          let obj = {}; //先取得貼文基本屬性
+
+          activity = yield setActivityFoundations(clubKey, activityKey, uid, activity, club);
+          let updateKeeps = {}; //收藏
+
+          if (activity.statusKeep == false) {
+            activity.statusKeep = !activity.statusKeep; //牽扯到物件形狀
+            //沒其他使用者收藏
+
+            if (activity.numKeeps == 0) {
+              activity.numKeeps = activity.numKeeps + 1;
+              activity.keeps = {};
+              activity.keeps[uid] = true;
+              updateKeeps[uid] = true;
+            } //有其他使用者收藏
+            else {
+                activity.numKeeps = activity.numKeeps + 1;
+                activity.keeps[uid] = true;
+                updateKeeps[uid] = true;
+              }
+          } //取消收藏
+          else {
+              activity.statusKeep = !activity.statusKeep; //牽扯到物件形狀
+              //沒其他使用者收藏
+
+              if (activity.numKeeps == 1) {
+                activity.numKeeps = activity.numKeeps - 1;
+                delete activity.keeps[uid];
+                updateKeeps[uid] = false;
+              } //有其他使用者按過讚
+              //設為null寫進firebase會自動消失
+              else {
+                  activity.numKeeps = activity.numKeeps - 1;
+                  delete activity.keeps[uid];
+                  updateKeeps[uid] = null;
+                }
+            } //更改firebasePostFavorites
+
+
+          yield updateActivityKeeps(activity.clubKey, activity.activityKey, updateKeeps);
+          yield setUserKeep(activity.clubKey, activity.activityKey, uid);
+          obj.activity = activity;
+          return obj;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      console.log(context.auth.uid + ' : ' + error.toString());
+    }
+  });
+
+  return function (_x55, _x56) {
+    return _ref24.apply(this, arguments);
+  };
+}()); //按活動讚
+
+exports.setActivityFavorite = functions.https.onCall(
+/*#__PURE__*/
+function () {
+  var _ref25 = _asyncToGenerator(function* (data, context) {
+    try {
+      const {
+        clubKey,
+        activityKey
+      } = data;
+      const uid = context.auth.uid;
+      const club = yield getClubData(clubKey);
+      let notifyStatus = false;
+
+      if (club) {
+        let activity = yield getActivityInsideData(clubKey, activityKey);
+
+        if (!activity) {
+          return null;
+        } else {
+          if (activity.open == false) {
+            if (!club.open) {
+              if (!club.member[uid]) {
+                return null;
+              }
+            }
+          } //回傳物件
+
+
+          let obj = {}; //先取得貼文基本屬性
+
+          activity = yield setActivityFoundations(clubKey, activityKey, uid, activity, club);
+          let updateFavorites = {}; //按讚處理
+          //按讚
+
+          if (activity.statusFavorite == false) {
+            activity.statusFavorite = !activity.statusFavorite; //牽扯到物件形狀
+            //沒其他使用者按過讚
+
+            if (activity.numFavorites == 0) {
+              activity.numFavorites = activity.numFavorites + 1;
+              activity.favorites = {};
+              activity.favorites[uid] = true;
+              updateFavorites[uid] = true;
+            } //有其他使用者按過讚
+            else {
+                activity.numFavorites = activity.numFavorites + 1;
+                activity.favorites[uid] = true;
+                updateFavorites[uid] = true;
+              }
+
+            notifyStatus = true;
+          } //取消讚
+          else {
+              activity.statusFavorite = !activity.statusFavorite; //牽扯到物件形狀
+              //沒其他使用者按過讚
+
+              if (activity.numFavorites == 1) {
+                activity.numFavorites = activity.numFavorites - 1;
+                delete activity.favorites[uid];
+                updateFavorites[uid] = false;
+              } //有其他使用者按過讚
+              //設為null寫進firebase會自動消失
+              else {
+                  activity.numFavorites = activity.numFavorites - 1;
+                  delete activity.favorites[uid];
+                  updateFavorites[uid] = null;
+                }
+            } //更改firebasePostFavorites
+
+
+          yield updateActivityFavorites(activity.clubKey, activity.activityKey, updateFavorites);
+
+          if (notifyStatus) {
+            const userData = yield getUserData(uid);
+
+            if (userData) {
+              let title = `${userData.nickName} 說你在 ${activity.schoolName}${activity.clubName} 的活動讚！`;
+              let userList = {};
+              userList[activity.poster] = true;
+              yield notifyToUser(userList, title, null);
+            }
+          }
+
+          obj.activity = activity;
+          return obj;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      console.log(context.auth.uid + ' : ' + error.toString());
+    }
+  });
+
+  return function (_x57, _x58) {
+    return _ref25.apply(this, arguments);
+  };
+}()); //參加活動
+
+exports.setActivityJoin = functions.https.onCall(
+/*#__PURE__*/
+function () {
+  var _ref26 = _asyncToGenerator(function* (data, context) {
+    try {
+      const {
+        clubKey,
+        activityKey
+      } = data;
+      const uid = context.auth.uid;
+      const club = yield getClubData(clubKey);
+      let notifyStatus = false;
+
+      if (club) {
+        let activity = yield getActivityInsideData(clubKey, activityKey);
+
+        if (!activity) {
+          return null;
+        } else {
+          if (activity.open == false) {
+            if (!club.open) {
+              if (!club.member[uid]) {
+                return null;
+              }
+            }
+          } //回傳物件
+
+
+          let obj = {}; //先取得貼文基本屬性
+
+          activity = yield setActivityFoundations(clubKey, activityKey, uid, activity, club);
+          let updateJoins = {}; //按讚處理
+          //按讚
+
+          if (activity.statusJoin == false) {
+            activity.statusJoin = !activity.statusJoin; //牽扯到物件形狀
+            //沒其他使用者按過讚
+
+            if (activity.numJoins == 0) {
+              activity.numJoins = activity.numJoins + 1;
+              activity.joins = {};
+              activity.joins[uid] = true;
+              updateJoins[uid] = true;
+            } //有其他使用者按過讚
+            else {
+                activity.numJoins = activity.numJoins + 1;
+                activity.joins[uid] = true;
+                updateJoins[uid] = true;
+              }
+
+            notifyStatus = true;
+          } //取消讚
+          else {
+              activity.statusJoin = !activity.statusJoin; //牽扯到物件形狀
+              //沒其他使用者按過讚
+
+              if (activity.numJoins == 1) {
+                activity.numJoins = activity.numJoins - 1;
+                delete activity.joins[uid];
+                updateJoins[uid] = false;
+              } //有其他使用者按過讚
+              //設為null寫進firebase會自動消失
+              else {
+                  activity.numJoins = activity.numJoins - 1;
+                  delete activity.joins[uid];
+                  updateJoins[uid] = null;
+                }
+            } //更改firebasePostFavorites
+
+
+          yield updateActivityJoins(activity.clubKey, activity.activityKey, updateJoins);
+
+          if (notifyStatus) {
+            const userData = yield getUserData(uid);
+
+            if (userData) {
+              let title = `${userData.nickName} 將會出席 ${activity.schoolName}${activity.clubName} 的活動！`;
+              let userList = {};
+              userList[activity.poster] = true;
+              yield notifyToUser(userList, title, null);
+            }
+          }
+
+          obj.activity = activity;
+          return obj;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      console.log(context.auth.uid + ' : ' + error.toString());
+    }
+  });
+
+  return function (_x59, _x60) {
+    return _ref26.apply(this, arguments);
+  };
+}()); //傳入參數貼文列Array，將活動加入活動列
+
+const handleActivityDataToArray = (arrActivity, clubKey, activityKey, activityData) => {
+  try {
+    //拷貝陣列
+    let newObjActivity = arrActivity.slice();
+    let newActivityData = {};
+    newActivityData[activityKey] = activityData;
+    newObjActivity.push(newActivityData); // //重複
+    // for (var i = 0; i < newObjPost.length; i++) {
+    //     for (var j = i + 1; j < newObjPost.length; j++) {
+    //         let preKey = Object.keys(newObjPost[i])[0];
+    //         let nextKey = Object.keys(newObjPost[j])[0];
+    //         if (preKey == nextKey)
+    //             newObjPost.splice(i, 1);
+    //     }
+    // }
+    //排序
+
+    newObjActivity.sort(function (a, b) {
+      let aDate = a[Object.keys(a)[0]].startDateTime;
+      let bDate = b[Object.keys(b)[0]].startDateTime;
+      return new Date(bDate) < new Date(aDate) ? -1 : 1;
+    });
+    return newObjActivity;
+  } catch (error) {
+    throw error;
+  }
+}; //處理活動基本屬性
+
+
+const setActivityFoundations =
+/*#__PURE__*/
+function () {
+  var _ref27 = _asyncToGenerator(function* (clubKey, activityKey, uid, activity, club) {
+    try {
+      //處理活動是否有收藏
+      if (activity.keeps) {
+        if (activity.keeps[uid]) {
+          activity.statusKeep = true;
+        } else {
+          activity.statusKeep = false;
+        }
+      } else {
+        activity.statusKeep = false;
+      } //該活動社團與學校名稱
+
+
+      activity.clubName = club.clubName;
+      activity.schoolName = club.schoolName; //處理poster職位名稱
+
+      if (club.member[activity.poster]) {
+        activity.posterStatus = club.member[activity.poster].status;
+        activity.posterStatusChinese = changeMemberStatusToChinese(activity.posterStatus);
+      } else {
+        activity.posterStatusChinese = '';
+        activity.posterStatus = '';
+      } //將activityKey放進attribute，否則找不到該活動社團
+
+
+      activity.clubKey = clubKey;
+      activity.activityKey = activityKey; //處理User
+
+      let userData = yield getUserData(activity.poster);
+      activity.posterNickName = userData.nickName;
+      activity.posterPhotoUrl = userData.photoUrl; //判斷是否可編輯或刪除貼文(社長與幹部有此權限)
+
+      activity.deleteStatus = false;
+      activity.editStatus = false;
+
+      if (club.member[uid]) {
+        if (activity.poster === uid) {
+          activity.deleteStatus = true;
+          activity.editStatus = true;
+        } else if (club.member[uid].status == "master" || club.member[uid].status == "supervisor") {
+          activity.deleteStatus = true;
+        }
+      }
+
+      activity = setActivityViewFavoriteData(activity, uid);
+      return activity;
+    } catch (error) {
+      throw error;
+    }
+  });
+
+  return function setActivityFoundations(_x61, _x62, _x63, _x64, _x65) {
+    return _ref27.apply(this, arguments);
+  };
+}(); //產生statusView和statusFavorite和statusKeep和statusJoin
+
+
+const setActivityViewFavoriteData = (activity, uid) => {
+  try {
+    //views與favorite數量
+    activity.numViews = Object.keys(activity.views).length;
+    activity.numFavorites = Object.keys(activity.favorites).length;
+    activity.numKeeps = Object.keys(activity.keeps).length;
+    activity.numJoins = Object.keys(activity.joins).length; //該使用者是否有按讚與觀看與收藏與參加
+
+    if (activity.views[uid] == true) activity.statusView = true;else activity.statusView = false;
+    if (activity.favorites[uid] == true) activity.statusFavorite = true;else activity.statusFavorite = false;
+    if (activity.keeps[uid] == true) activity.statusKeep = true;else activity.statusKeep = false;
+    if (activity.joins[uid] == true) activity.statusJoin = true;else activity.statusJoin = false;
+    return activity;
+  } catch (error) {
+    throw error;
+  }
+}; //更改使用者活動收藏
+
+
+const setUserKeep =
+/*#__PURE__*/
+function () {
+  var _ref28 = _asyncToGenerator(function* (clubKey, activityKey, uid) {
+    try {
+      let userData = yield getUserData(uid);
+      let updateActivity = {};
+
+      if (userData) {
+        //有收藏活動
+        if (userData.activities) {
+          //有此社團的活動
+          if (userData.activities[clubKey]) {
+            //有這個活動 (取消收藏)
+            if (userData.activities[clubKey][activityKey]) {
+              updateActivity[uid] = null;
+              yield updateUserKeeps(clubKey, activityKey, updateActivity);
+            } //沒有這個活動
+            else {
+                updateActivity[uid] = true;
+                yield updateUserKeeps(clubKey, activityKey, updateActivity);
+              }
+          } //沒有此社團的活動
+          else {
+              updateActivity[uid] = true;
+              yield updateUserKeeps(clubKey, activityKey, updateActivity);
+            }
+        } //沒收藏活動
+        else {
+            updateActivity[uid] = true;
+            yield updateUserKeeps(clubKey, activityKey, updateActivity);
+          }
+      }
+    } catch (error) {
+      throw error;
+    }
+  });
+
+  return function setUserKeep(_x66, _x67, _x68) {
+    return _ref28.apply(this, arguments);
+  };
+}(); //活動觀看
+
+
+const setActivityView =
+/*#__PURE__*/
+function () {
+  var _ref29 = _asyncToGenerator(function* (activity, uid) {
+    try {
+      //檢查使用者是否是第一次查看
+      //不是第一次看
+      if (activity.views[uid] == true) {} //是第一次看
+      else {
+          let updateViews = {}; //沒有其他使用者看過
+
+          if (Object.keys(activity.views).length == 0) {
+            activity.numViews = activity.numViews + 1;
+            activity.views = {};
+            activity.views[uid] = true;
+            activity.statusView = true;
+            updateViews[uid] = true;
+          } //有其他使用者看過
+          else {
+              activity.numViews = activity.numViews + 1;
+              activity.views[uid] = true;
+              activity.statusView = true;
+              updateViews[uid] = true;
+            } //寫進資料庫
+
+
+          yield updateActivityViews(activity.clubKey, activity.activityKey, updateViews);
+        }
+
+      return activity;
+    } catch (error) {
+      throw error;
+    }
+  });
+
+  return function setActivityView(_x69, _x70) {
+    return _ref29.apply(this, arguments);
+  };
+}(); ////////////////////////////////////////////////////////////////////////////////////
 // 通知
 ////////////////////////////////////////////////////////////////////////////////////
 //發通知給貼文參與者(發文者與留言參與者)（不採用社團提醒）
@@ -1065,7 +1815,7 @@ const setPostViewFavoriteData = (post, uid) => {
 const notifyToPostParticipants =
 /*#__PURE__*/
 function () {
-  var _ref19 = _asyncToGenerator(function* (clubKey, postKey, post, title, body) {
+  var _ref30 = _asyncToGenerator(function* (clubKey, postKey, post, title, body) {
     try {
       let userList = {};
       let tempUser;
@@ -1085,7 +1835,7 @@ function () {
       const promises = Object.keys(userList).map(
       /*#__PURE__*/
       function () {
-        var _ref20 = _asyncToGenerator(function* (uid) {
+        var _ref31 = _asyncToGenerator(function* (uid) {
           const userRef = admin.database().ref('users').child(uid);
           const userSnapshot = yield userRef.once('value');
           const {
@@ -1110,19 +1860,22 @@ function () {
           }
         });
 
-        return function (_x50) {
-          return _ref20.apply(this, arguments);
+        return function (_x76) {
+          return _ref31.apply(this, arguments);
         };
       }());
       yield Promise.all(promises);
-      yield expoSend(messages);
+
+      if (messages.length > 0) {
+        yield expoSend(messages);
+      }
     } catch (error) {
       throw error;
     }
   });
 
-  return function notifyToPostParticipants(_x45, _x46, _x47, _x48, _x49) {
-    return _ref19.apply(this, arguments);
+  return function notifyToPostParticipants(_x71, _x72, _x73, _x74, _x75) {
+    return _ref30.apply(this, arguments);
   };
 }(); //發通知給使用者（可多人，物件傳入）(不採用社團提醒)
 
@@ -1130,13 +1883,13 @@ function () {
 const notifyToUser =
 /*#__PURE__*/
 function () {
-  var _ref21 = _asyncToGenerator(function* (userList, title, body) {
+  var _ref32 = _asyncToGenerator(function* (userList, title, body) {
     try {
       let messages = [];
       const promises = Object.keys(userList).map(
       /*#__PURE__*/
       function () {
-        var _ref22 = _asyncToGenerator(function* (uid) {
+        var _ref33 = _asyncToGenerator(function* (uid) {
           const userRef = admin.database().ref('users').child(uid);
           const userSnapshot = yield userRef.once('value');
           const {
@@ -1153,27 +1906,37 @@ function () {
           const nightMode = nightModeNotification ? hours >= 21 : false;
 
           if (expoToken && globalNotification && !nightMode) {
-            messages.push({
-              "to": expoToken,
-              title,
-              body
-            });
+            if (body) {
+              messages.push({
+                "to": expoToken,
+                title,
+                body
+              });
+            } else {
+              messages.push({
+                "to": expoToken,
+                title
+              });
+            }
           }
         });
 
-        return function (_x54) {
-          return _ref22.apply(this, arguments);
+        return function (_x80) {
+          return _ref33.apply(this, arguments);
         };
       }());
       yield Promise.all(promises);
-      yield expoSend(messages);
+
+      if (messages.length > 0) {
+        yield expoSend(messages);
+      }
     } catch (error) {
       throw error;
     }
   });
 
-  return function notifyToUser(_x51, _x52, _x53) {
-    return _ref21.apply(this, arguments);
+  return function notifyToUser(_x77, _x78, _x79) {
+    return _ref32.apply(this, arguments);
   };
 }(); //expoSendApi
 
@@ -1181,7 +1944,7 @@ function () {
 const expoSend =
 /*#__PURE__*/
 function () {
-  var _ref23 = _asyncToGenerator(function* (messages) {
+  var _ref34 = _asyncToGenerator(function* (messages) {
     try {
       yield fetch('https://exp.host/--/api/v2/push/send', {
         method: "POST",
@@ -1196,8 +1959,8 @@ function () {
     }
   });
 
-  return function expoSend(_x55) {
-    return _ref23.apply(this, arguments);
+  return function expoSend(_x81) {
+    return _ref34.apply(this, arguments);
   };
 }(); ////////////////////////////////////////////////////////////////////////////////////
 // Realtime Database
@@ -1208,7 +1971,7 @@ function () {
 const getClubData =
 /*#__PURE__*/
 function () {
-  var _ref24 = _asyncToGenerator(function* (clubKey) {
+  var _ref35 = _asyncToGenerator(function* (clubKey) {
     try {
       let clubRef = yield admin.database().ref('clubs').child(clubKey).once('value');
       let club = clubRef.val();
@@ -1218,8 +1981,8 @@ function () {
     }
   });
 
-  return function getClubData(_x56) {
-    return _ref24.apply(this, arguments);
+  return function getClubData(_x82) {
+    return _ref35.apply(this, arguments);
   };
 }(); //取得特定社團下所有貼文資訊
 
@@ -1227,7 +1990,7 @@ function () {
 const getPostData =
 /*#__PURE__*/
 function () {
-  var _ref25 = _asyncToGenerator(function* (clubKey) {
+  var _ref36 = _asyncToGenerator(function* (clubKey) {
     try {
       let postRef = yield admin.database().ref('posts').child(clubKey).once('value');
       let post = postRef.val();
@@ -1237,8 +2000,8 @@ function () {
     }
   });
 
-  return function getPostData(_x57) {
-    return _ref25.apply(this, arguments);
+  return function getPostData(_x83) {
+    return _ref36.apply(this, arguments);
   };
 }(); //取得特定貼文資訊
 
@@ -1246,7 +2009,7 @@ function () {
 const getPostInsideData =
 /*#__PURE__*/
 function () {
-  var _ref26 = _asyncToGenerator(function* (clubKey, postKey) {
+  var _ref37 = _asyncToGenerator(function* (clubKey, postKey) {
     try {
       let postRef = yield admin.database().ref('posts').child(clubKey).child(postKey).once('value');
       let post = postRef.val();
@@ -1256,8 +2019,8 @@ function () {
     }
   });
 
-  return function getPostInsideData(_x58, _x59) {
-    return _ref26.apply(this, arguments);
+  return function getPostInsideData(_x84, _x85) {
+    return _ref37.apply(this, arguments);
   };
 }(); //取得貼文下的留言資訊
 
@@ -1265,7 +2028,7 @@ function () {
 const getPostCommentData =
 /*#__PURE__*/
 function () {
-  var _ref27 = _asyncToGenerator(function* (clubKey, postKey) {
+  var _ref38 = _asyncToGenerator(function* (clubKey, postKey) {
     try {
       let commentRef = yield admin.database().ref('comments').child(clubKey).child(postKey).once('value');
       let data = commentRef.val();
@@ -1275,8 +2038,8 @@ function () {
     }
   });
 
-  return function getPostCommentData(_x60, _x61) {
-    return _ref27.apply(this, arguments);
+  return function getPostCommentData(_x86, _x87) {
+    return _ref38.apply(this, arguments);
   };
 }(); //取得特定使用者資訊
 
@@ -1284,7 +2047,7 @@ function () {
 const getUserData =
 /*#__PURE__*/
 function () {
-  var _ref28 = _asyncToGenerator(function* (uid) {
+  var _ref39 = _asyncToGenerator(function* (uid) {
     try {
       let userRef = yield admin.database().ref('users').child(uid).once('value');
       let user = userRef.val();
@@ -1294,8 +2057,8 @@ function () {
     }
   });
 
-  return function getUserData(_x62) {
-    return _ref28.apply(this, arguments);
+  return function getUserData(_x88) {
+    return _ref39.apply(this, arguments);
   };
 }(); //更新Post的Favorites
 
@@ -1303,7 +2066,7 @@ function () {
 const updatePostFavorites =
 /*#__PURE__*/
 function () {
-  var _ref29 = _asyncToGenerator(function* (clubKey, postKey, updateFavorites) {
+  var _ref40 = _asyncToGenerator(function* (clubKey, postKey, updateFavorites) {
     try {
       const uid = Object.keys(updateFavorites)[0];
       let favoritesRef;
@@ -1320,8 +2083,8 @@ function () {
     }
   });
 
-  return function updatePostFavorites(_x63, _x64, _x65) {
-    return _ref29.apply(this, arguments);
+  return function updatePostFavorites(_x89, _x90, _x91) {
+    return _ref40.apply(this, arguments);
   };
 }(); //更新Post的Views
 
@@ -1329,7 +2092,7 @@ function () {
 const updatePostViews =
 /*#__PURE__*/
 function () {
-  var _ref30 = _asyncToGenerator(function* (clubKey, postKey, updateViews) {
+  var _ref41 = _asyncToGenerator(function* (clubKey, postKey, updateViews) {
     try {
       const uid = Object.keys(updateViews)[0];
       const value = updateViews[uid];
@@ -1340,8 +2103,8 @@ function () {
     }
   });
 
-  return function updatePostViews(_x66, _x67, _x68) {
-    return _ref30.apply(this, arguments);
+  return function updatePostViews(_x92, _x93, _x94) {
+    return _ref41.apply(this, arguments);
   };
 }(); //新增留言
 
@@ -1349,7 +2112,7 @@ function () {
 const createCommentData =
 /*#__PURE__*/
 function () {
-  var _ref31 = _asyncToGenerator(function* (clubKey, postKey, content, uid) {
+  var _ref42 = _asyncToGenerator(function* (clubKey, postKey, content, uid) {
     try {
       const getNumRef = admin.database().ref('posts/' + clubKey + '/' + postKey + '/numComments');
       let snapShot = yield getNumRef.once('value');
@@ -1369,8 +2132,8 @@ function () {
     }
   });
 
-  return function createCommentData(_x69, _x70, _x71, _x72) {
-    return _ref31.apply(this, arguments);
+  return function createCommentData(_x95, _x96, _x97, _x98) {
+    return _ref42.apply(this, arguments);
   };
 }(); //刪除留言
 
@@ -1378,7 +2141,7 @@ function () {
 const deleteCommentData =
 /*#__PURE__*/
 function () {
-  var _ref32 = _asyncToGenerator(function* (clubKey, postKey, commentKey) {
+  var _ref43 = _asyncToGenerator(function* (clubKey, postKey, commentKey) {
     try {
       let getNumRef = admin.database().ref('posts/' + clubKey + '/' + postKey + '/numComments');
       let snapShot = yield getNumRef.once('value');
@@ -1393,8 +2156,8 @@ function () {
     }
   });
 
-  return function deleteCommentData(_x73, _x74, _x75) {
-    return _ref32.apply(this, arguments);
+  return function deleteCommentData(_x99, _x100, _x101) {
+    return _ref43.apply(this, arguments);
   };
 }(); //編輯留言
 
@@ -1402,7 +2165,7 @@ function () {
 const editCommentData =
 /*#__PURE__*/
 function () {
-  var _ref33 = _asyncToGenerator(function* (clubKey, postKey, commentKey, content) {
+  var _ref44 = _asyncToGenerator(function* (clubKey, postKey, commentKey, content) {
     try {
       if (content == '') {} else {
         let update = {};
@@ -1414,8 +2177,8 @@ function () {
     }
   });
 
-  return function editCommentData(_x76, _x77, _x78, _x79) {
-    return _ref33.apply(this, arguments);
+  return function editCommentData(_x102, _x103, _x104, _x105) {
+    return _ref44.apply(this, arguments);
   };
 }(); //更新Comment的Favorites
 
@@ -1423,7 +2186,7 @@ function () {
 const updateCommentFavorites =
 /*#__PURE__*/
 function () {
-  var _ref34 = _asyncToGenerator(function* (clubKey, postKey, commentKey, updateFavorites) {
+  var _ref45 = _asyncToGenerator(function* (clubKey, postKey, commentKey, updateFavorites) {
     try {
       const uid = Object.keys(updateFavorites)[0];
       let favoritesRef;
@@ -1440,8 +2203,8 @@ function () {
     }
   });
 
-  return function updateCommentFavorites(_x80, _x81, _x82, _x83) {
-    return _ref34.apply(this, arguments);
+  return function updateCommentFavorites(_x106, _x107, _x108, _x109) {
+    return _ref45.apply(this, arguments);
   };
 }(); //編輯貼文
 
@@ -1449,7 +2212,7 @@ function () {
 const editPostData =
 /*#__PURE__*/
 function () {
-  var _ref35 = _asyncToGenerator(function* (clubKey, postKey, obj) {
+  var _ref46 = _asyncToGenerator(function* (clubKey, postKey, obj) {
     try {
       let keyList = Object.keys(obj);
       let ref;
@@ -1465,8 +2228,8 @@ function () {
     }
   });
 
-  return function editPostData(_x84, _x85, _x86) {
-    return _ref35.apply(this, arguments);
+  return function editPostData(_x110, _x111, _x112) {
+    return _ref46.apply(this, arguments);
   };
 }(); //刪除貼文
 
@@ -1474,7 +2237,7 @@ function () {
 const deletePostData =
 /*#__PURE__*/
 function () {
-  var _ref36 = _asyncToGenerator(function* (clubKey, postKey) {
+  var _ref47 = _asyncToGenerator(function* (clubKey, postKey) {
     try {
       const postRef = admin.database().ref('posts/' + clubKey + '/' + postKey);
       yield postRef.remove();
@@ -1485,8 +2248,257 @@ function () {
     }
   });
 
-  return function deletePostData(_x87, _x88) {
-    return _ref36.apply(this, arguments);
+  return function deletePostData(_x113, _x114) {
+    return _ref47.apply(this, arguments);
+  };
+}(); //取得使用者收藏的活動
+
+
+const getUserActivityData =
+/*#__PURE__*/
+function () {
+  var _ref48 = _asyncToGenerator(function* (uid) {
+    try {
+      let userRef = yield admin.database().ref('users').child(uid).child('activities').once('value');
+      let activityList = userRef.val();
+      return activityList;
+    } catch (error) {
+      throw error;
+    }
+  });
+
+  return function getUserActivityData(_x115) {
+    return _ref48.apply(this, arguments);
+  };
+}(); //取得社團活動
+
+
+const getClubActivityData =
+/*#__PURE__*/
+function () {
+  var _ref49 = _asyncToGenerator(function* (clubKey) {
+    try {
+      let activityRef = yield admin.database().ref('activities').child(clubKey).once('value');
+      let activity = activityRef.val();
+      return activity;
+    } catch (error) {
+      throw error;
+    }
+  });
+
+  return function getClubActivityData(_x116) {
+    return _ref49.apply(this, arguments);
+  };
+}(); //取得特定活動資訊
+
+
+const getActivityInsideData =
+/*#__PURE__*/
+function () {
+  var _ref50 = _asyncToGenerator(function* (clubKey, activityKey) {
+    try {
+      let activityRef = yield admin.database().ref('activities').child(clubKey).child(activityKey).once('value');
+      let activity = activityRef.val();
+      return activity;
+    } catch (error) {
+      throw error;
+    }
+  });
+
+  return function getActivityInsideData(_x117, _x118) {
+    return _ref50.apply(this, arguments);
+  };
+}(); //編輯活動
+
+
+const editActivityData =
+/*#__PURE__*/
+function () {
+  var _ref51 = _asyncToGenerator(function* (clubKey, activityKey, obj) {
+    try {
+      let keyList = Object.keys(obj);
+      let ref;
+
+      for (let i = 0; i < keyList.length; i++) {
+        let key = keyList[i];
+        let value = obj[key];
+        ref = admin.database().ref('activities/' + clubKey + '/' + activityKey + '/' + key);
+        yield ref.set(value);
+      }
+    } catch (error) {
+      console.log(error.toString());
+    }
+  });
+
+  return function editActivityData(_x119, _x120, _x121) {
+    return _ref51.apply(this, arguments);
+  };
+}(); //刪除活動
+
+
+const deleteActivityData =
+/*#__PURE__*/
+function () {
+  var _ref52 = _asyncToGenerator(function* (clubKey, activityKey, activity) {
+    try {
+      //先刪掉user下的activity
+      let userData;
+      let user;
+      let userRef;
+      let status = false; //false為使用者收藏多個社團可以直接刪,true為把只有一個活動，要把activities設為false;
+
+      let userList = Object.keys(activity.keeps);
+
+      for (let i = 0; i < userList.length; i++) {
+        userData = yield admin.database().ref('users').child(userList[i]).once('value');
+        user = yield userData.val();
+
+        if (Object.keys(user.activities).length = 1) {
+          if (Object.keys(user.activities[clubKey]).length == 1) {
+            status = true;
+          }
+        }
+
+        if (status == true) {
+          userRef = admin.database().ref('users').child(userList[i]).child('activities');
+          yield userRef.set(false);
+        } else if (status == false) {
+          userRef = admin.database().ref('users').child(userList[i]).child('activities').child(clubKey).child(activityKey);
+          yield userRef.set(null);
+        }
+      } //刪除活動
+
+
+      const activityRef = admin.database().ref('activities').child(clubKey).child(activityKey);
+      yield activityRef.remove();
+    } catch (error) {
+      throw error;
+    }
+  });
+
+  return function deleteActivityData(_x122, _x123, _x124) {
+    return _ref52.apply(this, arguments);
+  };
+}(); //設定活動觀看
+
+
+const updateActivityViews =
+/*#__PURE__*/
+function () {
+  var _ref53 = _asyncToGenerator(function* (clubKey, activityKey, updateViews) {
+    const uid = Object.keys(updateViews)[0];
+    const viewsRef = admin.database().ref('activities/' + clubKey + '/' + activityKey + '/views/' + uid);
+    yield viewsRef.set(updateViews[uid]);
+  });
+
+  return function updateActivityViews(_x125, _x126, _x127) {
+    return _ref53.apply(this, arguments);
+  };
+}(); //更新Activity的Favorites
+
+
+const updateActivityFavorites =
+/*#__PURE__*/
+function () {
+  var _ref54 = _asyncToGenerator(function* (clubKey, activityKey, updateFavorites) {
+    try {
+      const uid = Object.keys(updateFavorites)[0];
+      let favoritesRef;
+
+      if (updateFavorites[uid] == false) {
+        favoritesRef = admin.database().ref('activities/' + clubKey + '/' + activityKey + '/favorites');
+      } else {
+        favoritesRef = admin.database().ref('activities/' + clubKey + '/' + activityKey + '/favorites/' + uid);
+      }
+
+      yield favoritesRef.set(updateFavorites[uid]);
+    } catch (error) {
+      throw error;
+    }
+  });
+
+  return function updateActivityFavorites(_x128, _x129, _x130) {
+    return _ref54.apply(this, arguments);
+  };
+}(); //更新Activity的Joins
+
+
+const updateActivityJoins =
+/*#__PURE__*/
+function () {
+  var _ref55 = _asyncToGenerator(function* (clubKey, activityKey, updateJoins) {
+    try {
+      const uid = Object.keys(updateJoins)[0];
+      let joinsRef;
+
+      if (updateJoins[uid] == false) {
+        joinsRef = admin.database().ref('activities/' + clubKey + '/' + activityKey + '/joins');
+      } else {
+        joinsRef = admin.database().ref('activities/' + clubKey + '/' + activityKey + '/joins/' + uid);
+      }
+
+      yield joinsRef.set(updateJoins[uid]);
+    } catch (error) {
+      throw error;
+    }
+  });
+
+  return function updateActivityJoins(_x131, _x132, _x133) {
+    return _ref55.apply(this, arguments);
+  };
+}(); //更新Activity的Keeps
+
+
+const updateActivityKeeps =
+/*#__PURE__*/
+function () {
+  var _ref56 = _asyncToGenerator(function* (clubKey, activityKey, updateKeeps) {
+    try {
+      const uid = Object.keys(updateKeeps)[0];
+      let keepRef;
+
+      if (updateKeeps[uid] == false) {
+        keepRef = admin.database().ref('activities/' + clubKey + '/' + activityKey + '/keeps');
+      } else {
+        keepRef = admin.database().ref('activities/' + clubKey + '/' + activityKey + '/keeps/' + uid);
+      }
+
+      yield keepRef.set(updateKeeps[uid]);
+    } catch (error) {
+      throw error;
+    }
+  });
+
+  return function updateActivityKeeps(_x134, _x135, _x136) {
+    return _ref56.apply(this, arguments);
+  };
+}(); //更新user的activities
+
+
+const updateUserKeeps =
+/*#__PURE__*/
+function () {
+  var _ref57 = _asyncToGenerator(function* (clubKey, activityKey, updateKeeps) {
+    try {
+      const uid = Object.keys(updateKeeps)[0];
+      console.log('hah');
+      console.log(updateKeeps);
+      let keepRef;
+
+      if (updateKeeps[uid] == false) {
+        keepRef = admin.database().ref('users/' + uid + '/activities/');
+      } else {
+        keepRef = admin.database().ref('users/' + uid + '/activities/' + clubKey + '/' + activityKey);
+      }
+
+      yield keepRef.set(updateKeeps[uid]);
+    } catch (error) {
+      throw error;
+    }
+  });
+
+  return function updateUserKeeps(_x137, _x138, _x139) {
+    return _ref57.apply(this, arguments);
   };
 }(); ////////////////////////////////////////////////////////////////////////////////////
 // Common

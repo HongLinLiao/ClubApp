@@ -11,8 +11,13 @@ import {
   syncPostBack,
 } from '../../modules/Post'
 import {
-  getActivityDataFromClubKey,
+  getClubActivityReload,
   getInsideActivity,
+  setActivityFavorite,
+  initSetActivityList,
+  syncActivity,
+  syncActivityDelete,
+  syncActivityBack
 } from '../../modules/Activity'
 import { connect } from 'react-redux';
 import Club from '../../components/club/Club'
@@ -40,8 +45,13 @@ const mapDispatchToProps = {
   syncPostBack,
 
   //活動類
+  getClubActivityReload,
   getInsideActivity,
-  getActivityDataFromClubKey,
+  setActivityFavorite,
+  initSetActivityList,
+  syncActivity,
+  syncActivityDelete,
+  syncActivityBack,
 }
 
 

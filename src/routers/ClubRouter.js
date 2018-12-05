@@ -8,6 +8,8 @@ import ClubAdminPage from '../containers/club/ClubAdminPage'
 import ClubMemberPage from '../containers/club/ClubMemberPage'
 import SearchPlacePage from '../containers/club/SearchPlacePage'
 import MemberManagePage from '../containers/club/MemberManagePage'
+import CreateClubPage from '../containers/personal/CreateClubPage'
+
 
 import React from 'react'
 import { Button, TouchableOpacity, Image, Text } from 'react-native'
@@ -23,7 +25,7 @@ export default createStackNavigator({
     }
   },
 
-  Activity: {
+  ClubActivity: {
     screen: ActivityPage,
     navigationOptions: ({ navigation }) => ({
       headerTitleStyle: {
@@ -34,13 +36,20 @@ export default createStackNavigator({
       headerStyle: {
         backgroundColor: '#f6b456'
       },
-      headerBackImage: (
-        <TouchableOpacity onPress={() => navigation.goBack()}>
+      headerLeft: (
+        <TouchableOpacity onPress={async () => {
+          const syncActivityBack = navigation.state.params.syncActivityBack;
+          const routeName = navigation.state.routeName;
+          await syncActivityBack(routeName);
+          navigation.goBack();
+        }}
+          style={{ flexDirection: 'row' }}
+        >
           <Image source={require('../images/images2/arrowLeftBlue.png')}
             style={{ width: 25, height: 25 }} />
         </TouchableOpacity>
-      ),
-    })
+      )
+    }),
   },
 
   ClubPost: {

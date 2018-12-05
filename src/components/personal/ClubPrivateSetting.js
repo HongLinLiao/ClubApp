@@ -11,7 +11,7 @@ import styles from '../../styles/personal/ClubPrivateSetting';
 
 class ClubPrivateSetting extends React.Component {
     state = {
-        open: false
+        open: null
     }
 
     alert = () => {
@@ -45,7 +45,7 @@ class ClubPrivateSetting extends React.Component {
             <View style={styles.container}>
                 <Text style={styles.title}>將您的社團設為</Text>
                 <View style={styles.row}>
-                    <TouchableOpacity style={styles.botton}
+                    <TouchableOpacity style={[styles.botton, { backgroundColor: this.state.open == null ? "rgba(246,180,86,0.3)" : this.state.open == true ? "rgba(246,180,86,0.3)" : "rgba(0,205,205,1)" }]}
                         onPress={() => {
                             this.setState({ open: false })
                             Alert.alert('設為非公開')
@@ -54,7 +54,7 @@ class ClubPrivateSetting extends React.Component {
                         <Image source={require('../../images/graylocked.png')}
                             style={styles.lockIcon} />
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.botton}
+                    <TouchableOpacity style={[styles.botton, { backgroundColor: this.state.open == null ? "rgba(246,180,86,0.3)" : this.state.open == true ? "rgba(0,205,205,1)" : "rgba(246,180,86,0.3)" }]}
                         onPress={() => {
                             this.setState({ open: true })
                             Alert.alert('設為公開')
@@ -65,7 +65,7 @@ class ClubPrivateSetting extends React.Component {
                     </TouchableOpacity>
                 </View>
 
-                <TouchableOpacity style={styles.okBotton} onPress={() => this.alert() }>
+                <TouchableOpacity style={styles.okBotton} onPress={() => this.alert()}>
                     <Text style={styles.okText}>建立</Text>
                 </TouchableOpacity>
             </View>

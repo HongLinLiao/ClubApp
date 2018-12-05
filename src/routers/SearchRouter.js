@@ -57,8 +57,17 @@ export default createStackNavigator({
       headerStyle: {
         backgroundColor: '#f6b456'
       },
-      headerBackImage: (
-        <TouchableOpacity onPress={() => navigation.goBack()}>
+      headerLeft: (
+        <TouchableOpacity onPress={async () => {
+          const syncSearchActivityBack = navigation.state.params.syncSearchActivityBack;
+          const syncSearchPostBack = navigation.state.params.syncSearchPostBack;
+          const routeName = navigation.state.routeName;
+          await syncSearchActivityBack(routeName);
+          await syncSearchPostBack(routeName);
+          navigation.goBack();
+        }}
+          style={{ flexDirection: 'row' }}
+        >
           <Image source={require('../images/images2/arrowLeftBlue.png')}
             style={{ width: 25, height: 25 }} />
         </TouchableOpacity>
@@ -66,10 +75,33 @@ export default createStackNavigator({
     }
     )
   },
-  Activity: {
+  SearchActivity: {
     screen: ActivityPage,
+    navigationOptions: ({ navigation }) => ({
+      headerTitleStyle: {
+        color: '#666666',
+        fontSize: 18,
+        fontFamily: 'Courier',
+      },
+      headerStyle: {
+        backgroundColor: '#f6b456'
+      },
+      headerLeft: (
+        <TouchableOpacity onPress={async () => {
+          const syncActivityBack = navigation.state.params.syncActivityBack;
+          const routeName = navigation.state.routeName;
+          await syncActivityBack(routeName);
+          navigation.goBack();
+        }}
+          style={{ flexDirection: 'row' }}
+        >
+          <Image source={require('../images/images2/arrowLeftBlue.png')}
+            style={{ width: 25, height: 25 }} />
+        </TouchableOpacity>
+      )
+    }),
   },
-  ClubPost: {
+  SearchPost: {
     screen: PostPage,
     navigationOptions: ({ navigation }) => ({
       headerTitleStyle: {

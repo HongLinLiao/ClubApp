@@ -1,5 +1,5 @@
 import React from 'react'
-import { View, Text, TextInput, Alert} from 'react-native'
+import { View, Text, TextInput, Alert, TouchableOpacity} from 'react-native'
 import Overlayer from '../common/Overlayer'
 import styles from '../../styles/personal/ChangePassword'
 
@@ -46,7 +46,7 @@ class ChangePassword extends React.Component {
   render() {
     return (
       <View style={styles.container}>    
-        <View style={styles.main}>
+        <View style={[styles.main]}>
           <View style={styles.containView}>
 
             <View style={styles.passwordView}>
@@ -76,10 +76,13 @@ class ChangePassword extends React.Component {
                 style={styles.newPasswordAgainInput}
                 underlineColorAndroid={'transparent'}
                 secureTextEntry={true}
-                ></TextInput>
+              >
+              </TextInput>
             </View>
+            <TouchableOpacity style={[styles.buttonView]} onPress={this.handleSavePassword}>
+              <Text style={styles.button}>確定變更</Text>
+            </TouchableOpacity>
           </View>
-
         </View>
         {this.state.loading ? <Overlayer /> : null}
       </View>

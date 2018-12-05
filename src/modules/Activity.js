@@ -10,165 +10,351 @@ import {
     updateActivityViews,
     updateActivityKeeps,
 } from './Data'
-import { changeMemberStatusToChinese } from './Common';
+import { convertDateFormat } from './Common'
 import { sendActivityNotification } from './Api'
 
+
 //********************************************************************************
-// Get Data
+// 活動同步
 //********************************************************************************
 
-//取得user收藏的活動
-export const getUserActivities = async () => {
-    const uid = firebase.auth().currentUser.uid;
-    const keepList = await getUserActivityKeeps(uid);
-    if (keepList != null) {
-        return keepList;
+//init:放活動列進reducer
+export const initActivityListToReducer = (activityList, navigation) => async (dispatch, getState) => {
+    try {
+        let newActivityList = activityList.slice();
+        let newReducer = getState().activityReducer.activityList;
+        const routeName = navigation.state.routeName;
+        newReducer[routeName] = newActivityList;
+        dispatch(ActivityAction.getActivityList(newReducer));
     }
-    else {
-        return null;
+    catch (error) {
+        throw error;
     }
 }
 
-//用activityKeyArray進firebase抓新資料
-export const getActivityDataComplete = (activityKeeps) => async (dispatch, getState) => {
+//init:放活動進Reducer
+export const initActivityToReducer = (obj, navigation) => async (dispatch, getState) => {
     try {
-        let activityData;
-        const activityReducer = getState().activityReducer.allActivity;
-        // 新物件: activityReducer
-        const newActivityReducer = JSON.parse(JSON.stringify(activityReducer));
+        let newObj = JSON.parse(JSON.stringify(obj));
+        let newReducer = getState().activityReducer.activity;
+        const routeName = navigation.state.routeName;
+        if (obj) {
+            let newActivity = {};
+            newActivity[obj.activity.activityKey] = newObj;
+            newReducer[routeName] = newActivity;
+        }
+        else {
+            newReducer[routeName] = null;
+            delete newReducer[routeName];
+        }
+        dispatch(ActivityAction.getActivity(newReducer));
+    }
+    catch (error) {
+        throw error;
+    }
+}
 
-        // 回傳物件
-        const objPost = {};
-        var i, j;
-        const clubList = Object.keys(activityKeeps);
-        for (i = 0; i < clubList.length; i++) {
-            const clubKey = clubList[i];
+//init:放setActivity進Reducer
+export const initSetActivity = (setActivity, navigation) => async (dispatch, getState) => {
+    try {
+        let setActivityInReducer = getState().activityReducer.setActivity;
+        let newObjct = Object.assign({}, setActivityInReducer);
+        const routeName = navigation.state.routeName;
+        newObjct[routeName] = setActivity;
+        dispatch(ActivityAction.getSetActivity(newObjct));
+    }
+    catch (error) {
+        console.log(error.toString());
+    }
+}
 
-            const club = await getClubData(clubKey);
-            // console.log('open:' + club.open);
-            if (!club.open) {
-                const { uid } = firebase.auth().currentUser;
-                if (!club.member[uid]) {
-                    // console.log('不是成員');
-                    return null;
-                }
-                // console.log('是成員');
+//init:放setActivityList進activityReducer
+export const initSetActivityList = (setActivityList, navigation) => async (dispatch, getState) => {
+    try {
+        let setActivityListInReducer = getState().activityReducer.setActivityList;
+        let newObjct = Object.assign({}, setActivityListInReducer);
+        const routeName = navigation.state.routeName;
+        newObjct[routeName] = setActivityList;
+        dispatch(ActivityAction.getSetActivityList(newObjct));
+    }
+    catch (error) {
+        console.log(error.toString());
+    }
+}
+
+//synchronize:活動同步更改
+export const syncActivity = (data) => async (dispatch, getState) => {
+    try {
+        //call reducer
+        const activityListInReducer = getState().activityReducer.activityList;
+        let ordActivityList = JSON.parse(JSON.stringify(activityListInReducer));
+        const activityInReducer = getState().activityReducer.activity;
+        let ordActivity = JSON.parse(JSON.stringify(activityInReducer));
+        let activityListStatus = false;
+        let activityStatus = false;
+        let status = false;
+        //如果是陣列，表示更動的來源是重整
+        if (Array.isArray(data)) {
+            if (data.length == 0) {
+                let itemActivityList = Object.keys(ordActivityList);
+                //空的再設成空的
+                for (let i = 0; i < itemActivityList.length; i++) {
+                    if (ordActivityList[itemActivityList[i]].length == 0) {
+                        status = true;
+                    }
+                    //空的
+                    if (status) {
+                        let setActivityListFuction = getState().activityReducer.setActivityList[itemActivityList[i]];
+                        setActivityListFuction(ordActivityList[itemActivityList[i]]);
+                    }
+                };
             }
-            const activityList = Object.keys(activityKeeps[clubKey]);
-            for (j = 0; j < activityList.length; j++) {
-                const activityKey = activityList[j];
-                activityData = await getInsideActivityData(clubKey, activityKey);
-                if (activityData != null) {
-                    //活動基本屬性
-                    activityData = await setActivityFoundations(clubKey, activityKey, activityData, club, activityKeeps);
-                    newActivityReducer = handleActivityDataToReducer(newActivityReducer, clubKey, activityKey, activityData);
-                    if (activityData.open) {
-                        objPost = handleActivityDataToObject(objPost, clubKey, activityKey, activityData);
+            else {
+                data.map((child) => {
+                    let activityKey = Object.keys(child)[0];
+                    //轉日期
+                    child[activityKey].editDate = convertDateFormat(child[activityKey].editDate);
+                    child[activityKey].startDateTime = convertDateFormat(child[activityKey].startDateTime);
+                    child[activityKey].endDateTime = convertDateFormat(child[activityKey].endDateTime);
+                    //更新活動列
+                    //需要查詢的route
+                    let itemActivityList = Object.keys(ordActivityList);
+                    //跑查詢的route裡是否具有要更動的活動
+                    for (let i = 0; i < itemActivityList.length; i++) {
+                        let result = ordActivityList[itemActivityList[i]].some(function (value, index, array) {
+                            if (Object.keys(value)[0] == activityKey) {
+                                //更改貼文列
+                                ordActivityList[itemActivityList[i]][index][activityKey] = child[activityKey];
+                                //代表有改變要寫進route 頁面
+                                status = true;
+                                activityListStatus = true;
+                                return true;
+                            }
+                            else {
+                                return false;
+                            }
+                        });
+                        //空的
+                        if (status) {
+                            let setActivityListFuction = getState().activityReducer.setActivityList[itemActivityList[i]];
+                            setActivityListFuction(ordActivityList[itemActivityList[i]]);
+                            console.log(activityKey + ': ' + itemActivityList[i] + '已同步');
+                        }
+                    };
+
+                    //更新活動
+                    //需要查詢的route
+                    let itemActivity = Object.keys(ordActivity);
+                    let keyList;
+                    //跑查詢的route是某具有要更動的活動
+                    for (let j = 0; j < itemActivity.length; j++) {
+                        keyList = Object.keys(ordActivity[itemActivity[j]]);
+                        for (let z = 0; z < keyList.length; z++) {
+                            if (keyList[z] == activityKey) {
+                                //更改內容
+                                ordActivity[itemActivity[j]][keyList[z]]['activity'] = child[activityKey];
+                                //寫進頁面
+                                let setActivityFuction = getState().activityReducer.setActivity[itemActivity[j]];
+                                setActivityFuction(ordActivity[itemActivity[j]][keyList[z]]);
+                                activityStatus = true;
+                                console.log(activityKey + ': ' + itemActivity[j] + '已同步');
+                                break;
+                            }
+                        }
+                    }
+                });
+            }
+        }
+        //其餘來源是物件，表示更動來源是活動動作
+        else {
+            if (Object.keys(data).length >= 1) {
+                let activityKey = data.activity.activityKey;
+                //更新活動列
+                //需要查詢的route
+                let itemActivityList = Object.keys(ordActivityList);
+                //跑查詢的route裡是否具有要更動的活動
+                for (let i = 0; i < itemActivityList.length; i++) {
+                    let result = ordActivityList[itemActivityList[i]].some(function (value, index, array) {
+                        //轉日期
+                        data.activity.editDate = convertDateFormat(data.activity.editDate);
+                        data.activity.startDateTime = convertDateFormat(data.activity.startDateTime);
+                        data.activity.endDateTime = convertDateFormat(data.activity.endDateTime);
+                        if (Object.keys(value)[0] == activityKey) {
+                            //更改活動列
+                            ordActivityList[itemActivityList[i]][index][activityKey] = data.activity;
+                            //代表有改變要寫進route頁面
+                            status = true;
+                            activityListStatus = true;
+                            return true;
+                        }
+                        else {
+                            return false;
+                        }
+                    });
+                    if (status) {
+                        let setActivityListFuction = getState().activityReducer.setActivityList[itemActivityList[i]];
+                        setActivityListFuction(ordActivityList[itemActivityList[i]]);
+                        console.log(activityKey + ': ' + itemActivityList[i] + '已同步');
+                    }
+                };
+
+                //更新活動
+                //需要查詢的route
+                let itemActivity = Object.keys(ordActivity);
+                let keyList;
+                //跑查詢的route是否具有要更動的活動
+                for (let j = 0; j < itemActivity.length; j++) {
+                    keyList = Object.keys(ordActivity[itemActivity[j]]);
+                    for (let z = 0; z < keyList.length; z++) {
+                        //轉日期
+                        data.activity.editDate = convertDateFormat(data.activity.editDate);
+                        data.activity.startDateTime = convertDateFormat(data.activity.startDateTime);
+                        data.activity.endDateTime = convertDateFormat(data.activity.endDateTime);
+                        if (keyList[z] == activityKey) {
+                            //更改內容
+                            ordActivity[itemActivity[j]][keyList[z]]['activity'] = data.activity;
+                            //寫進頁面
+                            let setActivityFuction = getState().activityReducer.setActivity[itemActivity[j]];
+                            setActivityFuction(ordActivity[itemActivity[j]][keyList[z]]);
+                            activityStatus = true;
+                            console.log(activityKey + ': ' + itemActivity[j] + '已同步');
+                            break;
+                        }
                     }
                 }
             }
         }
-        dispatch(ActivityAction.getActivityData(newActivityReducer));
-        return objPost;
+        //寫回reducer
+        if (activityListStatus) {
+            dispatch(ActivityAction.getActivityList(ordActivityList));
+        }
+        if (activityStatus) {
+            dispatch(ActivityAction.getActivity(ordActivity));
+        }
     }
     catch (error) {
         console.log(error.toString());
     }
 }
 
-//用clubKey取得社團下所有活動
-export const getActivityDataFromClubKey = (clubKey) => async (dispatch, getState) => {
+//synchronize:活動同步更改(刪除)
+export const syncActivityDelete = (activityKey) => async (dispatch, getState) => {
     try {
-        const club = await getClubData(clubKey);
-        const user = firebase.auth().currentUser;
-        console.log('open:' + club.open);
-        if (!club.open) {
-            if (!club.member[user.uid]) {
-                alert('Activity is not exist!');
-                console.log('不是成員');
-                return null;
-            }
-            console.log('是成員');
-        }
-        let objPost = {};
-        let activityKey;
-        const activityData = await getActivityData(clubKey);
-        if (activityData) {
-            activityKey = Object.keys(activityData);
-        }
-        else {
-            return {};
-        }
+        //call reducer
+        const activityListInReducer = getState().activityReducer.activityList;
+        let ordActivityList = JSON.parse(JSON.stringify(activityListInReducer));
+        const activityInReducer = getState().activityReducer.activity;
+        let ordActivity = JSON.parse(JSON.stringify(activityInReducer));
+        let activityListStatus = false;
+        let activityStatus = false;
+        let status = false;
 
-        const activityReducer = getState().activityReducer.allActivity;
-        // 新物件: activityReducer
-        const newActivityReducer = JSON.parse(JSON.stringify(activityReducer));
-
-        if (activityKey.length > 0) {
-            let i;
-            const keepList = await getUserActivities();
-            if (keepList == null) {
-                keepList = {};
+        //更新活動列
+        //需要查詢的route
+        let itemactivityList = Object.keys(ordActivityList);
+        //跑查詢的route裡是否具有要更動的活動
+        for (let i = 0; i < itemactivityList.length; i++) {
+            let result = ordActivityList[itemactivityList[i]].some(function (value, index, array) {
+                if (Object.keys(value)[0] == activityKey) {
+                    //更改活動列
+                    ordActivityList[itemactivityList[i]].splice(index, 1);
+                    //代表有改變要寫進route頁面
+                    status = true;
+                    activityListStatus = true;
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            });
+            if (status) {
+                let setActivityListFuction = getState().activityReducer.setActivityList[itemactivityList[i]];
+                setActivityListFuction(ordActivityList[itemactivityList[i]]);
+                console.log(activityKey + ': ' + itemactivityList[i] + '已同步');
             }
-            for (i = 0; i < activityKey.length; i++) {
-                activityData[activityKey[i]] = await setActivityFoundations(clubKey, activityKey[i], activityData[activityKey[i]], club, keepList);
-                newActivityReducer = handleActivityDataToReducer(newActivityReducer, clubKey, activityKey[i], activityData[activityKey[i]]);
-                if (activityData[activityKey[i]].open) {
-                    objPost = handleActivityDataToObject(objPost, clubKey, activityKey[i], activityData[activityKey[i]]);
+        };
+        //更新活動
+        //需要查詢的route
+        let itemActivity = Object.keys(ordActivity);
+        let keyList;
+        //跑查詢的route是某具有要更動的活動
+        for (let j = 0; j < itemActivity.length; j++) {
+            keyList = Object.keys(ordActivity[itemActivity[j]]);
+            for (let z = 0; z < keyList.length; z++) {
+                if (keyList[z] == activityKey) {
+                    //更改內容
+                    ordActivity[itemActivity[j]][keyList[z]] = null;
+                    delete ordActivity[itemActivity[j]];
+                    //寫進頁面
+                    activityStatus = true;
+                    console.log(activityKey + ': ' + itemActivity[j] + '已同步');
+                    break;
                 }
             }
-            dispatch(ActivityAction.getActivityData(newActivityReducer));
         }
-        return objPost;
+        //寫回reducer
+        if (activityListStatus) {
+            dispatch(ActivityAction.getActivityList(ordActivityList));
+        }
+        if (activityStatus) {
+            dispatch(ActivityAction.getActivity(ordActivity));
+        }
     }
     catch (error) {
         console.log(error.toString());
     }
 }
 
-//進入內頁
-export const getInsideActivity = (clubKey, activityKey) => async (dispatch, getState) => {
+//synchronize:活動頁返回
+export const syncActivityBack = (routeName) => async (dispatch, getState) => {
     try {
-        const club = await getClubData(clubKey);
-        const user = firebase.auth().currentUser;
-        console.log('open:' + club.open);
-        if (!club.open) {
-            if (!club.member[user.uid]) {
-                alert('Activity is not exist!');
-                console.log('不是成員');
-                return null;
-            }
-            console.log('是成員');
+        let setActivityInReducer = getState().activityReducer.setActivity;
+        let newObjct = Object.assign({}, setActivityInReducer);
+        if (newObjct[routeName]) {
+            newObjct[routeName] = null;
+            delete newObjct[routeName];
+            dispatch(ActivityAction.getSetActivity(newObjct));
         }
-        const activityData = await getInsideActivityData(clubKey, activityKey);
-        if (activityData == null || !activityData.open) {
-            alert('Activity is not exist!');
-            console.log('Activity is not exist!');
-            return null;
-        }
-        else {
-            let keepList = await getUserActivities();
-            if (keepList == null) {
-                keepList = {};
-            }
-            activityData = await setActivityFoundations(clubKey, activityKey, activityData, club, keepList);
-            activityData = await setActivityView(activityData);
 
-            //寫進activityReducer
-            const preActivityReducer = getState().activityReducer.allActivity;
-            const newPreActivityReducer = JSON.parse(JSON.stringify(preActivityReducer));
-            const nextActivityReducer = handleActivityDataToReducer(newPreActivityReducer, clubKey, activityKey, activityData);
-            dispatch(ActivityAction.getActivityData(nextActivityReducer));
-            return activityData;
+        let activity = getState().activityReducer.activity;
+        let newReducer = JSON.parse(JSON.stringify(activity));
+        if (newReducer[routeName]) {
+            newReducer[routeName] = null;
+            delete newReducer[routeName];
+            dispatch(ActivityAction.getActivity(newReducer));
         }
     }
     catch (error) {
-        console.log(error.toString);
+        console.log(error.toString());
+    }
+}
+
+//custom function：搜尋社團返回搜尋頁 清除setState
+export const syncSearchActivityBack = (routeName) => async (dispatch, getState) => {
+    try {
+        let setActivityListInReducer = getState().activityReducer.setActivityList;
+        let newObjct = Object.assign({}, setActivityListInReducer);
+        if (newObjct[routeName]) {
+            newObjct[routeName] = null;
+            delete newObjct[routeName];
+            dispatch(ActivityAction.getSetActivityList(newObjct));
+        }
+
+        let activityList = getState().activityReducer.activityList;
+        let newReducer = JSON.parse(JSON.stringify(activityList));
+        if (newReducer[routeName]) {
+            newReducer[routeName] = null;
+            delete newReducer[routeName];
+            dispatch(ActivityAction.getActivityList(newReducer));
+        }
+    }
+    catch (error) {
+        console.log(error.toString());
     }
 }
 
 //********************************************************************************
-// 活動
+//活動
 //********************************************************************************
 
 //建立一個新活動
@@ -186,6 +372,9 @@ export const createActivity = (cid, activityData, club) => async (dispatch) => {
         const snapshot = await activityStorageRef.put(blob)
         const photoUrl = await snapshot.ref.getDownloadURL()
 
+        //發活動者自己要收藏
+        let userSelfKeep = {};
+        userSelfKeep[user.uid] = true
         const activity = {
             title: activityData.title,
             location: activityData.location || false,
@@ -201,10 +390,13 @@ export const createActivity = (cid, activityData, club) => async (dispatch) => {
             editDate: new Date().toUTCString(),
             views: false,
             favorites: false,
-            keeps: false
+            keeps: userSelfKeep,
+            joins: false
         }
-
         await activityRef.set(activity)
+
+        let posterRef = firebase.database().ref('users').child(user.uid).child('activities').child(cid).child(activityRef.key);
+        await posterRef.set(true);
 
         await sendActivityNotification(cid, activity, club)
 
@@ -217,199 +409,75 @@ export const createActivity = (cid, activityData, club) => async (dispatch) => {
     }
 }
 
+//取得社團活動
+export const getClubActivityReload = (clubKey, navigation) => async (dispatch) => {
+    try {
+        const getClubActivity = firebase.functions().httpsCallable('getClubActivity');
+        const response = await getClubActivity(clubKey);
+        if (response.data) {
+            //丟進reducer
+            dispatch(initActivityListToReducer(response.data, navigation));
+            //檢查同步
+            dispatch(syncActivity(response.data))
+        }
+    }
+    catch (error) {
+        console.log(error.toString());
+    }
+}
+
+//編輯活動
+export const editingActivity = (clubKey, activityKey, editData) => async (dispatch) => {
+    try {
+        const editActivity = firebase.functions().httpsCallable('editActivity');
+
+        if (editData.photo) {
+            let response = await fetch(editData.photo);
+            let blob = await response.blob(); //轉換照片格式為blob
+            let storageRef = firebase.storage().ref('activities').child(clubKey).child(activityKey).child(blob._data.name);
+            let snapshot = await storageRef.put(blob);
+            let imgUrl = await snapshot.ref.getDownloadURL();
+            editData.photo = imgUrl;
+        }
+
+        const response = await editActivity({ clubKey: clubKey, activityKey: activityKey, editData: editData });
+        return response.data;
+    }
+    catch (error) {
+        console.log(error.toString());
+    }
+}
+
+//進入內頁
+export const getInsideActivity = (clubKey, activityKey) => async (dispatch, getState) => {
+    try {
+        const getActivityInside = firebase.functions().httpsCallable('getActivityInside');
+        let response = await getActivityInside({ clubKey: clubKey, activityKey: activityKey });
+        return response.data;
+    }
+    catch (error) {
+        console.log(error.toString);
+    }
+}
+
 //刪除活動
-
-
-//********************************************************************************
-// handle
-//********************************************************************************
-
-//產生新的object混合新活動
-export const handleActivityDataToReducer = (activityReducer, clubKey, activityKey, activityData) => {
+export const deletingActivity = (clubKey, activityKey) => async (dispatch, getState) => {
     try {
-        //新物件: activityReducer資料
-        const newPreActivityReducer = JSON.parse(JSON.stringify(activityReducer));
-        const newActivityData = {}
-        newActivityData[activityKey] = activityData;
-        const nextActivityData = {};
-        nextActivityData = { ...newPreActivityReducer[clubKey], ...newActivityData };
-        newPreActivityReducer[clubKey] = nextActivityData;
-        return newPreActivityReducer;
+        const deleteActivity = firebase.functions().httpsCallable('deleteActivity');
+        const response = await deleteActivity({ clubKey: clubKey, activityKey: activityKey });
+        return response.data;
     }
     catch (error) {
-        throw error;
+        console.log(error.toString());
     }
 }
 
-//傳入參數貼文列物件，將貼文加入貼文列物件
-export const handleActivityDataToObject = (objPost, clubKey, activityKey, activityData) => {
+//參加
+export const setActivityJoin = (clubKey, activityKey) => async (dispatch, getState) => {
     try {
-        //新物件
-        const newObjPost = JSON.parse(JSON.stringify(objPost));
-        const newActivityData = {}
-        newActivityData[activityKey] = activityData;
-        let nextActivityData = {};
-        nextActivityData = { ...objPost[clubKey], ...newActivityData };
-        newObjPost[clubKey] = nextActivityData;
-        return newObjPost;
-    }
-    catch (error) {
-        throw error;
-    }
-}
-
-//********************************************************************************
-//處理活動屬性
-//********************************************************************************
-
-//處理活動基本屬性(學校與社團名稱、key值、nickName、職位、views、favorites)
-export const setActivityFoundations = async (clubKey, activityKey, activity, club, userKeeps) => {
-    try {
-        //處理活動是否有收藏
-        if (userKeeps[clubKey]) {
-            if (userKeeps[clubKey][activityKey]) {
-                activity.statusKeep = true;
-            }
-            else {
-                activity.statusKeep = false;
-            }
-        }
-        else {
-            activity.statusKeep = false;
-        }
-
-        //該貼文社團與學校名稱
-        activity.clubName = club.clubName;
-        activity.schoolName = club.schoolName;
-        //處理poster職位名稱
-        if (club.member[activity.poster]) {
-            activity.posterStatus = club.member[activity.poster].status;
-            activity.posterStatusChinese = changeMemberStatusToChinese(activity.posterStatus);
-        }
-        else {
-            activity.posterStatusChinese = '';
-            activity.posterStatus = '';
-        }
-
-        //將activityKey放進attribute，否則找不到該貼文社團
-        activity.clubKey = clubKey;
-        activity.activityKey = activityKey;
-        //處理User
-        userData = await getUserData(activity.poster);
-        activity.posterNickName = userData.nickName;
-        activity.posterPhotoUrl = userData.photoUrl;
-        //處理view和favorite
-        const user = firebase.auth().currentUser;
-        activity = setViewFavoriteData(activity, user.uid);
-        return activity;
-    }
-    catch (error) {
-        throw error;
-    }
-}
-
-//產生statusView和statusFavorite
-export const setViewFavoriteData = (activity, userUid) => {
-    try {
-        //views與favorite數量
-        activity.numViews = Object.keys(activity.views).length;
-        activity.numFavorites = Object.keys(activity.favorites).length;
-        //該使用者是否有按讚與觀看
-        if (activity.views[userUid] == true)
-            activity.statusView = true;
-        else
-            activity.statusView = false;
-        if (activity.favorites[userUid] == true)
-            activity.statusFavorite = true;
-        else
-            activity.statusFavorite = false;
-        return activity;
-    }
-    catch (error) {
-        throw error;
-    }
-}
-
-//********************************************************************************
-//按讚、收藏、觀看
-//********************************************************************************
-
-//按讚
-export const setActivityFavorite = (clubKey, activityKey) => async (dispatch, getState) => {
-    try {
-        const club = await getClubData(clubKey);
-        const user = firebase.auth().currentUser;
-        console.log('open:' + club.open);
-        if (!club.open) {
-            if (!club.member[user.uid]) {
-                alert('Activity is not exist!');
-                console.log('不是成員');
-                return null;
-            }
-            console.log('是成員');
-        }
-        const activity = await getInsideActivityData(clubKey, activityKey);
-        if (activity == null || activity.open == false) {
-            console.log('活動不存在');
-            alert('Activity is not exist!');
-            return null;
-        }
-        else {
-            const keepList = await getUserActivities();
-            if (keepList == null) {
-                keepList = {};
-            }
-            //先取得貼文基本屬性
-            activity = await setActivityFoundations(clubKey, activityKey, activity, club, keepList);
-            let updateFavorites = {};
-            //按讚處理
-            //按讚
-            if (activity.statusFavorite == false) {
-                activity.statusFavorite = !activity.statusFavorite;
-                //牽扯到物件形狀
-                //沒其他使用者按過讚
-                if (activity.numFavorites == 0) {
-                    activity.numFavorites = activity.numFavorites + 1;
-                    activity.favorites = {};
-                    activity.favorites[user.uid] = true;
-                    updateFavorites[user.uid] = true;
-                }
-                //有其他使用者按過讚
-                else {
-                    activity.numFavorites = activity.numFavorites + 1;
-                    activity.favorites[user.uid] = true;
-                    updateFavorites[user.uid] = true;
-                }
-            }
-            //取消讚
-            else {
-                activity.statusFavorite = !activity.statusFavorite;
-                //牽扯到物件形狀
-                //沒其他使用者按過讚
-                if (activity.numFavorites == 1) {
-                    activity.numFavorites = activity.numFavorites - 1;
-                    delete activity.favorites[user.uid];
-                    updateFavorites[user.uid] = false;
-                }
-                //有其他使用者按過讚
-                //設為null寫進firebase會自動消失
-                else {
-                    activity.numFavorites = activity.numFavorites - 1;
-                    delete activity.favorites[user.uid];
-                    updateFavorites[user.uid] = null;
-                }
-            }
-            //更改firebasePostFavorites
-            await updateActivityFavorites(activity.clubKey, activity.activityKey, updateFavorites);
-
-            //寫進activityReducer
-            const preActivityReducer = getState().activityReducer.allActivity;
-            const newPreActivityReducer = JSON.parse(JSON.stringify(preActivityReducer));
-            const nextActivityReducer = handleActivityDataToReducer(newPreActivityReducer, clubKey, activityKey, activity);
-            dispatch(ActivityAction.getActivityData(nextActivityReducer));
-            return activity;
-        }
-
+        const setActivityJoin = firebase.functions().httpsCallable('setActivityJoin');
+        const response = await setActivityJoin({ clubKey: clubKey, activityKey: activityKey });
+        return response.data;
     }
     catch (error) {
         console.log(error.toString());
@@ -419,106 +487,23 @@ export const setActivityFavorite = (clubKey, activityKey) => async (dispatch, ge
 //收藏
 export const setActivityKeep = (clubKey, activityKey) => async (dispatch, getState) => {
     try {
-        const club = await getClubData(clubKey);
-        const user = firebase.auth().currentUser;
-        console.log('open:' + club.open);
-        if (!club.open) {
-            if (!club.member[user.uid]) {
-                alert('Activity is not exist!');
-                console.log('不是成員');
-                return null;
-            }
-            console.log('是成員');
-        }
-        const activity = await getInsideActivityData(clubKey, activityKey);
-        if (activity == null || activity.open == false) {
-            console.log('活動不存在');
-            alert('Activity is not exist!');
-            return null;
-        }
-        else {
-            const keepList = await getUserActivities();
-            if (keepList == null) {
-                keepList = {};
-            }
-            const newKeepList = JSON.parse(JSON.stringify(keepList));
-
-            if (newKeepList[clubKey]) {
-                if (newKeepList[clubKey][activityKey]) {
-                    console.log('取消收藏');
-                    newKeepList[clubKey][activityKey] = null;
-                    delete newKeepList[clubKey][activityKey];
-                    //寫進firebase為null消失
-                    statusKeep = null;
-                }
-                else {
-                    console.log('收藏');
-                    newKeepList[clubKey] = {};
-                    newKeepList[clubKey][activityKey] = true;
-                    statusKeep = true;
-                }
-            }
-            else {
-                console.log('收藏');
-                newKeepList[clubKey] = {};
-                newKeepList[clubKey][activityKey] = true;
-                statusKeep = true;
-            }
-
-            //改firebase
-            await updateActivityKeeps(user.uid, clubKey, activityKey, statusKeep);
-
-            //先取得活動基本屬性
-            activity = await setActivityFoundations(clubKey, activityKey, activity, club, newKeepList);
-
-            //寫進activityReducer
-            const preActivityReducer = getState().activityReducer.allActivity;
-            const newPreActivityReducer = JSON.parse(JSON.stringify(preActivityReducer));
-            const nextActivityReducer = handleActivityDataToReducer(newPreActivityReducer, clubKey, activityKey, activity);
-            dispatch(ActivityAction.getActivityData(nextActivityReducer));
-            return activity;
-        }
-
+        const setActivityKeep = firebase.functions().httpsCallable('setActivityKeep');
+        const response = await setActivityKeep({ clubKey: clubKey, activityKey: activityKey });
+        return response.data;
     }
     catch (error) {
         console.log(error.toString());
     }
 }
 
-//觀看
-export const setActivityView = async (activity) => {
+//按讚
+export const setActivityFavorite = (clubKey, activityKey) => async (dispatch, getState) => {
     try {
-        const user = firebase.auth().currentUser;
-        //檢查使用者是否是第一次查看
-        //不是第一次看
-        if (activity.views[user.uid] == true) {
-            console.log('已看過');
-        }
-        //是第一次看
-        else {
-            let updateViews = {};
-            //沒有其他使用者看過
-            if (Object.keys(activity.views).length == 0) {
-                activity.numViews = activity.numViews + 1;
-                activity.views = {};
-                activity.views[user.uid] = true;
-                activity.statusView = true;
-                updateViews[user.uid] = true;
-            }
-            //有其他使用者看過
-            else {
-                activity.numViews = activity.numViews + 1;
-                activity.views[user.uid] = true;
-                activity.statusView = true;
-                updateViews[user.uid] = true;
-            }
-            //寫進資料庫
-            await updateActivityViews(activity.clubKey, activity.activityKey, updateViews);
-            console.log('已設定觀看');
-        }
-        return activity;
+        const setActivityFavorite = firebase.functions().httpsCallable('setActivityFavorite');
+        const response = await setActivityFavorite({ clubKey: clubKey, activityKey: activityKey });
+        return response.data;
     }
     catch (error) {
-        throw error;
+        console.log(error.toString());
     }
 }

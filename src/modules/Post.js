@@ -1,6 +1,7 @@
 import * as firebase from "firebase"
 import { sendPostNotification } from './Api'
 import * as PostAction from '../actions/PostAction'
+import { convertDateFormat } from './Common'
 require("firebase/functions");
 
 //********************************************************************************
@@ -43,7 +44,7 @@ export const initPostToReducer = (obj, navigation) => async (dispatch, getState)
     }
 }
 
-//init:放setPost進postReducer,(第三個變數控制是否刪除)
+//init:放setPost進postReducer
 export const initSetPost = (setPost, navigation) => async (dispatch, getState) => {
     try {
         let setPostInReducer = getState().postReducer.setPost;
@@ -101,6 +102,8 @@ export const syncPost = (data) => async (dispatch, getState) => {
             else {
                 data.map((child) => {
                     let postKey = Object.keys(child)[0];
+                    //轉日期
+                    child[postKey].date = convertDateFormat(child[postKey].date);
 
                     //更新貼文列
                     //需要查詢的route
@@ -155,7 +158,8 @@ export const syncPost = (data) => async (dispatch, getState) => {
         else {
             if (Object.keys(data).length >= 1) {
                 let postKey = data.post.postKey;
-
+                //轉日期
+                data.post.date = convertDateFormat(data.post.date);
                 //更新貼文列
                 //需要查詢的route
                 let itemPostList = Object.keys(ordPostList);
@@ -189,8 +193,15 @@ export const syncPost = (data) => async (dispatch, getState) => {
                     //跑查詢的route是某具有要更動的貼文
                     for (let j = 0; j < itemPost.length; j++) {
                         keyList = Object.keys(ordPost[itemPost[j]]);
+                        //轉日期
                         for (let z = 0; z < keyList.length; z++) {
                             if (keyList[z] == postKey) {
+                                //轉日期
+                                data.comment.map((value,index)=>{
+                                    Object.keys(value).map((key)=>{
+                                        value[key].date = convertDateFormat(value[key].date);
+                                    });
+                                });
                                 //更改內容
                                 ordPost[itemPost[j]][keyList[z]]['post'] = data.post;
                                 ordPost[itemPost[j]][keyList[z]]['comment'] = data.comment;
@@ -326,6 +337,30 @@ export const syncPostBack = (routeName) => async (dispatch, getState) => {
             newReducer[routeName] = null;
             delete newReducer[routeName];
             dispatch(PostAction.getPost(newReducer));
+        }
+    }
+    catch (error) {
+        console.log(error.toString());
+    }
+}
+
+//custom function：搜尋社團返回搜尋頁 清除setState
+export const syncSearchPostBack = (routeName) => async (dispatch, getState) => {
+    try {
+        let setPostListInReducer = getState().postReducer.setPostList;
+        let newObjct = Object.assign({}, setPostListInReducer);
+        if (newObjct[routeName]) {
+            newObjct[routeName] = null;
+            delete newObjct[routeName];
+            dispatch(PostAction.getSetPostList(newObjct));
+        }
+
+        let postList = getState().postReducer.postList;
+        let newReducer = JSON.parse(JSON.stringify(postList));
+        if (newReducer[routeName]) {
+            newReducer[routeName] = null;
+            delete newReducer[routeName];
+            dispatch(PostAction.getPostList(newReducer));
         }
     }
     catch (error) {

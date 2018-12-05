@@ -11,10 +11,22 @@ export default StyleSheet.create({
     row: {
         flexDirection: 'row',
         alignItems: 'center',
+        flex:1,
+    },
+    row2: {
+        flexDirection: 'row-reverse',
+        alignContent: 'flex-end',
+        //alignItems: 'flex-end',
+        flex:1,
+        //marginRight:10,
+        //padding: 8,
+        //marginLeft:90,
+        //borderWidth:1,
+        //borderColor:'red',
     },
     rowLeft: {
         flexDirection: 'row',
-        justifyContent: 'flex-start',
+        //justifyContent: 'flex-start',
         //alignItems: 'center',
         paddingLeft: 20,
         paddingTop: 20
@@ -37,7 +49,8 @@ export default StyleSheet.create({
     column: {
         flexDirection: 'column',
         //justifyContent: 'center',
-        alignItems: 'flex-start'
+        //alignItems: 'flex-end'
+        justifyContent: 'space-around',
     },
     school: {
         color: '#666666',

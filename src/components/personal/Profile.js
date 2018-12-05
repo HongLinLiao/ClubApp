@@ -18,10 +18,7 @@ class Profile extends React.Component {
             <View style={styles.container}>
                 <View style={styles.one}>
                 <View style={styles.circle}>
-                    {user.photoURL ?
-                        <Image style={styles.person} source={{ uri: user.photoURL }} resizeMode='contain' /> :
-                        <Image style={styles.person} source={require('../../images/man-user.png')} resizeMode='contain' />
-                    }
+                    <Image style={styles.person} source={{ uri: user.photoURL }} resizeMode='contain' />
                 </View>
                     <Text style={styles.name}>{user.displayName}</Text>
                     <View style={styles.rowx}>
