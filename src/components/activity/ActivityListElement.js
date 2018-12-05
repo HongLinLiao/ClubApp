@@ -45,8 +45,6 @@ const ActivityListElement = ({
         const obj = await getInsideActivity(activity.clubKey, activity.activityKey);
         if (obj != null) {
             parentOverLayor();
-            //活動同步
-            syncActivity(obj);
             let routeName;
             if (navigation.state.routeName == 'Stories') {
                 routeName = 'HomeActivity'

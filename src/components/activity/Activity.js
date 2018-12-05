@@ -22,9 +22,11 @@ class Activity extends React.Component {
 
     //寫入本地State
     async componentWillMount() {
-        const { initSetActivity, navigation, initActivityToReducer } = this.props;
+        const { initSetActivity, navigation, initActivityToReducer, syncActivity } = this.props;
         initSetActivity((obj) => { this.setState({ activity: obj.activity }); }, navigation);
         initActivityToReducer({ activity: this.props.activity }, navigation);
+        //活動同步
+        syncActivity({ activity: this.props.activity });
         this.setState({
             activity: this.props.activity,
             title: this.props.activity.title,
@@ -313,25 +315,25 @@ class Activity extends React.Component {
         let obj;
 
         let newObj = {};
-        if (this.state.newImg != this.props.activity.photo) {
+        if (this.state.newImg != this.state.activity.photo) {
             newObj.photo = this.state.newImg;
         }
-        if (this.state.title != this.props.activity.title) {
+        if (this.state.title != this.state.activity.title) {
             newObj.title = this.state.title;
         }
-        if (this.state.open != this.props.activity.open) {
+        if (this.state.open != this.state.activity.open) {
             newObj.open = this.state.open;
         }
-        if (this.state.startDateTime != this.props.activity.startDateTime) {
+        if (this.state.startDateTime != this.state.activity.startDateTime) {
             newObj.startDateTime = new Date(this.state.startDateTime).toUTCString();
         }
-        if (this.state.endDateTime != this.props.activity.endDateTime) {
+        if (this.state.endDateTime != this.state.activity.endDateTime) {
             newObj.endDateTime = new Date(this.state.endDateTime).toUTCString();
         }
-        if (this.state.price != this.props.activity.price) {
+        if (this.state.price != this.state.activity.price) {
             newObj.price = parseInt(this.state.price);
         }
-        if (this.state.place != this.props.activity.place) {
+        if (this.state.place != this.state.activity.place) {
             newObj.place = this.state.place;
             if (this.state.region != null) {
                 newObj.location = this.state.region;
@@ -340,10 +342,10 @@ class Activity extends React.Component {
                 newObj.location = false;
             }
         }
-        if (this.state.content != this.props.activity.content) {
+        if (this.state.content != this.state.activity.content) {
             newObj.content = this.state.content;
         }
-        if (this.state.remarks != this.props.activity.remarks) {
+        if (this.state.remarks != this.state.activity.remarks) {
             newObj.remarks = this.state.remarks;
         }
 
@@ -354,20 +356,19 @@ class Activity extends React.Component {
                 //活動同步
                 await syncActivity(obj);
                 this.setState({
-                    title: this.props.activity.title,
-                    open: this.props.activity.open,
-                    startDateTime: this.props.activity.startDateTime,
-                    endDateTime: this.props.activity.endDateTime,
-                    price: this.props.activity.price,
-                    content: this.props.activity.content,
-                    remarks: this.props.activity.remarks,
-                    newImg: this.props.activity.photo,
-                    place: this.props.activity.place,
-                    location: this.props.activity.location,
+                    title: obj.activity.title,
+                    open: obj.activity.open,
+                    startDateTime: obj.activity.startDateTime,
+                    endDateTime: obj.activity.endDateTime,
+                    price: obj.activity.price,
+                    content: obj.activity.content,
+                    remarks: obj.activity.remarks,
+                    newImg: obj.activity.photo,
+                    place: obj.activity.place,
+                    location: obj.activity.location,
                     editLoading: false
                 })
                 this.refs.editAdvanced.close();
-                this.editOverLayar();
             }
             else {
                 //刪除活動同步
@@ -392,7 +393,6 @@ class Activity extends React.Component {
         const dateArray = this.getDateTime()
         const element = JSON.parse(JSON.stringify(this.state.activity));
         const { location } = element
-        const editData = this.state;
 
         return (
 
@@ -462,14 +462,16 @@ class Activity extends React.Component {
                                 </View>
                             </TouchableOpacity>
                             <TouchableOpacity onPress={async () => {
-                                this.refs.advancedActivity.open();
+                                if (element.editStatus || element.deleteStatus) {
+                                    this.refs.advancedActivity.open();
+                                }
                             }}>
                                 <View>
                                     <Image
                                         style={styles.collect}
-                                        source={require("../../images/setting-gray.png")}
+                                        source={element.editStatus || element.deleteStatus ? require("../../images/setting-gray.png") : require("../../images/setting-light.png")}
                                     />
-                                    <Text style={[styles.advancedViewText, { color: "#666666" }]}>設定</Text>
+                                    <Text style={[styles.advancedViewText, { color: element.editStatus || element.deleteStatus ? "#666666" : "#DEDEDE" }]}>設定</Text>
                                 </View>
                             </TouchableOpacity>
                         </View>
@@ -573,7 +575,7 @@ class Activity extends React.Component {
                                 }}
                             >
                                 <Image
-                                    source={{ uri: editData.newImg }}
+                                    source={{ uri: element.photo }}
                                     resizeMode='cover'
                                     style={{ height: 200, width: '100%' }} />
                             </TouchableOpacity>
@@ -582,7 +584,7 @@ class Activity extends React.Component {
                         <View style={{ flexDirection: 'row', width: '100%' }}>
                             <Text style={{ fontSize: 15, color: '#666666', marginTop: 13, marginLeft: 10, }}>名稱: </Text>
                             <TextInput
-                                defaultValue={editData.title}
+                                defaultValue={element.title}
                                 style={{ fontSize: 22, fontWeight: 'bold', marginTop: 7, marginBottom: 7, color: '#666666', width: '80%', borderBottomWidth: 0.5, borderColor: 'rgba(102,102,102,0.5)' }}
                                 underlineColorAndroid={'transparent'}
                                 onChangeText={(content) => this.setState({ title: content })}
@@ -595,7 +597,7 @@ class Activity extends React.Component {
                                 onTintColor={'rgba(246,180,86,1)'}
                                 tintColor={'rgba(246,180,86,0.1)'}
                                 thumbTintColor={'white'}
-                                value={editData.open}
+                                value={this.state.open}
                                 onValueChange={() => this.setState({ open: !this.state.open })}
                             />
                         </View>
@@ -619,7 +621,7 @@ class Activity extends React.Component {
                         <View style={{ flexDirection: 'row', width: '100%' }}>
                             <Text style={{ fontSize: 15, color: '#666666', marginTop: 13, marginLeft: 10 }}>金額: </Text>
                             <TextInput
-                                defaultValue={editData.price.toString()}
+                                defaultValue={element.price.toString()}
                                 style={{ fontSize: 20, marginTop: 8, color: '#666666', width: '80%', borderBottomWidth: 0.5, borderColor: 'rgba(102,102,102,0.5)' }}
                                 underlineColorAndroid='transparent'
                                 keyboardType='numeric'
@@ -630,7 +632,7 @@ class Activity extends React.Component {
                         <View style={{ flexDirection: 'row', width: '100%' }}>
                             <Text style={{ fontSize: 15, color: '#666666', marginTop: 13, marginLeft: 10, }}>位置: </Text>
                             <TextInput
-                                defaultValue={editData.place}
+                                defaultValue={element.place}
                                 style={{ fontSize: 20, marginTop: 8, color: '#666666', width: '70%' }}
                                 underlineColorAndroid='transparent'
                                 onChangeText={place => this.setState({ place: place })}
@@ -668,7 +670,7 @@ class Activity extends React.Component {
                         <View style={{ width: '100%' }}>
                             <Text style={{ fontSize: 15, color: '#666666', marginTop: 13, marginLeft: 10, }}>內容</Text>
                             <TextInput
-                                defaultValue={editData.content}
+                                defaultValue={element.content}
                                 multiline={true}
                                 style={{ fontSize: 15, marginTop: 5, color: '#666666', marginLeft: 10, marginRight: 10, borderBottomWidth: 0.5, borderColor: 'rgba(102,102,102,0.5)', }}
                                 underlineColorAndroid='transparent'
@@ -679,7 +681,7 @@ class Activity extends React.Component {
                         <View style={{ width: '100%' }}>
                             <Text style={{ fontSize: 15, color: '#666666', marginTop: 13, marginLeft: 10, }}>備註</Text>
                             <TextInput
-                                defaultValue={editData.remarks}
+                                defaultValue={element.remarks}
                                 multiline={true}
                                 style={{ fontSize: 15, marginTop: 5, color: '#666666', marginLeft: 10, marginRight: 10, borderBottomWidth: 0.5, borderColor: 'rgba(102,102,102,0.5)', }}
                                 underlineColorAndroid='transparent'

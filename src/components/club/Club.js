@@ -113,8 +113,6 @@ class Club extends React.Component {
     this.clubOverLayar()
     const obj = await getInsideActivity(activity.clubKey, activity.activityKey);
     if (obj != null) {
-      //活動同步
-      syncActivity(obj);
       this.clubOverLayar();
       let routeName;
       if (navigation.state.routeName == 'Stories') {
@@ -531,12 +529,29 @@ class Club extends React.Component {
           >
             <Text
               style={{
-                fontSize: 18,
-                color: "#666666"
+                fontSize: 30,
+                color: "#0d4273",
+                marginBottom: 15,
               }}
             >
-              沒有可以顯示的社團(下拉重整)
+              沒有可以顯示的社團
             </Text>
+            <Text style={{
+              fontSize: 20,
+              color: "#0d4273",
+              marginBottom: 10,
+            }}>下拉重整</Text>
+            <Text style={{
+              fontSize: 15,
+              color: "#0d4273",
+              marginBottom: 10,
+            }}>或是</Text>
+            <TouchableOpacity onPress={() => this.props.navigation.navigate('CreateClub')}>
+              <Text style={{
+                fontSize: 20,
+                color: "#639af2"
+              }}>創建社團</Text>
+            </TouchableOpacity>
           </ScrollView>
         </View>
       );

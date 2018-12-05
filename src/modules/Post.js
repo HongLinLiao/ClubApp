@@ -194,9 +194,14 @@ export const syncPost = (data) => async (dispatch, getState) => {
                     for (let j = 0; j < itemPost.length; j++) {
                         keyList = Object.keys(ordPost[itemPost[j]]);
                         //轉日期
-                        data.comment.date = convertDateFormat(data.comment.date);
                         for (let z = 0; z < keyList.length; z++) {
                             if (keyList[z] == postKey) {
+                                //轉日期
+                                data.comment.map((value,index)=>{
+                                    Object.keys(value).map((key)=>{
+                                        value[key].date = convertDateFormat(value[key].date);
+                                    });
+                                });
                                 //更改內容
                                 ordPost[itemPost[j]][keyList[z]]['post'] = data.post;
                                 ordPost[itemPost[j]][keyList[z]]['comment'] = data.comment;
