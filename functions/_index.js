@@ -1674,8 +1674,10 @@ const convertZoneTime = (start, end, timeZone) => {
 
             let dbAllMin = dbHour * 60 + dbMin; //資料庫時區全部轉分鐘
             let standardAllMin = dbAllMin + new Date().getTimezoneOffset(); //轉成標準時間
+            console.log('標準時間');
+            console.log(standardAllMin/60);
 
-            let localAllMin = standardAllMin + timeZone; //當地標準時間分鐘數分鐘數
+            let localAllMin = standardAllMin - timeZone; //當地標準時間分鐘數
             let localHour;
             //同一天
             if (localAllMin >= 0) {
