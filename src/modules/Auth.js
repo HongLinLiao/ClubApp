@@ -16,7 +16,7 @@ import {
   createUserSettingInDB
 } from './User'
 
-import { registerForPushNotificationsAsync } from './App'
+import { registerForPushNotificationsAsync, recordUserTimeZone } from './App'
 
 import {
   getAllClubData,
@@ -63,7 +63,10 @@ const signInSuccess = (action, user, password, loginType) => async (dispatch) =>
     }
 
     //紀錄expoToken
-    await registerForPushNotificationsAsync(user) 
+    await registerForPushNotificationsAsync(user)
+
+    //紀錄使用者時區
+    await recordUserTimeZone(user)
 
     //使用者相關社團資料
     clubsData = await getAllClubData()
@@ -300,7 +303,8 @@ export const signOut = () => async (dispatch) => {
 
   try {
     const { uid } = firebase.auth().currentUser
-    await firebase.database().ref('users').child(uid).update({expoToken: false}) //避免同一個手幾有多個expoToken
+    await firebase.database().ref('users').child(uid).update({expoToken: false}) //避免同一個帳號有多個expoToken
+    await firebase.database().ref('users').child(uid).update({timezoneOffset: false}) //避免同一個帳號有多個時區
     await firebase.auth().signOut()
     dispatch(UserAction.clearUser())
     dispatch(PostAction.clearPost())

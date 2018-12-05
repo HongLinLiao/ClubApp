@@ -315,25 +315,25 @@ class Activity extends React.Component {
         let obj;
 
         let newObj = {};
-        if (this.state.newImg != this.props.activity.photo) {
+        if (this.state.newImg != this.state.activity.photo) {
             newObj.photo = this.state.newImg;
         }
-        if (this.state.title != this.props.activity.title) {
+        if (this.state.title != this.state.activity.title) {
             newObj.title = this.state.title;
         }
-        if (this.state.open != this.props.activity.open) {
+        if (this.state.open != this.state.activity.open) {
             newObj.open = this.state.open;
         }
-        if (this.state.startDateTime != this.props.activity.startDateTime) {
+        if (this.state.startDateTime != this.state.activity.startDateTime) {
             newObj.startDateTime = new Date(this.state.startDateTime).toUTCString();
         }
-        if (this.state.endDateTime != this.props.activity.endDateTime) {
+        if (this.state.endDateTime != this.state.activity.endDateTime) {
             newObj.endDateTime = new Date(this.state.endDateTime).toUTCString();
         }
-        if (this.state.price != this.props.activity.price) {
+        if (this.state.price != this.state.activity.price) {
             newObj.price = parseInt(this.state.price);
         }
-        if (this.state.place != this.props.activity.place) {
+        if (this.state.place != this.state.activity.place) {
             newObj.place = this.state.place;
             if (this.state.region != null) {
                 newObj.location = this.state.region;
@@ -342,10 +342,10 @@ class Activity extends React.Component {
                 newObj.location = false;
             }
         }
-        if (this.state.content != this.props.activity.content) {
+        if (this.state.content != this.state.activity.content) {
             newObj.content = this.state.content;
         }
-        if (this.state.remarks != this.props.activity.remarks) {
+        if (this.state.remarks != this.state.activity.remarks) {
             newObj.remarks = this.state.remarks;
         }
 
@@ -356,20 +356,19 @@ class Activity extends React.Component {
                 //活動同步
                 await syncActivity(obj);
                 this.setState({
-                    title: this.props.activity.title,
-                    open: this.props.activity.open,
-                    startDateTime: this.props.activity.startDateTime,
-                    endDateTime: this.props.activity.endDateTime,
-                    price: this.props.activity.price,
-                    content: this.props.activity.content,
-                    remarks: this.props.activity.remarks,
-                    newImg: this.props.activity.photo,
-                    place: this.props.activity.place,
-                    location: this.props.activity.location,
+                    title: obj.activity.title,
+                    open: obj.activity.open,
+                    startDateTime: obj.activity.startDateTime,
+                    endDateTime: obj.activity.endDateTime,
+                    price: obj.activity.price,
+                    content: obj.activity.content,
+                    remarks: obj.activity.remarks,
+                    newImg: obj.activity.photo,
+                    place: obj.activity.place,
+                    location: obj.activity.location,
                     editLoading: false
                 })
                 this.refs.editAdvanced.close();
-                this.editOverLayar();
             }
             else {
                 //刪除活動同步
@@ -463,14 +462,16 @@ class Activity extends React.Component {
                                 </View>
                             </TouchableOpacity>
                             <TouchableOpacity onPress={async () => {
-                                this.refs.advancedActivity.open();
+                                if (element.editStatus || element.deleteStatus) {
+                                    this.refs.advancedActivity.open();
+                                }
                             }}>
                                 <View>
                                     <Image
                                         style={styles.collect}
-                                        source={require("../../images/setting-gray.png")}
+                                        source={element.editStatus || element.deleteStatus ? require("../../images/setting-gray.png") : require("../../images/setting-light.png")}
                                     />
-                                    <Text style={[styles.advancedViewText, { color: "#666666" }]}>設定</Text>
+                                    <Text style={[styles.advancedViewText, { color: element.editStatus || element.deleteStatus ? "#666666" : "#DEDEDE" }]}>設定</Text>
                                 </View>
                             </TouchableOpacity>
                         </View>
@@ -596,7 +597,7 @@ class Activity extends React.Component {
                                 onTintColor={'rgba(246,180,86,1)'}
                                 tintColor={'rgba(246,180,86,0.1)'}
                                 thumbTintColor={'white'}
-                                value={element.open}
+                                value={this.state.open}
                                 onValueChange={() => this.setState({ open: !this.state.open })}
                             />
                         </View>

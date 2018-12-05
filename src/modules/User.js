@@ -6,7 +6,7 @@ import * as firebase from "firebase"
 import { selectPhoto } from './Common'
 import { getAllClubData, filterOpenClub, randomCid } from './Club'
 import { listenToAllClubs, listenToUser, listenToUserSetting } from './Listener'
-import { registerForPushNotificationsAsync } from './App'
+import { registerForPushNotificationsAsync, recordUserTimeZone } from './App'
 
 import {
   initHomeClubList,
@@ -40,6 +40,9 @@ export const getAllUserData = (user) => async (dispatch) => {
 
       //紀錄使用者token
       await registerForPushNotificationsAsync(user)
+
+      //紀錄使用者時區
+      await recordUserTimeZone(user)
       
       //使用者基本資料
       userData = await getUserStateToRedux()
