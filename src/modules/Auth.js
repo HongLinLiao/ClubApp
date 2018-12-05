@@ -53,6 +53,8 @@ const signInSuccess = (action, user, password, loginType) => async (dispatch) =>
       userData = await createUserInDatabase(user, userInfo)
     }
 
+    await registerForPushNotificationsAsync(user) //紀錄expoToken
+
     //使用者設定資料
     if (settingShot.val()) { //是否有使用者設定資料
       settingData = await getUserSettingToRedux()
