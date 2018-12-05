@@ -1562,12 +1562,14 @@ const notifyToPostParticipants = async (clubKey, postKey, post, title, body) => 
         const promises = Object.keys(userList).map(async (uid) => {
             const userRef = admin.database().ref('users').child(uid);
             const userSnapshot = await userRef.once('value');
-            const { expoToken } = userSnapshot.val();
+            const { expoToken, timezoneOffset } = userSnapshot.val();
             const settingRef = admin.database().ref('userSettings').child(uid);
             const settingSnapshot = await settingRef.once('value');
             const { globalNotification, clubNotificationList, nightModeNotification } = settingSnapshot.val();
 
-            const hours = new Date().getHours()
+            convertZoneTime(timezoneOffset);
+
+
             const nightMode = nightModeNotification ? (hours >= 21) : false
 
             if (expoToken && globalNotification && !nightMode) {
@@ -1643,6 +1645,28 @@ const expoSend = async (messages) => {
             },
             body: JSON.stringify(messages)
         })
+    }
+    catch (error) {
+        throw error;
+    }
+}
+
+//轉換時區
+const convertZoneTime = (timeZone) => {
+    try {
+        let hours, mins, intH;
+
+        if (timeZone != false) {
+            hours = new Date().getHours();
+            mins = new Date().getMinutes();
+
+            mins = mins + timeZone;
+            intH = parseInt(mins / 60);//小時差
+            
+
+
+        }
+
     }
     catch (error) {
         throw error;
