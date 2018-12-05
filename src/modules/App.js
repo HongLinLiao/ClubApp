@@ -96,3 +96,10 @@ export const registerForPushNotificationsAsync = async (user) => {
     throw e
   }
 }
+
+
+//紀錄使用者手機時區
+export const recordUserTimeZone = async (user) => {
+  const offset = new Date().getTimezoneOffset()
+  await firebase.database().ref('users').child(user.uid).update({timezoneOffset: offset})
+}

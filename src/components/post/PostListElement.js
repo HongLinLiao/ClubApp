@@ -36,8 +36,6 @@ const PostListElement = ({
     const obj = await getInsidePost(post.clubKey, post.postKey);
     if (obj != null) {
       parentOverLayor();
-      //貼文同步
-      syncPost(obj);
       let routeName;
       if (navigation.state.routeName == 'SearchClub') {
         routeName = 'SearchPost';
