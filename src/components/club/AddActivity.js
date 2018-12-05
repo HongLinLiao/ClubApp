@@ -401,12 +401,6 @@ class AddActivity extends React.Component {
 
                 </PopupDialog>
                 {loading ? <Overlayer /> : null}
-<<<<<<< HEAD
-
-
-
-=======
->>>>>>> 91eec07bd2d4be5747d0b5a22c9ebe0c1541cbad
             </KeyboardAvoidingView>
         );
     }
