@@ -205,6 +205,15 @@ class Home extends React.Component {
                             loading={this.state.loading}
                         />
                     </PopupDialog>
+                    {/* <PopupDialog
+                        ref={(userList) => this.userList = userList}
+                        dialogAnimation={slideAnimation}
+                        width={0.7}
+                        height={0.5}
+                        dialogStyle={{ borderRadius: 20 }}
+                    >
+                        
+                    </PopupDialog> */}
                     {this.state.loading ? <Overlayer /> : null}
                 </View>
             );

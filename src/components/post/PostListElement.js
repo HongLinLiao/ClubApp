@@ -93,7 +93,6 @@ const PostListElement = ({
               <Text
                 numberOfLines={3}
                 ellipsizeMode="tail"
-                //ellipsizeText="...more"好像無法顯示除了...的字
                 style={styles.newsContentText}
               >
                 {post.content}
@@ -104,7 +103,7 @@ const PostListElement = ({
             <Text style={styles.newsDateText}>{post.date}</Text>
             <View style={styles.iconView}>
               <View style={styles.aIcon}>
-                <Image //留言icon 不會留過言變色 字也不會變色
+                <Image
                   source={require("../../images/message.png")}
                   style={styles.icon}
                 />
@@ -112,7 +111,7 @@ const PostListElement = ({
               </View>
 
               <View style={styles.aIcon}>
-                <Image //看過icon
+                <Image
                   source={
                     post.statusView
                       ? require("../../images/images2/eyes-orange.png")
@@ -128,8 +127,9 @@ const PostListElement = ({
                 >
                   {post.numViews}
                 </Text>
-                <TouchableOpacity //按讚icon
+                <TouchableOpacity
                   style={styles.aIcon}
+                  onLongPress={()=>{}}
                   onPress={async () => {
                     await pressFavorite(post);
                   }}
@@ -154,8 +154,6 @@ const PostListElement = ({
               </View>
             </View>
           </View>
-
-
         </View>
       </View>
     </TouchableOpacity>
