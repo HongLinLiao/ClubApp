@@ -92,10 +92,10 @@ function () {
           if (nightModeNotification) {
             nightMode = convertZoneTime(nightModeStart, nightModeEnd, timezoneOffset);
           } else {
-            nightMode = false;
+            nightMode = true;
           }
 
-          if (expoToken && globalNotification && clubNotificationList[cid].on && !nightMode) {
+          if (expoToken && globalNotification && clubNotificationList[cid].on && nightMode) {
             messages.push({
               "to": expoToken,
               title,
@@ -1864,10 +1864,10 @@ function () {
           if (nightModeNotification) {
             nightMode = convertZoneTime(nightModeStart, nightModeEnd, timezoneOffset);
           } else {
-            nightMode = false;
+            nightMode = true;
           }
 
-          if (expoToken && globalNotification && !nightMode) {
+          if (expoToken && globalNotification && nightMode) {
             messages.push({
               "to": expoToken,
               title,
@@ -1926,10 +1926,12 @@ function () {
           if (nightModeNotification) {
             nightMode = convertZoneTime(nightModeStart, nightModeEnd, timezoneOffset);
           } else {
-            nightMode = false;
+            nightMode = true;
           }
 
-          if (expoToken && globalNotification && !nightMode) {
+          console.log(nightMode);
+
+          if (expoToken && globalNotification && nightMode) {
             if (body) {
               messages.push({
                 "to": expoToken,
@@ -1998,8 +2000,6 @@ const convertZoneTime = (start, end, timeZone) => {
 
       let standardAllMin = dbAllMin + new Date().getTimezoneOffset(); //轉成標準時間
 
-      console.log('標準時間');
-      console.log(standardAllMin / 60);
       let localAllMin = standardAllMin - timeZone; //當地標準時間分鐘數
 
       let localHour; //同一天
@@ -2013,14 +2013,26 @@ const convertZoneTime = (start, end, timeZone) => {
 
       if (start == 24) {
         start = 0;
-      }
+      } //跨過24點
 
-      if (end == 24) {
-        end = 0;
-      }
 
-      console.log(localHour);
-      return true;
+      if (start > end) {
+        if (localHour < start) {
+          if (localHour > end) {
+            return true;
+          } else {
+            return false;
+          }
+        } else if (localHour > start) {
+          return false;
+        }
+      } else {
+        if (localHour < start || localHour > end) {
+          return true;
+        } else {
+          return false;
+        }
+      }
     } else {
       return true; //沒timeZone照發文
     }
@@ -2546,8 +2558,6 @@ function () {
   var _ref57 = _asyncToGenerator(function* (clubKey, activityKey, updateKeeps) {
     try {
       const uid = Object.keys(updateKeeps)[0];
-      console.log('hah');
-      console.log(updateKeeps);
       let keepRef;
 
       if (updateKeeps[uid] == false) {
