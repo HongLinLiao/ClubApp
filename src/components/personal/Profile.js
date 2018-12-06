@@ -23,7 +23,7 @@ class Profile extends React.Component {
                     <Text style={styles.name}>{user.displayName}</Text>
                     <View style={styles.rowx}>
                         <Image style={styles.hotPoint}
-                            source={require('../../images/point.png')} />
+                            source={require('../../images/newstar.png')} />
                         <Text style={styles.number}>{Object.keys(joinClub).length}</Text>
                     </View>
                 </View>

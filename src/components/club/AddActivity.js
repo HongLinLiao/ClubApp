@@ -23,6 +23,7 @@ import { autocompletePlace, geocodingPlaceId, test } from '../../modules/Api'
 import Overlayer from '../common/Overlayer'
 import styles from '../../styles/club/AddActivity'
 import PlaceDialog from '../common/PlaceDialog';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 
 const slideAnimation = new SlideAnimation({
     slideFrom: 'bottom',
@@ -240,7 +241,6 @@ class AddActivity extends React.Component {
 
         return (
             <KeyboardAvoidingView style={styles.container} behavior="position" keyboardVerticalOffset={64} enabled>
-
                 <ScrollView>
                     <TouchableOpacity style={styles.image} onPress={this.pickPicture}>
                         {
@@ -350,17 +350,22 @@ class AddActivity extends React.Component {
 
 
                         <View style={{ padding: 30 }}>
-                            <Text style={styles.title}>活動內容</Text>
-                            <View style={styles.inputView}>
-                                <TextInput
-                                    style={styles.inputText}
-                                    placeholder='輸入內容......'
-                                    placeholderTextColor='rgba(102,102,102,0.5)'
-                                    underlineColorAndroid='transparent'
-                                    multiline={true}
-                                    onChangeText={(content) => this.setState({ content })}
-                                />
-                            </View>
+                            <KeyboardAwareScrollView>
+                                <Text style={styles.title}>活動內容</Text>
+                                <View style={styles.inputView}>
+
+                                    <TextInput
+                                        style={styles.inputText}
+                                        placeholder='輸入內容......'
+                                        placeholderTextColor='rgba(102,102,102,0.5)'
+                                        underlineColorAndroid='transparent'
+                                        multiline={true}
+                                        onChangeText={(content) => this.setState({ content })}
+                                    />
+
+                                </View>
+                            </KeyboardAwareScrollView>
+
                             <Text style={styles.title}>備註</Text>
                             <View style={styles.inputView}>
                                 <TextInput
@@ -373,7 +378,9 @@ class AddActivity extends React.Component {
                             </View>
 
                         </View>
+
                     </View>
+
                 </ScrollView>
                 <DateTimePicker
                     isVisible={this.state.showDatePicker}
