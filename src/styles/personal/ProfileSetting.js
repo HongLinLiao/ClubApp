@@ -51,8 +51,8 @@ export default StyleSheet.create({
         margin:5
     },
     hotPoint: {
-        height: 28,
-        width: 28,
+        height: 18,
+        width: 18,
         marginRight: 5
     },
     number: {

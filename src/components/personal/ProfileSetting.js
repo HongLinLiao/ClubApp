@@ -124,7 +124,7 @@ class ProfileSetting extends React.Component {
                             </View>
                             <View style={styles.row}>
                                 <Image style={styles.hotPoint}
-                                    source={require('../../images/point.png')} />
+                                    source={require('../../images/newstar.png')} />
                                 <Text style={styles.number}>{Object.keys(joinClub).length}</Text>
                             </View>
                         </View>
