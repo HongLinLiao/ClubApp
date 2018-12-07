@@ -240,7 +240,7 @@ class AddActivity extends React.Component {
         const { status } = member[user.uid]
 
         return (
-            <KeyboardAvoidingView style={styles.container} behavior="position" keyboardVerticalOffset={64} enabled>
+            <KeyboardAvoidingView behavior="position">
                 <ScrollView>
                     <TouchableOpacity style={styles.image} onPress={this.pickPicture}>
                         {
@@ -350,24 +350,25 @@ class AddActivity extends React.Component {
 
 
                         <View style={{ padding: 30 }}>
-                            <KeyboardAwareScrollView>
-                                <Text style={styles.title}>活動內容</Text>
-                                <View style={styles.inputView}>
 
-                                    <TextInput
-                                        style={styles.inputText}
-                                        placeholder='輸入內容......'
-                                        placeholderTextColor='rgba(102,102,102,0.5)'
-                                        underlineColorAndroid='transparent'
-                                        multiline={true}
-                                        onChangeText={(content) => this.setState({ content })}
-                                    />
+                            <Text style={styles.title}>活動內容</Text>
+                            <View style={styles.inputView}>
 
-                                </View>
-                            </KeyboardAwareScrollView>
+                                <TextInput
+                                    style={styles.inputText}
+                                    placeholder='輸入內容......'
+                                    placeholderTextColor='rgba(102,102,102,0.5)'
+                                    underlineColorAndroid='transparent'
+                                    multiline={true}
+                                    onChangeText={(content) => this.setState({ content })}
+                                />
+
+                            </View>
+
 
                             <Text style={styles.title}>備註</Text>
                             <View style={styles.inputView}>
+
                                 <TextInput
                                     style={styles.inputText}
                                     placeholder='輸入內容......'
@@ -375,32 +376,35 @@ class AddActivity extends React.Component {
                                     underlineColorAndroid='transparent'
                                     multiline={true}
                                     onChangeText={(remarks) => this.setState({ remarks })} />
+
                             </View>
 
                         </View>
 
                     </View>
 
-                </ScrollView>
-                <DateTimePicker
-                    isVisible={this.state.showDatePicker}
-                    onConfirm={this.setDateTime}
-                    onCancel={() => this.setState({ showDatePicker: false })}
-                    mode='datetime'
-                />
-                <PopupDialog
-                    ref={(popupDialog) => this.popupDialog = popupDialog}
-                    dialogAnimation={slideAnimation}
-                    width={0.9}
-                    height={0.7}
-                    dialogStyle={{ borderRadius: 10 }}
-                >
-                    <PlaceDialog
-                        setPlace={this.setPlace.bind(this)}
-                    />
 
-                </PopupDialog>
-                {loading ? <Overlayer /> : null}
+                    <DateTimePicker
+                        isVisible={this.state.showDatePicker}
+                        onConfirm={this.setDateTime}
+                        onCancel={() => this.setState({ showDatePicker: false })}
+                        mode='datetime'
+                    />
+                    <PopupDialog
+                        ref={(popupDialog) => this.popupDialog = popupDialog}
+                        dialogAnimation={slideAnimation}
+                        width={0.9}
+                        height={0.7}
+                        dialogStyle={{ borderRadius: 10 }}
+                    >
+                        <PlaceDialog
+                            setPlace={this.setPlace.bind(this)}
+                        />
+
+                    </PopupDialog>
+                    {loading ? <Overlayer /> : null}
+
+                </ScrollView>
             </KeyboardAvoidingView>
         );
     }
