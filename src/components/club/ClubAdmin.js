@@ -88,7 +88,7 @@ class ClubAdmin extends React.Component {
         const status = member[user.uid].status
         let statusChinese = convertClubStatus(status);
         return (
-            <KeyboardAvoidingView style={styles.container}  keyboardVerticalOffset={64} behavior="position" enabled>
+            <KeyboardAvoidingView behavior="position" >
 
                 <ScrollView>
                     <ImageBackground style={styles.clubBackground}
@@ -167,11 +167,9 @@ class ClubAdmin extends React.Component {
                         <Button title='文章管理' onPress={() => { }} />
                         <Button title='活動管理' onPress={() => { }} />
                     </View> */}
+
+                    {this.state.loading ? <Overlayer /> : null}
                 </ScrollView>
-
-
-
-                {this.state.loading ? <Overlayer /> : null}
 
             </KeyboardAvoidingView>
         );
