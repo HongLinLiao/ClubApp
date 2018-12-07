@@ -297,7 +297,7 @@ class AddActivity extends React.Component {
                                                 fontSize: 15,
                                                 flex: 1,
                                                 marginLeft: 15
-                                            }}>公開活動</Text>
+                                            }}>{this.state.open ? "活動公開" : "活動隱藏" }</Text>
                                         </View>
 
                                     }

@@ -88,87 +88,86 @@ class ClubAdmin extends React.Component {
         const status = member[user.uid].status
         let statusChinese = convertClubStatus(status);
         return (
-            <KeyboardAvoidingView style={styles.container}  keyboardVerticalOffset={64} behavior="position" enabled>
+            <KeyboardAvoidingView style={styles.container}  keyboardVerticalOffset={0} behavior="position" enabled>
+                    <ScrollView>
+                        <ImageBackground style={styles.clubBackground}
+                            source={{ uri: imgUrl ? imgUrl : 'https://upload.wikimedia.org/wikipedia/en/d/d3/No-picture.jpg' }} resizeMode='cover' style={{ height: 400 }}>
 
-                <ScrollView>
-                    <ImageBackground style={styles.clubBackground}
-                        source={{ uri: imgUrl ? imgUrl : 'https://upload.wikimedia.org/wikipedia/en/d/d3/No-picture.jpg' }} resizeMode='cover' style={{ height: 400 }}>
-
-                        <TouchableOpacity style={styles.cameraView} onPress={() => this.handleChangePhoto()}>
-                            <Image source={require('../../images/camera.png')}
-                                style={styles.iconCamera} />
-                            <Text style={styles.cameraText}>更換照片</Text>
-                        </TouchableOpacity>
+                            <TouchableOpacity style={styles.cameraView} onPress={() => this.handleChangePhoto()}>
+                                <Image source={require('../../images/camera.png')}
+                                    style={styles.iconCamera} />
+                                <Text style={styles.cameraText}>更換照片</Text>
+                            </TouchableOpacity>
 
 
-                        <View style={styles.clubInfoView}>
-                            <View style={styles.clubLeftTextView}>
-                                <Text style={styles.schoolText}>{schoolName}</Text>
-                                <Text style={styles.clubTopNameText}>{clubName}</Text>
-                            </View>
-                            <View style={styles.clubRightTextView}>
-                                <View style={{ flexDirection: "row" }}>
-                                    <Text style={styles.numberext}>
-                                        {numberOfMember}
-                                        位成員
-                          </Text>
-                                    <TouchableOpacity style={styles.flexDirectionRow} onPress={this.askClubOpen}>
-                                        <Text style={styles.numberext}>{open ? '公開' : '非公開'}</Text>
-                                        <Image source={require('../../images/exchange.png')}
-                                            style={styles.iconPancil} />
-                                    </TouchableOpacity>
+                            <View style={styles.clubInfoView}>
+                                <View style={styles.clubLeftTextView}>
+                                    <Text style={styles.schoolText}>{schoolName}</Text>
+                                    <Text style={styles.clubTopNameText}>{clubName}</Text>
                                 </View>
-                                <Text style={styles.numberext}>
-                                    你的身分：
-                          {statusChinese}
-                                </Text>
+                                <View style={styles.clubRightTextView}>
+                                    <View style={{ flexDirection: "row" }}>
+                                        <Text style={styles.numberext}>
+                                            {numberOfMember}
+                                            位成員
+                            </Text>
+                                        <TouchableOpacity style={styles.flexDirectionRow} onPress={this.askClubOpen}>
+                                            <Text style={styles.numberext}>{open ? '公開' : '非公開'}</Text>
+                                            <Image source={require('../../images/exchange.png')}
+                                                style={styles.iconPancil} />
+                                        </TouchableOpacity>
+                                    </View>
+                                    <Text style={styles.numberext}>
+                                        你的身分：
+                            {statusChinese}
+                                    </Text>
+                                </View>
                             </View>
-                        </View>
-                    </ImageBackground>
+                        </ImageBackground>
 
-                    {/* <View style={styles.adminButtonView}>
-                        <View style={styles.adminButton}>
-                            <Image source={require('../../images/contract-gray.png')}
-                                style={styles.adminIcon} />
-                            <Text style={styles.adminText}>發布文章</Text>
-                        </View>
-                        <View style={styles.adminButton}>
-                            <Image source={require('../../images/idea-gray.png')}
-                                style={styles.adminIcon} />
-                            <Text style={styles.adminText}>舉辦活動</Text>
-                        </View>
-                        <View style={styles.adminButton}>
-                            <Image source={require('../../images/manager-gray.png')}
-                                style={styles.adminIcon} />
-                            <Text style={styles.adminText}>切換管理者</Text>
-                        </View>
-                        <View style={styles.adminButton}>
-                            <View style={styles.adminIcon} >
-                                <Image source={require('../../images/changeMember-gray.png')}
+                        {/* <View style={styles.adminButtonView}>
+                            <View style={styles.adminButton}>
+                                <Image source={require('../../images/contract-gray.png')}
                                     style={styles.adminIcon} />
+                                <Text style={styles.adminText}>發布文章</Text>
                             </View>
-                            <Text style={styles.adminText}>編輯成員</Text>
+                            <View style={styles.adminButton}>
+                                <Image source={require('../../images/idea-gray.png')}
+                                    style={styles.adminIcon} />
+                                <Text style={styles.adminText}>舉辦活動</Text>
+                            </View>
+                            <View style={styles.adminButton}>
+                                <Image source={require('../../images/manager-gray.png')}
+                                    style={styles.adminIcon} />
+                                <Text style={styles.adminText}>切換管理者</Text>
+                            </View>
+                            <View style={styles.adminButton}>
+                                <View style={styles.adminIcon} >
+                                    <Image source={require('../../images/changeMember-gray.png')}
+                                        style={styles.adminIcon} />
+                                </View>
+                                <Text style={styles.adminText}>編輯成員</Text>
+                            </View>
+                        </View> */}
+                        <View style={styles.titleTextView}>
+                            <Text style={styles.titleText}>社團簡介</Text>
                         </View>
-                    </View> */}
-                    <View style={styles.titleTextView}>
-                        <Text style={styles.titleText}>社團簡介</Text>
-                    </View>
-                    <View style={styles.clubSummaryView}>
-                        <TextInput style={styles.clubSummaryText}
-                            multiline={true}
-                            placeholder='來點社團介紹吧~'
-                            defaultValue={introduction ? introduction : ''}
-                            onChangeText={(introduction) => this.setState({ introduction })}
-                            onEndEditing={() => this.updateIntroduction()}
-                            underlineColorAndroid='transparent'
-                        />
-                    </View>
-                    {/* <View style={{ alignItems: 'center', justifyContent: 'center', }}>
-                        <Button title='文章管理' onPress={() => { }} />
-                        <Button title='活動管理' onPress={() => { }} />
-                    </View> */}
-                </ScrollView>
-
+                        <View style={styles.clubSummaryView}>
+                            <TextInput style={styles.clubSummaryText}
+                                multiline={true}
+                                placeholder='來點社團介紹吧~'
+                                defaultValue={introduction ? introduction : ''}
+                                onChangeText={(introduction) => this.setState({ introduction })}
+                                onEndEditing={() => this.updateIntroduction()}
+                                underlineColorAndroid='transparent'
+                            />
+                        </View>
+                        {/* <View style={{ alignItems: 'center', justifyContent: 'center', }}>
+                            <Button title='文章管理' onPress={() => { }} />
+                            <Button title='活動管理' onPress={() => { }} />
+                        </View> */}
+                    </ScrollView>
+                
 
 
                 {this.state.loading ? <Overlayer /> : null}
