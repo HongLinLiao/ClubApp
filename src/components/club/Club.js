@@ -20,6 +20,7 @@ import { getUserData, getClubData } from '../../modules/Data'
 import Overlayer from '../common/Overlayer'
 import PopupDialog, { SlideAnimation } from 'react-native-popup-dialog';
 import UserDialog from '../common/UserDialog'
+import UserListDialog from '../common/UserListDialog'
 import styles from "../../styles/club/Club";
 
 const slideAnimation = new SlideAnimation({
@@ -31,6 +32,7 @@ class Club extends React.Component {
     post: [],
     activity: [],
     userData: { _uid: null, _user: null, _clubs: null },
+    userList: { keyList: {}, dataList: [], classification: '' },
     loading: false,
     currentCid: null,
     //重整
@@ -134,8 +136,6 @@ class Club extends React.Component {
     }
   };
 
-
-
   //檢查社團是否公開(收藏)
   checkTheClubOpen = (currentCid, joinClubs, likeClubs, setCurrentClub) => {
     let cid = currentCid
@@ -222,6 +222,33 @@ class Club extends React.Component {
     }
   }
 
+  showUserList = async (userList, classification) => {
+    try {
+      this.userList.show(async () => {
+        this.setState({ loading: true, userList: { keyList: userList, dataList: [], classification: '' } })
+
+        let userData = [];
+        let userKeyList = Object.keys(userList);
+        if (userKeyList.length > 0) {
+          for (let i = 0; i < userKeyList.length; i++) {
+            let uid = userKeyList[i];
+            let user = await getUserData(uid);
+            if (user) {
+              let obj = {};
+              obj.nickName = user.nickName;
+              obj.photoUrl = user.photoUrl;
+              obj.uid = uid;
+              userData.push(obj);
+            }
+          }
+        }
+        this.setState({ userList: { keyList: userList, dataList: userData, classification: classification }, loading: false })
+      });
+    } catch (error) {
+      Alert.alert(error.toString())
+    }
+  }
+
   //過門
   clubOverLayar = () => {
     this.setState({ loading: !this.state.loading });
@@ -250,6 +277,7 @@ class Club extends React.Component {
       const { schoolName, clubName, open, member, introduction, imgUrl } = clubs[currentCid];
       const numberOfMember = Object.keys(member).length;
       const clubsArray = this.generateClubsArray();
+      const { keyList, dataList, classification } = this.state.userList;
 
       return (
         <View
@@ -409,6 +437,7 @@ class Club extends React.Component {
                             >
                               <View style={styles.heartView}>
                                 <TouchableOpacity style={styles.heartView}
+                                  onLongPress={() => { this.showUserList(activity.favorites, 'favorites') }}
                                   onPress={async () => { await this.pressActivityFavorite(activity); }}>
                                   <Image
                                     style={styles.likeIcon}
@@ -450,6 +479,7 @@ class Club extends React.Component {
                         getInsidePost={this.props.getInsidePost}
                         setPostFavorite={this.props.setPostFavorite}
                         showUser={this.showUser.bind(this)}
+                        showUserList={this.showUserList.bind(this)}
                         parentOverLayor={this.clubOverLayar}
                         syncPost={this.props.syncPost}
                         syncPostDelete={this.props.syncPostDelete}
@@ -506,6 +536,23 @@ class Club extends React.Component {
               user={_user}
               clubs={_clubs}
               loading={this.state.loading}
+            />
+          </PopupDialog>
+          {/* user列表 */}
+          <PopupDialog
+            ref={(userList) => this.userList = userList}
+            dialogAnimation={slideAnimation}
+            width={0.75}
+            height={0.7}
+            dialogStyle={{ borderRadius: 20 }}
+          >
+            <UserListDialog
+              keyList={keyList}
+              dataList={dataList}
+              loading={this.state.loading}
+              showUser={this.showUser.bind(this)}
+              closeList={() => { this.userList.dismiss(); }}
+              classification={classification}
             />
           </PopupDialog>
           {this.state.loading ? <Overlayer /> : null}

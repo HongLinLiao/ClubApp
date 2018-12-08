@@ -833,7 +833,7 @@ function () {
                 yield updateCommentFavorites(clubKey, postKey, commentKey, updateFavorites);
 
                 if (notifyStatus) {
-                  const userData = yield getUserData(commentData[commentKey].commenter);
+                  const userData = yield getUserData(uid);
 
                   if (userData) {
                     let title = `${userData.nickName} 說你在 ${post.schoolName}${post.clubName} 留言讚！`;
@@ -1928,8 +1928,6 @@ function () {
           } else {
             nightMode = true;
           }
-
-          console.log(nightMode);
 
           if (expoToken && globalNotification && nightMode) {
             if (body) {

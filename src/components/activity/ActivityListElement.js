@@ -4,13 +4,6 @@ import { Button } from 'react-native-elements';
 import styles from '../../styles/home/ActivityListElement'
 const Dimensionsss = require('Dimensions');
 const { width, height, scale } = Dimensions.get('window');
-{
-    //     const cols = 3; 
-    // const cellWH = 100; 
-    // const vMargin = (screenW - cellWH * cols) / (cols + 1); 
-}
-
-
 
 const ActivityListElement = ({
     activity,
@@ -21,6 +14,8 @@ const ActivityListElement = ({
     syncActivity,
     syncActivityDelete,
     syncActivityBack,
+    showUserList,
+    showUser,
 }) => {
 
     //活動按讚
@@ -94,7 +89,9 @@ const ActivityListElement = ({
                         imageStyle={styles.clubImage}
                     />
                     <TouchableOpacity style={styles.heartView}
-                        onPress={async () => { await pressFavorite(activity); }}>
+                        onPress={async () => { await pressFavorite(activity); }}
+                        onLongPress={()=>{showUserList(activity.favorites,'favorites')}}
+                        >
                         <Image
                             style={styles.likeIcon}
                             source={activity.statusFavorite ? require("../../images/like-orange.png") : require("../../images/like-gray.png")}

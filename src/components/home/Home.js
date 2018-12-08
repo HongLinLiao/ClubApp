@@ -7,6 +7,7 @@ import { getUserData, getClubData } from '../../modules/Data'
 import Overlayer from '../common/Overlayer'
 import PopupDialog, { SlideAnimation, DialogTitle } from 'react-native-popup-dialog';
 import UserDialog from '../common/UserDialog'
+import UserListDialog from '../common/UserListDialog'
 
 const slideAnimation = new SlideAnimation({
     slideFrom: 'bottom',
@@ -34,6 +35,7 @@ class Home extends React.Component {
         init: true,
         post: [],
         userData: { uid: null, user: null, clubs: null },
+        userList: { keyList: {}, dataList: [], classification: '' },
         //遮罩
         loading: false,
         //重整
@@ -93,9 +95,38 @@ class Home extends React.Component {
 
     }
 
+    showUserList = async (userList, classification) => {
+        try {
+            this.userList.show(async () => {
+                this.setState({ loading: true, userList: { keyList: userList, dataList: [], classification: '' } })
+
+                let userData = [];
+                let userKeyList = Object.keys(userList);
+                if (userKeyList.length > 0) {
+                    for (let i = 0; i < userKeyList.length; i++) {
+                        let uid = userKeyList[i];
+                        let user = await getUserData(uid);
+                        if (user) {
+                            let obj = {};
+                            obj.nickName = user.nickName;
+                            obj.photoUrl = user.photoUrl;
+                            obj.uid = uid;
+                            userData.push(obj);
+                        }
+                    }
+                }
+                this.setState({ userList: { keyList: userList, dataList: userData, classification: classification }, loading: false })
+            });
+        } catch (error) {
+            Alert.alert(error.toString())
+        }
+    }
+
     render() {
         const newPostList = this.state.post.slice();
         const { uid, user, clubs } = this.state.userData;
+        const { keyList, dataList, classification } = this.state.userList;
+
         let nickName;
         if (this.props.user) {
             if (this.props.user.displayName) {
@@ -172,6 +203,7 @@ class Home extends React.Component {
                                             navigation={this.props.navigation}
                                             getInsidePost={this.props.getInsidePost}
                                             setPostFavorite={this.props.setPostFavorite}
+                                            showUserList={this.showUserList.bind(this)}
                                             showUser={this.showUser.bind(this)}
                                             parentOverLayor={this.homeOverLayor}
                                             syncPost={this.props.syncPost}
@@ -191,6 +223,8 @@ class Home extends React.Component {
                                 style={styles.starImage} />
                         </View>
                     </TouchableOpacity>
+
+                    {/* 顯示單一user */}
                     <PopupDialog
                         ref={(popupDialog) => this.popupDialog = popupDialog}
                         dialogAnimation={slideAnimation}
@@ -203,6 +237,24 @@ class Home extends React.Component {
                             user={user}
                             clubs={clubs}
                             loading={this.state.loading}
+                        />
+                    </PopupDialog>
+
+                    {/* user列表 */}
+                    <PopupDialog
+                        ref={(userList) => this.userList = userList}
+                        dialogAnimation={slideAnimation}
+                        width={0.75}
+                        height={0.7}
+                        dialogStyle={{ borderRadius: 20 }}
+                    >
+                        <UserListDialog
+                            keyList={keyList}
+                            dataList={dataList}
+                            loading={this.state.loading}
+                            showUser={this.showUser.bind(this)}
+                            closeList={() => { this.userList.dismiss(); }}
+                            classification={classification}
                         />
                     </PopupDialog>
                     {this.state.loading ? <Overlayer /> : null}

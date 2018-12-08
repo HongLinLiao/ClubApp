@@ -20,6 +20,7 @@ import PopupDialog, { SlideAnimation, DialogTitle } from 'react-native-popup-dia
 import UserDialog from '../common/UserDialog';
 import Modal from 'react-native-modalbox';
 import { takePhoto, selectPhoto } from '../../modules/Common'
+import UserListDialog from '../common/UserListDialog'
 
 const slideAnimation = new SlideAnimation({
   slideFrom: 'bottom',
@@ -27,11 +28,11 @@ const slideAnimation = new SlideAnimation({
 class Post extends React.Component {
   //寫入本地State
   componentWillMount() {
-    const { initSetPost, navigation, initPostToReducer,syncPost } = this.props;
+    const { initSetPost, navigation, initPostToReducer, syncPost } = this.props;
     initSetPost((obj) => { this.setState({ post: obj.post, comment: obj.comment }); }, navigation);
     initPostToReducer({ post: this.props.post, comment: this.props.comment }, navigation);
     //貼文同步
-    syncPost({post: this.props.post, comment: this.props.comment});
+    syncPost({ post: this.props.post, comment: this.props.comment });
     this.setState({ post: this.props.post, comment: this.props.comment, editImg: this.props.post.images });
   }
 
@@ -39,6 +40,7 @@ class Post extends React.Component {
     post: {},
     comment: [],
     userData: { uid: null, user: null, clubs: null },
+    userList: { keyList: {}, dataList: [], classification: '' },
     loading: false,//貼文過門
     editPostLoading: false,//編輯貼文過門
     editCommentLoading: false,//編輯留言過門,
@@ -344,6 +346,34 @@ class Post extends React.Component {
     }
   }
 
+  //顯示userList
+  showUserList = async (userList, classification) => {
+    try {
+      this.userList.show(async () => {
+        this.setState({ loading: true, userList: { keyList: userList, dataList: [], classification: '' } })
+
+        let userData = [];
+        let userKeyList = Object.keys(userList);
+        if (userKeyList.length > 0) {
+          for (let i = 0; i < userKeyList.length; i++) {
+            let uid = userKeyList[i];
+            let user = await getUserData(uid);
+            if (user) {
+              let obj = {};
+              obj.nickName = user.nickName;
+              obj.photoUrl = user.photoUrl;
+              obj.uid = uid;
+              userData.push(obj);
+            }
+          }
+        }
+        this.setState({ userList: { keyList: userList, dataList: userData, classification: classification }, loading: false })
+      });
+    } catch (error) {
+      Alert.alert(error.toString())
+    }
+  }
+
   //顯示留言進階選項
   showAdvancedComment = (obj) => {
     try {
@@ -361,6 +391,8 @@ class Post extends React.Component {
     const commentData = this.state.comment
     const element = JSON.parse(JSON.stringify(this.state.post));
     const { uid, user, clubs } = this.state.userData;
+    const { keyList, dataList, classification } = this.state.userList;
+
 
     return (
 
@@ -434,6 +466,7 @@ class Post extends React.Component {
             <View style={[styles.sbRowLine, { marginTop: 20 }]}>
               <View style={[styles.row,]}>
                 <TouchableOpacity style={{ flexDirection: 'row' }}
+                  onLongPress={() => { this.showUserList(element.favorites, 'favorites'); }}
                   onPress={async () =>
                     await this.pressFavorite(element.clubKey, element.postKey)
                   }
@@ -458,18 +491,24 @@ class Post extends React.Component {
                   source={require("../../images/message.png")}
                 />
                 <Text style={styles.number}>{element.numComments}</Text>
-                <Image
-                  style={styles.icon}
-                  source={
-                    element.statusView
-                      ? require("../../images/images2/eyes-orange.png")
-                      : require("../../images/eyes.png")
-                  }
-                />
-                <Text style={[
-                  styles.number,
-                  { color: element.statusView ? "#f6b456" : "#666666" }
-                ]}>{element.numViews}</Text>
+                <TouchableOpacity onLongPress={() => { this.showUserList(element.views, 'views'); }}
+                  onPress={() => { this.showUserList(element.views, 'views'); }}>
+                  <Image
+                    style={styles.icon}
+                    source={
+                      element.statusView
+                        ? require("../../images/images2/eyes-orange.png")
+                        : require("../../images/eyes.png")
+                    }
+                  />
+                </TouchableOpacity>
+                <TouchableOpacity onLongPress={() => { this.showUserList(element.views, 'views'); }}
+                  onPress={() => { this.showUserList(element.views, 'views'); }}>
+                  <Text style={[
+                    styles.number,
+                    { color: element.statusView ? "#f6b456" : "#666666" }
+                  ]}>{element.numViews}</Text>
+                </TouchableOpacity>
               </View>
             </View>
             <Comment
@@ -479,6 +518,7 @@ class Post extends React.Component {
               navigation={this.props.navigation}
               setCommentFavorite={this.props.setCommentFavorite}
               showUser={this.showUser.bind(this)}
+              showUserList={this.showUserList.bind(this)}
               showAdvancedComment={this.showAdvancedComment.bind(this)}
               postOverLayar={this.postOverLayar}
               syncPost={this.props.syncPost}
@@ -769,8 +809,25 @@ class Post extends React.Component {
           {this.state.editCommentLoading ? <Overlayer /> : null}
         </PopupDialog>
 
+        {/* user列表 */}
+        <PopupDialog
+          ref={(userList) => this.userList = userList}
+          dialogAnimation={slideAnimation}
+          width={0.75}
+          height={0.7}
+          dialogStyle={{ borderRadius: 20 }}
+        >
+          <UserListDialog
+            keyList={keyList}
+            dataList={dataList}
+            loading={this.state.loading}
+            showUser={this.showUser.bind(this)}
+            closeList={() => { this.userList.dismiss(); }}
+            classification={classification}
+          />
+        </PopupDialog>
         {this.state.loading ? <Overlayer /> : null}
-      </View>
+      </View >
 
     );
 
