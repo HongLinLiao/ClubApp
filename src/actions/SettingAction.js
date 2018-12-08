@@ -6,6 +6,7 @@
 export const SET_ALL_SETTING = 'SET_ALL_SETTING'
 export const SET_GLOBAL_NOTIFICATION = 'SET_GLOBAL_NOTIFICATION'
 export const SET_NIGHT_MODE_NOTIFICATION = 'SET_NIGHT_MODE_NOTIFICATION'
+export const SET_NIGHT_MODE_TIME = 'SET_NIGHT_MODE_TIME'
 export const SET_CLUB_NOTIFICATION = 'SET_CLUB_NOTIFICATION'
 
 /*
@@ -26,6 +27,12 @@ export const setGlobalNotification = (on) => ({
 export const setNightModeNotification = (on) => ({
   type: SET_NIGHT_MODE_NOTIFICATION,
   on
+})
+
+export const setNightModeTime = (start,end) => ({
+  type: SET_NIGHT_MODE_TIME,
+  start,
+  end
 })
 
 export const setClubNotification = (newClubNotificationList) => ({

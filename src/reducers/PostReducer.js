@@ -3,8 +3,11 @@ import {
   GET_POST,
   GET_SETPOSTLIST,
   GET_SETPOST,
-  CLEAR_POST
 } from '../actions/PostAction'
+
+import {
+	CLEAR_USER_STATE
+} from '../actions/UserAction'
 
 const initialState = {
   postList: {},//每個tab貼文列
@@ -35,7 +38,7 @@ export const postReducer = (state = initialState, action) => {
         ...state,
         setPost: action.setPost
       }
-    case CLEAR_POST:
+    case CLEAR_USER_STATE:
       return initialState
     default:
       return state

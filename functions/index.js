@@ -77,17 +77,25 @@ function () {
           const userSnapshot = yield userRef.once('value');
           const settingSnapshot = yield settingRef.once('value');
           const {
-            expoToken
+            expoToken,
+            timezoneOffset
           } = userSnapshot.val();
           const {
             globalNotification,
             clubNotificationList,
-            nightModeNotification
+            nightModeNotification,
+            nightModeStart,
+            nightModeEnd
           } = settingSnapshot.val();
-          const hours = new Date().getHours();
-          const nightMode = nightModeNotification ? hours >= 21 : false;
+          let nightMode;
 
-          if (expoToken && globalNotification && clubNotificationList[cid].on && !nightMode) {
+          if (nightModeNotification) {
+            nightMode = convertZoneTime(nightModeStart, nightModeEnd, timezoneOffset);
+          } else {
+            nightMode = true;
+          }
+
+          if (expoToken && globalNotification && clubNotificationList[cid].on && nightMode) {
             messages.push({
               "to": expoToken,
               title,
@@ -1839,19 +1847,27 @@ function () {
           const userRef = admin.database().ref('users').child(uid);
           const userSnapshot = yield userRef.once('value');
           const {
-            expoToken
+            expoToken,
+            timezoneOffset
           } = userSnapshot.val();
           const settingRef = admin.database().ref('userSettings').child(uid);
           const settingSnapshot = yield settingRef.once('value');
           const {
             globalNotification,
             clubNotificationList,
-            nightModeNotification
+            nightModeNotification,
+            nightModeStart,
+            nightModeEnd
           } = settingSnapshot.val();
-          const hours = new Date().getHours();
-          const nightMode = nightModeNotification ? hours >= 21 : false;
+          let nightMode;
 
-          if (expoToken && globalNotification && !nightMode) {
+          if (nightModeNotification) {
+            nightMode = convertZoneTime(nightModeStart, nightModeEnd, timezoneOffset);
+          } else {
+            nightMode = true;
+          }
+
+          if (expoToken && globalNotification && nightMode) {
             messages.push({
               "to": expoToken,
               title,
@@ -1893,19 +1909,29 @@ function () {
           const userRef = admin.database().ref('users').child(uid);
           const userSnapshot = yield userRef.once('value');
           const {
-            expoToken
+            expoToken,
+            timezoneOffset
           } = userSnapshot.val();
           const settingRef = admin.database().ref('userSettings').child(uid);
           const settingSnapshot = yield settingRef.once('value');
           const {
             globalNotification,
             clubNotificationList,
-            nightModeNotification
+            nightModeNotification,
+            nightModeStart,
+            nightModeEnd
           } = settingSnapshot.val();
-          const hours = new Date().getHours();
-          const nightMode = nightModeNotification ? hours >= 21 : false;
+          let nightMode;
 
-          if (expoToken && globalNotification && !nightMode) {
+          if (nightModeNotification) {
+            nightMode = convertZoneTime(nightModeStart, nightModeEnd, timezoneOffset);
+          } else {
+            nightMode = true;
+          }
+
+          console.log(nightMode);
+
+          if (expoToken && globalNotification && nightMode) {
             if (body) {
               messages.push({
                 "to": expoToken,
@@ -1962,7 +1988,58 @@ function () {
   return function expoSend(_x81) {
     return _ref34.apply(this, arguments);
   };
-}(); ////////////////////////////////////////////////////////////////////////////////////
+}(); //轉換時區
+
+
+const convertZoneTime = (start, end, timeZone) => {
+  try {
+    if (timeZone != false) {
+      let dbHour = new Date().getHours();
+      let dbMin = new Date().getMinutes();
+      let dbAllMin = dbHour * 60 + dbMin; //資料庫時區全部轉分鐘
+
+      let standardAllMin = dbAllMin + new Date().getTimezoneOffset(); //轉成標準時間
+
+      let localAllMin = standardAllMin - timeZone; //當地標準時間分鐘數
+
+      let localHour; //同一天
+
+      if (localAllMin >= 0) {
+        localHour = localAllMin / 60;
+      } //慢一天
+      else {
+          localHour = (1440 + localAllMin) / 60;
+        }
+
+      if (start == 24) {
+        start = 0;
+      } //跨過24點
+
+
+      if (start > end) {
+        if (localHour < start) {
+          if (localHour > end) {
+            return true;
+          } else {
+            return false;
+          }
+        } else if (localHour > start) {
+          return false;
+        }
+      } else {
+        if (localHour < start || localHour > end) {
+          return true;
+        } else {
+          return false;
+        }
+      }
+    } else {
+      return true; //沒timeZone照發文
+    }
+  } catch (error) {
+    throw error;
+  }
+}; ////////////////////////////////////////////////////////////////////////////////////
 // Realtime Database
 ////////////////////////////////////////////////////////////////////////////////////
 //取得特定社團資訊
@@ -2481,8 +2558,6 @@ function () {
   var _ref57 = _asyncToGenerator(function* (clubKey, activityKey, updateKeeps) {
     try {
       const uid = Object.keys(updateKeeps)[0];
-      console.log('hah');
-      console.log(updateKeeps);
       let keepRef;
 
       if (updateKeeps[uid] == false) {

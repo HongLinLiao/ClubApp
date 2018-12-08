@@ -11,8 +11,6 @@ export const GET_ACTIVITYLIST = 'GET_ACTIVITYLIST'//放進活動列
 export const GET_ACTIVITY = 'GET_ACTIVITY'//放進活動
 export const GET_SETACTIVITYLIST = 'GET_SETACTIVITYLIST'//放進每個tab設定活動列
 export const GET_SETACTIVITY = 'GET_SETACTIVITY'//放進每個tab設定活動
-//清空reducer
-export const CLEAR_ACTIVITY = 'CLEAR_ACTIVITY'
 
 /*
 |-----------------------------------------------
@@ -45,8 +43,4 @@ export const getSetActivityList = (setActivityList) => ({
 export const getSetActivity = (setActivity) => ({
     type: GET_SETACTIVITY,
     setActivity
-})
-//清空reducer
-export const clearActivity = () => ({
-    type: CLEAR_ACTIVITY,
 })
