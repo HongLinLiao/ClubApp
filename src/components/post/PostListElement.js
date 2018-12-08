@@ -8,6 +8,7 @@ const PostListElement = ({
   getInsidePost,
   setPostFavorite,
   showUser,
+  showUserList,
   parentOverLayor,
   syncPost,
   syncPostDelete,
@@ -111,25 +112,35 @@ const PostListElement = ({
               </View>
 
               <View style={styles.aIcon}>
-                <Image
-                  source={
-                    post.statusView
-                      ? require("../../images/images2/eyes-orange.png")
-                      : require("../../images/eyes.png")
-                  }
-                  style={styles.icon}
-                />
-                <Text
-                  style={[
-                    styles.iconNumber,
-                    { color: post.statusView ? "#f6b456" : "#666666" }
-                  ]}
-                >
-                  {post.numViews}
-                </Text>
+
                 <TouchableOpacity
                   style={styles.aIcon}
-                  onLongPress={()=>{}}
+                  onLongPress={() => { showUserList(post.views, 'views'); }}
+                  onPress={async () => {
+                    await showUserList(post.views);
+                  }}
+                >
+                  <Image
+                    source={
+                      post.statusView
+                        ? require("../../images/images2/eyes-orange.png")
+                        : require("../../images/eyes.png")
+                    }
+                    style={styles.icon}
+                  />
+                  <Text
+                    style={[
+                      styles.iconNumber,
+                      { color: post.statusView ? "#f6b456" : "#666666" }
+                    ]}
+                  >
+                    {post.numViews}
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.aIcon}
+                  onLongPress={() => { showUserList(post.favorites, 'favorites'); }}
                   onPress={async () => {
                     await pressFavorite(post);
                   }}
@@ -151,6 +162,7 @@ const PostListElement = ({
                     {post.numFavorites}
                   </Text>
                 </TouchableOpacity>
+
               </View>
             </View>
           </View>
