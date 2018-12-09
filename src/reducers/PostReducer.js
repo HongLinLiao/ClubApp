@@ -6,7 +6,7 @@ import {
 } from '../actions/PostAction'
 
 import {
-	CLEAR_USER_STATE
+  CLEAR_USER_STATE
 } from '../actions/UserAction'
 
 const initialState = {
@@ -39,7 +39,13 @@ export const postReducer = (state = initialState, action) => {
         setPost: action.setPost
       }
     case CLEAR_USER_STATE:
-      return initialState
+      return {
+        ...state,
+        postList: {},
+        post: {},
+        setPostList: {},
+        setPost: {}
+      }
     default:
       return state
   }

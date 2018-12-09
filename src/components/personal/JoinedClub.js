@@ -48,30 +48,39 @@ class JoinedClub extends React.Component {
 
   render() {
     const { joinClubs } = this.props;
-    return (
-      <View style={styles.container}>
-        <ScrollView>
-          {Object.keys(joinClubs).map((cid, index) => {
-            const { clubName, schoolName } = joinClubs[cid];
-            return (
+    if (Object.keys(joinClubs).length > 0) {
+      return (
+        <View style={styles.container}>
+          <ScrollView>
+            {Object.keys(joinClubs).map((cid, index) => {
+              const { clubName, schoolName } = joinClubs[cid];
+              return (
                 <View style={styles.listView} key={cid}>
-                <View style={styles.textArea}>
+                  <View style={styles.textArea}>
                     <Text style={styles.school}>{schoolName}</Text>
                     <Text style={styles.club}>{clubName}</Text>
-                </View>
-                <View>
+                  </View>
+                  <View>
                     <TouchableOpacity onPress={() => this.quit(cid)}>
-                        <Image source={require('../../images/cancel.png')}
-                            style={styles.cancelIcon} />
+                      <Image source={require('../../images/cancel.png')}
+                        style={styles.cancelIcon} />
                     </TouchableOpacity>
+                  </View>
                 </View>
-            </View>
-            );
-          })}
-        </ScrollView>
-        {this.state.loading ? <Overlayer /> : null}
-      </View>
-    );
+              );
+            })}
+          </ScrollView>
+          {this.state.loading ? <Overlayer /> : null}
+        </View>
+      );
+    }
+    else {
+      return (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <Text style={{ fontSize: 23, color: '#666666' }}>你還沒有加入任何社團唷！</Text>
+        </View>
+      );
+    }
   }
 }
 
