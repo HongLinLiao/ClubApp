@@ -43,6 +43,7 @@ class AddActivity extends React.Component {
         datePickerId: 0, // 0 or 1 設定開始跟結束
         loading: false,
         tempPlace: '',
+        keyboardAvoid: true,
 
         title: '',
         content: '',
@@ -99,7 +100,7 @@ class AddActivity extends React.Component {
                 tempPlace: formatted_address,
                 location: region,
                 region: region,
-                loading: false
+                loading: false,
             })
 
             this.popupDialog.dismiss()
@@ -107,6 +108,10 @@ class AddActivity extends React.Component {
         } catch (e) {
             Alert.alert(e.toString())
         }
+    }
+
+    cancelKeyboard = () => {
+        this.setState({ keyboardAvoid: !this.state.keyboardAvoid })
     }
 
     open = async () => {
@@ -240,7 +245,7 @@ class AddActivity extends React.Component {
         const { status } = member[user.uid]
 
         return (
-            <KeyboardAvoidingView style={styles.container} behavior="position" keyboardVerticalOffset={64} enabled>
+            <KeyboardAvoidingView style={styles.container} behavior="position" keyboardVerticalOffset={64} enabled={this.state.keyboardAvoid}>
                 <ScrollView>
                     <TouchableOpacity style={styles.image} onPress={this.pickPicture}>
                         {
@@ -270,14 +275,14 @@ class AddActivity extends React.Component {
                                 <ListItem
                                     switch={{
                                         value: this.state.open,
-                                        onValueChange: () => this.setState({ open: !this.state.open}),
+                                        onValueChange: () => this.setState({ open: !this.state.open }),
                                         style: { transform: [{ scaleX: 1 }, { scaleY: 1 }] },
                                         onTintColor: 'rgba(246,180,86,1)',
                                         tintColor: 'rgba(246,180,86,0.1)',
                                         thumbTintColor: 'white'
                                     }}
                                     leftElement={
-                                        <View style={{width: 250, flexDirection: 'row', alignItems: 'center', justifyContent: 'center',}}>
+                                        <View style={{ width: 250, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', }}>
                                             <View style={{
                                                 borderRadius: 20,
                                                 backgroundColor: 'rgba(246, 180, 86, 0.2)',
@@ -297,7 +302,7 @@ class AddActivity extends React.Component {
                                                 fontSize: 15,
                                                 flex: 1,
                                                 marginLeft: 15
-                                            }}>{this.state.open ? "活動公開" : "活動隱藏" }</Text>
+                                            }}>{this.state.open ? "活動公開" : "活動隱藏"}</Text>
                                         </View>
 
                                     }
@@ -350,7 +355,9 @@ class AddActivity extends React.Component {
                             </View>
                         </View>
                         <View style={[styles.row, { flex: 1, paddingTop: 10 }]}>
-                            <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center' }} onPress={() => this.popupDialog.show()}>
+                            <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center' }} onPress={() => {
+                                this.popupDialog.show()
+                            }}>
                                 <Text style={{ color: '#0d4273', marginRight: 5 }}>搜尋地點</Text>
                                 <Image source={require('../../images/search.png')} style={styles.searchIcon} />
                             </TouchableOpacity>
@@ -423,6 +430,7 @@ class AddActivity extends React.Component {
                     dialogStyle={{ borderRadius: 10 }}
                 >
                     <PlaceDialog
+                        cancelKeyboard={this.cancelKeyboard.bind(this)}
                         setPlace={this.setPlace.bind(this)}
                     />
 

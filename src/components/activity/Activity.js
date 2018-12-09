@@ -52,6 +52,7 @@ class Activity extends React.Component {
         refreshing: false,
         userData: { uid: null, user: null, clubs: null },
         userList: { keyList: {}, dataList: [], classification: '' },
+        keyboardAvoid: true,
 
         editLoading: false,
         location: null,
@@ -164,6 +165,10 @@ class Activity extends React.Component {
             this.activityOverLayar();
             navigation.goBack();
         }
+    }
+
+    cancelKeyboard = () => {
+        this.setState({ keyboardAvoid: !this.state.keyboardAvoid })
     }
 
     //點讚
@@ -807,6 +812,7 @@ class Activity extends React.Component {
                     >
                         <PlaceDialog
                             setPlace={this.setPlace.bind(this)}
+                            cancelKeyboard={this.cancelKeyboard.bind(this)}
                         />
 
                     </PopupDialog>
