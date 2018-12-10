@@ -88,9 +88,10 @@ class ClubAdmin extends React.Component {
         const status = member[user.uid].status
         let statusChinese = convertClubStatus(status);
         return (
-            <KeyboardAvoidingView behavior="position" >
+            <View style={{flex: 1}}>
 
-                <ScrollView>
+                <ScrollView contentContainerStyle={{flex: 1}}>
+                <KeyboardAvoidingView behavior="position" style={{flex: 1}}>
                     <ImageBackground style={styles.clubBackground}
                         source={{ uri: imgUrl ? imgUrl : 'https://upload.wikimedia.org/wikipedia/en/d/d3/No-picture.jpg' }} resizeMode='cover' style={{ height: 400 }}>
 
@@ -169,9 +170,10 @@ class ClubAdmin extends React.Component {
                     </View> */}
 
                     {this.state.loading ? <Overlayer /> : null}
+                    </KeyboardAvoidingView>
                 </ScrollView>
-
-            </KeyboardAvoidingView>
+            
+            </View>
         );
     }
 }
