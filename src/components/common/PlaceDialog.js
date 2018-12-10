@@ -1,5 +1,5 @@
 import React from 'react'
-import { View, Text, TextInput, Image, ScrollView, TouchableOpacity, Alert, StyleSheet, KeyboardAvoidingView } from 'react-native'
+import { View, Text, TextInput, Image, ScrollView, Keyboard, TouchableOpacity, Alert, StyleSheet, KeyboardAvoidingView } from 'react-native'
 import Overlayer from '../common/Overlayer'
 import { autocompletePlace } from "../../modules/Api";
 
