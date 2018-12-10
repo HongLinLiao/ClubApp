@@ -54,7 +54,13 @@ export default StyleSheet.create({
     },
     flexDirectionRow: {
         flexDirection: 'row',
-        alignItems: 'flex-end',
+        backgroundColor: "#0d4273",
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginLeft: 10,
+        borderRadius: 5,
+        paddingRight: 5,
+        paddingLeft: 5,
     },
     iconPancil: {
         height: 20,

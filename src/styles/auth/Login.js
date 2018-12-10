@@ -19,7 +19,10 @@ export default StyleSheet.create({
     width:80,
     height:80,
     backgroundColor:'rgba(255,255,255,0.4)',
-    borderRadius: 100
+    borderRadius: 100,
+    overflow: 'hidden', 
+    justifyContent: 'center', 
+    alignItems: 'center', 
   },
   mail:{
     flexDirection:'row',

@@ -2,6 +2,15 @@ import React from 'react'
 import { View, ScrollView, RefreshControl, Image, Text } from 'react-native'
 import ActivityListElement from '../activity/ActivityListElement';
 import Overlayer from '../common/Overlayer'
+import PopupDialog, { SlideAnimation, DialogTitle } from 'react-native-popup-dialog';
+import { getUserData, getClubData } from '../../modules/Data'
+import UserListDialog from '../common/UserListDialog'
+import UserDialog from '../common/UserDialog'
+
+
+const slideAnimation = new SlideAnimation({
+    slideFrom: 'bottom',
+});
 
 class HomeActivities extends React.Component {
 
@@ -10,6 +19,8 @@ class HomeActivities extends React.Component {
         activity: [],
         loading: false,
         refreshing: false,
+        userData: { uid: null, user: null, clubs: null },
+        userList: { keyList: {}, dataList: [], classification: '' },
     }
 
     async componentDidMount() {
@@ -45,7 +56,62 @@ class HomeActivities extends React.Component {
         }
     }
 
+    showUser = async (uid) => {
+        try {
+            this.popupDialog.show(async () => {
+                this.setState({ loading: true, userData: { uid: null, user: null, clubs: null } })
+                const userData = { uid, user: {}, clubs: {} }
+                const user = await getUserData(uid)
+
+                if (user.joinClub) {
+                    const promises = Object.keys(user.joinClub).map(async (cid) => {
+                        const club = await getClubData(cid)
+                        userData.clubs[cid] = club
+                    })
+
+                    await Promise.all(promises)
+                }
+
+                userData.user = user
+
+                this.setState({ userData, loading: false })
+            });
+        } catch (e) {
+            Alert.alert(e.toString())
+        }
+
+    }
+
+    showUserList = async (userList, classification) => {
+        try {
+            this.userList.show(async () => {
+                this.setState({ loading: true, userList: { keyList: userList, dataList: [], classification: '' } })
+
+                let userData = [];
+                let userKeyList = Object.keys(userList);
+                if (userKeyList.length > 0) {
+                    for (let i = 0; i < userKeyList.length; i++) {
+                        let uid = userKeyList[i];
+                        let user = await getUserData(uid);
+                        if (user) {
+                            let obj = {};
+                            obj.nickName = user.nickName;
+                            obj.photoUrl = user.photoUrl;
+                            obj.uid = uid;
+                            userData.push(obj);
+                        }
+                    }
+                }
+                this.setState({ userList: { keyList: userList, dataList: userData, classification: classification }, loading: false })
+            });
+        } catch (error) {
+            Alert.alert(error.toString())
+        }
+    }
+
     render() {
+        const { uid, user, clubs } = this.state.userData;
+        const { keyList, dataList, classification } = this.state.userList;
         let nickName;
         if (this.props.user) {
             if (this.props.user.displayName) {
@@ -142,6 +208,8 @@ class HomeActivities extends React.Component {
                                             Object.values(value).map((activity) => (
                                                 <ActivityListElement
                                                     key={activity.activityKey}
+                                                    showUserList={this.showUserList.bind(this)}
+                                                    showUser={this.showUser.bind(this)}
                                                     activity={activity}
                                                     navigation={this.props.navigation}
                                                     getInsideActivity={this.props.getInsideActivity}
@@ -159,6 +227,39 @@ class HomeActivities extends React.Component {
                             ))
                         }
                     </ScrollView>
+                    {/* 顯示單一user */}
+                    <PopupDialog
+                        ref={(popupDialog) => this.popupDialog = popupDialog}
+                        dialogAnimation={slideAnimation}
+                        width={0.7}
+                        height={0.7}
+                        dialogStyle={{ borderRadius: 20 }}
+                    >
+                        <UserDialog
+                            uid={uid}
+                            user={user}
+                            clubs={clubs}
+                            loading={this.state.loading}
+                        />
+                    </PopupDialog>
+
+                    {/* user列表 */}
+                    <PopupDialog
+                        ref={(userList) => this.userList = userList}
+                        dialogAnimation={slideAnimation}
+                        width={0.75}
+                        height={0.7}
+                        dialogStyle={{ borderRadius: 20 }}
+                    >
+                        <UserListDialog
+                            keyList={keyList}
+                            dataList={dataList}
+                            loading={this.state.loading}
+                            showUser={this.showUser.bind(this)}
+                            closeList={() => { this.userList.dismiss(); }}
+                            classification={classification}
+                        />
+                    </PopupDialog>
                     {this.state.loading ? <Overlayer /> : null}
                 </View >
             );

@@ -160,7 +160,7 @@ export default StyleSheet.create({
     marginTop: 12,
   },
   advancedView: {
-    height: 65,
+    height: '30%',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-around',
@@ -172,8 +172,7 @@ export default StyleSheet.create({
     marginRight: 20,
   },
   advancedViewText:{
-    marginTop: 3,
-    fontSize: 13
+    fontSize: 13,
   },
   advancedActivityBtn: {
     backgroundColor: 'rgba(246,180,86,1)',

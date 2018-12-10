@@ -88,8 +88,10 @@ class ClubAdmin extends React.Component {
         const status = member[user.uid].status
         let statusChinese = convertClubStatus(status);
         return (
-            <View style={styles.container}>
-                <ScrollView>
+            <View style={{flex: 1}}>
+
+                <ScrollView contentContainerStyle={{flex: 1}}>
+                <KeyboardAvoidingView behavior="position" style={{flex: 1}}>
                     <ImageBackground style={styles.clubBackground}
                         source={{ uri: imgUrl ? imgUrl : 'https://upload.wikimedia.org/wikipedia/en/d/d3/No-picture.jpg' }} resizeMode='cover' style={{ height: 400 }}>
 
@@ -99,30 +101,30 @@ class ClubAdmin extends React.Component {
                             <Text style={styles.cameraText}>更換照片</Text>
                         </TouchableOpacity>
 
-                        
+
                         <View style={styles.clubInfoView}>
-                      <View style={styles.clubLeftTextView}>
-                        <Text style={styles.schoolText}>{schoolName}</Text>
-                        <Text style={styles.clubTopNameText}>{clubName}</Text>
-                      </View>
-                      <View style={styles.clubRightTextView}>
-                        <View style={{ flexDirection: "row" }}>
-                          <Text style={styles.numberext}>
-                            {numberOfMember}
-                            位成員
-                          </Text>
-                          <TouchableOpacity style={styles.flexDirectionRow} onPress={this.askClubOpen}>
-                          <Text style={styles.numberext}>{open ? '公開' : '非公開'}</Text>
-                          <Image source={require('../../images/exchange.png')}
-                              style={styles.iconPancil} />
-                      </TouchableOpacity>
+                            <View style={styles.clubLeftTextView}>
+                                <Text style={styles.schoolText}>{schoolName}</Text>
+                                <Text style={styles.clubTopNameText}>{clubName}</Text>
+                            </View>
+                            <View style={styles.clubRightTextView}>
+                                <View style={{ flexDirection: "row" }}>
+                                    <Text style={styles.numberext}>
+                                        {numberOfMember}
+                                        位成員
+                                    </Text>
+                                    <TouchableOpacity style={[styles.flexDirectionRow,]} onPress={this.askClubOpen}>
+                                        <Text style={{fontSize: 14, color: '#ffffff'}}>{open ? '公開' : '非公開'}</Text>
+                                        <Image source={require('../../images/exchange.png')}
+                                            style={styles.iconPancil} />
+                                    </TouchableOpacity>
+                                </View>
+                                <Text style={styles.numberext}>
+                                    你的身分：
+                                    {statusChinese}
+                                </Text>
+                            </View>
                         </View>
-                        <Text style={styles.numberext}>
-                          你的身分：
-                          {statusChinese}
-                        </Text>
-                      </View>
-                    </View>
                     </ImageBackground>
 
                     {/* <View style={styles.adminButtonView}>
@@ -166,11 +168,11 @@ class ClubAdmin extends React.Component {
                         <Button title='文章管理' onPress={() => { }} />
                         <Button title='活動管理' onPress={() => { }} />
                     </View> */}
+
+                    {this.state.loading ? <Overlayer /> : null}
+                    </KeyboardAvoidingView>
                 </ScrollView>
-               
-                <KeyboardAvoidingView behavior="padding">
-                </KeyboardAvoidingView>
-                {this.state.loading ? <Overlayer /> : null}
+            
             </View>
         );
     }

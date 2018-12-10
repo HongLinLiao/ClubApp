@@ -1,10 +1,13 @@
-import { 
+import {
     GET_ACTIVITYLIST,
     GET_ACTIVITY,
     GET_SETACTIVITYLIST,
     GET_SETACTIVITY,
-    CLEAR_ACTIVITY 
 } from '../actions/ActivityAction'
+
+import {
+    CLEAR_USER_STATE
+} from '../actions/UserAction'
 
 const initialState = {
     activityList: {},//每個tab活動列
@@ -34,8 +37,14 @@ export const activityReducer = (state = initialState, action) => {
                 ...state,
                 setActivity: action.setActivity
             }
-        case CLEAR_ACTIVITY:
-            return initialState
+        case CLEAR_USER_STATE:
+            return {
+                ...state,
+                activityList: {},
+                activity: {},
+                setActivityList: {},
+                setActivity: {},
+            }
         default:
             return state
     }

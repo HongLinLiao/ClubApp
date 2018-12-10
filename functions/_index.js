@@ -55,12 +55,18 @@ exports.notifyToClubMember = functions.https.onCall(async (data, context) => {
             const userSnapshot = await userRef.once('value')
             const settingSnapshot = await settingRef.once('value')
 
-            const { expoToken } = userSnapshot.val()
-            const { globalNotification, clubNotificationList, nightModeNotification } = settingSnapshot.val()
-            const hours = new Date().getHours()
-            const nightMode = nightModeNotification ? (hours >= 21) : false
+            const { expoToken, timezoneOffset } = userSnapshot.val()
+            const { globalNotification, clubNotificationList, nightModeNotification, nightModeStart, nightModeEnd } = settingSnapshot.val()
 
-            if (expoToken && globalNotification && clubNotificationList[cid].on && !nightMode) {
+            let nightMode;
+            if (nightModeNotification) {
+                nightMode = convertZoneTime(nightModeStart, nightModeEnd, timezoneOffset);
+            }
+            else {
+                nightMode = true;
+            }
+
+            if (expoToken && globalNotification && clubNotificationList[cid].on && nightMode) {
                 messages.push({
                     "to": expoToken,
                     title,
@@ -656,7 +662,7 @@ exports.setCommentFavorite = functions.https.onCall(async (data, context) => {
                             }
                             await updateCommentFavorites(clubKey, postKey, commentKey, updateFavorites);
                             if (notifyStatus) {
-                                const userData = await getUserData(commentData[commentKey].commenter);
+                                const userData = await getUserData(uid);
                                 if (userData) {
                                     let title = `${userData.nickName} 說你在 ${post.schoolName}${post.clubName} 留言讚！`;
                                     let userList = {};
@@ -1562,15 +1568,20 @@ const notifyToPostParticipants = async (clubKey, postKey, post, title, body) => 
         const promises = Object.keys(userList).map(async (uid) => {
             const userRef = admin.database().ref('users').child(uid);
             const userSnapshot = await userRef.once('value');
-            const { expoToken } = userSnapshot.val();
+            const { expoToken, timezoneOffset } = userSnapshot.val();
             const settingRef = admin.database().ref('userSettings').child(uid);
             const settingSnapshot = await settingRef.once('value');
-            const { globalNotification, clubNotificationList, nightModeNotification } = settingSnapshot.val();
+            const { globalNotification, clubNotificationList, nightModeNotification, nightModeStart, nightModeEnd } = settingSnapshot.val();
 
-            const hours = new Date().getHours()
-            const nightMode = nightModeNotification ? (hours >= 21) : false
+            let nightMode;
+            if (nightModeNotification) {
+                nightMode = convertZoneTime(nightModeStart, nightModeEnd, timezoneOffset);
+            }
+            else {
+                nightMode = true;
+            }
 
-            if (expoToken && globalNotification && !nightMode) {
+            if (expoToken && globalNotification && nightMode) {
                 messages.push({
                     "to": expoToken,
                     title,
@@ -1597,15 +1608,20 @@ const notifyToUser = async (userList, title, body) => {
         const promises = Object.keys(userList).map(async (uid) => {
             const userRef = admin.database().ref('users').child(uid);
             const userSnapshot = await userRef.once('value');
-            const { expoToken } = userSnapshot.val();
+            const { expoToken, timezoneOffset } = userSnapshot.val();
             const settingRef = admin.database().ref('userSettings').child(uid);
             const settingSnapshot = await settingRef.once('value');
-            const { globalNotification, clubNotificationList, nightModeNotification } = settingSnapshot.val();
+            const { globalNotification, clubNotificationList, nightModeNotification, nightModeStart, nightModeEnd } = settingSnapshot.val();
 
-            const hours = new Date().getHours()
-            const nightMode = nightModeNotification ? (hours >= 21) : false
+            let nightMode;
+            if (nightModeNotification) {
+                nightMode = convertZoneTime(nightModeStart, nightModeEnd, timezoneOffset);
+            }
+            else {
+                nightMode = true;
+            }
 
-            if (expoToken && globalNotification && !nightMode) {
+            if (expoToken && globalNotification && nightMode) {
                 if (body) {
                     messages.push({
                         "to": expoToken,
@@ -1643,6 +1659,61 @@ const expoSend = async (messages) => {
             },
             body: JSON.stringify(messages)
         })
+    }
+    catch (error) {
+        throw error;
+    }
+}
+
+//轉換時區
+const convertZoneTime = (start, end, timeZone) => {
+    try {
+        if (timeZone != false) {
+            let dbHour = new Date().getHours();
+            let dbMin = new Date().getMinutes();
+
+            let dbAllMin = dbHour * 60 + dbMin; //資料庫時區全部轉分鐘
+            let standardAllMin = dbAllMin + new Date().getTimezoneOffset(); //轉成標準時間
+
+            let localAllMin = standardAllMin - timeZone; //當地標準時間分鐘數
+            let localHour;
+            //同一天
+            if (localAllMin >= 0) {
+                localHour = localAllMin / 60;
+            }
+            //慢一天
+            else {
+                localHour = (1440 + localAllMin) / 60;
+            }
+            if (start == 24) {
+                start = 0;
+            }
+            //跨過24點
+            if (start > end) {
+                if (localHour < start) {
+                    if (localHour > end) {
+                        return true;
+                    }
+                    else {
+                        return false;
+                    }
+                }
+                else if (localHour > start) {
+                    return false;
+                }
+            }
+            else {
+                if (localHour < start || localHour > end) {
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            }
+        }
+        else {
+            return true; //沒timeZone照發文
+        }
     }
     catch (error) {
         throw error;
@@ -2003,8 +2074,6 @@ const updateActivityKeeps = async (clubKey, activityKey, updateKeeps) => {
 const updateUserKeeps = async (clubKey, activityKey, updateKeeps) => {
     try {
         const uid = Object.keys(updateKeeps)[0];
-        console.log('hah');
-        console.log(updateKeeps);
         let keepRef;
         if (updateKeeps[uid] == false) {
             keepRef = admin.database().ref('users/' + uid + '/activities/');

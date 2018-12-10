@@ -95,7 +95,9 @@ class Login extends React.Component{
         <View style={{flex:1}}>
           <View style={styles.container}>
           
-            <View style={styles.logo}></View>
+            <View style={styles.logo}>
+              <Image style={{width: 80, height: 80, opacity: 0.6}} source={require('../../images/logo.png')} resizeMode='contain'/>
+            </View>
             
             <View style={[styles.mail,{ backgroundColor: this.state.emailBgColor} ]}>
               

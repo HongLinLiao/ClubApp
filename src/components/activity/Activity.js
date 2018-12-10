@@ -10,9 +10,12 @@ import { Location, DangerZone } from 'expo'
 import Overlayer from '../common/Overlayer'
 import Modal from 'react-native-modalbox';
 import PopupDialog, { SlideAnimation } from 'react-native-popup-dialog';
+import UserDialog from '../common/UserDialog'
+import UserListDialog from '../common/UserListDialog'
 import PlaceDialog from '../common/PlaceDialog';
 import { autocompletePlace, geocodingPlaceId, test } from '../../modules/Api'
 import { convertDateFormat } from '../../modules/Common'
+import { getUserData, getClubData } from '../../modules/Data'
 
 const slideAnimation = new SlideAnimation({
     slideFrom: 'bottom',
@@ -47,6 +50,9 @@ class Activity extends React.Component {
         region: null,
         loading: false,
         refreshing: false,
+        userData: { uid: null, user: null, clubs: null },
+        userList: { keyList: {}, dataList: [], classification: '' },
+        keyboardAvoid: true,
 
         editLoading: false,
         location: null,
@@ -159,6 +165,10 @@ class Activity extends React.Component {
             this.activityOverLayar();
             navigation.goBack();
         }
+    }
+
+    cancelKeyboard = () => {
+        this.setState({ keyboardAvoid: !this.state.keyboardAvoid })
     }
 
     //點讚
@@ -387,12 +397,67 @@ class Activity extends React.Component {
         }
     }
 
+    showUser = async (uid) => {
+        try {
+            this.popupDialog.show(async () => {
+                this.setState({ loading: true, userData: { uid: null, user: null, clubs: null } })
+                const userData = { uid, user: {}, clubs: {} }
+                const user = await getUserData(uid)
+
+                if (user.joinClub) {
+                    const promises = Object.keys(user.joinClub).map(async (cid) => {
+                        const club = await getClubData(cid)
+                        userData.clubs[cid] = club
+                    })
+
+                    await Promise.all(promises)
+                }
+
+                userData.user = user
+
+                this.setState({ userData, loading: false })
+            });
+        } catch (e) {
+            Alert.alert(e.toString())
+        }
+
+    }
+
+    showUserList = async (userList, classification) => {
+        try {
+            this.userList.show(async () => {
+                this.setState({ loading: true, userList: { keyList: userList, dataList: [], classification: '' } })
+
+                let userData = [];
+                let userKeyList = Object.keys(userList);
+                if (userKeyList.length > 0) {
+                    for (let i = 0; i < userKeyList.length; i++) {
+                        let uid = userKeyList[i];
+                        let user = await getUserData(uid);
+                        if (user) {
+                            let obj = {};
+                            obj.nickName = user.nickName;
+                            obj.photoUrl = user.photoUrl;
+                            obj.uid = uid;
+                            userData.push(obj);
+                        }
+                    }
+                }
+                this.setState({ userList: { keyList: userList, dataList: userData, classification: classification }, loading: false })
+            });
+        } catch (error) {
+            Alert.alert(error.toString())
+        }
+    }
+
 
 
     render() {
         const dateArray = this.getDateTime()
         const element = JSON.parse(JSON.stringify(this.state.activity));
-        const { location } = element
+        const { location } = element;
+        const { uid, user, clubs } = this.state.userData;
+        const { keyList, dataList, classification } = this.state.userList;
 
         return (
 
@@ -425,52 +490,62 @@ class Activity extends React.Component {
                         </View>
 
                         <View style={styles.advancedView} >
-                            <TouchableOpacity onPress={async () =>
-                                await this.pressJoin(element.clubKey, element.activityKey)}>
+                            <TouchableOpacity
+                                onLongPress={() => { this.showUserList(element.joins, 'joins'); }}
+                                onPress={async () =>
+                                    await this.pressJoin(element.clubKey, element.activityKey)}>
                                 <View>
-                                    <View style={{ flexDirection: 'row' }}>
+                                    <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
                                         <Image
                                             style={styles.collect}
                                             source={element.statusJoin ? require("../../images/join-yellow.png") : require("../../images/join-gray.png")}
                                         />
-                                        <Text style={{ marginTop: 13, marginLeft: 3, fontSize: 12, color: element.statusJoin ? "#f6b456" : "#666666" }}>{element.numJoins}</Text>
+                                        <Text style={{ fontSize: 12, color: element.statusJoin ? "#f6b456" : "#666666" }}>{element.numJoins}</Text>
                                     </View>
                                     <Text style={[styles.advancedViewText, { color: element.statusJoin ? '#f6b456' : "#666666" }]}>參加</Text>
                                 </View>
                             </TouchableOpacity>
-                            <TouchableOpacity onPress={async () =>
-                                await this.pressKeep(element)}>
+                            <TouchableOpacity
+                                onPress={async () =>
+                                    await this.pressKeep(element)}>
                                 <View>
-                                    <Image
-                                        style={styles.collect}
-                                        source={element.statusKeep ? require("../../images/bookmark-yellow.png") : require("../../images/bookmark-gray.png")}
-                                    />
+                                    <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
+                                        <Image
+                                            style={styles.collect}
+                                            source={element.statusKeep ? require("../../images/bookmark-yellow.png") : require("../../images/bookmark-gray.png")}
+                                        />
+                                    </View>
                                     <Text style={[styles.advancedViewText, { color: element.statusKeep ? '#f6b456' : "#666666" }]}>收藏</Text>
                                 </View>
                             </TouchableOpacity>
-                            <TouchableOpacity onPress={async () =>
-                                await this.pressFavorite(element.clubKey, element.activityKey)}>
+                            <TouchableOpacity
+                                onLongPress={() => { this.showUserList(element.favorites, 'favorites'); }}
+                                onPress={async () =>
+                                    await this.pressFavorite(element.clubKey, element.activityKey)}>
                                 <View>
-                                    <View style={{ flexDirection: 'row', justifyContent: 'space-around' }}>
+                                    <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
                                         <Image
                                             style={styles.collect}
                                             source={element.statusFavorite ? require("../../images/like-orange.png") : require("../../images/like-deepGray.png")}
                                         />
-                                        <Text style={{ marginTop: 13, fontSize: 12, color: element.statusFavorite ? "#f6b456" : "#666666" }}>{element.numFavorites}</Text>
+                                        <Text style={{ fontSize: 12, color: element.statusFavorite ? "#f6b456" : "#666666" }}>{element.numFavorites}</Text>
                                     </View>
                                     <Text style={[styles.advancedViewText, { color: element.statusFavorite ? '#f6b456' : "#666666" }]}>按讚</Text>
                                 </View>
                             </TouchableOpacity>
-                            <TouchableOpacity onPress={async () => {
-                                if (element.editStatus || element.deleteStatus) {
-                                    this.refs.advancedActivity.open();
-                                }
-                            }}>
+                            <TouchableOpacity
+                                onPress={async () => {
+                                    if (element.editStatus || element.deleteStatus) {
+                                        this.refs.advancedActivity.open();
+                                    }
+                                }}>
                                 <View>
-                                    <Image
-                                        style={styles.collect}
-                                        source={element.editStatus || element.deleteStatus ? require("../../images/setting-gray.png") : require("../../images/setting-light.png")}
-                                    />
+                                    <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
+                                        <Image
+                                            style={styles.collect}
+                                            source={element.editStatus || element.deleteStatus ? require("../../images/setting-gray.png") : require("../../images/setting-light.png")}
+                                        />
+                                    </View>
                                     <Text style={[styles.advancedViewText, { color: element.editStatus || element.deleteStatus ? "#666666" : "#DEDEDE" }]}>設定</Text>
                                 </View>
                             </TouchableOpacity>
@@ -519,13 +594,13 @@ class Activity extends React.Component {
                     <View style={styles.main}>
                         <View style={styles.divide}>
                             <Text style={styles.titleText}>活動內容</Text>
-                            <Text numberOfLines={2} ellipsizeMode='tail' style={styles.titleContentText}>{element.content}
+                            <Text style={styles.titleContentText}>{element.content}
                             </Text>
 
                         </View>
                         <View style={styles.divide}>
                             <Text style={styles.titleText}>備註</Text>
-                            <Text numberOfLines={2} ellipsizeMode='tail' style={styles.titleContentText}>{element.remarks}
+                            <Text style={styles.titleContentText}>{element.remarks}
                             </Text>
 
                         </View>
@@ -672,7 +747,7 @@ class Activity extends React.Component {
                             <TextInput
                                 defaultValue={element.content}
                                 multiline={true}
-                                style={{ fontSize: 15, marginTop: 5, color: '#666666', marginLeft: 10, marginRight: 10, borderBottomWidth: 0.5, borderColor: 'rgba(102,102,102,0.5)', }}
+                                style={{ fontSize: 15, marginTop: 5, color: '#666666', marginLeft: 10, marginRight: 10, borderBottomWidth: 0.5, borderColor: 'rgba(102,102,102,0.5)' }}
                                 underlineColorAndroid='transparent'
                                 onChangeText={content => this.setState({ content: content })}
                             />
@@ -742,11 +817,46 @@ class Activity extends React.Component {
                     >
                         <PlaceDialog
                             setPlace={this.setPlace.bind(this)}
+                            cancelKeyboard={this.cancelKeyboard.bind(this)}
                         />
 
                     </PopupDialog>
                     {this.state.editLoading ? <Overlayer /> : null}
                 </Modal>
+
+                {/* 顯示單一user */}
+                <PopupDialog
+                    ref={(popupDialog) => this.popupDialog = popupDialog}
+                    dialogAnimation={slideAnimation}
+                    width={0.7}
+                    height={0.7}
+                    dialogStyle={{ borderRadius: 20 }}
+                >
+                    <UserDialog
+                        uid={uid}
+                        user={user}
+                        clubs={clubs}
+                        loading={this.state.loading}
+                    />
+                </PopupDialog>
+
+                {/* user列表 */}
+                <PopupDialog
+                    ref={(userList) => this.userList = userList}
+                    dialogAnimation={slideAnimation}
+                    width={0.75}
+                    height={0.7}
+                    dialogStyle={{ borderRadius: 20 }}
+                >
+                    <UserListDialog
+                        keyList={keyList}
+                        dataList={dataList}
+                        loading={this.state.loading}
+                        showUser={this.showUser.bind(this)}
+                        closeList={() => { this.userList.dismiss(); }}
+                        classification={classification}
+                    />
+                </PopupDialog>
                 {this.state.loading ? <Overlayer /> : null}
             </View >
         )

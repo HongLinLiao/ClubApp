@@ -23,6 +23,7 @@ import PostListElement from "../post/PostListElement";
 import styles from "../../styles/club/Club";
 import PopupDialog, { SlideAnimation } from 'react-native-popup-dialog';
 import UserDialog from '../common/UserDialog'
+import UserListDialog from '../common/UserListDialog'
 
 const slideAnimation = new SlideAnimation({
   slideFrom: 'bottom',
@@ -33,6 +34,7 @@ class SearchClub extends React.Component {
     activity: [],
     post: [],
     userData: { _uid: null, _user: null, _clubs: null },
+    userList: { keyList: {}, dataList: [], classification: '' },
     loading: false,
     hasJoin: false,
     hasLike: false,
@@ -200,6 +202,33 @@ class SearchClub extends React.Component {
     }
   }
 
+  showUserList = async (userList, classification) => {
+    try {
+      this.userList.show(async () => {
+        this.setState({ loading: true, userList: { keyList: userList, dataList: [], classification: '' } })
+
+        let userData = [];
+        let userKeyList = Object.keys(userList);
+        if (userKeyList.length > 0) {
+          for (let i = 0; i < userKeyList.length; i++) {
+            let uid = userKeyList[i];
+            let user = await getUserData(uid);
+            if (user) {
+              let obj = {};
+              obj.nickName = user.nickName;
+              obj.photoUrl = user.photoUrl;
+              obj.uid = uid;
+              userData.push(obj);
+            }
+          }
+        }
+        this.setState({ userList: { keyList: userList, dataList: userData, classification: classification }, loading: false })
+      });
+    } catch (error) {
+      Alert.alert(error.toString())
+    }
+  }
+
   //過門
   clubOverLayar = () => {
     this.setState({ loading: !this.state.loading });
@@ -214,6 +243,7 @@ class SearchClub extends React.Component {
     const numberOfMember = Object.keys(member).length;
     const newPostList = this.state.post.slice();
     const newActivityList = this.state.activity.slice();
+    const { keyList, dataList, classification } = this.state.userList;
 
     return (
       <View style={{ flex: 1, backgroundColor: "#ffffff" }}>
@@ -231,15 +261,11 @@ class SearchClub extends React.Component {
               <View
                 style={{ position: "absolute", height: 400, width: "100%" }}
               >
-
-
                 <ImageBackground//可以了
                   source={{ uri: imgUrl ? imgUrl : 'https://upload.wikimedia.org/wikipedia/en/d/d3/No-picture.jpg' }}
                   resizeMode="cover"
                   style={styles.clubBackground}
                 >
-
-
                   <View style={styles.clubInfoView}>
                     <View style={styles.clubTextView}>
                       <View style={styles.clubLeftTextView}>
@@ -327,6 +353,7 @@ class SearchClub extends React.Component {
                               >
                                 <View style={styles.heartView}>
                                   <TouchableOpacity style={styles.heartView}
+                                    onLongPress={() => { this.showUserList(activity.favorites, 'favorites') }}
                                     onPress={async () => { await this.pressActivityFavorite(activity); }}>
                                     <Image
                                       style={styles.likeIcon}
@@ -366,6 +393,7 @@ class SearchClub extends React.Component {
                       getInsidePost={this.props.getInsidePost}
                       setPostFavorite={this.props.setPostFavorite}
                       showUser={this.showUser.bind(this)}
+                      showUserList={this.showUserList.bind(this)}
                       parentOverLayor={this.clubOverLayar}
                       syncPost={this.props.syncPost}
                       syncPostDelete={this.props.syncPostDelete}
@@ -395,6 +423,23 @@ class SearchClub extends React.Component {
             user={_user}
             clubs={_clubs}
             loading={this.state.loading}
+          />
+        </PopupDialog>
+        {/* user列表 */}
+        <PopupDialog
+          ref={(userList) => this.userList = userList}
+          dialogAnimation={slideAnimation}
+          width={0.75}
+          height={0.7}
+          dialogStyle={{ borderRadius: 20 }}
+        >
+          <UserListDialog
+            keyList={keyList}
+            dataList={dataList}
+            loading={this.state.loading}
+            showUser={this.showUser.bind(this)}
+            closeList={() => { this.userList.dismiss(); }}
+            classification={classification}
           />
         </PopupDialog>
         {this.state.loading ? <Overlayer /> : null}

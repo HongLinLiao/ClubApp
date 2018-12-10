@@ -84,11 +84,13 @@ export default StyleSheet.create({
         marginTop: 8
     },
     rowPaddingInput: {
+        flex:1,
         flexDirection: 'row',
         alignSelf: 'stretch',
         backgroundColor: 'rgba(246,180,86,1)',
         justifyContent: 'space-between',
         alignItems: 'center'
+        
     },
     columnTabBar: {
         flexDirection: 'column',

@@ -107,7 +107,7 @@ class ProfileSetting extends React.Component {
 
                         <View style={styles.two}>
                             <View style={styles.nameView}>
-                            <View style={styles.empty}></View>
+                                <View style={styles.empty}></View>
                                 <TextInput style={[styles.nameInput, { color: this.state.nameColor }]}  //state變數代姓名顏色
                                     placeholder='請輸入名字'
                                     placeholderTextColor={this.state.nameColor}
@@ -124,13 +124,13 @@ class ProfileSetting extends React.Component {
                             </View>
                             <View style={styles.row}>
                                 <Image style={styles.hotPoint}
-                                    source={require('../../images/point.png')} />
+                                    source={require('../../images/newstar.png')} />
                                 <Text style={styles.number}>{Object.keys(joinClub).length}</Text>
                             </View>
                         </View>
 
                         <View style={styles.aboutMeView}>
-                        <View style={styles.empty}></View>
+                            <View style={styles.empty}></View>
                             <TextInput style={[styles.aboutMeInput, { color: this.state.aboutColor }]}  //state變數代表自介顏色
                                 placeholder='請輸入自我介紹'
                                 multiline={true}
