@@ -76,14 +76,14 @@ export default StyleSheet.create({
         borderRadius: 20,
         justifyContent: 'center',
         alignItems: 'center',
-        margin: 10
-
+        margin: 10,
+        // flexDirection: 'row'
     },
     nameInput: {
-        width: 270,
         height: 35,
         fontSize: 15,
-        color: 'rgba(102,102,102,1)'
+        color: '#0d4273',
+        marginLeft: 15
     },
     row: {
 

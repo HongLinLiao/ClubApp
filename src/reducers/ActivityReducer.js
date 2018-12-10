@@ -38,7 +38,13 @@ export const activityReducer = (state = initialState, action) => {
                 setActivity: action.setActivity
             }
         case CLEAR_USER_STATE:
-            return initialState
+            return {
+                ...state,
+                activityList: {},
+                activity: {},
+                setActivityList: {},
+                setActivity: {},
+            }
         default:
             return state
     }

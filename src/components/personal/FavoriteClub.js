@@ -48,32 +48,42 @@ class FavoriteClub extends React.Component {
 
   render() {
     const { likeClubs } = this.props;
-    return (
-      <View style={styles.container}>
-        <ScrollView>
-          {Object.keys(likeClubs).map((cid, index) => {
-            const { clubName, schoolName } = likeClubs[cid];
-            return (
-              <View style={styles.listView} key={cid}>
-                <View style={styles.textArea}>
-                  <Text style={styles.school}>{schoolName}</Text>
-                  <Text style={styles.club}>{clubName}</Text>
+    if (Object.keys(likeClubs).length > 0) {
+      return (
+        <View style={styles.container}>
+          <ScrollView>
+            {Object.keys(likeClubs).map((cid, index) => {
+              const { clubName, schoolName } = likeClubs[cid];
+              return (
+                <View style={styles.listView} key={cid}>
+                  <View style={styles.textArea}>
+                    <Text style={styles.school}>{schoolName}</Text>
+                    <Text style={styles.club}>{clubName}</Text>
+                  </View>
+                  <View>
+                    <TouchableOpacity onPress={() => this.dislike(cid)}>
+                      <Image
+                        source={require("../../images/garbage.png")}
+                        style={styles.garbageIcon}
+                      />
+                    </TouchableOpacity>
+                  </View>
                 </View>
-                <View>
-                  <TouchableOpacity onPress={() => this.dislike(cid)}>
-                    <Image
-                      source={require("../../images/garbage.png")}
-                      style={styles.garbageIcon}
-                    />
-                  </TouchableOpacity>
-                </View>
-              </View>
-            );
-          })}
-        </ScrollView>
-        {this.state.loading ? <Overlayer /> : null}
-      </View>
-    );
+              );
+            })}
+          </ScrollView>
+          {this.state.loading ? <Overlayer /> : null}
+        </View>
+      );
+    }
+    else {
+      return (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <Text style={{ fontSize: 23, color: '#666666' }}>你還沒有收藏任何社團唷！</Text>
+        </View>
+      );
+    }
+
   }
 }
 

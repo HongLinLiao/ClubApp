@@ -146,10 +146,16 @@ class ClubAdmin extends React.Component {
                             <View style={styles.adminIcon} >
                                 <Image source={require('../../images/changeMember-gray.png')}
                                     style={styles.adminIcon} />
+                                <Text style={styles.adminText}>切換管理者</Text>
                             </View>
-                            <Text style={styles.adminText}>編輯成員</Text>
-                        </View>
-                    </View> */}
+                            <View style={styles.adminButton}>
+                                <View style={styles.adminIcon} >
+                                    <Image source={require('../../images/changeMember-gray.png')}
+                                        style={styles.adminIcon} />
+                                </View>
+                                <Text style={styles.adminText}>編輯成員</Text>
+                            </View>
+                        </View> */}
                 <View style={styles.titleTextView}>
                     <Text style={styles.titleText}>社團簡介</Text>
                 </View>
