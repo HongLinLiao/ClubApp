@@ -111,16 +111,16 @@ class ClubAdmin extends React.Component {
                                     <Text style={styles.numberext}>
                                         {numberOfMember}
                                         位成員
-                          </Text>
-                                    <TouchableOpacity style={styles.flexDirectionRow} onPress={this.askClubOpen}>
-                                        <Text style={styles.numberext}>{open ? '公開' : '非公開'}</Text>
+                                    </Text>
+                                    <TouchableOpacity style={[styles.flexDirectionRow,]} onPress={this.askClubOpen}>
+                                        <Text style={{fontSize: 14, color: '#ffffff'}}>{open ? '公開' : '非公開'}</Text>
                                         <Image source={require('../../images/exchange.png')}
                                             style={styles.iconPancil} />
                                     </TouchableOpacity>
                                 </View>
                                 <Text style={styles.numberext}>
                                     你的身分：
-                          {statusChinese}
+                                    {statusChinese}
                                 </Text>
                             </View>
                         </View>
