@@ -246,7 +246,7 @@ class AddActivity extends React.Component {
         const { status } = member[user.uid]
 
         return (
-            <KeyboardAvoidingView behavior="position" enable={this.state.keyboardAvoid}>
+            <KeyboardAvoidingView behavior="position" enabled={this.state.keyboardAvoid}>
                 <ScrollView>
                     <TouchableOpacity style={styles.image} onPress={this.pickPicture}>
                         {
