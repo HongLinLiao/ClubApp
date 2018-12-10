@@ -312,6 +312,7 @@ class AddActivity extends React.Component {
                             <Image source={require('../../images/place.png')}
                                 style={styles.calendarIcon} />
                             <View style={styles.littleTextView}>
+
                                 <TextInput
                                     style={[styles.littleText]}
                                     placeholder='可以輸入活動地點'
@@ -320,13 +321,16 @@ class AddActivity extends React.Component {
                                     onChangeText={place => this.setState({ place })}
                                     defaultValue={this.state.tempPlace}
                                 />
+
                             </View>
                         </View>
                         <View style={[styles.row, { flex: 1, paddingTop: 10 }]}>
-                            <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center' }} onPress={() => this.popupDialog.show()}>
+
+                            <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center',justifyContent: 'center' }} onPress={() => this.popupDialog.show()}>
                                 <Text style={{ color: '#0d4273', marginRight: 5 }}>搜尋地點</Text>
                                 <Image source={require('../../images/search.png')} style={styles.searchIcon} />
                             </TouchableOpacity>
+
                         </View>
                         {
                             this.state.showMap ? (

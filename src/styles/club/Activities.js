@@ -173,7 +173,8 @@ export default StyleSheet.create({
   },
   advancedViewText:{
     marginTop: 3,
-    fontSize: 13
+    fontSize: 13,
+    marginBottom:8,
   },
   advancedActivityBtn: {
     backgroundColor: 'rgba(246,180,86,1)',
