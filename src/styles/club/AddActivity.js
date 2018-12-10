@@ -10,7 +10,7 @@ export default StyleSheet.create({
     main: {
         flex: 1,
         justifyContent: 'center',
-        
+        backgroundColor: 'white'
     },
     headView: {
         alignSelf: 'stretch',
@@ -72,7 +72,6 @@ export default StyleSheet.create({
     nameView: {
         width: 300,
         height: 35,
-        backgroundColor: 'rgba(102,102,102,0.2)',
         borderRadius: 20,
         justifyContent: 'center',
         alignItems: 'center',
