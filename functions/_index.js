@@ -662,7 +662,7 @@ exports.setCommentFavorite = functions.https.onCall(async (data, context) => {
                             }
                             await updateCommentFavorites(clubKey, postKey, commentKey, updateFavorites);
                             if (notifyStatus) {
-                                const userData = await getUserData(commentData[commentKey].commenter);
+                                const userData = await getUserData(uid);
                                 if (userData) {
                                     let title = `${userData.nickName} 說你在 ${post.schoolName}${post.clubName} 留言讚！`;
                                     let userList = {};
@@ -1620,7 +1620,6 @@ const notifyToUser = async (userList, title, body) => {
             else {
                 nightMode = true;
             }
-            console.log(nightMode);
 
             if (expoToken && globalNotification && nightMode) {
                 if (body) {

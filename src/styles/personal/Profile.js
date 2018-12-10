@@ -37,13 +37,15 @@ export default StyleSheet.create({
         alignItems:'center'
     },
     hotPoint: {
-        height: 20,
-        width: 20,
-        marginRight: 3
+        height: 16,
+        width: 16,
+        marginRight: 3,
+        marginBottom:6,
     },
     number: {
         color: '#666666',
-        fontSize: 15
+        fontSize: 15,
+        marginBottom:6,
     },
     aboutMe: {
         marginLeft:50,

@@ -61,6 +61,7 @@ class Comment extends React.Component {
                                         </View>
                                         <View style={styles.row}>
                                             <TouchableOpacity style={{ flexDirection: 'row' }}
+                                                onLongPress={() => { this.props.showUserList(element.favorites, 'favorites') }}
                                                 onPress={async () =>
                                                     await this.pressFavorite(element.clubKey, element.postKey, element.commentKey)
                                                 }>
