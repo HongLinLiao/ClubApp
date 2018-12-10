@@ -495,12 +495,12 @@ class Activity extends React.Component {
                                 onPress={async () =>
                                     await this.pressJoin(element.clubKey, element.activityKey)}>
                                 <View>
-                                    <View style={{ flexDirection: 'row' }}>
+                                    <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
                                         <Image
                                             style={styles.collect}
                                             source={element.statusJoin ? require("../../images/join-yellow.png") : require("../../images/join-gray.png")}
                                         />
-                                        <Text style={{ marginTop: 13, marginLeft: 3, fontSize: 12, color: element.statusJoin ? "#f6b456" : "#666666" }}>{element.numJoins}</Text>
+                                        <Text style={{ fontSize: 12, color: element.statusJoin ? "#f6b456" : "#666666" }}>{element.numJoins}</Text>
                                     </View>
                                     <Text style={[styles.advancedViewText, { color: element.statusJoin ? '#f6b456' : "#666666" }]}>參加</Text>
                                 </View>
@@ -509,10 +509,12 @@ class Activity extends React.Component {
                                 onPress={async () =>
                                     await this.pressKeep(element)}>
                                 <View>
-                                    <Image
-                                        style={styles.collect}
-                                        source={element.statusKeep ? require("../../images/bookmark-yellow.png") : require("../../images/bookmark-gray.png")}
-                                    />
+                                    <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
+                                        <Image
+                                            style={styles.collect}
+                                            source={element.statusKeep ? require("../../images/bookmark-yellow.png") : require("../../images/bookmark-gray.png")}
+                                        />
+                                    </View>
                                     <Text style={[styles.advancedViewText, { color: element.statusKeep ? '#f6b456' : "#666666" }]}>收藏</Text>
                                 </View>
                             </TouchableOpacity>
@@ -521,26 +523,29 @@ class Activity extends React.Component {
                                 onPress={async () =>
                                     await this.pressFavorite(element.clubKey, element.activityKey)}>
                                 <View>
-                                    <View style={{ flexDirection: 'row', justifyContent: 'space-around' }}>
+                                    <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
                                         <Image
                                             style={styles.collect}
                                             source={element.statusFavorite ? require("../../images/like-orange.png") : require("../../images/like-deepGray.png")}
                                         />
-                                        <Text style={{ marginTop: 13, fontSize: 12, color: element.statusFavorite ? "#f6b456" : "#666666" }}>{element.numFavorites}</Text>
+                                        <Text style={{ fontSize: 12, color: element.statusFavorite ? "#f6b456" : "#666666" }}>{element.numFavorites}</Text>
                                     </View>
                                     <Text style={[styles.advancedViewText, { color: element.statusFavorite ? '#f6b456' : "#666666" }]}>按讚</Text>
                                 </View>
                             </TouchableOpacity>
-                            <TouchableOpacity onPress={async () => {
-                                if (element.editStatus || element.deleteStatus) {
-                                    this.refs.advancedActivity.open();
-                                }
-                            }}>
+                            <TouchableOpacity
+                                onPress={async () => {
+                                    if (element.editStatus || element.deleteStatus) {
+                                        this.refs.advancedActivity.open();
+                                    }
+                                }}>
                                 <View>
-                                    <Image
-                                        style={styles.collect}
-                                        source={element.editStatus || element.deleteStatus ? require("../../images/setting-gray.png") : require("../../images/setting-light.png")}
-                                    />
+                                    <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
+                                        <Image
+                                            style={styles.collect}
+                                            source={element.editStatus || element.deleteStatus ? require("../../images/setting-gray.png") : require("../../images/setting-light.png")}
+                                        />
+                                    </View>
                                     <Text style={[styles.advancedViewText, { color: element.editStatus || element.deleteStatus ? "#666666" : "#DEDEDE" }]}>設定</Text>
                                 </View>
                             </TouchableOpacity>
