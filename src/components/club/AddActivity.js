@@ -145,6 +145,7 @@ class AddActivity extends React.Component {
 
     }
 
+
     getDateTime = () => {
         const { startDateTime, endDateTime } = this.state
         const dateArray = [startDateTime, endDateTime]
@@ -245,7 +246,7 @@ class AddActivity extends React.Component {
         const { status } = member[user.uid]
 
         return (
-            <KeyboardAvoidingView behavior="position">
+            <KeyboardAvoidingView behavior="position" enable={this.state.keyboardAvoid}>
                 <ScrollView>
                     <TouchableOpacity style={styles.image} onPress={this.pickPicture}>
                         {
@@ -272,40 +273,13 @@ class AddActivity extends React.Component {
                     <View style={styles.main}>
                         <View style={{ alignItems: 'center', justifyContent: 'center', paddingTop: 10, flex: 1 }}>
                             <View style={styles.nameView}>
-                                <ListItem
-                                    switch={{
-                                        value: this.state.open,
-                                        onValueChange: () => this.setState({ open: !this.state.open }),
-                                        style: { transform: [{ scaleX: 1 }, { scaleY: 1 }] },
-                                        onTintColor: 'rgba(246,180,86,1)',
-                                        tintColor: 'rgba(246,180,86,0.1)',
-                                        thumbTintColor: 'white'
-                                    }}
-                                    leftElement={
-                                        <View style={{ width: 250, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', }}>
-                                            <View style={{
-                                                borderRadius: 20,
-                                                backgroundColor: 'rgba(246, 180, 86, 0.2)',
-                                                flex: 6,
-                                            }}>
-                                                <TextInput
-                                                    style={styles.nameInput}
-                                                    placeholder='活動名稱'
-                                                    placeholderTextColor='rgba(102,102,102,0.5)'
-                                                    underlineColorAndroid={'transparent'}
-                                                    multiline={false}
-                                                    onChangeText={title => this.setState({ title })}
-                                                />
-                                            </View>
-                                            <Text style={{
-                                                color: 'rgba(13, 66, 115, 0.3)',
-                                                fontSize: 15,
-                                                flex: 1,
-                                                marginLeft: 15
-                                            }}>{this.state.open ? "活動公開" : "活動隱藏"}</Text>
-                                        </View>
-
-                                    }
+                                <TextInput
+                                    style={styles.nameInput}
+                                    placeholder='活動名稱'
+                                    placeholderTextColor='rgba(102,102,102,1)'
+                                    underlineColorAndroid={'transparent'}
+                                    multiline={false}
+                                    onChangeText={title => this.setState({ title })}
                                 />
                             </View>
                             <View style={[styles.row, { flex: 1, paddingTop: 10 }]}>
@@ -344,7 +318,6 @@ class AddActivity extends React.Component {
                             <Image source={require('../../images/place.png')}
                                 style={styles.calendarIcon} />
                             <View style={styles.littleTextView}>
-
                                 <TextInput
                                     style={[styles.littleText]}
                                     placeholder='可以輸入活動地點'
@@ -353,16 +326,13 @@ class AddActivity extends React.Component {
                                     onChangeText={place => this.setState({ place })}
                                     defaultValue={this.state.tempPlace}
                                 />
-
                             </View>
                         </View>
                         <View style={[styles.row, { flex: 1, paddingTop: 10 }]}>
-
-                            <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center',justifyContent: 'center' }} onPress={() => this.popupDialog.show()}>
+                            <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center' }} onPress={() => this.popupDialog.show()}>
                                 <Text style={{ color: '#0d4273', marginRight: 5 }}>搜尋地點</Text>
                                 <Image source={require('../../images/search.png')} style={styles.searchIcon} />
                             </TouchableOpacity>
-
                         </View>
                         {
                             this.state.showMap ? (
@@ -434,6 +404,7 @@ class AddActivity extends React.Component {
                         dialogStyle={{ borderRadius: 10 }}
                     >
                         <PlaceDialog
+                            cancelKeyboard={this.cancelKeyboard.bind(this)}
                             setPlace={this.setPlace.bind(this)}
                         />
 
@@ -443,6 +414,7 @@ class AddActivity extends React.Component {
                 </ScrollView>
             </KeyboardAvoidingView>
         );
+
     }
 
 }
