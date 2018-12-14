@@ -479,7 +479,7 @@ class Activity extends React.Component {
                                 style={styles.clubBackground} />
                         </View>
                     </View>
-                    <View style={styles.main}>
+                    <View style={[styles.main, {marginBottom: 20}]}>
                         <View style={styles.main}>
                             <View style={[styles.clubTextView, { flex: 1 }]}>
                                 <Text style={styles.schoolText}>{element.schoolName}    {element.clubName}</Text>
