@@ -69,11 +69,11 @@ class EmailVerify extends React.Component{
       >
         <Text style={styles.loginText}>驗證</Text>
       </TouchableOpacity>
-      <TouchableOpacity
+      {/* <TouchableOpacity
         onPress={this.dontAsk}
       >
         <Text style={styles.backText}>稍後驗證</Text>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
       <KeyboardAvoidingView behavior='padding'>
       </KeyboardAvoidingView> 
     </View>
