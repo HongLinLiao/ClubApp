@@ -173,19 +173,22 @@ class Analysis extends React.Component {
                             <VictoryAxis                               
                                 style={{
                                     axis: {stroke: "#f6b456"},
-                                    axisLabel: {fontSize: 20, padding: 30},
+                                    axisLabel: {fontSize: 15, padding: 30 , fill: '#f6b456'},
                                     grid: {stroke: null},
                                     ticks: {stroke: "#f6b456", size: 5},
                                     tickLabels: {fontSize: 15, padding: 5, fill: '#f6b456'}
                                 }}
+                                label="社團"
                                 tickFormat={(t) => Math.round(t)}
                                 tickValues={this.state.tickValues}
                             />
                             <VictoryAxis
+                                label="活躍度"
                                 dependentAxis
                                 style={{
                                     grid: {stroke: null},
                                     axis: {stroke: "#f6b456"},
+                                    axisLabel: {fontSize: 15, padding: 30 , fill: '#f6b456'},
                                     ticks: {stroke: "#f6b456", size: 5},
                                     tickLabels: {fontSize: 15, padding: 5, fill: '#f6b456'}
                                 }}

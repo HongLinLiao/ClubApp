@@ -63,9 +63,9 @@ class NickName extends React.Component{
           >
             <Text style={styles.okText}>確認</Text>
           </TouchableOpacity>
-          <TouchableOpacity>
+          {/* <TouchableOpacity>
             <Text style={styles.backText}>返回</Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
           <KeyboardAvoidingView behavior='padding'>
           </KeyboardAvoidingView> 
         </View>
