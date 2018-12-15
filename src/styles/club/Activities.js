@@ -113,8 +113,7 @@ export default StyleSheet.create({
   },
   titleContentText: {
     fontSize: 17,
-    color: 'rgb(102, 102, 102)',
-
+    color: '#AAAAAA',
     lineHeight: 25,
   },
   divide: {

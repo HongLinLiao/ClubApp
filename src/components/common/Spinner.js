@@ -10,7 +10,7 @@ const defaultProps = {
 
 const Spinner = ({ size }) => (
   <View style={styles.spinnerStyle}>
-    <Image style={{width: 125, height: 300}} source={require('../../images/logo2.png')}/>
+    <Image style={{width: 130, height: 250}} source={require('../../images/logo2.png')}/>
     
     <Text style={styles.textStyle2}>提供最優質的社團環境</Text>
     <ActivityIndicator size='large' color='#133d63'/>
