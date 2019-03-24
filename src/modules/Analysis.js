@@ -68,10 +68,10 @@ export const getPopularClubData = async (clubDataArray) => {
             let avgActivityFavorites = Math.round((totalActivityFavorites / activityCounts)*10)/10 || 0 //活動平均喜愛
 
             // let avgPostRank = Math.round(((totalPostViews + (totalPostFavorites * 2)) / postCounts)*10)/10 || 0 //貼文活躍度
-            let avgPostRank = avgPostViews + avgPostComments + avgPostFavorites //貼文活躍度
+            let avgPostRank = Math.round((avgPostViews + avgPostComments + avgPostFavorites)*10)/10 //貼文活躍度
             // let avgActivityRank = Math.round(((totalActivityViews + (totalActivityFavorites * 2)) / activityCounts)*10)/10 || 0 //活動活躍度
-            let avgActivityRank = avgActivityViews + avgActivityFavorites //活動活躍度
-            let popular = avgPostRank + avgActivityRank //社團活躍度
+            let avgActivityRank =  Math.round((avgActivityViews + avgActivityFavorites)*10)/10 //活動活躍度
+            let popular = Math.round((avgPostRank + avgActivityRank)*10)/10 //社團活躍度
 
             let clubData = {
                 postCounts,

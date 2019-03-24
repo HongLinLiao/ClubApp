@@ -4,3 +4,4 @@ functions/index.js
 .expo/*
 npm-debug.*
 .vscode
+src/firebaseConfig.js
